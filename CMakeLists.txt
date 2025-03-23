@@ -9,7 +9,10 @@ pkg_check_modules(LIBDRM REQUIRED libdrm)
 include_directories(${LVGL_INCLUDE_DIRS})
 link_directories(${LVGL_LIBRARY_DIRS})
 
-add_executable(terminal-ui terminal-ui.c)
+include_directories(include)
+file(GLOB_RECURSE SRC_FILES "src/*.c")
+
+add_executable(terminal-ui ${SRC_FILES})
 
 target_link_libraries(terminal-ui lvgl)
 target_link_libraries(terminal-ui ${LIBDRM_LIBRARIES})

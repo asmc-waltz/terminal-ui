@@ -1,8 +1,4 @@
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <lvgl.h>
+#include <terminal-ui.h>
 
 static void slider_event_cb(lv_event_t * e);
 static lv_obj_t * slider_label;
