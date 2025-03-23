@@ -58,6 +58,9 @@ int main(void) {
     bot_render_basement_bg();
     act_render_curve_bg();
 
+    top_layer_cfg();
+    top_render_keyboard();
+
     // lv_obj_t * slider = lv_slider_create(panel);
     // // lv_obj_center(slider);
     // lv_obj_align(slider,  LV_ALIGN_TOP_MID, 0, 0);
@@ -71,13 +74,6 @@ int main(void) {
     // lv_label_set_text(slider_label, "0%");
     //
     // lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-    //
-    //
-    //
-    // lv_obj_t * keyboard  = lv_keyboard_create(panel);
-    // lv_obj_set_size(keyboard, LV_PCT(100), LV_PCT(50));
-    // lv_obj_align(keyboard, LV_ALIGN_BOTTOM_MID, 0, 0);
-    // lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
 
     // sty_init_curve(&sty_curve);
     // scr_home(panel);
