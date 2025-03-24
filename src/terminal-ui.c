@@ -18,6 +18,18 @@ void slider_event_cb(lv_event_t * e)
     lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 
+static void button_event_handler(lv_event_t * e)
+{
+    lv_obj_t * btn = lv_event_get_target(e);  // Get the button object
+    LV_LOG_USER("Button was clicked!");
+
+    if (keyboard != NULL) {
+        top_delete_keyboard();
+    } else {
+        top_render_keyboard();
+    }
+}
+
 void scr_home(lv_obj_t *parent) {
     lv_obj_t * btn = lv_btn_create(parent);
     lv_obj_set_size(btn, 200, 200);
@@ -25,6 +37,7 @@ void scr_home(lv_obj_t *parent) {
 
     lv_obj_t * label = lv_label_create(btn);
     lv_label_set_text(label, LV_SYMBOL_WIFI " Wi-Fi");
+    lv_obj_add_event_cb(btn, button_event_handler,LV_EVENT_CLICKED, NULL);
 }
 
 int drm_display_init() {
@@ -59,7 +72,6 @@ int main(void) {
     act_render_curve_bg();
 
     top_layer_cfg();
-    top_render_keyboard();
 
     // lv_obj_t * slider = lv_slider_create(panel);
     // // lv_obj_center(slider);
@@ -75,8 +87,8 @@ int main(void) {
     //
     // lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 
-    // sty_init_curve(&sty_curve);
-    // scr_home(panel);
+    style_init_curve(&sty_curve);
+    scr_home(act_scr);
 
     while (1) {
         lv_task_handler();
