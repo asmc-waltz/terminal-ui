@@ -23,6 +23,7 @@ static void button_event_handler(lv_event_t * e)
     lv_obj_t * btn = lv_event_get_target(e);  // Get the button object
     LV_LOG_USER("Button was clicked!");
 
+    lv_obj_invalidate(act_scr);
     if (keyboard != NULL) {
         top_delete_keyboard();
     } else {
