@@ -62,14 +62,32 @@ int touch_screen_init() {
     return 0;
 }
 
+void my_timer(lv_timer_t * timer)
+{
+  /* Use the user_data */
+  // uint32_t * user_data = lv_timer_get_user_data(timer);
+  // printf("my_timer called with user data: %d\n", *user_data);
+  //
+  // /* Do something with LVGL */
+  // if(something_happened) {
+  //   something_happened = false;
+  //   lv_button_create(lv_screen_active());
+  // }
+    lv_tick_inc(5);
+
+}
+
+
+
 int main(void) {
     lv_init();
     drm_display_init();
     touch_screen_init();
  
+    render_curve_bg_bot_layer();
+
     active_layer_cfg();
-    bot_render_basement_bg();
-    act_render_curve_bg();
+    render_curve_bg_act_layer();
 
     top_layer_cfg();
 
@@ -90,10 +108,15 @@ int main(void) {
     style_init_curve(&sty_curve);
     scr_home(act_scr);
 
+
+    static uint32_t user_data = 10;
+    lv_timer_t * timer = lv_timer_create(my_timer, 5,  &user_data);
+    lv_timer_ready(timer);
+
     while (1) {
         lv_task_handler();
-        usleep(5000);
-        lv_tick_inc(5);
+        // usleep(5000);
+        // lv_tick_inc(5);
     }
 
     return 0;

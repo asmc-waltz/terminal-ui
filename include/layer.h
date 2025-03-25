@@ -11,6 +11,6 @@ void top_render_keyboard();
 void top_delete_keyboard();
 
 void active_layer_cfg();
-void act_render_curve_bg();
+void render_curve_bg_act_layer();
 
-void bot_render_basement_bg();
+void render_curve_bg_bot_layer();
