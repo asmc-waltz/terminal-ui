@@ -12,6 +12,7 @@ void top_render_keyboard() {
     lv_obj_set_size(keyboard, LV_PCT(95), LV_PCT(50));
     lv_obj_align(keyboard, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
+    lv_keyboard_set_popovers(keyboard, true);
 }
 
 void top_delete_keyboard() {
