@@ -25,10 +25,10 @@ static void button_event_handler(lv_event_t * e)
 
     lv_obj_invalidate(lv_screen_active());
     lv_obj_invalidate(lv_layer_bottom());
-    if (keyboard != NULL) {
-        top_delete_keyboard();
+    if (kb_visible) {
+        top_hidden_keyboard();
     } else {
-        top_render_keyboard();
+        top_show_keyboard();
     }
 }
 
@@ -110,6 +110,7 @@ int main(void) {
 
     style_init_curve(&sty_curve);
     scr_home(lv_screen_active());
+    top_keyboard_create();
 
 
     static uint32_t user_data = 10;
