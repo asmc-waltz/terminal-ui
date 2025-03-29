@@ -13,5 +13,6 @@ void top_show_keyboard();
 
 void active_layer_cfg();
 void render_curve_bg_act_layer();
+void lv_example_list_1(void);
 
 void render_curve_bg_bot_layer();

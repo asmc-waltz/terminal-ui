@@ -1,4 +1,4 @@
-#include <layer.h>
+#include <layers.h>
 
 void render_curve_bg_bot_layer() {
     lv_obj_t *bg_01 = lv_obj_create(lv_layer_bottom());

@@ -90,7 +90,7 @@ int main(void) {
     render_curve_bg_bot_layer();
 
     active_layer_cfg();
-    // render_curve_bg_act_layer();
+    render_curve_bg_act_layer();
 
     top_layer_cfg();
 
@@ -112,6 +112,7 @@ int main(void) {
     scr_home(lv_screen_active());
     top_keyboard_create();
 
+    lv_example_list_1();
 
     static uint32_t user_data = 10;
     lv_timer_t * timer = lv_timer_create(my_timer, 5,  &user_data);

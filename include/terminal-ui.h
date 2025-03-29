@@ -3,6 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <lvgl.h>
-#include "style.h"
-#include "layer.h"
+#include <style.h>
+#include <layers.h>
 
