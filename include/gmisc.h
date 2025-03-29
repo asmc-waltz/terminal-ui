@@ -1,5 +1,5 @@
 /**
- * @file layers.h
+ * @file gmisc.h
  *
  */
 
@@ -32,10 +32,11 @@
 /*=====================
  * Other functions
  *====================*/
-void top_layer_cfg();
-void active_layer_cfg();
+lv_obj_t * g_create_panel(lv_obj_t *parent, lv_style_t *sty, int32_t w, int32_t h);
+lv_obj_t * g_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h);
 
 /**********************
  *      MACROS
  **********************/
+
 

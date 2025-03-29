@@ -1,12 +1,12 @@
 /**
- * @file top.c
+ * @file gmisc.c
  *
  */
 
 /*********************
  *      INCLUDES
  *********************/
-#include <layers.h>
+#include <gmisc.h>
 
 /*********************
  *      DEFINES
@@ -39,7 +39,14 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void top_layer_cfg() {
-    lv_obj_set_style_bg_opa(lv_layer_top(), LV_OPA_TRANSP, LV_PART_MAIN);
+lv_obj_t * g_create_panel(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
+    lv_obj_t *bg = lv_obj_create(parent);
+    lv_obj_set_size(bg, w, h);
+    lv_obj_add_style(bg, style, 0);
+    return bg;
+}
+
+lv_obj_t * g_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
+    return g_create_panel(parent, style, w, h);
 }
 

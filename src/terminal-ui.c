@@ -18,31 +18,6 @@ void slider_event_cb(lv_event_t * e)
     lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 
-static void button_event_handler(lv_event_t * e)
-{
-    lv_obj_t * btn = lv_event_get_target(e);  // Get the button object
-    LV_LOG_USER("Button was clicked!");
-
-    lv_obj_invalidate(lv_screen_active());
-    lv_obj_invalidate(lv_layer_bottom());
-    if (kb_visible) {
-        top_hidden_keyboard();
-    } else {
-        top_show_keyboard();
-    }
-}
-
-void scr_home(lv_obj_t *parent) {
-    lv_obj_t * btn = lv_btn_create(parent);
-    lv_obj_set_size(btn, 200, 200);
-    lv_obj_add_style(btn, &sty_curve, 0);
-    lv_obj_set_pos(btn, 500, 100);
-
-    lv_obj_t * label = lv_label_create(btn);
-    lv_label_set_text(label, LV_SYMBOL_WIFI " Wi-Fi");
-    lv_obj_add_event_cb(btn, button_event_handler,LV_EVENT_CLICKED, NULL);
-}
-
 int drm_display_init() {
     drm_disp = lv_linux_drm_create();
     if (drm_disp == NULL) {
@@ -87,12 +62,17 @@ int main(void) {
     drm_display_init();
     touch_screen_init();
  
-    render_curve_bg_bot_layer();
-
+    // style init
+    style_curved_lines_init(&sty_curve);
+    // Initialize the layer
     active_layer_cfg();
-    render_curve_bg_act_layer();
-
     top_layer_cfg();
+
+    // Display the home screen
+    home_screen(&sty_curve);
+    // Initialize the default keyboard that will always be accessible on the top layer.
+    keyboard_create();
+
 
     // lv_obj_t * slider = lv_slider_create(panel);
     // // lv_obj_center(slider);
@@ -108,11 +88,13 @@ int main(void) {
     //
     // lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 
-    style_init_curve(&sty_curve);
-    scr_home(lv_screen_active());
-    top_keyboard_create();
 
-    lv_example_list_1();
+
+    // lv_example_list_1();
+
+
+
+
 
     static uint32_t user_data = 10;
     lv_timer_t * timer = lv_timer_create(my_timer, 5,  &user_data);
