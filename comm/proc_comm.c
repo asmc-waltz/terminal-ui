@@ -1,5 +1,5 @@
 /**
- * @file fs_comm.c
+ * @file proc_comm.c
  *
  */
 

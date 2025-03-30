@@ -14,6 +14,7 @@
 #include <style.h>
 #include <layers.h>
 #include <gmisc.h>
+#include <comm.h>
 
 /*********************
  *      DEFINES
