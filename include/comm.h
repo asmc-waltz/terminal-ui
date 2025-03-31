@@ -6,6 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdio.h>
+#include <stdbool.h>
 #include <lvgl.h>
 
 /*********************
