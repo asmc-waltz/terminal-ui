@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <screens.h>
+#include <style.h>
 
 /*********************
  *      DEFINES
@@ -70,12 +71,16 @@ static void btn_keyboard_handler(lv_event_t *e)
  **********************/
 void btn_setting(lv_obj_t *parent, lv_style_t *style) {
     lv_obj_t * btn = lv_btn_create(parent);
-    lv_obj_set_size(btn, 150, 50);
-    lv_obj_add_style(btn, style, 0);
+    lv_obj_set_size(btn, 79, 79);
+
     lv_obj_set_pos(btn, 700, 30);
 
     lv_obj_t * label = lv_label_create(btn);
-    lv_label_set_text(label, LV_SYMBOL_SETTINGS " Settings");
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4F8DFF), 0);
+    lv_obj_add_style(label, &icons_size_48, 0);
+    lv_obj_center(label);
+    lv_obj_set_size(label, 48, 48);
+    lv_label_set_text(label, "\xEF\x80\x93");
     lv_obj_add_event_cb(btn, btn_setting_handler,LV_EVENT_CLICKED, NULL);
 }
 
@@ -94,8 +99,8 @@ void btn_keyboard(lv_obj_t *parent, lv_style_t *style) {
 void home_screen(lv_style_t *style) {
     lv_obj_t * bg = g_create_background(lv_layer_bottom(), style, 1024, 600);
 
-     btn_setting(lv_screen_active(), style);
-     btn_keyboard(lv_screen_active(), style);
+    btn_setting(lv_screen_active(), style);
+    btn_keyboard(lv_screen_active(), style);
 
     return bg;
 }

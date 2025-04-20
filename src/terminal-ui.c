@@ -64,6 +64,10 @@ int main(void) {
  
     // style init
     style_curved_lines_init(&sty_curve);
+    icons_20_style_init();
+    icons_32_style_init();
+    icons_48_style_init();
+
     // Initialize the layer
     active_layer_cfg();
     top_layer_cfg();
