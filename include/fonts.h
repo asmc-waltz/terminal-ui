@@ -75,6 +75,7 @@
 #define VOLUME_OFF_SOLID 0xf026
 #define VOLUME_XMARK_SOLID 0xf6a9
 #define WIFI_SOLID 0xf1eb
+#define KEYBOARD 0xf11c
 
 /**********************
  *     ICONS
@@ -143,6 +144,7 @@
 #define ICON_VOLUME_OFF_SOLID                   "\xEF\x80\xA6"
 #define ICON_VOLUME_XMARK_SOLID                 "\xEF\x9A\xA9"
 #define ICON_WIFI_SOLID                         "\xEF\x87\xAB"
+#define ICON_KEYBOARD                           "\xEF\x84\x9C"
 
 /**********************
  *      TYPEDEFS
