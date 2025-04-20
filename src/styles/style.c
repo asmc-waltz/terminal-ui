@@ -1,9 +1,3 @@
-#include <style.h>
-
-
-
-
-
 /**
  * @file curved_lines.c
  *
@@ -13,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <style.h>
+#include <fonts.h>
 
 /*********************
  *      DEFINES
@@ -25,6 +20,9 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
+lv_style_t icons_size_20;
+lv_style_t icons_size_32;
+lv_style_t icons_size_48;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -69,3 +67,25 @@ void style_curved_lines_init(lv_style_t *sty) {
     lv_style_set_line_color(sty, lv_palette_main(LV_PALETTE_GREY));
     lv_style_set_line_width(sty, 1);
 }
+
+void icons_20_style_init(void)
+{
+    lv_style_init(&icons_size_20);
+    lv_style_set_text_font(&icons_size_20, &terminal_icons_20);
+    lv_style_set_text_color(&icons_size_20, lv_color_hex(0x00FF00));
+}
+
+void icons_32_style_init(void)
+{
+    lv_style_init(&icons_size_32);
+    lv_style_set_text_font(&icons_size_32, &terminal_icons_32);
+    lv_style_set_text_color(&icons_size_32, lv_color_hex(0x00FF00));
+}
+
+void icons_48_style_init(void)
+{
+    lv_style_init(&icons_size_48);
+    lv_style_set_text_font(&icons_size_48, &terminal_icons_48);
+    lv_style_set_text_color(&icons_size_48, lv_color_hex(0xffffff));
+}
+
