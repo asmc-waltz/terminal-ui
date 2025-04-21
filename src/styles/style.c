@@ -23,6 +23,7 @@
 lv_style_t icons_size_20;
 lv_style_t icons_size_32;
 lv_style_t icons_size_48;
+lv_style_t sts_bar_style;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -87,5 +88,25 @@ void icons_48_style_init(void)
     lv_style_init(&icons_size_48);
     lv_style_set_text_font(&icons_size_48, &terminal_icons_48);
     lv_style_set_text_color(&icons_size_48, lv_color_hex(0xffffff));
+}
+
+void status_bar_style_init(void)
+{
+    lv_style_init(&sts_bar_style);
+    lv_style_set_radius(&sts_bar_style, 20);
+    lv_style_set_bg_opa(&sts_bar_style, LV_OPA_TRANSP);
+    lv_style_set_bg_color(&sts_bar_style, lv_color_black());
+    lv_style_set_text_font(&sts_bar_style, &terminal_icons_32);
+    lv_style_set_text_color(&sts_bar_style, lv_color_black());
+    lv_style_set_border_color(&sts_bar_style, lv_color_hex(0x000000));
+    lv_style_set_border_width(&sts_bar_style, 0);
+    lv_style_set_border_post(&sts_bar_style, true);
+    lv_style_set_pad_all(&sts_bar_style, 0);
+    lv_style_set_shadow_color(&sts_bar_style, lv_color_hex(0x000000));
+    lv_style_set_shadow_width(&sts_bar_style, 0);
+    lv_style_set_shadow_spread(&sts_bar_style, 0);
+    lv_style_set_outline_color(&sts_bar_style, lv_color_hex(0x000000));
+    lv_style_set_outline_width(&sts_bar_style, 0);
+    lv_style_set_outline_pad(&sts_bar_style, 0);
 }
 

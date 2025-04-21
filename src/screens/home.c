@@ -104,8 +104,10 @@ void btn_keyboard(lv_obj_t *parent, lv_style_t *style) {
 void home_screen(lv_style_t *style) {
     lv_obj_t * bg = g_create_background(lv_layer_bottom(), style, 1024, 600);
 
-    btn_setting(lv_screen_active(), style);
-    btn_keyboard(lv_screen_active(), style);
+    // btn_setting(lv_screen_active(), style);
+    // btn_keyboard(lv_screen_active(), style);
+
+    g_create_status_bar(lv_screen_active());
 
     return bg;
 }

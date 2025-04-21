@@ -22,6 +22,7 @@
 extern lv_style_t icons_size_20;
 extern lv_style_t icons_size_32;
 extern lv_style_t icons_size_48;
+extern lv_style_t sts_bar_style;
 
 /**********************
  * GLOBAL PROTOTYPES
