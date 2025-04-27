@@ -68,6 +68,7 @@ int main(void) {
     icons_32_style_init();
     icons_48_style_init();
     status_bar_style_init();
+    task_bar_style_init();
 
     // Initialize the layer
     active_layer_cfg();
