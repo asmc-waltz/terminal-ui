@@ -21,7 +21,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-bool sv_taskbar_vis = false;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -42,11 +41,14 @@ static lv_obj_t *sp_taskbar;
 static void btn_phone_handler(lv_event_t *event)
 {
     lv_obj_t *btn_phone = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn_phone);
+    id_data *par_data = par->user_data;
+
     LV_LOG_USER("Button phone was clicked!");
     gf_refresh_all_layer();
 
-    if (sv_taskbar_vis)
-        gf_hide_taskbar();
+    if (par_data->visible)
+        gf_delete_taskbar();
 }
 
 static void btn_message_handler(lv_event_t *event)
@@ -55,8 +57,8 @@ static void btn_message_handler(lv_event_t *event)
     LV_LOG_USER("Button message was clicked!");
     gf_refresh_all_layer();
 
-    if (sv_taskbar_vis)
-        gf_hide_taskbar();
+    // if (sv_taskbar_vis)
+        // gf_hide_taskbar();
 }
 
 static void btn_toolbox_handler(lv_event_t *event)
@@ -65,8 +67,8 @@ static void btn_toolbox_handler(lv_event_t *event)
     LV_LOG_USER("Button tool box was clicked!");
     gf_refresh_all_layer();
 
-    if (sv_taskbar_vis)
-        gf_hide_taskbar();
+    // if (sv_taskbar_vis)
+        // gf_hide_taskbar();
 }
 
 static void btn_setting_handler(lv_event_t *event)
@@ -75,8 +77,8 @@ static void btn_setting_handler(lv_event_t *event)
     LV_LOG_USER("Button setting was clicked!");
     gf_refresh_all_layer();
 
-    if (sv_taskbar_vis)
-        gf_hide_taskbar();
+    // if (sv_taskbar_vis)
+        // gf_hide_taskbar();
 }
 
 static lv_obj_t * create_phone_icon(lv_obj_t *parent, lv_style_t *icon_style)
@@ -149,6 +151,8 @@ static lv_obj_t * create_setting_icon(lv_obj_t *parent, lv_style_t *icon_style)
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
 {
     sp_taskbar = lv_obj_create(parent);
+    id_data *id_taskbar_data = gf_init_user_data(sp_taskbar);
+    LV_ASSERT_NULL(id_taskbar_data);
 
     lv_obj_add_style(sp_taskbar, &task_bar_style, 0);
     lv_obj_set_style_flex_flow(sp_taskbar, LV_FLEX_FLOW_ROW, 0);
@@ -173,18 +177,24 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
 
 void gf_hide_taskbar(void)
 {
+    id_data *taskbar_data = sp_taskbar->user_data;
+
     lv_obj_add_flag(sp_taskbar, LV_OBJ_FLAG_HIDDEN);
-    sv_taskbar_vis = false;
+    taskbar_data->visible = false;
 }
 
 void gf_show_taskbar(void)
 {
+    id_data *taskbar_data = sp_taskbar->user_data;
+
     lv_obj_remove_flag(sp_taskbar, LV_OBJ_FLAG_HIDDEN);
-    sv_taskbar_vis = true;
+    taskbar_data->visible = true;
 }
 
 void gf_delete_taskbar(void)
 {
-    if(lv_obj_is_valid(sp_taskbar))
+    if(lv_obj_is_valid(sp_taskbar)) {
+        gf_free_user_data(sp_taskbar);
         lv_obj_delete(sp_taskbar);
+    }
 }

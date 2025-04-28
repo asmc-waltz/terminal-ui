@@ -67,3 +67,36 @@ void gf_refresh_all_layer(void)
     lv_obj_invalidate(lv_screen_active());
     lv_obj_invalidate(lv_layer_bottom());
 }
+
+id_data * gf_init_user_data(lv_obj_t *obj)
+{
+    LV_ASSERT_NULL(obj);
+    id_data *p_data = NULL;
+    p_data = lv_malloc_zeroed(sizeof(id_data));
+    LV_ASSERT_MALLOC(p_data);
+    lv_obj_set_user_data(obj, (void *)p_data);
+}
+
+void gf_free_user_data(lv_obj_t *obj)
+{
+    LV_ASSERT_NULL(obj);
+    id_data *p_data = obj->user_data;
+    lv_free(p_data);
+}
+
+char *gf_set_name(lv_obj_t *obj, char *name)
+{
+    LV_ASSERT_NULL(obj);
+    id_data *p_data = obj->user_data;
+    LV_ASSERT_NULL(p_data);
+    p_data->name = name;
+    return p_data->name;
+}
+
+char *gf_get_name(lv_obj_t *obj)
+{
+    LV_ASSERT_NULL(obj);
+    id_data *p_data = obj->user_data
+    LV_ASSERT_NULL(p_data);
+    return p_data->name;
+}
