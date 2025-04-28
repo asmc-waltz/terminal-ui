@@ -38,61 +38,35 @@ static lv_obj_t *sp_taskbar;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void btn_phone_handler(lv_event_t *event)
+static void taskbar_app_icon_handler(lv_event_t *event)
 {
-    lv_obj_t *btn_phone = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn_phone);
+    lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn);
     id_data *par_data = par->user_data;
-
-    LV_LOG_USER("Button phone was clicked!");
+    LV_LOG_USER("Button was clicked!");
     gf_refresh_all_layer();
 
-    if (par_data->visible)
-        gf_hide_taskbar();
+    char *name = gf_get_name(btn);
+    LV_LOG_USER("Button %s was DETECTED!", name);
+
+    // if (strcmp(name, AIC_TOOLBOX) == 0) {
+    // }
+
+    // if (par_data->visible)
+    //     gf_hide_taskbar();
 }
 
-static void btn_message_handler(lv_event_t *event)
-{
-    lv_obj_t *btn_message = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn_message);
-    id_data *par_data = par->user_data;
-    LV_LOG_USER("Button message was clicked!");
-    gf_refresh_all_layer();
-
-    if (par_data->visible)
-        gf_hide_taskbar();
-}
-
-static void btn_toolbox_handler(lv_event_t *event)
-{
-    lv_obj_t *btn_toolbox = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn_toolbox);
-    id_data *par_data = par->user_data;
-    LV_LOG_USER("Button tool box was clicked!");
-    gf_refresh_all_layer();
-
-    if (par_data->visible)
-        gf_hide_taskbar();
-}
-
-static void btn_setting_handler(lv_event_t *event)
-{
-    lv_obj_t *btn_setting = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn_setting);
-    id_data *par_data = par->user_data;
-    LV_LOG_USER("Button setting was clicked!");
-    gf_refresh_all_layer();
-
-    if (par_data->visible)
-        gf_hide_taskbar();
-}
-
-static lv_obj_t * create_taskbar_app_icon(lv_obj_t *par, uint32_t bg_color, \
-                                    uint32_t symbol, lv_event_cb_t event_cb)
+static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \
+                            uint32_t symbol, lv_event_cb_t event_cb, char *name)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *button = create_icon_bg(par, &bg_79, bg_color);
     lv_obj_t *setting_symbol = create_symbol(button, &sym_48, symbol);
+
+    id_data *id_app_data = gf_init_user_data(button);
+    LV_ASSERT_NULL(id_app_data);
+    gf_set_name(button, name);
+
     lv_obj_add_event_cb(button, event_cb, LV_EVENT_CLICKED, NULL);
     return button;
 }
@@ -114,10 +88,14 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     // The size of the taskbar dynamically adjusts based on the number of icons.
     lv_obj_set_size(sp_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    create_taskbar_app_icon(sp_taskbar, 0x03BF1F, ICON_PHONE_SOLID, btn_phone_handler);
-    create_taskbar_app_icon(sp_taskbar, 0x03BF1F, ICON_COMMENT_SOLID, btn_message_handler);
-    create_taskbar_app_icon(sp_taskbar, 0xFFAE3B, ICON_TOOLBOX_SOLID, btn_toolbox_handler);
-    create_taskbar_app_icon(sp_taskbar, 0x4F8DFF, ICON_GEAR_SOLID, btn_setting_handler);
+    taskbar_app_icon_create(sp_taskbar, 0x03BF1F, ICON_PHONE_SOLID, \
+                            taskbar_app_icon_handler, AIC_PHONE);
+    taskbar_app_icon_create(sp_taskbar, 0x03BF1F, ICON_COMMENT_SOLID, \
+                            taskbar_app_icon_handler, AIC_MESSAGE);
+    taskbar_app_icon_create(sp_taskbar, 0xFFAE3B, ICON_TOOLBOX_SOLID, \
+                            taskbar_app_icon_handler, AIC_TOOLBOX);
+    taskbar_app_icon_create(sp_taskbar, 0x4F8DFF, ICON_GEAR_SOLID, \
+                            taskbar_app_icon_handler, AIC_SETTING);
 
     // Align it to bottom-middle AFTER children are added
     lv_obj_align_to(sp_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, 0);

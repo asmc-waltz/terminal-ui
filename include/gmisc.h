@@ -11,6 +11,10 @@
 /*********************
  *      DEFINES
  *********************/
+#define AIC_PHONE                       "phone"
+#define AIC_MESSAGE                     "message"
+#define AIC_TOOLBOX                     "toolbox"
+#define AIC_SETTING                     "setting"
 
 /**********************
  *      TYPEDEFS
