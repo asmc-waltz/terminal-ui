@@ -98,7 +98,7 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
                             taskbar_app_icon_handler, AIC_SETTING);
 
     // Align it to bottom-middle AFTER children are added
-    lv_obj_align_to(sp_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_align_to(sp_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
 
     gf_hide_taskbar();
 
