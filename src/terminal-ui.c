@@ -66,7 +66,7 @@ int main(void) {
     style_curved_lines_init(&sty_curve);
     icons_20_style_init();
     icons_32_style_init();
-    icons_48_style_init();
+    style_application_icons_init();
     status_bar_style_init();
     task_bar_style_init();
 

@@ -48,101 +48,53 @@ static void btn_phone_handler(lv_event_t *event)
     gf_refresh_all_layer();
 
     if (par_data->visible)
-        gf_delete_taskbar();
+        gf_hide_taskbar();
 }
 
 static void btn_message_handler(lv_event_t *event)
 {
     lv_obj_t *btn_message = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn_message);
+    id_data *par_data = par->user_data;
     LV_LOG_USER("Button message was clicked!");
     gf_refresh_all_layer();
 
-    // if (sv_taskbar_vis)
-        // gf_hide_taskbar();
+    if (par_data->visible)
+        gf_hide_taskbar();
 }
 
 static void btn_toolbox_handler(lv_event_t *event)
 {
     lv_obj_t *btn_toolbox = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn_toolbox);
+    id_data *par_data = par->user_data;
     LV_LOG_USER("Button tool box was clicked!");
     gf_refresh_all_layer();
 
-    // if (sv_taskbar_vis)
-        // gf_hide_taskbar();
+    if (par_data->visible)
+        gf_hide_taskbar();
 }
 
 static void btn_setting_handler(lv_event_t *event)
 {
     lv_obj_t *btn_setting = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn_setting);
+    id_data *par_data = par->user_data;
     LV_LOG_USER("Button setting was clicked!");
     gf_refresh_all_layer();
 
-    // if (sv_taskbar_vis)
-        // gf_hide_taskbar();
+    if (par_data->visible)
+        gf_hide_taskbar();
 }
 
-static lv_obj_t * create_phone_icon(lv_obj_t *parent, lv_style_t *icon_style)
+static lv_obj_t * create_taskbar_app_icon(lv_obj_t *par, uint32_t bg_color, \
+                                    uint32_t symbol, lv_event_cb_t event_cb)
 {
-    lv_obj_t *btn_phone = lv_btn_create(parent);
-    lv_obj_t *icon_phone = lv_label_create(btn_phone);
-
-    lv_obj_add_style(btn_phone, icon_style, 0);
-    lv_obj_set_size(btn_phone, 79, 79);
-
-    lv_obj_set_style_bg_color(btn_phone, lv_color_hex(0x03BF1F), 0);
-    lv_obj_center(icon_phone);
-    lv_obj_set_size(icon_phone , 48, 48);
-    lv_label_set_text(icon_phone, ICON_PHONE_SOLID);
-
-    lv_obj_add_event_cb(btn_phone, btn_phone_handler, LV_EVENT_CLICKED, NULL);
-}
-
-static lv_obj_t * create_message_icon(lv_obj_t *parent, lv_style_t *icon_style)
-{
-    lv_obj_t *btn_message = lv_btn_create(parent);
-    lv_obj_t *icon_message = lv_label_create(btn_message);
-
-    lv_obj_add_style(btn_message, icon_style, 0);
-    lv_obj_set_size(btn_message, 79, 79);
-    lv_obj_set_style_bg_color(btn_message, lv_color_hex(0x03BF1F), 0);
-
-    lv_obj_center(icon_message);
-    lv_obj_set_size(icon_message, 48, 48);
-    lv_label_set_text(icon_message, ICON_COMMENT_SOLID);
-
-    lv_obj_add_event_cb(btn_message, btn_message_handler, LV_EVENT_CLICKED, NULL);
-}
-
-static lv_obj_t * create_toolbox_icon(lv_obj_t *parent, lv_style_t *icon_style)
-{
-    lv_obj_t *btn_toolbox = lv_btn_create(parent);
-    lv_obj_t *icon_toolbox = lv_label_create(btn_toolbox);
-
-    lv_obj_add_style(btn_toolbox, icon_style, 0);
-    lv_obj_set_size(btn_toolbox, 79, 79);
-    lv_obj_set_style_bg_color(btn_toolbox, lv_color_hex(0xFFAE3B), 0);
-
-    lv_obj_center(icon_toolbox);
-    lv_obj_set_size(icon_toolbox, 48, 48);
-    lv_label_set_text(icon_toolbox, ICON_TOOLBOX_SOLID);
-
-    lv_obj_add_event_cb(btn_toolbox, btn_toolbox_handler, LV_EVENT_CLICKED, NULL);
-}
-
-static lv_obj_t * create_setting_icon(lv_obj_t *parent, lv_style_t *icon_style)
-{
-    lv_obj_t *btn_setting = lv_btn_create(parent);
-    lv_obj_t *icon_setting = lv_label_create(btn_setting);
-
-    lv_obj_add_style(btn_setting, icon_style, 0);
-    lv_obj_set_size(btn_setting, 79, 79);
-    lv_obj_set_style_bg_color(btn_setting, lv_color_hex(0x4F8DFF), 0);
-
-    lv_obj_center(icon_setting);
-    lv_obj_set_size(icon_setting, 48, 48);
-    lv_label_set_text(icon_setting, ICON_GEAR_SOLID);
-
-    lv_obj_add_event_cb(btn_setting, btn_setting_handler, LV_EVENT_CLICKED, NULL);
+    LV_ASSERT_NULL(par);
+    lv_obj_t *button = create_icon_bg(par, &bg_79, bg_color);
+    lv_obj_t *setting_symbol = create_symbol(button, &sym_48, symbol);
+    lv_obj_add_event_cb(button, event_cb, LV_EVENT_CLICKED, NULL);
+    return button;
 }
 
 /**********************
@@ -162,10 +114,10 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     // The size of the taskbar dynamically adjusts based on the number of icons.
     lv_obj_set_size(sp_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    create_phone_icon(sp_taskbar, &icons_size_48);
-    create_message_icon(sp_taskbar, &icons_size_48);
-    create_toolbox_icon(sp_taskbar, &icons_size_48);
-    create_setting_icon(sp_taskbar, &icons_size_48);
+    create_taskbar_app_icon(sp_taskbar, 0x03BF1F, ICON_PHONE_SOLID, btn_phone_handler);
+    create_taskbar_app_icon(sp_taskbar, 0x03BF1F, ICON_COMMENT_SOLID, btn_message_handler);
+    create_taskbar_app_icon(sp_taskbar, 0xFFAE3B, ICON_TOOLBOX_SOLID, btn_toolbox_handler);
+    create_taskbar_app_icon(sp_taskbar, 0x4F8DFF, ICON_GEAR_SOLID, btn_setting_handler);
 
     // Align it to bottom-middle AFTER children are added
     lv_obj_align_to(sp_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, 0);

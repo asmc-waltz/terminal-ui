@@ -100,3 +100,23 @@ char *gf_get_name(lv_obj_t *obj)
     LV_ASSERT_NULL(p_data);
     return p_data->name;
 }
+
+lv_obj_t * create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color)
+{
+    LV_ASSERT_NULL(par);
+    lv_obj_t *icon_bg = lv_btn_create(par);
+    lv_obj_add_style(icon_bg, bg_style, 0);
+    lv_obj_set_style_bg_color(icon_bg, lv_color_hex(bg_color), 0);
+    return icon_bg;
+}
+
+lv_obj_t * create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
+{
+    LV_ASSERT_NULL(par);
+    lv_obj_t *symbol = lv_label_create(par);
+    lv_obj_add_style(symbol, symbol_style, 0);
+    lv_label_set_text(symbol, index);
+    lv_obj_center(symbol);
+    return symbol;
+}
+
