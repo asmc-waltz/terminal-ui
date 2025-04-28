@@ -108,7 +108,8 @@ void home_screen(lv_style_t *style) {
     // btn_keyboard(lv_screen_active(), style);
 
     g_create_status_bar(lv_screen_active());
-    g_create_task_bar(lv_screen_active());
+    gf_create_taskbar(lv_screen_active());
+    gf_show_taskbar();
 
     return bg;
 }

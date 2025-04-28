@@ -60,3 +60,10 @@ lv_obj_t * g_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, i
     return bg;
 }
 
+void gf_refresh_all_layer(void)
+{
+    lv_obj_invalidate(lv_layer_sys());
+    lv_obj_invalidate(lv_layer_top());
+    lv_obj_invalidate(lv_screen_active());
+    lv_obj_invalidate(lv_layer_bottom());
+}
