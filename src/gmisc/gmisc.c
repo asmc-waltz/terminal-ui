@@ -39,15 +39,15 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t * g_create_panel(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
+lv_obj_t * gf_create_panel(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
     lv_obj_t *bg = lv_obj_create(parent);
     lv_obj_set_size(bg, w, h);
     lv_obj_add_style(bg, style, 0);
     return bg;
 }
 
-lv_obj_t * g_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
-    lv_obj_t *bg = g_create_panel(parent, style, w, h);
+lv_obj_t * gf_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
+    lv_obj_t *bg = gf_create_panel(parent, style, w, h);
 
     static lv_style_t style_grad;
     lv_style_init(&style_grad);
@@ -101,7 +101,7 @@ char *gf_get_name(lv_obj_t *obj)
     return p_data->name;
 }
 
-lv_obj_t * create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color)
+lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *icon_bg = lv_btn_create(par);
@@ -110,7 +110,7 @@ lv_obj_t * create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color
     return icon_bg;
 }
 
-lv_obj_t * create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
+lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);

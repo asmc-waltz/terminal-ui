@@ -63,9 +63,9 @@ static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;
     p_style = gf_get_lv_style(STY_BG_ICON_79);
-    lv_obj_t *button = create_icon_bg(par, p_style, bg_color);
+    lv_obj_t *button = gf_create_icon_bg(par, p_style, bg_color);
     p_style = gf_get_lv_style(STY_SYM_48);
-    lv_obj_t *setting_symbol = create_symbol(button, p_style, symbol);
+    lv_obj_t *setting_symbol = gf_create_symbol(button, p_style, symbol);
 
     id_data *id_app_data = gf_init_user_data(button);
     LV_ASSERT_NULL(id_app_data);
