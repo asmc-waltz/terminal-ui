@@ -7,8 +7,6 @@ static lv_indev_t *touch_scr = NULL;
 static void slider_event_cb(lv_event_t * e);
 static lv_obj_t * slider_label;
 
-static lv_style_t sty_curve;
-
 void slider_event_cb(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target_obj(e);
@@ -62,20 +60,14 @@ int main(void) {
     drm_display_init();
     touch_screen_init();
  
-    // style init
-    style_curved_lines_init(&sty_curve);
-    icons_20_style_init();
-    icons_32_style_init();
-    style_application_icons_init();
-    status_bar_style_init();
-    task_bar_style_init();
+    styles_init();
 
     // Initialize the layer
     active_layer_cfg();
     top_layer_cfg();
 
     // Display the home screen
-    home_screen(&sty_curve);
+    home_screen();
     // Initialize the default keyboard that will always be accessible on the top layer.
     keyboard_create();
 
@@ -97,7 +89,6 @@ int main(void) {
 
 
     // lv_example_list_1();
-
 
 
 

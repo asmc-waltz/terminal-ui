@@ -34,6 +34,7 @@ lv_style_t sym_48;
 /**********************
  *  STATIC VARIABLES
  **********************/
+static LIST_HEAD(HEAD_OF_STYLES);
 
 /**********************
  *      MACROS
@@ -42,34 +43,67 @@ lv_style_t sym_48;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static lv_style_t * sf_create_style_data(char id)
+{
+    g_style *p_style = NULL;
+
+    LV_ASSERT_NULL(id);
+    p_style = calloc(sizeof(p_style), 1);
+    LV_ASSERT_NULL(p_style);
+    p_style->id = id;
+    list_add_tail(&p_style->node, &HEAD_OF_STYLES);
+
+    return &p_style->style;
+}
+
+static void sf_background_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_radius(p_style, 20);
+    lv_style_set_clip_corner(p_style, true);
+
+    lv_style_set_bg_opa(p_style, LV_OPA_COVER);
+    lv_style_set_bg_color(p_style, lv_color_hex(0xffffff));
+
+    lv_style_set_border_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_border_post(p_style, true);
+
+    lv_style_set_shadow_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_shadow_width(p_style, 50);
+    lv_style_set_shadow_spread(p_style, 10);
+
+    lv_style_set_outline_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_outline_width(p_style, 2);
+    lv_style_set_outline_pad(p_style, 5);
+
+    lv_style_set_text_color(p_style, lv_palette_darken(LV_PALETTE_GREY, 5));
+    lv_style_set_line_color(p_style, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_line_width(p_style, 1);
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void style_curved_lines_init(lv_style_t *sty) {
-    lv_style_init(sty);
-    lv_style_set_radius(sty, 20);
-    lv_style_set_clip_corner(sty, true);
+lv_style_t * gf_get_lv_style(char style_id)
+{
+    g_style *p_style = NULL;
 
-    lv_style_set_bg_opa(sty, LV_OPA_COVER);
-    lv_style_set_bg_color(sty, lv_color_hex(0xffffff));
+    list_for_each_entry(p_style, &HEAD_OF_STYLES, node)
+    if (p_style->id != 0) {
+        LV_LOG_USER("Style id is detected %d", p_style->id);
+        if (p_style->id == style_id) {
+            LV_LOG_USER("Style REQ id is detected %d", p_style->id);
+            break;
+        } else {
+            // TODO
+            continue;
+        }
+    }
 
-    lv_style_set_border_color(sty, lv_color_hex(0x000000));
-    lv_style_set_border_width(sty, 0);
-    lv_style_set_border_post(sty, true);
-
-    lv_style_set_shadow_color(sty, lv_color_hex(0x000000));
-    lv_style_set_shadow_width(sty, 50);
-    lv_style_set_shadow_spread(sty, 10);
-
-    lv_style_set_outline_color(sty, lv_color_hex(0x000000));
-    lv_style_set_outline_width(sty, 2);
-    lv_style_set_outline_pad(sty, 5);
-
-    lv_style_set_text_color(sty, lv_palette_darken(LV_PALETTE_GREY, 5));
-    lv_style_set_line_color(sty, lv_palette_main(LV_PALETTE_GREY));
-    lv_style_set_line_width(sty, 1);
+    return &p_style->style;
 }
+
 
 void icons_20_style_init(void)
 {
@@ -140,3 +174,24 @@ void task_bar_style_init(void)
     lv_style_set_outline_pad(&task_bar_style, 0);
 }
 
+
+void styles_init(void)
+{
+    lv_style_t *p_style;
+    if (list_empty(&HEAD_OF_STYLES)) {
+        LV_LOG_USER("Style list is empty: init");
+    } else {
+        LV_LOG_WARN("Style list has been initialized: do nothing!");
+        return;
+    }
+
+    p_style = sf_create_style_data(STY_BG);
+    LV_ASSERT_NULL(p_style);
+    sf_background_style_init(p_style);
+
+    icons_20_style_init();
+    icons_32_style_init();
+    style_application_icons_init();
+    status_bar_style_init();
+    task_bar_style_init();
+}

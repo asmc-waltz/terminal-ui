@@ -34,7 +34,7 @@ extern lv_obj_t *glob_kb;
 /*=====================
  * Other functions
  *====================*/
-void home_screen(lv_style_t *style);
+void home_screen();
 void keyboard_create();
 void hidden_keyboard();
 void show_keyboard();

@@ -7,11 +7,23 @@
  *      INCLUDES
  *********************/
 #include <lvgl.h>
+#include <list.h>
 
 /*********************
  *      DEFINES
  *********************/
+typedef struct {
+    struct list_head node;
+    char id;
+    lv_style_t style;
+} g_style;
 
+enum {
+	STY_BG = 1,
+	STY_TASKBAR,
+    STY_BG_ICON_79,
+    STY_SYM_48,
+};
 /**********************
  *      TYPEDEFS
  **********************/
@@ -38,13 +50,11 @@ extern lv_style_t sym_48;
 /*=====================
  * Getter functions
  *====================*/
+lv_style_t * gf_get_lv_style(char style_id);
 /*=====================
  * Other functions
  *====================*/
-void style_curved_lines_init(lv_style_t *style);
-void icons_20_style_init(void);
-void icons_32_style_init(void);
-void style_application_icons_init(void);
+void styles_init(void);
 
 /**********************
  *      MACROS
