@@ -23,6 +23,7 @@ enum {
 	STY_TASKBAR,
     STY_BG_ICON_79,
     STY_SYM_48,
+    STY_STATUS_BAR,
 };
 /**********************
  *      TYPEDEFS
@@ -33,7 +34,6 @@ enum {
  **********************/
 extern lv_style_t icons_size_20;
 extern lv_style_t icons_size_32;
-extern lv_style_t sts_bar_style;
 
 /**********************
  * GLOBAL PROTOTYPES

@@ -44,8 +44,11 @@
  **********************/
 lv_obj_t * g_create_status_bar(lv_obj_t *parent) {
     lv_obj_t *status_bar = lv_obj_create(parent);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_STATUS_BAR);
+    lv_obj_add_style(status_bar, p_style, 0);
     lv_obj_set_size(status_bar, 1024, 50);
-    lv_obj_add_style(status_bar, &sts_bar_style, 0);
     lv_obj_remove_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t * signal_icon = lv_label_create(status_bar);

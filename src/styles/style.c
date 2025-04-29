@@ -22,7 +22,6 @@
  **********************/
 lv_style_t icons_size_20;
 lv_style_t icons_size_32;
-lv_style_t sts_bar_style;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -114,6 +113,27 @@ static void sf_big_symbol_style_init(lv_style_t *p_style)
     lv_style_set_text_font(p_style, &terminal_icons_48);
     lv_style_set_text_color(p_style, lv_color_white());
 }
+
+static void sf_status_bar_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_radius(p_style, 20);
+    lv_style_set_bg_opa(p_style, LV_OPA_TRANSP);
+    lv_style_set_bg_color(p_style, lv_color_black());
+    lv_style_set_text_font(p_style, &terminal_icons_32);
+    lv_style_set_text_color(p_style, lv_color_black());
+    lv_style_set_border_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_border_post(p_style, true);
+    lv_style_set_pad_all(p_style, 0);
+    lv_style_set_shadow_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_shadow_width(p_style, 0);
+    lv_style_set_shadow_spread(p_style, 0);
+    lv_style_set_outline_color(p_style, lv_color_hex(0x000000));
+    lv_style_set_outline_width(p_style, 0);
+    lv_style_set_outline_pad(p_style, 0);
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -150,27 +170,6 @@ void icons_32_style_init(void)
     lv_style_set_text_color(&icons_size_32, lv_color_hex(0x00FF00));
 }
 
-void status_bar_style_init(void)
-{
-    lv_style_init(&sts_bar_style);
-    lv_style_set_radius(&sts_bar_style, 20);
-    lv_style_set_bg_opa(&sts_bar_style, LV_OPA_TRANSP);
-    lv_style_set_bg_color(&sts_bar_style, lv_color_black());
-    lv_style_set_text_font(&sts_bar_style, &terminal_icons_32);
-    lv_style_set_text_color(&sts_bar_style, lv_color_black());
-    lv_style_set_border_color(&sts_bar_style, lv_color_hex(0x000000));
-    lv_style_set_border_width(&sts_bar_style, 0);
-    lv_style_set_border_post(&sts_bar_style, true);
-    lv_style_set_pad_all(&sts_bar_style, 0);
-    lv_style_set_shadow_color(&sts_bar_style, lv_color_hex(0x000000));
-    lv_style_set_shadow_width(&sts_bar_style, 0);
-    lv_style_set_shadow_spread(&sts_bar_style, 0);
-    lv_style_set_outline_color(&sts_bar_style, lv_color_hex(0x000000));
-    lv_style_set_outline_width(&sts_bar_style, 0);
-    lv_style_set_outline_pad(&sts_bar_style, 0);
-}
-
-
 void styles_init(void)
 {
     lv_style_t *p_style;
@@ -187,7 +186,10 @@ void styles_init(void)
 
     icons_20_style_init();
     icons_32_style_init();
-    status_bar_style_init();
+    // status_bar_style_init();
+    p_style = sf_create_style_data(STY_STATUS_BAR);
+    LV_ASSERT_NULL(p_style);
+    sf_status_bar_style_init(p_style);
 
     p_style = sf_create_style_data(STY_TASKBAR);
     LV_ASSERT_NULL(p_style);
