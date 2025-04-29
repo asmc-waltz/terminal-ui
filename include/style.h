@@ -24,6 +24,9 @@ enum {
     STY_BG_ICON_79,
     STY_SYM_48,
     STY_STATUS_BAR,
+    STY_BG_ICON_37,
+    STY_SYM_20,
+    STY_SYM_32,
 };
 /**********************
  *      TYPEDEFS
@@ -32,8 +35,6 @@ enum {
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern lv_style_t icons_size_20;
-extern lv_style_t icons_size_32;
 
 /**********************
  * GLOBAL PROTOTYPES

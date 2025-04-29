@@ -20,8 +20,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-lv_style_t icons_size_20;
-lv_style_t icons_size_32;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -134,6 +132,32 @@ static void sf_status_bar_style_init(lv_style_t *p_style)
     lv_style_set_outline_pad(p_style, 0);
 }
 
+static void sf_status_symbol_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_size(p_style, 32, 32);
+    lv_style_set_text_font(p_style, &terminal_icons_32);
+    lv_style_set_text_color(p_style, lv_color_white());
+}
+
+static void sf_small_setting_icon_background_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_radius(p_style, 9);
+    lv_style_set_size(p_style, 37, 37);
+    lv_style_set_outline_color(p_style, lv_color_black());
+    lv_style_set_outline_width(p_style, 0);
+    lv_style_set_outline_pad(p_style, 0);
+}
+
+static void sf_small_symbol_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_size(p_style, 20, 20);
+    lv_style_set_text_font(p_style, &terminal_icons_20);
+    lv_style_set_text_color(p_style, lv_color_white());
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -155,21 +179,6 @@ lv_style_t * gf_get_lv_style(char style_id)
     return &p_style->style;
 }
 
-
-void icons_20_style_init(void)
-{
-    lv_style_init(&icons_size_20);
-    lv_style_set_text_font(&icons_size_20, &terminal_icons_20);
-    lv_style_set_text_color(&icons_size_20, lv_color_hex(0x00FF00));
-}
-
-void icons_32_style_init(void)
-{
-    lv_style_init(&icons_size_32);
-    lv_style_set_text_font(&icons_size_32, &terminal_icons_32);
-    lv_style_set_text_color(&icons_size_32, lv_color_hex(0x00FF00));
-}
-
 void styles_init(void)
 {
     lv_style_t *p_style;
@@ -184,9 +193,6 @@ void styles_init(void)
     LV_ASSERT_NULL(p_style);
     sf_background_style_init(p_style);
 
-    icons_20_style_init();
-    icons_32_style_init();
-    // status_bar_style_init();
     p_style = sf_create_style_data(STY_STATUS_BAR);
     LV_ASSERT_NULL(p_style);
     sf_status_bar_style_init(p_style);
@@ -202,4 +208,16 @@ void styles_init(void)
     p_style = sf_create_style_data(STY_SYM_48);
     LV_ASSERT_NULL(p_style);
     sf_big_symbol_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_SYM_32);
+    LV_ASSERT_NULL(p_style);
+    sf_status_symbol_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_BG_ICON_37);
+    LV_ASSERT_NULL(p_style);
+    sf_small_setting_icon_background_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_SYM_20);
+    LV_ASSERT_NULL(p_style);
+    sf_small_symbol_style_init(p_style);
 }
