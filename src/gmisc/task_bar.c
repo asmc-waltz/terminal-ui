@@ -61,8 +61,11 @@ static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \
                             uint32_t symbol, lv_event_cb_t event_cb, char *name)
 {
     LV_ASSERT_NULL(par);
-    lv_obj_t *button = create_icon_bg(par, &bg_79, bg_color);
-    lv_obj_t *setting_symbol = create_symbol(button, &sym_48, symbol);
+    lv_style_t *p_style = NULL;
+    p_style = gf_get_lv_style(STY_BG_ICON_79);
+    lv_obj_t *button = create_icon_bg(par, p_style, bg_color);
+    p_style = gf_get_lv_style(STY_SYM_48);
+    lv_obj_t *setting_symbol = create_symbol(button, p_style, symbol);
 
     id_data *id_app_data = gf_init_user_data(button);
     LV_ASSERT_NULL(id_app_data);
@@ -80,8 +83,9 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     sp_taskbar = lv_obj_create(parent);
     id_data *id_taskbar_data = gf_init_user_data(sp_taskbar);
     LV_ASSERT_NULL(id_taskbar_data);
-
-    lv_obj_add_style(sp_taskbar, &task_bar_style, 0);
+    lv_style_t *p_style = NULL;
+    p_style = gf_get_lv_style(STY_TASKBAR);
+    lv_obj_add_style(sp_taskbar, p_style, 0);
     lv_obj_set_style_flex_flow(sp_taskbar, LV_FLEX_FLOW_ROW, 0);
     lv_obj_set_style_layout(sp_taskbar, LV_LAYOUT_FLEX, 0);
     lv_obj_set_style_bg_opa(sp_taskbar, LV_OPA_30, LV_PART_MAIN);

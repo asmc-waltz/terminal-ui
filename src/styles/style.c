@@ -23,10 +23,7 @@
 lv_style_t icons_size_20;
 lv_style_t icons_size_32;
 lv_style_t sts_bar_style;
-lv_style_t task_bar_style;
 
-lv_style_t bg_79;
-lv_style_t sym_48;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
@@ -82,6 +79,41 @@ static void sf_background_style_init(lv_style_t *p_style)
     lv_style_set_line_width(p_style, 1);
 }
 
+static void sf_taskbar_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_radius(p_style, 30);
+    lv_style_set_bg_opa(p_style, LV_OPA_TRANSP);
+    lv_style_set_bg_color(p_style, lv_color_black());
+    lv_style_set_border_color(p_style, lv_color_black());
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_border_post(p_style, true);
+    lv_style_set_pad_all(p_style, 10);
+    lv_style_set_shadow_color(p_style, lv_color_black());
+    lv_style_set_shadow_width(p_style, 0);
+    lv_style_set_shadow_spread(p_style, 0);
+    lv_style_set_outline_color(p_style, lv_color_black());
+    lv_style_set_outline_width(p_style, 0);
+    lv_style_set_outline_pad(p_style, 0);
+}
+
+static void sf_application_icon_background_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_radius(p_style, 20);
+    lv_style_set_size(p_style, 79, 79);
+    lv_style_set_outline_color(p_style, lv_color_black());
+    lv_style_set_outline_width(p_style, 0);
+    lv_style_set_outline_pad(p_style, 0);
+}
+
+static void sf_big_symbol_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_size(p_style, 48, 48);
+    lv_style_set_text_font(p_style, &terminal_icons_48);
+    lv_style_set_text_color(p_style, lv_color_white());
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -91,7 +123,6 @@ lv_style_t * gf_get_lv_style(char style_id)
 
     list_for_each_entry(p_style, &HEAD_OF_STYLES, node)
     if (p_style->id != 0) {
-        LV_LOG_USER("Style id is detected %d", p_style->id);
         if (p_style->id == style_id) {
             LV_LOG_USER("Style REQ id is detected %d", p_style->id);
             break;
@@ -119,21 +150,6 @@ void icons_32_style_init(void)
     lv_style_set_text_color(&icons_size_32, lv_color_hex(0x00FF00));
 }
 
-void style_application_icons_init(void)
-{
-    lv_style_init(&bg_79);
-    lv_style_set_radius(&bg_79, 20);
-    lv_style_set_size(&bg_79, 79, 79);
-    lv_style_set_outline_color(&bg_79, lv_color_hex(0x000000));
-    lv_style_set_outline_width(&bg_79, 0);
-    lv_style_set_outline_pad(&bg_79, 0);
-
-    lv_style_init(&sym_48);
-    lv_style_set_size(&sym_48, 48, 48);
-    lv_style_set_text_font(&sym_48, &terminal_icons_48);
-    lv_style_set_text_color(&sym_48, lv_color_hex(0xffffff));
-}
-
 void status_bar_style_init(void)
 {
     lv_style_init(&sts_bar_style);
@@ -154,26 +170,6 @@ void status_bar_style_init(void)
     lv_style_set_outline_pad(&sts_bar_style, 0);
 }
 
-void task_bar_style_init(void)
-{
-    lv_style_init(&task_bar_style);
-    lv_style_set_radius(&task_bar_style, 30);
-    lv_style_set_bg_opa(&task_bar_style, LV_OPA_TRANSP);
-    lv_style_set_bg_color(&task_bar_style, lv_color_black());
-    lv_style_set_text_font(&task_bar_style, &terminal_icons_48);
-    lv_style_set_text_color(&task_bar_style, lv_color_white());
-    lv_style_set_border_color(&task_bar_style, lv_color_hex(0x000000));
-    lv_style_set_border_width(&task_bar_style, 0);
-    lv_style_set_border_post(&task_bar_style, true);
-    lv_style_set_pad_all(&task_bar_style, 10);
-    lv_style_set_shadow_color(&task_bar_style, lv_color_hex(0x000000));
-    lv_style_set_shadow_width(&task_bar_style, 0);
-    lv_style_set_shadow_spread(&task_bar_style, 0);
-    lv_style_set_outline_color(&task_bar_style, lv_color_hex(0x000000));
-    lv_style_set_outline_width(&task_bar_style, 0);
-    lv_style_set_outline_pad(&task_bar_style, 0);
-}
-
 
 void styles_init(void)
 {
@@ -191,7 +187,17 @@ void styles_init(void)
 
     icons_20_style_init();
     icons_32_style_init();
-    style_application_icons_init();
     status_bar_style_init();
-    task_bar_style_init();
+
+    p_style = sf_create_style_data(STY_TASKBAR);
+    LV_ASSERT_NULL(p_style);
+    sf_taskbar_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_BG_ICON_79);
+    LV_ASSERT_NULL(p_style);
+    sf_application_icon_background_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_SYM_48);
+    LV_ASSERT_NULL(p_style);
+    sf_big_symbol_style_init(p_style);
 }
