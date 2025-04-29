@@ -50,6 +50,7 @@ lv_style_t * gf_get_lv_style(char style_id);
  * Other functions
  *====================*/
 void gf_styles_init(void);
+void sf_delete_all_style_data(void);
 
 /**********************
  *      MACROS
