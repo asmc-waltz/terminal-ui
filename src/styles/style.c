@@ -48,7 +48,7 @@ static lv_style_t * sf_create_style_data(char id)
     g_style *p_style = NULL;
 
     LV_ASSERT_NULL(id);
-    p_style = calloc(sizeof(p_style), 1);
+    p_style = lv_malloc_zeroed(sizeof(g_style));
     LV_ASSERT_NULL(p_style);
     p_style->id = id;
     list_add_tail(&p_style->node, &HEAD_OF_STYLES);
