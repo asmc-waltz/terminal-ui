@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_GMISC_H
+#define G_GMISC_H
 /*********************
  *      INCLUDES
  *********************/
@@ -76,4 +78,4 @@ void gf_show_keyboard();
  *      MACROS
  **********************/
 
-
+#endif /* G_GMISC_H */

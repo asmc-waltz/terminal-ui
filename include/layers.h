@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_LAYERS_H
+#define G_LAYERS_H
 /*********************
  *      INCLUDES
  *********************/
@@ -39,3 +41,4 @@ void active_layer_cfg();
  *      MACROS
  **********************/
 
+#endif /* G_LAYERS_H */

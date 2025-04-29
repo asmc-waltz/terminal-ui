@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_SCREENS_H
+#define G_SCREENS_H
 /*********************
  *      INCLUDES
  *********************/
@@ -38,3 +40,4 @@ void gf_create_home_screen();
  *      MACROS
  **********************/
 
+#endif /* G_SCREENS_H */

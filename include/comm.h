@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_COMM_H
+#define G_COMM_H
 /*********************
  *      INCLUDES
  *********************/
@@ -42,3 +44,4 @@
  *   STATIC FUNCTIONS
  **********************/
 
+#endif /* G_COMM_H */

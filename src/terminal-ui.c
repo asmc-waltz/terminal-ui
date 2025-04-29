@@ -41,6 +41,11 @@ void my_timer(lv_timer_t * timer)
 }
 
 int main(void) {
+    LV_LOG_USER("******** TERMINAL UI ********");
+    terminal_data *p_ui_data = NULL;
+    p_ui_data = calloc(sizeof(terminal_data), 1);
+    LV_ASSERT_NULL(p_ui_data);
+
     lv_init();
     drm_display_init();
     touch_screen_init();

@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_FONTS_H
+#define G_FONTS_H
 /*********************
  *      INCLUDES
  *********************/
@@ -177,3 +179,4 @@ extern lv_font_t terminal_icons_48;
  *   STATIC FUNCTIONS
  **********************/
 
+#endif /* G_FONTS_H */

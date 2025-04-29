@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef G_STYLE_H
+#define G_STYLE_H
 /*********************
  *      INCLUDES
  *********************/
@@ -56,3 +58,4 @@ void sf_delete_all_style_data(void);
  *      MACROS
  **********************/
 
+#endif /* G_STYLE_H */
