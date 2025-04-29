@@ -49,11 +49,12 @@ static void taskbar_app_icon_handler(lv_event_t *event)
     char *name = gf_get_name(btn);
     LV_LOG_USER("Button %s was DETECTED!", name);
 
-    // if (strcmp(name, AIC_TOOLBOX) == 0) {
-    // }
+    if (strcmp(name, AIC_SETTING) == 0) {
+        if (par_data->visible)
+            gf_hide_taskbar();
 
-    // if (par_data->visible)
-    //     gf_hide_taskbar();
+        gf_show_home_indicator();
+    }
 }
 
 static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \

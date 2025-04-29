@@ -60,6 +60,12 @@ void gf_hide_taskbar();
 void gf_show_taskbar();
 void gf_delete_taskbar();
 
+lv_obj_t * gf_create_home_indicator(lv_obj_t *parent);
+void gf_hide_home_indicator(void);
+void gf_show_home_indicator(void);
+void gf_delete_home_indicator(void);
+
+
 /**********************
  *      MACROS
  **********************/

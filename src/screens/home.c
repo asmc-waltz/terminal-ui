@@ -48,6 +48,7 @@ void home_screen(lv_style_t *style) {
     gf_create_taskbar(lv_screen_active());
     gf_show_taskbar();
 
+    gf_create_home_indicator(lv_screen_active());
     return bg;
 }
 
