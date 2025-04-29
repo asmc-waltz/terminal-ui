@@ -60,7 +60,7 @@ int main(void) {
     drm_display_init();
     touch_screen_init();
  
-    styles_init();
+    gf_styles_init();
 
     // Initialize the layer
     active_layer_cfg();

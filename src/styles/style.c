@@ -94,7 +94,7 @@ static void sf_taskbar_style_init(lv_style_t *p_style)
     lv_style_set_outline_pad(p_style, 0);
 }
 
-static void sf_application_icon_background_style_init(lv_style_t *p_style)
+static void sf_app_icon_bg_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_radius(p_style, 20);
@@ -104,7 +104,7 @@ static void sf_application_icon_background_style_init(lv_style_t *p_style)
     lv_style_set_outline_pad(p_style, 0);
 }
 
-static void sf_big_symbol_style_init(lv_style_t *p_style)
+static void sf_app_sym_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_size(p_style, 48, 48);
@@ -132,7 +132,7 @@ static void sf_status_bar_style_init(lv_style_t *p_style)
     lv_style_set_outline_pad(p_style, 0);
 }
 
-static void sf_status_symbol_style_init(lv_style_t *p_style)
+static void sf_sts_sym_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_size(p_style, 32, 32);
@@ -140,7 +140,7 @@ static void sf_status_symbol_style_init(lv_style_t *p_style)
     lv_style_set_text_color(p_style, lv_color_white());
 }
 
-static void sf_small_setting_icon_background_style_init(lv_style_t *p_style)
+static void sf_in_app_icon_bg_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_radius(p_style, 9);
@@ -150,7 +150,7 @@ static void sf_small_setting_icon_background_style_init(lv_style_t *p_style)
     lv_style_set_outline_pad(p_style, 0);
 }
 
-static void sf_small_symbol_style_init(lv_style_t *p_style)
+static void sf_in_app_sym_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_size(p_style, 20, 20);
@@ -179,7 +179,7 @@ lv_style_t * gf_get_lv_style(char style_id)
     return &p_style->style;
 }
 
-void styles_init(void)
+void gf_styles_init(void)
 {
     lv_style_t *p_style;
     if (list_empty(&HEAD_OF_STYLES)) {
@@ -203,21 +203,21 @@ void styles_init(void)
 
     p_style = sf_create_style_data(STY_BG_ICON_79);
     LV_ASSERT_NULL(p_style);
-    sf_application_icon_background_style_init(p_style);
+    sf_app_icon_bg_style_init(p_style);
 
     p_style = sf_create_style_data(STY_SYM_48);
     LV_ASSERT_NULL(p_style);
-    sf_big_symbol_style_init(p_style);
+    sf_app_sym_style_init(p_style);
 
     p_style = sf_create_style_data(STY_SYM_32);
     LV_ASSERT_NULL(p_style);
-    sf_status_symbol_style_init(p_style);
+    sf_sts_sym_style_init(p_style);
 
     p_style = sf_create_style_data(STY_BG_ICON_37);
     LV_ASSERT_NULL(p_style);
-    sf_small_setting_icon_background_style_init(p_style);
+    sf_in_app_icon_bg_style_init(p_style);
 
     p_style = sf_create_style_data(STY_SYM_20);
     LV_ASSERT_NULL(p_style);
-    sf_small_symbol_style_init(p_style);
+    sf_in_app_sym_style_init(p_style);
 }

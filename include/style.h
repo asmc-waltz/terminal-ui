@@ -49,7 +49,7 @@ lv_style_t * gf_get_lv_style(char style_id);
 /*=====================
  * Other functions
  *====================*/
-void styles_init(void);
+void gf_styles_init(void);
 
 /**********************
  *      MACROS
