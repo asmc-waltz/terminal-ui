@@ -67,9 +67,9 @@ int main(void) {
     top_layer_cfg();
 
     // Display the home screen
-    home_screen();
+    gf_create_home_screen();
     // Initialize the default keyboard that will always be accessible on the top layer.
-    keyboard_create();
+    gf_keyboard_create();
 
 
     // lv_obj_t * slider = lv_slider_create(panel);

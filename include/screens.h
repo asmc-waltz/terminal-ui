@@ -19,8 +19,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern bool kb_visible;
-extern lv_obj_t *glob_kb;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -34,10 +32,7 @@ extern lv_obj_t *glob_kb;
 /*=====================
  * Other functions
  *====================*/
-void home_screen();
-void keyboard_create();
-void hidden_keyboard();
-void show_keyboard();
+void gf_create_home_screen();
 
 /**********************
  *      MACROS

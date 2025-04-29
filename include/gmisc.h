@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <lvgl.h>
+#include <list.h>
 
 /*********************
  *      DEFINES
@@ -27,6 +28,8 @@ typedef struct {
 /**********************
  *  GLOBAL VARIABLES
  **********************/
+extern bool kb_visible;
+extern lv_obj_t *glob_kb;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -66,6 +69,9 @@ void gf_show_home_indicator(void);
 void gf_delete_home_indicator(void);
 
 
+void gf_keyboard_create();
+void gf_hide_keyboard();
+void gf_show_keyboard();
 /**********************
  *      MACROS
  **********************/

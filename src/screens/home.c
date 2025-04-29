@@ -41,7 +41,7 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void home_screen(void) {
+void gf_create_home_screen(void) {
     lv_style_t *p_style = NULL;
     p_style = gf_get_lv_style(STY_BG);
 

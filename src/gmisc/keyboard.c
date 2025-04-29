@@ -6,7 +6,9 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <screens.h>
+#include <gmisc.h>
+#include <style.h>
+#include <fonts.h>
 
 /*********************
  *      DEFINES
@@ -37,22 +39,22 @@ lv_obj_t *glob_kb = NULL;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void keyboard_create() {
+void gf_keyboard_create() {
     glob_kb = lv_keyboard_create(lv_layer_top());
     lv_obj_set_size(glob_kb, LV_PCT(95), LV_PCT(50));
     lv_obj_align(glob_kb, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_keyboard_set_mode(glob_kb, LV_KEYBOARD_MODE_TEXT_LOWER);
     lv_keyboard_set_popovers(glob_kb, true);
     lv_obj_add_flag(glob_kb, LV_OBJ_FLAG_HIDDEN);
-    hidden_keyboard();
+    gf_hide_keyboard();
 }
 
-void hidden_keyboard() {
+void gf_hide_keyboard() {
     lv_obj_add_flag(glob_kb, LV_OBJ_FLAG_HIDDEN);
     kb_visible = false;
 }
 
-void show_keyboard() {
+void gf_show_keyboard() {
     lv_obj_remove_flag(glob_kb, LV_OBJ_FLAG_HIDDEN);
     kb_visible = true;
 }
