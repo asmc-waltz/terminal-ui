@@ -42,8 +42,8 @@ void my_timer(lv_timer_t * timer)
 
 int main(void) {
     LV_LOG_USER("******** TERMINAL UI ********");
-    app_data *p_data = NULL;
-    p_data = calloc(sizeof(app_data), 1);
+    g_app_data *p_data = NULL;
+    p_data = calloc(sizeof(g_app_data), 1);
     LV_ASSERT_NULL(p_data);
 
     lv_init();

@@ -14,13 +14,11 @@
 /*********************
  *      DEFINES
  *********************/
-typedef struct {
-    struct list_head node;
-    char id;
-    lv_style_t style;
-} g_style;
 
-enum {
+/**********************
+ *      TYPEDEFS
+ **********************/
+typedef enum {
 	STY_BG = 1,
 	STY_TASKBAR,
     STY_BG_ICON_79,
@@ -29,10 +27,13 @@ enum {
     STY_BG_ICON_37,
     STY_SYM_20,
     STY_SYM_32,
-};
-/**********************
- *      TYPEDEFS
- **********************/
+} g_style_id;
+
+typedef struct {
+    struct list_head node;
+    g_style_id id;
+    lv_style_t style;
+} g_style;
 
 /**********************
  *  GLOBAL VARIABLES
