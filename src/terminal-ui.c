@@ -1,5 +1,6 @@
 #include <terminal-ui.h>
 
+g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
 static lv_indev_t *touch_scr = NULL;
 
@@ -42,9 +43,8 @@ void my_timer(lv_timer_t * timer)
 
 int main(void) {
     LV_LOG_USER("******** TERMINAL UI ********");
-    g_app_data *p_data = NULL;
-    p_data = calloc(sizeof(g_app_data), 1);
-    LV_ASSERT_NULL(p_data);
+    global_data = calloc(sizeof(g_app_data), 1);
+    LV_ASSERT_NULL(global_data);
 
     lv_init();
     drm_display_init();

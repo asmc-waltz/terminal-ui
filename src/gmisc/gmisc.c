@@ -39,6 +39,54 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id)
+{
+    g_obj *p_obj = NULL;
+
+    p_obj = malloc(sizeof(g_obj));
+    LV_ASSERT_NULL(p_obj);
+    p_obj->id = id;
+    p_obj->obj = obj;
+
+    list_add_tail(&p_obj->node, &global_data->obj_list);
+
+    return p_obj;
+}
+
+lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id)
+{
+    g_obj *p_obj = NULL;
+    lv_obj_t *obj = NULL;
+
+    LV_ASSERT_NULL(parent);
+
+    obj = lv_obj_create(parent);
+    LV_ASSERT_NULL(obj);
+
+    p_obj = gf_register_obj(obj, id);
+    LV_ASSERT_NULL(p_obj);
+
+    return p_obj->obj;
+}
+
+lv_obj_t * gf_get_obj(uint32_t req_id)
+{
+    g_obj *p_obj = NULL;
+
+    list_for_each_entry(p_obj, &global_data->obj_list, node)
+    if (p_obj->id) {
+        if (p_obj->id == req_id) {
+            LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
+            break;
+        } else {
+            // TODO
+            continue;
+        }
+    }
+
+    return p_obj->obj;
+}
+
 lv_obj_t * gf_create_panel(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
     lv_obj_t *bg = lv_obj_create(parent);
     lv_obj_set_size(bg, w, h);
