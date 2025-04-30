@@ -29,7 +29,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_obj_t *sp_home_indicator;
 
 /**********************
  *      MACROS
@@ -38,19 +37,17 @@ static lv_obj_t *sp_home_indicator;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void home_indicator_handler(lv_event_t *event)
+static void home_indicator_handler(lv_event_t *e)
 {
-    lv_obj_t *home_indicator = lv_event_get_target(event);  // Get the button object
-    // lv_obj_t *par = lv_obj_get_parent(btn);
-    id_data *p_data = home_indicator->user_data;
+    g_obj *pg_obj = lv_event_get_user_data(e);
+
     LV_LOG_USER("Home bar was clicked!");
     gf_refresh_all_layer();
 
-    if (p_data->visible)
+    if (pg_obj->visible) {
         gf_hide_home_indicator();
-
-    gf_show_taskbar();
-
+        gf_show_taskbar();
+    }
 }
 
 /**********************
@@ -59,43 +56,52 @@ static void home_indicator_handler(lv_event_t *event)
 lv_obj_t * gf_create_home_indicator(lv_obj_t *parent)
 {
     LV_ASSERT_NULL(parent);
-    sp_home_indicator = lv_btn_create(parent);
-    id_data *id_home_indicator_data = gf_init_user_data(sp_home_indicator);
-    LV_ASSERT_NULL(id_home_indicator_data);
-    lv_obj_set_style_bg_color(sp_home_indicator, lv_color_hex(0x000000), 0);
-    lv_obj_set_style_radius(sp_home_indicator, 5, 0);
-    lv_obj_set_size(sp_home_indicator, 315, 10);
-    lv_obj_clear_flag(sp_home_indicator, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_t * p_home_indicator = NULL;
 
-    // Align it to bottom-middle AFTER children are added
-    lv_obj_align_to(sp_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
+    p_home_indicator = gf_create_obj(parent, ID_HOME_INDICATOR);
+    LV_ASSERT_NULL(p_home_indicator);
 
-    lv_obj_add_event_cb(sp_home_indicator, home_indicator_handler, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_style_bg_color(p_home_indicator, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_radius(p_home_indicator, 5, 0);
+    lv_obj_set_size(p_home_indicator, 315, 10);
+    lv_obj_clear_flag(p_home_indicator, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
+
+    gf_register_handler(ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
+
     gf_hide_home_indicator();
 
-    return sp_home_indicator;
+    return p_home_indicator;
 }
 
 void gf_hide_home_indicator(void)
 {
-    id_data *home_indicator_data = sp_home_indicator->user_data;
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
 
-    lv_obj_add_flag(sp_home_indicator, LV_OBJ_FLAG_HIDDEN);
-    home_indicator_data->visible = false;
+    pl_obj = gf_get_obj(ID_HOME_INDICATOR);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_add_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = false;
 }
 
 void gf_show_home_indicator(void)
 {
-    id_data *home_indicator_data = sp_home_indicator->user_data;
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
 
-    lv_obj_remove_flag(sp_home_indicator, LV_OBJ_FLAG_HIDDEN);
-    home_indicator_data->visible = true;
+    pl_obj = gf_get_obj(ID_HOME_INDICATOR);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_remove_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = true;
 }
 
 void gf_delete_home_indicator(void)
 {
-    if(lv_obj_is_valid(sp_home_indicator)) {
-        gf_free_user_data(sp_home_indicator);
-        lv_obj_delete(sp_home_indicator);
-    }
+    gf_remove_obj(ID_HOME_INDICATOR);
 }
