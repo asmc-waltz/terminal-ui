@@ -43,10 +43,12 @@ g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id)
 {
     g_obj *p_obj = NULL;
 
+    LV_LOG_USER("Register obj id %d", id);
     p_obj = malloc(sizeof(g_obj));
     LV_ASSERT_NULL(p_obj);
     p_obj->id = id;
     p_obj->obj = obj;
+    p_obj->obj->user_data = p_obj;
 
     list_add_tail(&p_obj->node, &global_data->obj_list);
 
@@ -60,6 +62,7 @@ lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id)
 
     LV_ASSERT_NULL(parent);
 
+    LV_LOG_USER("Create obj id %d", id);
     obj = lv_obj_create(parent);
     LV_ASSERT_NULL(obj);
 
@@ -75,27 +78,48 @@ lv_obj_t * gf_get_obj(uint32_t req_id)
 
     list_for_each_entry(p_obj, &global_data->obj_list, node)
     if (p_obj->id) {
-        if (p_obj->id == req_id) {
-            LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
-            break;
-        } else {
-            // TODO
+        if (p_obj->id != req_id) {
             continue;
         }
+
+        LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
+        break;
     }
 
     return p_obj->obj;
 }
 
-lv_obj_t * gf_create_panel(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
-    lv_obj_t *bg = lv_obj_create(parent);
-    lv_obj_set_size(bg, w, h);
+void gf_remove_obj(uint32_t req_id)
+{
+    g_obj *p_obj = NULL;
+    g_obj *p_obj_tmp = NULL;
+
+    list_for_each_entry_safe(p_obj, p_obj_tmp, &global_data->obj_list, node)
+    if (p_obj->id) {
+        if (p_obj->id != req_id) {
+            continue;
+        }
+
+        LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
+        if (lv_obj_is_valid(p_obj->obj)) {
+            lv_obj_delete(p_obj->obj);
+        }
+
+        list_del(&p_obj->node);
+        free(p_obj);
+        break;
+    }
+}
+
+lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, lv_style_t *style, uint32_t w, uint32_t h) {
+    lv_obj_t *bg = gf_create_obj(parent, id);
     lv_obj_add_style(bg, style, 0);
+    lv_obj_set_size(bg, w, h);
     return bg;
 }
 
 lv_obj_t * gf_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h) {
-    lv_obj_t *bg = gf_create_panel(parent, style, w, h);
+    lv_obj_t *bg = gf_create_frame(parent, ID_BG, style, w, h);
 
     static lv_style_t style_grad;
     lv_style_init(&style_grad);
@@ -132,36 +156,21 @@ void gf_free_user_data(lv_obj_t *obj)
     lv_free(p_data);
 }
 
-char *gf_set_name(lv_obj_t *obj, char *name)
-{
-    LV_ASSERT_NULL(obj);
-    id_data *p_data = obj->user_data;
-    LV_ASSERT_NULL(p_data);
-    p_data->name = name;
-    return p_data->name;
-}
-
-char *gf_get_name(lv_obj_t *obj)
-{
-    LV_ASSERT_NULL(obj);
-    id_data *p_data = obj->user_data
-    LV_ASSERT_NULL(p_data);
-    return p_data->name;
-}
-
-lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color)
+lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *icon_bg = lv_btn_create(par);
+    gf_register_obj(icon_bg, id);
     lv_obj_add_style(icon_bg, bg_style, 0);
     lv_obj_set_style_bg_color(icon_bg, lv_color_hex(bg_color), 0);
     return icon_bg;
 }
 
-lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
+lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);
+    gf_register_obj(symbol, id);
     lv_obj_add_style(symbol, symbol_style, 0);
     lv_label_set_text(symbol, index);
     lv_obj_center(symbol);

@@ -80,12 +80,10 @@ extern lv_obj_t *glob_kb;
 /*=====================
  * Setter functions
  *====================*/
-char *gf_set_name(lv_obj_t *obj, char *name);
 
 /*=====================
  * Getter functions
  *====================*/
-char *gf_get_name(lv_obj_t *obj);
 
 /*=====================
  * Other functions
@@ -93,12 +91,14 @@ char *gf_get_name(lv_obj_t *obj);
 g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
 lv_obj_t * gf_get_obj(uint32_t req_id);
+lv_obj_t * gf_get_g_obj(uint32_t req_id);
+void gf_remove_obj(uint32_t req_id);
 
-lv_obj_t * gf_create_panel(lv_obj_t *parent, lv_style_t *sty, int32_t w, int32_t h);
+lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, lv_style_t *style, uint32_t w, uint32_t h);
 lv_obj_t * gf_create_background(lv_obj_t *parent, lv_style_t *style, int32_t w, int32_t h);
 
-lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color);
-lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index);
+lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);
+lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index);
 
 void gf_refresh_all_layer(void);
 id_data * gf_init_user_data(lv_obj_t *obj);

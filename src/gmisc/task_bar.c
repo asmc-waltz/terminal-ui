@@ -29,7 +29,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_obj_t *sp_taskbar;
 
 /**********************
  *      MACROS
@@ -42,34 +41,34 @@ static void taskbar_app_icon_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
     lv_obj_t *par = lv_obj_get_parent(btn);
-    id_data *par_data = par->user_data;
+    g_obj *pg_obj = NULL;
+
     LV_LOG_USER("Button was clicked!");
+
+    pg_obj = btn->user_data;
+    if (pg_obj->id != ID_TASK_BAR_SETTING)
+    {
+        return;
+    }
+
+    pg_obj = par->user_data;
     gf_refresh_all_layer();
 
-    char *name = gf_get_name(btn);
-    LV_LOG_USER("Button %s was DETECTED!", name);
-
-    if (strcmp(name, AIC_SETTING) == 0) {
-        if (par_data->visible)
-            gf_hide_taskbar();
-
+    if (pg_obj->visible) {
+        gf_hide_taskbar();
         gf_show_home_indicator();
     }
 }
 
-static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \
+static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t id, uint32_t bg_color, \
                             uint32_t symbol, lv_event_cb_t event_cb, char *name)
 {
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;
     p_style = gf_get_lv_style(STY_BG_ICON_79);
-    lv_obj_t *button = gf_create_icon_bg(par, p_style, bg_color);
+    lv_obj_t *button = gf_create_btn_bg(par, id, p_style, bg_color);
     p_style = gf_get_lv_style(STY_SYM_48);
-    lv_obj_t *setting_symbol = gf_create_symbol(button, p_style, symbol);
-
-    id_data *id_app_data = gf_init_user_data(button);
-    LV_ASSERT_NULL(id_app_data);
-    gf_set_name(button, name);
+    lv_obj_t *setting_symbol = gf_create_symbol(button, id, p_style, symbol);
 
     lv_obj_add_event_cb(button, event_cb, LV_EVENT_CLICKED, NULL);
     return button;
@@ -80,56 +79,65 @@ static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t bg_color, \
  **********************/
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
 {
-    sp_taskbar = lv_obj_create(parent);
-    id_data *id_taskbar_data = gf_init_user_data(sp_taskbar);
-    LV_ASSERT_NULL(id_taskbar_data);
+    lv_obj_t *p_taskbar = NULL;
+    p_taskbar = gf_create_obj(parent, ID_TASK_BAR);
+    LV_ASSERT_NULL(p_taskbar);
+
     lv_style_t *p_style = NULL;
     p_style = gf_get_lv_style(STY_TASKBAR);
-    lv_obj_add_style(sp_taskbar, p_style, 0);
-    lv_obj_set_style_flex_flow(sp_taskbar, LV_FLEX_FLOW_ROW, 0);
-    lv_obj_set_style_layout(sp_taskbar, LV_LAYOUT_FLEX, 0);
-    lv_obj_set_style_bg_opa(sp_taskbar, LV_OPA_30, LV_PART_MAIN);
-    lv_obj_remove_flag(sp_taskbar, LV_OBJ_FLAG_SCROLLABLE);
-    // The size of the taskbar dynamically adjusts based on the number of icons.
-    lv_obj_set_size(sp_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    taskbar_app_icon_create(sp_taskbar, 0x03BF1F, ICON_PHONE_SOLID, \
+    lv_obj_add_style(p_taskbar, p_style, 0);
+    lv_obj_set_style_flex_flow(p_taskbar, LV_FLEX_FLOW_ROW, 0);
+    lv_obj_set_style_layout(p_taskbar, LV_LAYOUT_FLEX, 0);
+    lv_obj_set_style_bg_opa(p_taskbar, LV_OPA_30, LV_PART_MAIN);
+    lv_obj_remove_flag(p_taskbar, LV_OBJ_FLAG_SCROLLABLE);
+    // The size of the taskbar dynamically adjusts based on the number of icons.
+    lv_obj_set_size(p_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+
+    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID, \
                             taskbar_app_icon_handler, AIC_PHONE);
-    taskbar_app_icon_create(sp_taskbar, 0x03BF1F, ICON_COMMENT_SOLID, \
+    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID, \
                             taskbar_app_icon_handler, AIC_MESSAGE);
-    taskbar_app_icon_create(sp_taskbar, 0xFFAE3B, ICON_TOOLBOX_SOLID, \
+    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID, \
                             taskbar_app_icon_handler, AIC_TOOLBOX);
-    taskbar_app_icon_create(sp_taskbar, 0x4F8DFF, ICON_GEAR_SOLID, \
+    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID, \
                             taskbar_app_icon_handler, AIC_SETTING);
 
     // Align it to bottom-middle AFTER children are added
-    lv_obj_align_to(sp_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align_to(p_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
 
     gf_hide_taskbar();
 
-    return sp_taskbar;
+    return p_taskbar;
 }
 
 void gf_hide_taskbar(void)
 {
-    id_data *taskbar_data = sp_taskbar->user_data;
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
 
-    lv_obj_add_flag(sp_taskbar, LV_OBJ_FLAG_HIDDEN);
-    taskbar_data->visible = false;
+    pl_obj = gf_get_obj(ID_TASK_BAR);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_add_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = false;
 }
 
 void gf_show_taskbar(void)
 {
-    id_data *taskbar_data = sp_taskbar->user_data;
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
 
-    lv_obj_remove_flag(sp_taskbar, LV_OBJ_FLAG_HIDDEN);
-    taskbar_data->visible = true;
+    pl_obj = gf_get_obj(ID_TASK_BAR);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_remove_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = true;
 }
 
 void gf_delete_taskbar(void)
 {
-    if(lv_obj_is_valid(sp_taskbar)) {
-        gf_free_user_data(sp_taskbar);
-        lv_obj_delete(sp_taskbar);
-    }
+    gf_remove_obj(ID_TASK_BAR);
 }
