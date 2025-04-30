@@ -104,8 +104,6 @@ lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, ui
 lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index);
 
 void gf_refresh_all_layer(void);
-id_data * gf_init_user_data(lv_obj_t *obj);
-void gf_free_user_data(lv_obj_t *obj);
 
 lv_obj_t * g_create_status_bar(lv_obj_t *parent);
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent);

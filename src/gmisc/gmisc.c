@@ -163,22 +163,6 @@ void gf_refresh_all_layer(void)
     lv_obj_invalidate(lv_layer_bottom());
 }
 
-id_data * gf_init_user_data(lv_obj_t *obj)
-{
-    LV_ASSERT_NULL(obj);
-    id_data *p_data = NULL;
-    p_data = lv_malloc_zeroed(sizeof(id_data));
-    LV_ASSERT_MALLOC(p_data);
-    lv_obj_set_user_data(obj, (void *)p_data);
-}
-
-void gf_free_user_data(lv_obj_t *obj)
-{
-    LV_ASSERT_NULL(obj);
-    id_data *p_data = obj->user_data;
-    lv_free(p_data);
-}
-
 lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color)
 {
     LV_ASSERT_NULL(par);
