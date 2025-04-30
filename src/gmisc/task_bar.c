@@ -60,17 +60,18 @@ static void taskbar_app_icon_handler(lv_event_t *event)
     }
 }
 
-static lv_obj_t * taskbar_app_icon_create(lv_obj_t *par, uint32_t id, uint32_t bg_color, \
-                            uint32_t symbol, lv_event_cb_t event_cb, char *name)
+static lv_obj_t * sf_create_app_icon(lv_obj_t *par, uint32_t id, uint32_t bg_color, \
+                            uint32_t symbol)
 {
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;
+
     p_style = gf_get_lv_style(STY_BG_ICON_79);
     lv_obj_t *button = gf_create_btn_bg(par, id, p_style, bg_color);
+
     p_style = gf_get_lv_style(STY_SYM_48);
     lv_obj_t *setting_symbol = gf_create_symbol(button, id, p_style, symbol);
 
-    lv_obj_add_event_cb(button, event_cb, LV_EVENT_CLICKED, NULL);
     return button;
 }
 
@@ -94,14 +95,17 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     // The size of the taskbar dynamically adjusts based on the number of icons.
     lv_obj_set_size(p_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID, \
-                            taskbar_app_icon_handler, AIC_PHONE);
-    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID, \
-                            taskbar_app_icon_handler, AIC_MESSAGE);
-    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID, \
-                            taskbar_app_icon_handler, AIC_TOOLBOX);
-    taskbar_app_icon_create(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID, \
-                            taskbar_app_icon_handler, AIC_SETTING);
+    sf_create_app_icon(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID);
+    gf_register_handler(ID_TASK_BAR_PHONE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+
+    sf_create_app_icon(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID);
+    gf_register_handler(ID_TASK_BAR_MESSAGE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+
+    sf_create_app_icon(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID);
+    gf_register_handler(ID_TASK_BAR_TOOLBOX, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+
+    sf_create_app_icon(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID);
+    gf_register_handler(ID_TASK_BAR_SETTING, taskbar_app_icon_handler, LV_EVENT_CLICKED);
 
     // Align it to bottom-middle AFTER children are added
     lv_obj_align_to(p_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
