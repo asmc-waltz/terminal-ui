@@ -154,6 +154,15 @@ static void sf_in_app_sym_style_init(lv_style_t *p_style)
     lv_style_set_text_color(p_style, lv_color_white());
 }
 
+static void sf_home_indicator_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_bg_color(p_style, lv_color_black());
+    lv_style_set_radius(p_style, 5);
+    lv_style_set_size(p_style, 315, 10);
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_pad_all(p_style, 0);
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -216,6 +225,10 @@ void gf_styles_init(void)
     p_style = sf_create_style_data(STY_SYM_20);
     LV_ASSERT_NULL(p_style);
     sf_in_app_sym_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_HOME_INDICATOR);
+    LV_ASSERT_NULL(p_style);
+    sf_home_indicator_style_init(p_style);
 }
 
 void sf_delete_all_style_data(void)

@@ -57,15 +57,13 @@ lv_obj_t * gf_create_home_indicator(lv_obj_t *parent)
 {
     LV_ASSERT_NULL(parent);
     lv_obj_t * p_home_indicator = NULL;
+    lv_style_t *p_style = NULL;
 
     p_home_indicator = gf_create_obj(parent, ID_HOME_INDICATOR);
     LV_ASSERT_NULL(p_home_indicator);
 
-    lv_obj_set_style_bg_color(p_home_indicator, lv_color_hex(0x000000), 0);
-    lv_obj_set_style_radius(p_home_indicator, 5, 0);
-    lv_obj_set_size(p_home_indicator, 315, 10);
-    lv_obj_clear_flag(p_home_indicator, LV_OBJ_FLAG_SCROLLABLE);
-
+    p_style = gf_get_lv_style(STY_HOME_INDICATOR);
+    lv_obj_add_style(p_home_indicator, p_style, 0);
     lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
 
     gf_register_handler(ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);

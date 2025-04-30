@@ -27,6 +27,7 @@ typedef enum {
     STY_BG_ICON_37,
     STY_SYM_20,
     STY_SYM_32,
+    STY_HOME_INDICATOR,
 } g_style_id;
 
 typedef struct {
