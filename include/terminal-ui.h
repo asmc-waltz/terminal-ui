@@ -25,9 +25,20 @@
  *      DEFINES
  *********************/
 typedef struct {
+    struct list_head node;
+    uint32_t id;
+    char *name;
+    bool visible;
+    bool handler;
+} obj_data;
+
+typedef struct {
     lv_display_t *p_drm_disp;
     lv_indev_t *p_touch_dev;
-} terminal_data;
+    struct list_head h_obj;
+    struct list_head h_handler;
+    struct list_head h_style;
+} app_data;
 
 /**********************
  *      TYPEDEFS
