@@ -45,6 +45,8 @@ int main(void) {
     LV_LOG_USER("******** TERMINAL UI ********");
     global_data = calloc(sizeof(g_app_data), 1);
     LV_ASSERT_NULL(global_data);
+    INIT_LIST_HEAD(&global_data->obj_list);
+    INIT_LIST_HEAD(&global_data->handler_list);
 
     lv_init();
     drm_display_init();
