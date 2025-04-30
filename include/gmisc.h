@@ -58,6 +58,7 @@ typedef struct {
 typedef struct {
     struct list_head node;
     g_id id;
+    lv_obj_t *obj;
     char *name;
 } g_handler;
 
@@ -88,6 +89,8 @@ extern lv_obj_t *glob_kb;
 /*=====================
  * Other functions
  *====================*/
+g_handler * gf_register_handler(uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
+
 g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
 lv_obj_t * gf_get_obj(uint32_t req_id);

@@ -39,6 +39,29 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+g_handler * gf_register_handler(uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter)
+{
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
+    g_handler *p_handler = NULL;
+
+    pl_obj = gf_get_obj(id);
+    LV_ASSERT_NULL(pl_obj);
+
+    LV_LOG_USER("Register handler id %d", id);
+    p_handler = malloc(sizeof(g_handler));
+    LV_ASSERT_NULL(p_handler);
+    p_handler->id = id;
+    p_handler->obj = pl_obj;
+
+    pg_obj = pl_obj->user_data;
+
+    list_add_tail(&p_handler->node, &global_data->handler_list);
+    lv_obj_add_event_cb(pl_obj, event_cb, filter, pg_obj);
+
+    return p_handler;
+}
+
 g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id)
 {
     g_obj *p_obj = NULL;
