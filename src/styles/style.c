@@ -55,25 +55,21 @@ static void sf_background_style_init(lv_style_t *p_style)
     lv_style_init(p_style);
     lv_style_set_radius(p_style, 20);
     lv_style_set_clip_corner(p_style, true);
-
-    lv_style_set_bg_opa(p_style, LV_OPA_COVER);
-    lv_style_set_bg_color(p_style, lv_color_hex(0xffffff));
-
     lv_style_set_border_color(p_style, lv_color_hex(0x000000));
     lv_style_set_border_width(p_style, 0);
     lv_style_set_border_post(p_style, true);
-
     lv_style_set_shadow_color(p_style, lv_color_hex(0x000000));
     lv_style_set_shadow_width(p_style, 50);
     lv_style_set_shadow_spread(p_style, 10);
-
     lv_style_set_outline_color(p_style, lv_color_hex(0x000000));
     lv_style_set_outline_width(p_style, 2);
     lv_style_set_outline_pad(p_style, 5);
-
-    lv_style_set_text_color(p_style, lv_palette_darken(LV_PALETTE_GREY, 5));
     lv_style_set_line_color(p_style, lv_palette_main(LV_PALETTE_GREY));
     lv_style_set_line_width(p_style, 1);
+    lv_style_set_bg_color(p_style, lv_color_hex(0x478DDF));
+    lv_style_set_bg_grad_color(p_style, lv_color_hex(0x66D569));
+    lv_style_set_bg_grad_dir(p_style, LV_GRAD_DIR_HOR);
+    lv_style_set_bg_opa(p_style, LV_OPA_COVER);
 }
 
 static void sf_taskbar_style_init(lv_style_t *p_style)
