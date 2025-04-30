@@ -7,8 +7,7 @@
  *      INCLUDES
  *********************/
 #include <screens.h>
-#include <style.h>
-#include <fonts.h>
+#include <gmisc.h>
 
 /*********************
  *      DEFINES

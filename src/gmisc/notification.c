@@ -7,8 +7,6 @@
  *      INCLUDES
  *********************/
 #include <gmisc.h>
-#include <style.h>
-#include <fonts.h>
 
 /*********************
  *      DEFINES
