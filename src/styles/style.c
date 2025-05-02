@@ -41,6 +41,7 @@ static lv_style_t * sf_create_style_data(char id)
 {
     g_style *p_style = NULL;
 
+    LV_LOG_USER("Register style id %d", id);
     LV_ASSERT_NULL(id);
     p_style = malloc(sizeof(g_style));
     LV_ASSERT_NULL(p_style);
@@ -200,7 +201,7 @@ lv_style_t * gf_get_lv_style(char style_id)
     list_for_each_entry(p_style, &HEAD_OF_STYLES, node)
     if (p_style->id != 0) {
         if (p_style->id == style_id) {
-            LV_LOG_USER("Style REQ id is detected %d", p_style->id);
+            // LV_LOG_USER("Style REQ id is detected %d", p_style->id);
             break;
         } else {
             // TODO

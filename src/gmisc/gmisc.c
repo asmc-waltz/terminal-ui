@@ -85,7 +85,7 @@ lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id)
 
     LV_ASSERT_NULL(parent);
 
-    LV_LOG_USER("Create obj id %d", id);
+    // LV_LOG_USER("Create obj id %d", id);
     obj = lv_obj_create(parent);
     LV_ASSERT_NULL(obj);
 
@@ -105,7 +105,7 @@ lv_obj_t * gf_get_obj(uint32_t req_id)
             continue;
         }
 
-        LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
+        // LV_LOG_USER("REQ obj id %d is detected", p_obj->id);
         break;
     }
 
