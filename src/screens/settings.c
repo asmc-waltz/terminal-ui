@@ -127,12 +127,13 @@ static lv_obj_t * sf_create_setting_btn_name(lv_obj_t *par, char *text)
     return label;
 }
 
-static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *text)
+static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *def_stt, uint32_t stt_id)
 {
-    lv_obj_t *label = lv_label_create(par);
-    lv_label_set_text_fmt(label, "    %s", text);
+    lv_obj_t *lbl = lv_label_create(par);
+    gf_register_obj(lbl, stt_id);
+    lv_label_set_text_fmt(lbl, "    %s", def_stt);
 
-    return label;
+    return lbl;
 }
 
 static lv_obj_t * sf_create_setting_btn_switch(lv_obj_t *par, uint32_t sw_id)
@@ -177,7 +178,7 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(sub_container, ID_SETTING_WIFI);
     sf_create_main_setting_icon(btn, 0x3895FF, ICON_WIFI_SOLID);
     sf_create_setting_btn_name(btn, "Wi-Fi");
-    sf_create_setting_btn_status(btn, "go_5G");
+    sf_create_setting_btn_status(btn, "go_5G", ID_SETTING_WIFI_STATUS);
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_HOSTSPOT);
@@ -187,12 +188,12 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(sub_container, ID_SETTING_BLUETOOTH);
     sf_create_main_setting_icon(btn, 0x3895FF, ICON_SHARE_NODES_SOLID);
     sf_create_setting_btn_name(btn, "Bluetooth");
-    sf_create_setting_btn_status(btn, "Off");
+    sf_create_setting_btn_status(btn, "Off", ID_SETTING_BLUETOOTH_STATUS);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_CELLULAR);
     sf_create_main_setting_icon(btn, 0x03BF1F, ICON_TOWER_CELL_SOLID);
     sf_create_setting_btn_name(btn, "Cellular");
-    sf_create_setting_btn_status(btn, "On");
+    sf_create_setting_btn_status(btn, "On", ID_SETTING_CELLULAR_STATUS);
 
 
     // Cable - Network
