@@ -69,7 +69,7 @@ static lv_obj_t * sf_create_app_icon(lv_obj_t *par, uint32_t id, uint32_t bg_col
     lv_obj_t *button = gf_create_btn_bg(par, id, p_style, bg_color);
 
     p_style = gf_get_lv_style(STY_SYM_48);
-    lv_obj_t *setting_symbol = gf_create_symbol(button, id, p_style, symbol);
+    lv_obj_t *setting_symbol = gf_create_symbol(button, p_style, symbol);
 
     return button;
 }

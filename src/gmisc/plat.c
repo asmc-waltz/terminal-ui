@@ -62,7 +62,7 @@ lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, ui
     return icon_bg;
 }
 
-lv_obj_t * gf_create_icon_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color)
+lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *icon_bg = lv_obj_create(par);
@@ -73,7 +73,17 @@ lv_obj_t * gf_create_icon_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, u
     return icon_bg;
 }
 
-lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index)
+lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
+{
+    LV_ASSERT_NULL(par);
+    lv_obj_t *symbol = lv_label_create(par);
+    lv_obj_add_style(symbol, symbol_style, 0);
+    lv_label_set_text(symbol, index);
+    lv_obj_center(symbol);
+    return symbol;
+}
+
+lv_obj_t * gf_create_interact_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);

@@ -38,19 +38,19 @@ static lv_obj_t * list1;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t id, \
-                                            uint32_t bg_color, uint32_t symbol)
+static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t bg_color, \
+                                              uint32_t symbol)
 {
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;
 
     p_style = gf_get_lv_style(STY_BG_ICON_37);
-    lv_obj_t *button = gf_create_icon_bg(par, id, p_style, bg_color);
+    lv_obj_t *icon_bg= gf_create_icon_bg(par, p_style, bg_color);
 
     p_style = gf_get_lv_style(STY_SYM_20);
-    lv_obj_t *setting_symbol = gf_create_symbol(button, id, p_style, symbol);
+    lv_obj_t *setting_symbol = gf_create_symbol(icon_bg, p_style, symbol);
 
-    return button;
+    return icon_bg;
 }
 
 static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
@@ -160,7 +160,7 @@ void gf_create_main_setting_menu(void)
     lv_obj_t *sub_container = sf_create_main_setting_sub_container(container);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_SEACH);
-    sf_create_main_setting_icon(btn, ID_SETTING_SEACH, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
+    sf_create_main_setting_icon(btn, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
     sf_create_setting_btn_name(btn, "Search...");
 
 
@@ -169,28 +169,28 @@ void gf_create_main_setting_menu(void)
     sub_container = sf_create_main_setting_sub_container(container);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_AIRPLANE);
-    sf_create_main_setting_icon(btn, ID_SETTING_AIRPLANE, 0xFF6B3A, ICON_PLANE_SOLID);
+    sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_PLANE_SOLID);
     sf_create_setting_btn_name(btn, "Airplane");
     sf_create_setting_btn_switch(btn, ID_SETTING_AIRPLANE_SW);
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_WIFI);
-    sf_create_main_setting_icon(btn, ID_SETTING_WIFI, 0x3895FF, ICON_WIFI_SOLID);
+    sf_create_main_setting_icon(btn, 0x3895FF, ICON_WIFI_SOLID);
     sf_create_setting_btn_name(btn, "Wi-Fi");
     sf_create_setting_btn_status(btn, "go_5G");
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_HOSTSPOT);
-    sf_create_main_setting_icon(btn, ID_SETTING_HOSTSPOT, 0x86807B, ICON_SHARE_NODES_SOLID);
+    sf_create_main_setting_icon(btn, 0x86807B, ICON_SHARE_NODES_SOLID);
     sf_create_setting_btn_name(btn, "Hostspot");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_BLUETOOTH);
-    sf_create_main_setting_icon(btn, ID_SETTING_BLUETOOTH, 0x3895FF, ICON_SHARE_NODES_SOLID);
+    sf_create_main_setting_icon(btn, 0x3895FF, ICON_SHARE_NODES_SOLID);
     sf_create_setting_btn_name(btn, "Bluetooth");
     sf_create_setting_btn_status(btn, "Off");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_CELLULAR);
-    sf_create_main_setting_icon(btn, ID_SETTING_CELLULAR, 0x03BF1F, ICON_TOWER_CELL_SOLID);
+    sf_create_main_setting_icon(btn, 0x03BF1F, ICON_TOWER_CELL_SOLID);
     sf_create_setting_btn_name(btn, "Cellular");
     sf_create_setting_btn_status(btn, "On");
 
@@ -198,18 +198,18 @@ void gf_create_main_setting_menu(void)
     // Cable - Network
     sub_container = sf_create_main_setting_sub_container(container);
     btn = sf_create_setting_btn(sub_container, ID_SETTING_ETHERNET);
-    sf_create_main_setting_icon(btn, ID_SETTING_ETHERNET, 0xFBDE00, ICON_ETHERNET_SOLID);
+    sf_create_main_setting_icon(btn, 0xFBDE00, ICON_ETHERNET_SOLID);
     sf_create_setting_btn_name(btn, "Ethernet");
     sf_create_setting_btn_switch(btn, ID_SETTING_ETHERNET_SW);
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_NETWORK);
-    sf_create_main_setting_icon(btn, ID_SETTING_NETWORK, 0x9E78FF, ICON_NETWORK_WIRED_SOLID);
+    sf_create_main_setting_icon(btn, 0x9E78FF, ICON_NETWORK_WIRED_SOLID);
     sf_create_setting_btn_name(btn, "Network");
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_FILTER);
-    sf_create_main_setting_icon(btn, ID_SETTING_FILTER, 0xFF6B3A, ICON_FILTER_SOLID);
+    sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_FILTER_SOLID);
     sf_create_setting_btn_name(btn, "Filter");
     sf_create_setting_btn_switch(btn, ID_SETTING_FILTER_SW);
 
@@ -218,12 +218,12 @@ void gf_create_main_setting_menu(void)
     sub_container = sf_create_main_setting_sub_container(container);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_PHONE);
-    sf_create_main_setting_icon(btn, ID_SETTING_PHONE, 0x34E424, ICON_PHONE_SOLID);
+    sf_create_main_setting_icon(btn, 0x34E424, ICON_PHONE_SOLID);
     sf_create_setting_btn_name(btn, "Phone");
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_MESSAGE);
-    sf_create_main_setting_icon(btn, ID_SETTING_MESSAGE, 0x34E424, ICON_COMMENT_SOLID);
+    sf_create_main_setting_icon(btn, 0x34E424, ICON_COMMENT_SOLID);
     sf_create_setting_btn_name(btn, "Message");
 
 
@@ -231,42 +231,42 @@ void gf_create_main_setting_menu(void)
     sub_container = sf_create_main_setting_sub_container(container);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_ALERT_AND_HAPTIC);
-    sf_create_main_setting_icon(btn, ID_SETTING_ALERT_AND_HAPTIC, 0xFF6B3A, ICON_BELL_SOLID);
+    sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_BELL_SOLID);
     sf_create_setting_btn_name(btn, "Alert & Haptic");
     sf_create_setting_btn_switch(btn, ID_SETTING_ALERT_AND_HAPTIC_SW);
 
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_AUDIO);
-    sf_create_main_setting_icon(btn, ID_SETTING_AUDIO, 0xFBDE00, ICON_VOLUME_HIGH_SOLID);
+    sf_create_main_setting_icon(btn, 0xFBDE00, ICON_VOLUME_HIGH_SOLID);
     sf_create_setting_btn_name(btn, "Audio");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_MICROPHONE);
-    sf_create_main_setting_icon(btn, ID_SETTING_MICROPHONE, 0xFBDE00, ICON_MICROPHONE_SOLID);
+    sf_create_main_setting_icon(btn, 0xFBDE00, ICON_MICROPHONE_SOLID);
     sf_create_setting_btn_name(btn, "Microphone");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_ROTATE);
-    sf_create_main_setting_icon(btn, ID_SETTING_ROTATE, 0x7AB6FE, ICON_ROTATE_SOLID);
+    sf_create_main_setting_icon(btn, 0x7AB6FE, ICON_ROTATE_SOLID);
     sf_create_setting_btn_name(btn, "Rotate");
     sf_create_setting_btn_switch(btn, ID_SETTING_ROTATE_SW);
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_DATE_TIME);
-    sf_create_main_setting_icon(btn, ID_SETTING_DATE_TIME, 0x008097, ICON_CALENDAR_DAYS_SOLID);
+    sf_create_main_setting_icon(btn, 0x008097, ICON_CALENDAR_DAYS_SOLID);
     sf_create_setting_btn_name(btn, "Date & Time");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_GNSS);
-    sf_create_main_setting_icon(btn, ID_SETTING_GNSS, 0x9E78FF, ICON_SATELLITE_SOLID);
+    sf_create_main_setting_icon(btn, 0x9E78FF, ICON_SATELLITE_SOLID);
     sf_create_setting_btn_name(btn, "GNSS");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_BRIGHTNESS);
-    sf_create_main_setting_icon(btn, ID_SETTING_BRIGHTNESS, 0xFBDE00, ICON_CIRCLE_HALF_STROKE_SOLID);
+    sf_create_main_setting_icon(btn, 0xFBDE00, ICON_CIRCLE_HALF_STROKE_SOLID);
     sf_create_setting_btn_name(btn, "Brightness");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_POWER);
-    sf_create_main_setting_icon(btn, ID_SETTING_POWER, 0xBD0000, ICON_BOLT_SOLID);
+    sf_create_main_setting_icon(btn, 0xBD0000, ICON_BOLT_SOLID);
     sf_create_setting_btn_name(btn, "Power");
 
     btn = sf_create_setting_btn(sub_container, ID_SETTING_ABOUT);
-    sf_create_main_setting_icon(btn, ID_SETTING_ABOUT, 0x34E424, ICON_CIRCLE_INFO_SOLID);
+    sf_create_main_setting_icon(btn, 0x34E424, ICON_CIRCLE_INFO_SOLID);
     sf_create_setting_btn_name(btn, "About");
 }
 
