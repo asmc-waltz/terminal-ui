@@ -28,6 +28,14 @@ typedef enum {
     STY_SYM_20,
     STY_SYM_32,
     STY_HOME_INDICATOR,
+    STY_SETTING,
+    STY_SETTING_MAIN_CTR,
+    STY_SETTING_MAIN_CHILD_CTR,
+    STY_SETTING_BTN,
+    STY_SETTING_SW,
+    STY_SETTING_TXT,
+    STY_SETTING_SUB_CTR,
+    STY_SETTING_SUB_CHILD_CTR,
 } g_style_id;
 
 typedef struct {

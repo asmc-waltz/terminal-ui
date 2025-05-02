@@ -174,6 +174,22 @@ static void sf_home_indicator_style_init(lv_style_t *p_style)
     lv_style_set_border_width(p_style, 0);
     lv_style_set_pad_all(p_style, 0);
 }
+
+static void sf_setting_main_ctr_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_size(p_style, 332, 530);
+    lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_COLUMN);
+    lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
+    lv_style_set_bg_color(p_style, lv_color_hex(0xE9EDF2));
+    lv_style_set_pad_all(p_style, 15);
+    lv_style_set_pad_gap(p_style, 0);
+    lv_style_set_border_width(p_style, 1);
+    lv_style_set_border_color(p_style, lv_color_hex(0x979797));
+    lv_style_set_pad_row(p_style, 20);
+    lv_style_set_anim_duration(p_style, 50);
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -240,6 +256,10 @@ void gf_styles_init(void)
     p_style = sf_create_style_data(STY_HOME_INDICATOR);
     LV_ASSERT_NULL(p_style);
     sf_home_indicator_style_init(p_style);
+
+    p_style = sf_create_style_data(STY_SETTING_MAIN_CTR);
+    LV_ASSERT_NULL(p_style);
+    sf_setting_main_ctr_style_init(p_style);
 }
 
 void sf_delete_all_style_data(void)

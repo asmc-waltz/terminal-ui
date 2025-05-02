@@ -55,19 +55,14 @@ static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t bg_color, 
 
 static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
 {
-    lv_obj_t *container = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(container, 332, 530);
-    lv_obj_align_to(container, lv_screen_active(), LV_ALIGN_BOTTOM_LEFT, +10, -10);
-    lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN); // Vertical stacking
-    lv_obj_set_style_bg_color(container, lv_color_hex(0xE9EDF2), 0);
-    lv_obj_set_style_pad_all(container, 15, 0);
-    lv_obj_set_style_pad_gap(container, 0, 0);
-    lv_obj_set_style_border_width(container, 1, 0);
-    lv_obj_set_style_border_color(container, lv_color_hex(0x979797), LV_PART_MAIN);
+    lv_obj_t *ctr = lv_obj_create(par);
+    lv_style_t *p_style = NULL;
 
-    lv_obj_scroll_to_view(container, LV_ANIM_ON);
-    lv_obj_set_style_anim_duration(container, 50, 0);
-    return container;
+    p_style = gf_get_lv_style(STY_SETTING_MAIN_CTR);
+    lv_obj_add_style(ctr, p_style, 0);
+    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_LEFT, +10, -10);
+
+    return ctr;
 }
 
 static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
@@ -151,8 +146,6 @@ void gf_create_main_setting_menu(void)
 {
     lv_obj_t * btn;
     lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active());
-    lv_obj_set_style_pad_row(main_ctr, 15, 0);
-
 
     // Seach
     lv_obj_t *child_ctr = sf_create_main_setting_child_ctr(main_ctr);
@@ -188,7 +181,6 @@ void gf_create_main_setting_menu(void)
     sf_create_setting_btn_name(btn, "Cellular");
     sf_create_setting_btn_status(btn, "On", ID_SETTING_CELLULAR_STATUS);
 
-
     // Cable - Network
     child_ctr = sf_create_main_setting_child_ctr(main_ctr);
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ETHERNET);
@@ -196,17 +188,14 @@ void gf_create_main_setting_menu(void)
     sf_create_setting_btn_name(btn, "Ethernet");
     sf_create_setting_btn_switch(btn, ID_SETTING_ETHERNET_SW);
 
-
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_NETWORK);
     sf_create_main_setting_icon(btn, 0x9E78FF, ICON_NETWORK_WIRED_SOLID);
     sf_create_setting_btn_name(btn, "Network");
-
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_FILTER);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_FILTER_SOLID);
     sf_create_setting_btn_name(btn, "Filter");
     sf_create_setting_btn_switch(btn, ID_SETTING_FILTER_SW);
-
 
     // Phone - Message
     child_ctr = sf_create_main_setting_child_ctr(main_ctr);
@@ -215,11 +204,9 @@ void gf_create_main_setting_menu(void)
     sf_create_main_setting_icon(btn, 0x34E424, ICON_PHONE_SOLID);
     sf_create_setting_btn_name(btn, "Phone");
 
-
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_MESSAGE);
     sf_create_main_setting_icon(btn, 0x34E424, ICON_COMMENT_SOLID);
     sf_create_setting_btn_name(btn, "Message");
-
 
     // General setting
     child_ctr = sf_create_main_setting_child_ctr(main_ctr);
@@ -228,7 +215,6 @@ void gf_create_main_setting_menu(void)
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_BELL_SOLID);
     sf_create_setting_btn_name(btn, "Alert & Haptic");
     sf_create_setting_btn_switch(btn, ID_SETTING_ALERT_AND_HAPTIC_SW);
-
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_AUDIO);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_VOLUME_HIGH_SOLID);
