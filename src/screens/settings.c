@@ -68,16 +68,14 @@ static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
 static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
 {
     lv_obj_t *child_ctr = lv_obj_create(par);
-    lv_obj_set_size(child_ctr, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_bg_opa(child_ctr, LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(child_ctr, 0, 0);
-    lv_obj_set_style_pad_gap(child_ctr, 0, 0);
-    lv_obj_set_style_border_width(child_ctr, 0, 0);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_SETTING_MAIN_CHILD_CTR);
+    lv_obj_add_style(child_ctr, p_style, 0);
 
     lv_obj_t *sub_list = lv_list_create(child_ctr);
     lv_obj_set_size(sub_list, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_align(sub_list, LV_ALIGN_CENTER, 0, 0);
-
 
     return sub_list;
 }
@@ -95,17 +93,14 @@ static void event_handler(lv_event_t * e)
 static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t btn_id)
 {
     lv_obj_t * btn = lv_list_add_button(par, NULL, NULL);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_SETTING_BTN);
+    lv_obj_add_style(btn, p_style, 0);
+
     gf_register_obj(btn, btn_id);
 
-    lv_obj_set_layout(btn, LV_LAYOUT_FLEX);
-    lv_obj_set_flex_flow(btn, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-
-    lv_obj_set_style_pad_all(btn, 5, 0);
-    lv_obj_set_style_pad_gap(btn, 0, 0);
-    lv_obj_set_size(btn, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_radius(btn, 8, 0);
-
+    // TODO
     lv_obj_add_event_cb(btn, event_handler, LV_EVENT_CLICKED, NULL);
 
     return btn;
@@ -114,7 +109,9 @@ static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t btn_id)
 static lv_obj_t * sf_create_setting_btn_name(lv_obj_t *par, char *text)
 {
     lv_obj_t *lbl = lv_label_create(par);
-    lv_label_set_text_fmt(lbl, "    %s", text);
+
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
+    lv_label_set_text_fmt(lbl, "  %s", text);
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_flex_grow(lbl, 1);
 
@@ -125,7 +122,11 @@ static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *def_stt, uin
 {
     lv_obj_t *lbl = lv_label_create(par);
     gf_register_obj(lbl, stt_id);
-    lv_label_set_text_fmt(lbl, "    %s", def_stt);
+
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
+    lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
+
+    lv_label_set_text_fmt(lbl, "%s", def_stt);
 
     return lbl;
 }
