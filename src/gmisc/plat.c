@@ -62,6 +62,17 @@ lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, ui
     return icon_bg;
 }
 
+lv_obj_t * gf_create_icon_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color)
+{
+    LV_ASSERT_NULL(par);
+    lv_obj_t *icon_bg = lv_obj_create(par);
+    lv_obj_add_style(icon_bg, bg_style, 0);
+    lv_obj_set_style_bg_color(icon_bg, lv_color_hex(bg_color), 0);
+    lv_obj_remove_flag(icon_bg, LV_OBJ_FLAG_SCROLLABLE);
+
+    return icon_bg;
+}
+
 lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index)
 {
     LV_ASSERT_NULL(par);

@@ -36,6 +36,7 @@
  *====================*/
 void gf_create_home_screen();
 
+void gf_create_main_setting_menu(void);
 /**********************
  *      MACROS
  **********************/

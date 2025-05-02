@@ -64,7 +64,7 @@ int main(void) {
     gf_keyboard_create();
 
     // If there are no other components, we can safely clear all current style data
-    sf_delete_all_style_data();
+    // sf_delete_all_style_data();
 
     static uint32_t user_data = 10;
     lv_timer_t * timer = lv_timer_create(my_timer, 5,  &user_data);

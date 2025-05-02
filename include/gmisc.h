@@ -30,23 +30,43 @@ typedef struct {
 } id_data;
 
 typedef enum {
-	ID_NONE = 0,
-	ID_BG,
-	ID_SRC_HOME,
-	ID_STATUS_BAR,
-	ID_STATUS_BAR_SIGNAL_STRENGTH,
-	ID_STATUS_BAR_SIGNAL_TYPE,
-	ID_STATUS_BAR_ETHERNET,
-	ID_STATUS_BAR_WIFI,
-	ID_STATUS_BAR_CLOCK,
-	ID_STATUS_BAR_ALERT,
-	ID_STATUS_BAR_POWER,
-	ID_TASK_BAR,
-	ID_TASK_BAR_PHONE,
-	ID_TASK_BAR_MESSAGE,
-	ID_TASK_BAR_TOOLBOX,
-	ID_TASK_BAR_SETTING,
-	ID_HOME_INDICATOR,
+    ID_NONE = 0,
+    ID_BG,
+    ID_SRC_HOME,
+    ID_STATUS_BAR,
+    ID_STATUS_BAR_SIGNAL_STRENGTH,
+    ID_STATUS_BAR_SIGNAL_TYPE,
+    ID_STATUS_BAR_ETHERNET,
+    ID_STATUS_BAR_WIFI,
+    ID_STATUS_BAR_CLOCK,
+    ID_STATUS_BAR_ALERT,
+    ID_STATUS_BAR_POWER,
+    ID_TASK_BAR,
+    ID_TASK_BAR_PHONE,
+    ID_TASK_BAR_MESSAGE,
+    ID_TASK_BAR_TOOLBOX,
+    ID_TASK_BAR_SETTING,
+    ID_HOME_INDICATOR,
+    ID_SETTING_SEACH,
+    ID_SETTING_AIRPLANE,
+    ID_SETTING_WIFI,
+    ID_SETTING_HOSTSPOT,
+    ID_SETTING_BLUETOOTH,
+    ID_SETTING_CELLULAR,
+    ID_SETTING_ETHERNET,
+    ID_SETTING_NETWORK,
+    ID_SETTING_FILTER,
+    ID_SETTING_PHONE,
+    ID_SETTING_MESSAGE,
+    ID_SETTING_ALERT_AND_HAPTIC,
+    ID_SETTING_AUDIO,
+    ID_SETTING_MICROPHONE,
+    ID_SETTING_ROTATE,
+    ID_SETTING_DATE_TIME,
+    ID_SETTING_GNSS,
+    ID_SETTING_BRIGHTNESS,
+    ID_SETTING_POWER,
+    ID_SETTING_ABOUT,
 } g_id;
 
 typedef struct {
@@ -103,6 +123,7 @@ lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, lv_style_t *style, uin
 lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h);
 
 lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);
+lv_obj_t * gf_create_icon_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);
 lv_obj_t * gf_create_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index);
 
 void gf_refresh_all_layer(void);

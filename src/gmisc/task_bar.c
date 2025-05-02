@@ -55,6 +55,7 @@ static void taskbar_app_icon_handler(lv_event_t *event)
     if (pg_obj->visible) {
         gf_hide_taskbar();
         gf_show_home_indicator();
+        gf_create_main_setting_menu();
     }
 }
 

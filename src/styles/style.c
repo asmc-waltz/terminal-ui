@@ -144,6 +144,11 @@ static void sf_in_app_icon_bg_style_init(lv_style_t *p_style)
     lv_style_set_outline_color(p_style, lv_color_black());
     lv_style_set_outline_width(p_style, 0);
     lv_style_set_outline_pad(p_style, 0);
+
+
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_pad_all(p_style, 0);
+    lv_style_set_shadow_width(p_style, 0);
 }
 
 static void sf_in_app_sym_style_init(lv_style_t *p_style)
@@ -151,7 +156,13 @@ static void sf_in_app_sym_style_init(lv_style_t *p_style)
     lv_style_init(p_style);
     lv_style_set_size(p_style, 20, 20);
     lv_style_set_text_font(p_style, &terminal_icons_20);
-    lv_style_set_text_color(p_style, lv_color_white());
+    lv_style_set_text_color(p_style, lv_color_black());
+
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_outline_width(p_style, 0);
+    lv_style_set_outline_pad(p_style, 0);
+    lv_style_set_pad_all(p_style, 0);
+    lv_style_set_shadow_width(p_style, 0);
 }
 
 static void sf_home_indicator_style_init(lv_style_t *p_style)
