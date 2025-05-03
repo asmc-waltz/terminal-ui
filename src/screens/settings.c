@@ -53,7 +53,7 @@ static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t bg_color, 
     return icon_bg;
 }
 
-static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
+static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par, uint32_t ctr_id)
 {
     lv_obj_t *ctr = lv_obj_create(par);
     lv_style_t *p_style = NULL;
@@ -61,6 +61,8 @@ static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
     p_style = gf_get_lv_style(STY_SETTING_MAIN_CTR);
     lv_obj_add_style(ctr, p_style, 0);
     lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_LEFT, +10, -10);
+
+    gf_register_obj(par, ctr, ctr_id);
 
     return ctr;
 }
@@ -77,7 +79,7 @@ static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par)
     return ctr;
 }
 
-static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
+static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par, uint32_t ctr_id)
 {
     lv_obj_t *child_ctr = lv_obj_create(par);
     lv_style_t *p_style = NULL;
@@ -88,6 +90,8 @@ static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
     lv_obj_t *sub_list = lv_list_create(child_ctr);
     lv_obj_set_size(sub_list, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_align(sub_list, LV_ALIGN_CENTER, 0, 0);
+
+    gf_register_obj(par, sub_list, ctr_id);
 
     return sub_list;
 }
@@ -178,13 +182,13 @@ static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text)
 void gf_create_main_setting_menu(void)
 {
     lv_obj_t * btn;
-    lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active());
+    lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active(), ID_SETTING_MAIN_CTR);
 
     lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr);
     sf_create_sub_setting_title(child_ctr, "Setting");
 
     // Seach
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_SEARCH);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_SEACH);
     sf_create_main_setting_icon(btn, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
@@ -192,7 +196,7 @@ void gf_create_main_setting_menu(void)
     gf_register_handler(ID_SETTING_SEACH, event_handler, LV_EVENT_CLICKED);
 
     // Wireless
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_WIRELESS);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_AIRPLANE);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_PLANE_SOLID);
@@ -224,7 +228,7 @@ void gf_create_main_setting_menu(void)
     gf_register_handler(ID_SETTING_CELLULAR, event_handler, LV_EVENT_CLICKED);
 
     // Cable - Network
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_NETWORK);
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ETHERNET);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_ETHERNET_SOLID);
     sf_create_setting_btn_name(btn, "Ethernet");
@@ -243,7 +247,7 @@ void gf_create_main_setting_menu(void)
     sf_create_setting_btn_switch(btn, ID_SETTING_FILTER_SW);
 
     // Phone - Message
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_PHONE);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_PHONE);
     sf_create_main_setting_icon(btn, 0x34E424, ICON_PHONE_SOLID);
@@ -256,7 +260,7 @@ void gf_create_main_setting_menu(void)
     gf_register_handler(ID_SETTING_MESSAGE, event_handler, LV_EVENT_CLICKED);
 
     // General setting
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_GENERAL);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ALERT_AND_HAPTIC);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_BELL_SOLID);
