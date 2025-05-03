@@ -41,7 +41,7 @@ static lv_style_t * sf_create_style_data(char id)
 {
     g_style *p_style = NULL;
 
-    LV_LOG_USER("Register style id %d", id);
+    // LV_LOG_USER("Register style id %d", id);
     LV_ASSERT_NULL(id);
     p_style = malloc(sizeof(g_style));
     LV_ASSERT_NULL(p_style);
