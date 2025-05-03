@@ -65,6 +65,18 @@ static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par)
     return ctr;
 }
 
+static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par)
+{
+    lv_obj_t *ctr = lv_obj_create(par);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_SETTING_SUB_CTR);
+    lv_obj_add_style(ctr, p_style, 0);
+    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
+
+    return ctr;
+}
+
 static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
 {
     lv_obj_t *child_ctr = lv_obj_create(par);
@@ -78,6 +90,17 @@ static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par)
     lv_obj_align(sub_list, LV_ALIGN_CENTER, 0, 0);
 
     return sub_list;
+}
+
+static lv_obj_t * sf_create_setting_title_ctr(lv_obj_t *par)
+{
+    lv_obj_t *child_ctr = lv_obj_create(par);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_SETTING_MAIN_CHILD_CTR);
+    lv_obj_add_style(child_ctr, p_style, 0);
+
+    return child_ctr;
 }
 
 static void event_handler(lv_event_t * e)
@@ -140,6 +163,18 @@ static lv_obj_t * sf_create_setting_btn_switch(lv_obj_t *par, uint32_t sw_id)
     return sw;
 }
 
+static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text)
+{
+    lv_obj_t *lbl = lv_label_create(par);
+
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_38, 0);
+    lv_label_set_text_fmt(lbl, "%s", text);
+    lv_obj_set_style_align(lbl, LV_ALIGN_CENTER, 0);
+
+    return lbl;
+}
+
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -148,8 +183,11 @@ void gf_create_main_setting_menu(void)
     lv_obj_t * btn;
     lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active());
 
+    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr);
+    sf_create_sub_setting_title(child_ctr, "Setting");
+
     // Seach
-    lv_obj_t *child_ctr = sf_create_main_setting_child_ctr(main_ctr);
+    child_ctr = sf_create_main_setting_child_ctr(main_ctr);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_SEACH);
     sf_create_main_setting_icon(btn, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
@@ -251,3 +289,11 @@ void gf_create_main_setting_menu(void)
     sf_create_setting_btn_name(btn, "About");
 }
 
+void gf_create_sub_setting_menu(void)
+{
+    lv_obj_t * btn;
+    lv_obj_t *main_ctr = sf_create_sub_setting_container(lv_screen_active());
+    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr);
+
+    sf_create_sub_setting_title(child_ctr, "Airplane");
+}
