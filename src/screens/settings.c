@@ -113,7 +113,8 @@ static void event_handler(lv_event_t * e)
     lv_obj_t * obj = lv_event_get_target_obj(e);
     if(code == LV_EVENT_CLICKED) {
         LV_UNUSED(obj);
-        LV_LOG_USER("Clicked: %s", lv_list_get_button_text(list1, obj));
+        LV_LOG_USER("BTN: %s - ID %d", lv_list_get_button_text(list1, obj), \
+                    ((g_obj *)(obj->user_data))->id);
     }
 }
 
