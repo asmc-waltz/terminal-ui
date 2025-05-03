@@ -55,8 +55,8 @@ static void taskbar_app_icon_handler(lv_event_t *event)
     if (pg_obj->visible) {
         gf_hide_taskbar();
         gf_show_home_indicator();
-        gf_create_main_setting_menu();
-        gf_create_sub_setting_menu();
+        // gf_create_main_setting_menu();
+        // gf_create_sub_setting_menu();
     }
 }
 
@@ -120,7 +120,7 @@ void gf_hide_taskbar(void)
     lv_obj_t *pl_obj = NULL;
     g_obj *pg_obj = NULL;
 
-    pl_obj = gf_get_obj(ID_TASK_BAR);
+    pl_obj = gf_get_obj(ID_TASK_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);
     pg_obj = pl_obj->user_data;
 
@@ -133,7 +133,7 @@ void gf_show_taskbar(void)
     lv_obj_t *pl_obj = NULL;
     g_obj *pg_obj = NULL;
 
-    pl_obj = gf_get_obj(ID_TASK_BAR);
+    pl_obj = gf_get_obj(ID_TASK_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);
     pg_obj = pl_obj->user_data;
 

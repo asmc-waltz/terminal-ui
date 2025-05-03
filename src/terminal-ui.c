@@ -51,6 +51,11 @@ int main(void) {
     lv_init();
     drm_display_init();
     touch_screen_init();
+
+    gf_register_obj(NULL, lv_layer_sys(), ID_LAYER_SYS);
+    gf_register_obj(NULL, lv_layer_top(), ID_LAYER_TOP);
+    gf_register_obj(NULL, lv_screen_active(), ID_LAYER_ACT);
+    gf_register_obj(NULL, lv_layer_bottom(), ID_LAYER_BOT);
  
     gf_styles_init();
 

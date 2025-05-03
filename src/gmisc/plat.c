@@ -56,7 +56,7 @@ lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, ui
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *icon_bg = lv_btn_create(par);
-    gf_register_obj(icon_bg, id);
+    gf_register_obj(par, icon_bg, id);
     lv_obj_add_style(icon_bg, bg_style, 0);
     lv_obj_set_style_bg_color(icon_bg, lv_color_hex(bg_color), 0);
     return icon_bg;
@@ -87,7 +87,7 @@ lv_obj_t * gf_create_interact_symbol(lv_obj_t *par, uint32_t id, lv_style_t *sym
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);
-    gf_register_obj(symbol, id);
+    gf_register_obj(par, symbol, id);
     lv_obj_add_style(symbol, symbol_style, 0);
     lv_label_set_text(symbol, index);
     lv_obj_center(symbol);

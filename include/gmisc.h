@@ -31,6 +31,10 @@ typedef struct {
 
 typedef enum {
     ID_NONE = 0,
+    ID_LAYER_SYS,
+    ID_LAYER_TOP,
+    ID_LAYER_ACT,
+    ID_LAYER_BOT,
     ID_BG,
     ID_SRC_HOME,
     ID_STATUS_BAR,
@@ -79,6 +83,7 @@ typedef enum {
 
 typedef struct {
     struct list_head node;
+    struct list_head child;
     g_id id;
     lv_obj_t *obj;
     char *name;
@@ -121,9 +126,9 @@ extern lv_obj_t *glob_kb;
  *====================*/
 g_handler * gf_register_handler(uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
 
-g_obj * gf_register_obj(lv_obj_t *obj, uint32_t id);
+g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
-lv_obj_t * gf_get_obj(uint32_t req_id);
+lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t * gf_get_g_obj(uint32_t req_id);
 void gf_remove_obj(uint32_t req_id);
 

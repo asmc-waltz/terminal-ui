@@ -121,7 +121,7 @@ static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t btn_id)
     p_style = gf_get_lv_style(STY_SETTING_BTN);
     lv_obj_add_style(btn, p_style, 0);
 
-    gf_register_obj(btn, btn_id);
+    gf_register_obj(par, btn, btn_id);
 
     return btn;
 }
@@ -141,7 +141,7 @@ static lv_obj_t * sf_create_setting_btn_name(lv_obj_t *par, char *text)
 static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *def_stt, uint32_t stt_id)
 {
     lv_obj_t *lbl = lv_label_create(par);
-    gf_register_obj(lbl, stt_id);
+    gf_register_obj(par, lbl, stt_id);
 
     lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -154,7 +154,7 @@ static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *def_stt, uin
 static lv_obj_t * sf_create_setting_btn_switch(lv_obj_t *par, uint32_t sw_id)
 {
     lv_obj_t *sw = lv_switch_create(par);
-    gf_register_obj(sw, sw_id);
+    gf_register_obj(par, sw, sw_id);
     lv_obj_set_style_bg_color(sw, lv_color_hex(0x03BF1F), LV_PART_INDICATOR | LV_STATE_CHECKED);
 
     return sw;

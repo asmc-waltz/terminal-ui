@@ -76,7 +76,7 @@ void gf_hide_home_indicator(void)
     lv_obj_t *pl_obj = NULL;
     g_obj *pg_obj = NULL;
 
-    pl_obj = gf_get_obj(ID_HOME_INDICATOR);
+    pl_obj = gf_get_obj(ID_HOME_INDICATOR, NULL);
     LV_ASSERT_NULL(pl_obj);
     pg_obj = pl_obj->user_data;
 
@@ -89,7 +89,7 @@ void gf_show_home_indicator(void)
     lv_obj_t *pl_obj = NULL;
     g_obj *pg_obj = NULL;
 
-    pl_obj = gf_get_obj(ID_HOME_INDICATOR);
+    pl_obj = gf_get_obj(ID_HOME_INDICATOR, NULL);
     LV_ASSERT_NULL(pl_obj);
     pg_obj = pl_obj->user_data;
 
