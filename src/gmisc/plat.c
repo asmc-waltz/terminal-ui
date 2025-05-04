@@ -39,17 +39,20 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, lv_style_t *style, uint32_t w, uint32_t h) {
+lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, uint32_t w, uint32_t h) {
     lv_obj_t *bg = gf_create_obj(parent, id);
-    lv_obj_add_style(bg, style, 0);
     lv_obj_set_size(bg, w, h);
     return bg;
 }
 
 lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h) {
     lv_style_t *p_style = NULL;
+    lv_obj_t *p_obj = NULL;
+
+    p_obj = gf_create_frame(parent, ID_BG, w, h);
     p_style = gf_get_lv_style(STY_BG);
-    return gf_create_frame(parent, ID_BG, p_style, w, h);
+    lv_obj_add_style(p_obj, p_style, 0);
+    return p_obj;
 }
 
 lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color)

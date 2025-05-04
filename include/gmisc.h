@@ -142,7 +142,7 @@ lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t * gf_get_g_obj(uint32_t req_id);
 void gf_remove_obj(uint32_t req_id);
 
-lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, lv_style_t *style, uint32_t w, uint32_t h);
+lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, uint32_t w, uint32_t h);
 lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h);
 
 lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);

@@ -180,10 +180,16 @@ static void event_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target_obj(e);
+    uint32_t id = ID_NONE;
+
     if (code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("BTN: %s - ID %d", lv_list_get_button_text(NULL, obj), \
-                    ((g_obj *)(obj->user_data))->id);
+        id = ((g_obj *)(obj->user_data))->id;
+        LV_LOG_USER("BTN: %s - ID %d", lv_list_get_button_text(NULL, obj), id);
         sf_update_sub_setting_title(lv_list_get_button_text(NULL, obj));
+
+        if (id == ID_SETTING_SEACH) {
+            gf_show_keyboard();
+        }
     }
 }
 

@@ -180,6 +180,7 @@ static void sf_setting_ctr_style_init(lv_style_t *p_style, uint32_t w, uint32_t 
 {
     lv_style_init(p_style);
     lv_style_set_size(p_style, w, h);
+    lv_style_set_radius(p_style, 10);
     lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_COLUMN);
     lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
     lv_style_set_bg_color(p_style, lv_color_hex(0xE9EDF2));
