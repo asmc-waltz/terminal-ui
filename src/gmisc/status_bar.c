@@ -11,7 +11,6 @@
 /*********************
  *      DEFINES
  *********************/
-#define STATUS_ICONS_Y_POS      -
 
 /**********************
  *      TYPEDEFS
@@ -36,48 +35,69 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static lv_obj_t * sf_create_status_icon(lv_obj_t *par, uint32_t symbol, uint32_t id)
+{
+    lv_obj_t *lbl = lv_label_create(par);
+
+    gf_register_obj(par, lbl, id);
+    lv_obj_set_style_text_font(lbl, &terminal_icons_20, 0);
+    // lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text_fmt(lbl, "%s", symbol);
+
+    return lbl;
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t * g_create_status_bar(lv_obj_t *parent) {
-    lv_obj_t *status_bar = lv_obj_create(parent);
-    lv_style_t *p_style = NULL;
+lv_obj_t * gf_create_status_bar(lv_obj_t *par) {
+    lv_obj_t *status_bar = gf_create_obj(par, ID_STATUS_BAR);
+    lv_style_t *p_style = gf_get_lv_style(STY_STATUS_BAR);
+    lv_obj_t *ctr = NULL;
+    lv_obj_t *icon = NULL;
 
-    p_style = gf_get_lv_style(STY_STATUS_BAR);
     lv_obj_add_style(status_bar, p_style, 0);
     lv_obj_set_size(status_bar, 1024, 50);
     lv_obj_remove_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t * signal_icon = lv_label_create(status_bar);
-    lv_obj_align_to(signal_icon, status_bar, LV_ALIGN_LEFT_MID, 25, 0);
-    lv_label_set_text(signal_icon, ICON_SIGNAL_SOLID);
 
-    lv_obj_t *lte_icon= lv_label_create(status_bar);
-    lv_obj_set_style_text_font(lte_icon, &lv_font_montserrat_14, 0);
-    lv_obj_align_to(lte_icon, status_bar, LV_ALIGN_LEFT_MID, 75, 0);
-    lv_label_set_text(lte_icon, "4G");
+    ctr = gf_create_obj(status_bar, ID_STATUS_BAR_LEFT_CTR);
+    lv_obj_align_to(ctr, status_bar, LV_ALIGN_LEFT_MID, 0, 0);
+    lv_obj_set_layout(ctr, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(ctr, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ctr, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-    lv_obj_t * ether_icon= lv_label_create(status_bar);
-    lv_obj_align_to(ether_icon, status_bar, LV_ALIGN_LEFT_MID, 125, 0);
-    lv_label_set_text(ether_icon, ICON_ETHERNET_SOLID);
+    icon = sf_create_status_icon(ctr, ICON_SIGNAL_SOLID, ID_STATUS_BAR_SIGNAL_STRENGTH);
+    lv_obj_align_to(icon, ctr, LV_ALIGN_LEFT_MID, 25, 0);
+    lv_obj_set_style_text_font(icon, &terminal_icons_20, 0);
 
-    lv_obj_t * wifi_icon= lv_label_create(status_bar);
-    lv_obj_align_to(wifi_icon, status_bar, LV_ALIGN_LEFT_MID, 175, 0);
-    lv_label_set_text(wifi_icon, ICON_WIFI_SOLID);
+    icon = sf_create_status_icon(ctr, ICON_CIRCLE_INFO_SOLID, ID_STATUS_BAR_SIGNAL_TYPE);
+    lv_obj_set_style_text_font(icon, &lv_font_montserrat_22, 0);
+    lv_label_set_text(icon, "4G");
 
-    lv_obj_t *small_clock= lv_label_create(status_bar);
-    lv_obj_set_style_text_font(small_clock, &lv_font_montserrat_14, 0);
-    lv_obj_align_to(small_clock, status_bar, LV_ALIGN_CENTER, 0, 0);
-    lv_label_set_text(small_clock, "09:09");
+    icon = sf_create_status_icon(ctr, ICON_ETHERNET_SOLID, ID_STATUS_BAR_ETHERNET);
+    icon = sf_create_status_icon(ctr, ICON_WIFI_SOLID, ID_STATUS_BAR_WIFI);
 
-    lv_obj_t *alert_icon= lv_label_create(status_bar);
-    lv_obj_align_to(alert_icon, status_bar, LV_ALIGN_RIGHT_MID, -50, 0);
-    lv_label_set_text(alert_icon, ICON_BELL_SLASH_SOLID);
 
-    lv_obj_t *plug_icon= lv_label_create(status_bar);
-    lv_obj_align_to(plug_icon, status_bar, LV_ALIGN_RIGHT_MID, 10, 0);
-    lv_label_set_text(plug_icon, ICON_PLUG_CIRCLE_BOLT_SOLID);
+    ctr = gf_create_obj(status_bar, ID_STATUS_BAR_MID_CTR);
+    lv_obj_align_to(ctr, status_bar, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_layout(ctr, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(ctr, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ctr, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    icon = sf_create_status_icon(ctr, ICON_CLOCK_SOLID, ID_STATUS_BAR_CLOCK);
+    lv_obj_set_style_text_font(icon, &lv_font_montserrat_22, 0);
+    lv_label_set_text(icon, "09:09");
+
+
+    ctr = gf_create_obj(status_bar, ID_STATUS_BAR_RIGHT_CTR);
+    lv_obj_align_to(ctr, status_bar, LV_ALIGN_RIGHT_MID, 0, 0);
+    lv_obj_set_layout(ctr, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(ctr, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ctr, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    icon = sf_create_status_icon(ctr, ICON_BELL_SLASH_SOLID, ID_STATUS_BAR_ALERT);
+    icon = sf_create_status_icon(ctr, ICON_PLUG_CIRCLE_BOLT_SOLID, ID_STATUS_BAR_POWER);
 
     return status_bar;
 }

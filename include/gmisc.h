@@ -16,19 +16,10 @@
 /*********************
  *      DEFINES
  *********************/
-#define AIC_PHONE                       "phone"
-#define AIC_MESSAGE                     "message"
-#define AIC_TOOLBOX                     "toolbox"
-#define AIC_SETTING                     "setting"
 
 /**********************
  *      TYPEDEFS
  **********************/
-typedef struct {
-    char *name;
-    bool visible;
-} id_data;
-
 typedef enum {
     ID_NONE = 0,
     ID_LAYER_SYS,
@@ -38,13 +29,16 @@ typedef enum {
     ID_BG,
     ID_SRC_HOME,
     ID_STATUS_BAR,
-        ID_STATUS_BAR_SIGNAL_STRENGTH,
-        ID_STATUS_BAR_SIGNAL_TYPE,
-        ID_STATUS_BAR_ETHERNET,
-        ID_STATUS_BAR_WIFI,
-        ID_STATUS_BAR_CLOCK,
-        ID_STATUS_BAR_ALERT,
-        ID_STATUS_BAR_POWER,
+        ID_STATUS_BAR_LEFT_CTR,
+            ID_STATUS_BAR_SIGNAL_STRENGTH,
+            ID_STATUS_BAR_SIGNAL_TYPE,
+            ID_STATUS_BAR_ETHERNET,
+            ID_STATUS_BAR_WIFI,
+        ID_STATUS_BAR_MID_CTR,
+            ID_STATUS_BAR_CLOCK,
+        ID_STATUS_BAR_RIGHT_CTR,
+            ID_STATUS_BAR_ALERT,
+            ID_STATUS_BAR_POWER,
     ID_TASK_BAR,
         ID_TASK_BAR_PHONE,
         ID_TASK_BAR_MESSAGE,
@@ -151,7 +145,7 @@ lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t in
 
 void gf_refresh_all_layer(void);
 
-lv_obj_t * g_create_status_bar(lv_obj_t *parent);
+lv_obj_t * gf_create_status_bar(lv_obj_t *par);
 
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent);
 void gf_hide_taskbar();

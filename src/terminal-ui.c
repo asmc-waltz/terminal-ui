@@ -66,7 +66,7 @@ int main(void) {
     // Display the home screen
     gf_create_home_screen();
     // Initialize the default keyboard that will always be accessible on the top layer.
-    gf_keyboard_create();
+    // gf_keyboard_create();
 
     // If there are no other components, we can safely clear all current style data
     // sf_delete_all_style_data();

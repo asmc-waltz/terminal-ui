@@ -113,7 +113,7 @@ static void sf_status_bar_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_radius(p_style, 20);
-    lv_style_set_bg_opa(p_style, LV_OPA_TRANSP);
+    lv_style_set_bg_opa(p_style, LV_OPA_30);
     lv_style_set_bg_color(p_style, lv_color_black());
     lv_style_set_text_font(p_style, &terminal_icons_32);
     lv_style_set_text_color(p_style, lv_color_black());
