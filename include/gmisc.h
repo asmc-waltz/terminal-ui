@@ -52,6 +52,7 @@ typedef enum {
         ID_TASK_BAR_SETTING,
     ID_HOME_INDICATOR,
     ID_SETTING_MAIN_CTR,
+        ID_SETTING_MAIN_TITLE,
         ID_SETTING_SUB_CRT_SEARCH,
             ID_SETTING_SEACH,
         ID_SETTING_SUB_CRT_WIRELESS,
@@ -86,6 +87,8 @@ typedef enum {
             ID_SETTING_POWER,
             ID_SETTING_ABOUT,
     ID_SETTING_SUB_CTR,
+        ID_SETTING_SUB_TITLE,
+    ID_COMM,
 } g_id;
 
 typedef struct {

@@ -53,33 +53,29 @@ static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t bg_color, 
     return icon_bg;
 }
 
-static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par, uint32_t ctr_id)
+static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par, uint32_t id)
 {
-    lv_obj_t *ctr = lv_obj_create(par);
-    lv_style_t *p_style = NULL;
+    lv_obj_t *ctr = gf_create_obj(par, id);
+    lv_style_t *p_style = gf_get_lv_style(STY_SETTING_MAIN_CTR);
 
-    p_style = gf_get_lv_style(STY_SETTING_MAIN_CTR);
     lv_obj_add_style(ctr, p_style, 0);
     lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_LEFT, +10, -10);
-
-    gf_register_obj(par, ctr, ctr_id);
 
     return ctr;
 }
 
-static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par)
+static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par, uint32_t id)
 {
-    lv_obj_t *ctr = lv_obj_create(par);
-    lv_style_t *p_style = NULL;
+    lv_obj_t *ctr = gf_create_obj(par, id);
+    lv_style_t *p_style = gf_get_lv_style(STY_SETTING_SUB_CTR);
 
-    p_style = gf_get_lv_style(STY_SETTING_SUB_CTR);
     lv_obj_add_style(ctr, p_style, 0);
     lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
 
     return ctr;
 }
 
-static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par, uint32_t ctr_id)
+static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t *child_ctr = lv_obj_create(par);
     lv_style_t *p_style = NULL;
@@ -91,17 +87,16 @@ static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par, uint32_t ctr_i
     lv_obj_set_size(sub_list, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_align(sub_list, LV_ALIGN_CENTER, 0, 0);
 
-    gf_register_obj(par, sub_list, ctr_id);
+    gf_register_obj(par, sub_list, id);
 
     return sub_list;
 }
 
-static lv_obj_t * sf_create_setting_title_ctr(lv_obj_t *par)
+static lv_obj_t * sf_create_setting_title_ctr(lv_obj_t *par, uint32_t id)
 {
-    lv_obj_t *child_ctr = lv_obj_create(par);
-    lv_style_t *p_style = NULL;
+    lv_obj_t *child_ctr = gf_create_obj(par, id);
+    lv_style_t *p_style = gf_get_lv_style(STY_SETTING_MAIN_CHILD_CTR);
 
-    p_style = gf_get_lv_style(STY_SETTING_MAIN_CHILD_CTR);
     lv_obj_add_style(child_ctr, p_style, 0);
 
     return child_ctr;
@@ -118,15 +113,14 @@ static void event_handler(lv_event_t * e)
     }
 }
 
-static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t btn_id)
+static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t * btn = lv_list_add_button(par, NULL, NULL);
     lv_style_t *p_style = NULL;
 
+    gf_register_obj(par, btn, id);
     p_style = gf_get_lv_style(STY_SETTING_BTN);
     lv_obj_add_style(btn, p_style, 0);
-
-    gf_register_obj(par, btn, btn_id);
 
     return btn;
 }
@@ -143,39 +137,50 @@ static lv_obj_t * sf_create_setting_btn_name(lv_obj_t *par, char *text)
     return lbl;
 }
 
-static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *def_stt, uint32_t stt_id)
+static lv_obj_t * sf_create_setting_btn_status(lv_obj_t *par, char *text, uint32_t id)
 {
     lv_obj_t *lbl = lv_label_create(par);
-    gf_register_obj(par, lbl, stt_id);
 
+    gf_register_obj(par, lbl, id);
     lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
-
-    lv_label_set_text_fmt(lbl, "%s", def_stt);
+    lv_label_set_text_fmt(lbl, "%s", text);
 
     return lbl;
 }
 
-static lv_obj_t * sf_create_setting_btn_switch(lv_obj_t *par, uint32_t sw_id)
+static lv_obj_t * sf_create_setting_btn_switch(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t *sw = lv_switch_create(par);
-    gf_register_obj(par, sw, sw_id);
+
+    gf_register_obj(par, sw, id);
     lv_obj_set_style_bg_color(sw, lv_color_hex(0x03BF1F), LV_PART_INDICATOR | LV_STATE_CHECKED);
 
     return sw;
 }
 
-static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text)
+static lv_obj_t * sf_create_main_setting_title(lv_obj_t *par, char *text, uint32_t id)
 {
     lv_obj_t *lbl = lv_label_create(par);
 
+    gf_register_obj(par, lbl, id);
     lv_obj_set_style_text_font(lbl, &lv_font_montserrat_38, 0);
+    lv_label_set_text_fmt(lbl, "%s", text);
+
+    return lbl;
+}
+
+static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text, uint32_t id)
+{
+    lv_obj_t *lbl = lv_label_create(par);
+
+    gf_register_obj(par, lbl, id);
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_28, 0);
     lv_label_set_text_fmt(lbl, "%s", text);
     lv_obj_set_style_align(lbl, LV_ALIGN_CENTER, 0);
 
     return lbl;
 }
-
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -185,8 +190,8 @@ void gf_create_main_setting_menu(void)
     lv_obj_t * btn;
     lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active(), ID_SETTING_MAIN_CTR);
 
-    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr);
-    sf_create_sub_setting_title(child_ctr, "Setting");
+    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr, ID_COMM);
+    sf_create_main_setting_title(child_ctr, "Settings", ID_SETTING_MAIN_TITLE);
 
     // Seach
     child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_SEARCH);
@@ -314,8 +319,8 @@ void gf_create_main_setting_menu(void)
 void gf_create_sub_setting_menu(void)
 {
     lv_obj_t * btn;
-    lv_obj_t *main_ctr = sf_create_sub_setting_container(lv_screen_active());
-    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr);
+    lv_obj_t *main_ctr = sf_create_sub_setting_container(lv_screen_active(), ID_SETTING_SUB_CTR);
+    lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr, ID_COMM);
 
-    sf_create_sub_setting_title(child_ctr, "Airplane");
+    sf_create_sub_setting_title(child_ctr, "Airplane", ID_SETTING_SUB_TITLE);
 }
