@@ -29,7 +29,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_obj_t * list1;
 
 /**********************
  *      MACROS
@@ -102,17 +101,6 @@ static lv_obj_t * sf_create_setting_title_ctr(lv_obj_t *par, uint32_t id)
     return child_ctr;
 }
 
-static void event_handler(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target_obj(e);
-    if(code == LV_EVENT_CLICKED) {
-        LV_UNUSED(obj);
-        LV_LOG_USER("BTN: %s - ID %d", lv_list_get_button_text(list1, obj), \
-                    ((g_obj *)(obj->user_data))->id);
-    }
-}
-
 static lv_obj_t * sf_create_setting_btn(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t * btn = lv_list_add_button(par, NULL, NULL);
@@ -180,6 +168,23 @@ static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text, uint32_
     lv_obj_set_style_align(lbl, LV_ALIGN_CENTER, 0);
 
     return lbl;
+}
+
+static void sf_update_sub_setting_title(char *text)
+{
+    lv_obj_t *lv_obj = gf_get_obj(ID_SETTING_SUB_TITLE, NULL);
+    lv_label_set_text_fmt(lv_obj, "%s", text);
+}
+
+static void event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target_obj(e);
+    if (code == LV_EVENT_CLICKED) {
+        LV_LOG_USER("BTN: %s - ID %d", lv_list_get_button_text(NULL, obj), \
+                    ((g_obj *)(obj->user_data))->id);
+        sf_update_sub_setting_title(lv_list_get_button_text(NULL, obj));
+    }
 }
 
 /**********************
