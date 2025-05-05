@@ -187,7 +187,7 @@ static void sf_setting_ctr_style_init(lv_style_t *p_style, uint32_t w, uint32_t 
 {
     lv_style_init(p_style);
     lv_style_set_size(p_style, w, h);
-    lv_style_set_radius(p_style, 10);
+    lv_style_set_radius(p_style, 16);
     lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_COLUMN);
     lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
     lv_style_set_bg_color(p_style, lv_color_hex(0xE9EDF2));
@@ -292,7 +292,7 @@ void gf_styles_init(void)
 
     p_style = sf_create_style_data(STY_SETTING_MAIN_CTR);
     LV_ASSERT_NULL(p_style);
-    sf_setting_ctr_style_init(p_style, 332, 530);
+    sf_setting_ctr_style_init(p_style, 340, 554);
 
     p_style = sf_create_style_data(STY_SETTING_MAIN_CHILD_CTR);
     LV_ASSERT_NULL(p_style);
@@ -304,7 +304,7 @@ void gf_styles_init(void)
 
     p_style = sf_create_style_data(STY_SETTING_SUB_CTR);
     LV_ASSERT_NULL(p_style);
-    sf_setting_ctr_style_init(p_style, 662, 530);
+    sf_setting_ctr_style_init(p_style, 669, 554);
 }
 
 void sf_delete_all_style_data(void)

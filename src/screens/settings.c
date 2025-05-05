@@ -58,7 +58,7 @@ static lv_obj_t * sf_create_main_setting_container(lv_obj_t *par, uint32_t id)
     lv_style_t *p_style = gf_get_lv_style(STY_SETTING_MAIN_CTR);
 
     lv_obj_add_style(ctr, p_style, 0);
-    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_LEFT, +10, -10);
+    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_LEFT, +5, -5);
 
     return ctr;
 }
@@ -69,7 +69,7 @@ static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par, uint32_t id)
     lv_style_t *p_style = gf_get_lv_style(STY_SETTING_SUB_CTR);
 
     lv_obj_add_style(ctr, p_style, 0);
-    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
+    lv_obj_align_to(ctr, par, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
 
     return ctr;
 }
