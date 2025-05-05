@@ -77,6 +77,7 @@ int main(void) {
 
     while (1) {
         lv_task_handler();
+        usleep(5000);
     }
 
     return 0;
