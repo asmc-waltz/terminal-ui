@@ -22,6 +22,7 @@
  **********************/
 typedef enum {
     ID_NONE = 0,
+    ID_COMM,
     ID_LAYER_SYS,
     ID_LAYER_TOP,
     ID_LAYER_ACT,
@@ -82,7 +83,6 @@ typedef enum {
             ID_SETTING_ABOUT,
     ID_SETTING_SUB_CTR,
         ID_SETTING_SUB_TITLE,
-    ID_COMM,
 } g_id;
 
 typedef struct {
@@ -128,7 +128,7 @@ extern lv_obj_t *glob_kb;
 /*=====================
  * Other functions
  *====================*/
-g_handler * gf_register_handler(uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
+g_handler * gf_register_handler(lv_obj_t *par, uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
 
 g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);

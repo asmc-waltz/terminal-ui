@@ -210,7 +210,7 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_SEACH);
     sf_create_main_setting_icon(btn, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
     sf_create_setting_btn_name(btn, "Search...");
-    gf_register_handler(ID_SETTING_SEACH, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_SEACH, event_handler, LV_EVENT_CLICKED);
 
     // Wireless
     child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_WIRELESS);
@@ -218,49 +218,49 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_AIRPLANE);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_PLANE_SOLID);
     sf_create_setting_btn_name(btn, "Airplane");
-    gf_register_handler(ID_SETTING_AIRPLANE, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_AIRPLANE, event_handler, LV_EVENT_CLICKED);
     sf_create_setting_btn_switch(btn, ID_SETTING_AIRPLANE_SW);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_WIFI);
     sf_create_main_setting_icon(btn, 0x3895FF, ICON_WIFI_SOLID);
     sf_create_setting_btn_name(btn, "Wi-Fi");
     sf_create_setting_btn_status(btn, "go_5G", ID_SETTING_WIFI_STATUS);
-    gf_register_handler(ID_SETTING_WIFI, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_WIFI, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_HOSTSPOT);
     sf_create_main_setting_icon(btn, 0x86807B, ICON_SHARE_NODES_SOLID);
     sf_create_setting_btn_name(btn, "Hostspot");
-    gf_register_handler(ID_SETTING_HOSTSPOT, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_HOSTSPOT, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_BLUETOOTH);
     sf_create_main_setting_icon(btn, 0x3895FF, ICON_SHARE_NODES_SOLID);
     sf_create_setting_btn_name(btn, "Bluetooth");
     sf_create_setting_btn_status(btn, "Off", ID_SETTING_BLUETOOTH_STATUS);
-    gf_register_handler(ID_SETTING_BLUETOOTH, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_BLUETOOTH, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_CELLULAR);
     sf_create_main_setting_icon(btn, 0x03BF1F, ICON_TOWER_CELL_SOLID);
     sf_create_setting_btn_name(btn, "Cellular");
     sf_create_setting_btn_status(btn, "On", ID_SETTING_CELLULAR_STATUS);
-    gf_register_handler(ID_SETTING_CELLULAR, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_CELLULAR, event_handler, LV_EVENT_CLICKED);
 
     // Cable - Network
     child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_NETWORK);
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ETHERNET);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_ETHERNET_SOLID);
     sf_create_setting_btn_name(btn, "Ethernet");
-    gf_register_handler(ID_SETTING_ETHERNET, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_ETHERNET, event_handler, LV_EVENT_CLICKED);
     sf_create_setting_btn_switch(btn, ID_SETTING_ETHERNET_SW);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_NETWORK);
     sf_create_main_setting_icon(btn, 0x9E78FF, ICON_NETWORK_WIRED_SOLID);
     sf_create_setting_btn_name(btn, "Network");
-    gf_register_handler(ID_SETTING_NETWORK, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_NETWORK, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_FILTER);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_FILTER_SOLID);
     sf_create_setting_btn_name(btn, "Filter");
-    gf_register_handler(ID_SETTING_FILTER, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_FILTER, event_handler, LV_EVENT_CLICKED);
     sf_create_setting_btn_switch(btn, ID_SETTING_FILTER_SW);
 
     // Phone - Message
@@ -269,12 +269,12 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_PHONE);
     sf_create_main_setting_icon(btn, 0x34E424, ICON_PHONE_SOLID);
     sf_create_setting_btn_name(btn, "Phone");
-    gf_register_handler(ID_SETTING_PHONE, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_PHONE, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_MESSAGE);
     sf_create_main_setting_icon(btn, 0x34E424, ICON_COMMENT_SOLID);
     sf_create_setting_btn_name(btn, "Message");
-    gf_register_handler(ID_SETTING_MESSAGE, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_MESSAGE, event_handler, LV_EVENT_CLICKED);
 
     // General setting
     child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_GENERAL);
@@ -282,49 +282,49 @@ void gf_create_main_setting_menu(void)
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ALERT_AND_HAPTIC);
     sf_create_main_setting_icon(btn, 0xFF6B3A, ICON_BELL_SOLID);
     sf_create_setting_btn_name(btn, "Alert & Haptic");
-    gf_register_handler(ID_SETTING_ALERT_AND_HAPTIC, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_ALERT_AND_HAPTIC, event_handler, LV_EVENT_CLICKED);
     sf_create_setting_btn_switch(btn, ID_SETTING_ALERT_AND_HAPTIC_SW);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_AUDIO);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_VOLUME_HIGH_SOLID);
     sf_create_setting_btn_name(btn, "Audio");
-    gf_register_handler(ID_SETTING_AUDIO, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_AUDIO, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_MICROPHONE);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_MICROPHONE_SOLID);
     sf_create_setting_btn_name(btn, "Microphone");
-    gf_register_handler(ID_SETTING_MICROPHONE, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_MICROPHONE, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ROTATE);
     sf_create_main_setting_icon(btn, 0x7AB6FE, ICON_ROTATE_SOLID);
     sf_create_setting_btn_name(btn, "Rotate");
-    gf_register_handler(ID_SETTING_ROTATE, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_ROTATE, event_handler, LV_EVENT_CLICKED);
     sf_create_setting_btn_switch(btn, ID_SETTING_ROTATE_SW);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_DATE_TIME);
     sf_create_main_setting_icon(btn, 0x008097, ICON_CALENDAR_DAYS_SOLID);
     sf_create_setting_btn_name(btn, "Date & Time");
-    gf_register_handler(ID_SETTING_DATE_TIME, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_DATE_TIME, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_GNSS);
     sf_create_main_setting_icon(btn, 0x9E78FF, ICON_SATELLITE_SOLID);
     sf_create_setting_btn_name(btn, "GNSS");
-    gf_register_handler(ID_SETTING_GNSS, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_GNSS, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_BRIGHTNESS);
     sf_create_main_setting_icon(btn, 0xFBDE00, ICON_CIRCLE_HALF_STROKE_SOLID);
     sf_create_setting_btn_name(btn, "Brightness");
-    gf_register_handler(ID_SETTING_BRIGHTNESS, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_BRIGHTNESS, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_POWER);
     sf_create_main_setting_icon(btn, 0xBD0000, ICON_BOLT_SOLID);
     sf_create_setting_btn_name(btn, "Power");
-    gf_register_handler(ID_SETTING_POWER, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_POWER, event_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_ABOUT);
     sf_create_main_setting_icon(btn, 0x34E424, ICON_CIRCLE_INFO_SOLID);
     sf_create_setting_btn_name(btn, "About");
-    gf_register_handler(ID_SETTING_ABOUT, event_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_SETTING_ABOUT, event_handler, LV_EVENT_CLICKED);
 }
 
 void gf_create_sub_setting_menu(void)

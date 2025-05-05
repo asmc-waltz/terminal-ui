@@ -64,7 +64,7 @@ lv_obj_t * gf_create_home_indicator(lv_obj_t *parent)
     lv_obj_add_style(p_home_indicator, p_style, 0);
     lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
 
-    gf_register_handler(ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
+    gf_register_handler(p_home_indicator, ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
 
     gf_hide_home_indicator();
 

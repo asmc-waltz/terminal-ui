@@ -81,6 +81,7 @@ static lv_obj_t * sf_create_app_icon(lv_obj_t *par, uint32_t id, uint32_t bg_col
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
 {
     lv_obj_t *p_taskbar = NULL;
+    lv_obj_t *btn;
     p_taskbar = gf_create_obj(parent, ID_TASK_BAR);
     LV_ASSERT_NULL(p_taskbar);
 
@@ -95,17 +96,17 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     // The size of the taskbar dynamically adjusts based on the number of icons.
     lv_obj_set_size(p_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    sf_create_app_icon(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID);
-    gf_register_handler(ID_TASK_BAR_PHONE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID);
+    gf_register_handler(btn, ID_TASK_BAR_PHONE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
 
-    sf_create_app_icon(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID);
-    gf_register_handler(ID_TASK_BAR_MESSAGE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID);
+    gf_register_handler(btn, ID_TASK_BAR_MESSAGE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
 
-    sf_create_app_icon(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID);
-    gf_register_handler(ID_TASK_BAR_TOOLBOX, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID);
+    gf_register_handler(btn, ID_TASK_BAR_TOOLBOX, taskbar_app_icon_handler, LV_EVENT_CLICKED);
 
-    sf_create_app_icon(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID);
-    gf_register_handler(ID_TASK_BAR_SETTING, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID);
+    gf_register_handler(btn, ID_TASK_BAR_SETTING, taskbar_app_icon_handler, LV_EVENT_CLICKED);
 
     // Align it to bottom-middle AFTER children are added
     lv_obj_align_to(p_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
