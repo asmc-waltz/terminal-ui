@@ -112,15 +112,22 @@ static void sf_app_sym_style_init(lv_style_t *p_style)
 static void sf_status_bar_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
+    lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
+    lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_ROW);
+    lv_style_set_flex_main_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_flex_cross_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_flex_track_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_size(p_style, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_style_set_radius(p_style, 20);
-    lv_style_set_bg_opa(p_style, LV_OPA_30);
+    lv_style_set_bg_opa(p_style, LV_OPA_10);
     lv_style_set_bg_color(p_style, lv_color_black());
-    lv_style_set_text_font(p_style, &terminal_icons_32);
+    lv_style_set_text_font(p_style, &terminal_icons_20);
     lv_style_set_text_color(p_style, lv_color_black());
     lv_style_set_border_color(p_style, lv_color_hex(0x000000));
     lv_style_set_border_width(p_style, 0);
     lv_style_set_border_post(p_style, true);
-    lv_style_set_pad_all(p_style, 0);
+    lv_style_set_pad_all(p_style, 5);
+    lv_style_set_pad_gap(p_style, 0);
     lv_style_set_shadow_color(p_style, lv_color_hex(0x000000));
     lv_style_set_shadow_width(p_style, 0);
     lv_style_set_shadow_spread(p_style, 0);
