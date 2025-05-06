@@ -50,9 +50,11 @@ void gf_keyboard_create()
     lv_obj_set_size(pwd_ta, LV_PCT(100), LV_PCT(30));
     // lv_textarea_set_one_line(user_name, true);
     lv_textarea_set_placeholder_text(pwd_ta, "Your name");
+    lv_obj_set_style_text_font(pwd_ta, &lv_font_montserrat_20, 0);
     // lv_obj_add_event_cb(user_name, ta_event_cb, LV_EVENT_ALL, kb);
 
     glob_kb = lv_keyboard_create(lv_layer_top());
+    lv_obj_set_style_text_font(glob_kb, &lv_font_montserrat_22, 0);
     lv_obj_set_size(glob_kb, 1004, LV_PCT(50));
     lv_obj_align(glob_kb, LV_ALIGN_BOTTOM_MID, 0, -10);
 
