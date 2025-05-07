@@ -79,16 +79,18 @@ static void sf_search_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * ta = lv_event_get_target(e);
-    lv_obj_t * kb = lv_event_get_user_data(e);
+    // lv_obj_t * kb = lv_event_get_user_data(e);
 
     if(code == LV_EVENT_FOCUSED) {
         if(lv_indev_get_type(lv_indev_active()) != LV_INDEV_TYPE_KEYPAD) {
-            lv_keyboard_set_textarea(kb, ta);
-            lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
+            lv_keyboard_set_textarea(glob_kb, ta);
+            // lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
+            gf_show_keyboard();
         }
     }
     else if(code == LV_EVENT_DEFOCUSED) {
-        lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        gf_hide_keyboard();
+        // lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
         lv_obj_remove_state(ta, LV_STATE_FOCUSED);
         lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
     }
