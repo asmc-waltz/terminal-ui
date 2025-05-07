@@ -47,7 +47,8 @@ void gf_create_home_screen(void) {
     gf_create_taskbar(lv_screen_active());
     gf_show_taskbar();
 
-    gf_create_home_indicator(lv_screen_active());
+    gf_create_home_indicator(lv_layer_top());
+    gf_create_setting_menu(lv_screen_active());
     return bg;
 }
 

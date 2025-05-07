@@ -43,6 +43,8 @@ static void taskbar_app_icon_handler(lv_event_t *event)
 
     LV_LOG_USER("Button was clicked!");
 
+    gf_refresh_all_layer();
+
     pg_obj = btn->user_data;
     if (pg_obj->id != ID_TASK_BAR_SETTING)
     {
@@ -50,13 +52,11 @@ static void taskbar_app_icon_handler(lv_event_t *event)
     }
 
     pg_obj = par->user_data;
-    gf_refresh_all_layer();
 
     if (pg_obj->visible) {
         gf_hide_taskbar();
         gf_show_home_indicator();
-        gf_create_main_setting_menu();
-        gf_create_sub_setting_menu();
+        gf_show_setting();
     }
 }
 

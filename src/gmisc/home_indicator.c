@@ -44,6 +44,7 @@ static void home_indicator_handler(lv_event_t *e)
 
     if (pg_obj->visible) {
         gf_hide_home_indicator();
+        gf_hide_setting();
         gf_show_taskbar();
     }
 }

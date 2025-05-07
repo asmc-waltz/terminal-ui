@@ -240,13 +240,10 @@ static void event_handler(lv_event_t *e)
     }
 }
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-void gf_create_main_setting_menu(void)
+static void sf_create_main_setting_menu(lv_obj_t *par)
 {
     lv_obj_t * btn;
-    lv_obj_t *main_ctr = sf_create_main_setting_container(lv_screen_active(), ID_SETTING_MAIN_CTR);
+    lv_obj_t *main_ctr = sf_create_main_setting_container(par, ID_SETTING_MAIN_CTR);
 
     lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr, ID_COMM);
     sf_create_main_setting_title(child_ctr, "Settings", ID_SETTING_MAIN_TITLE);
@@ -369,11 +366,37 @@ void gf_create_main_setting_menu(void)
     gf_register_handler(btn, ID_SETTING_ABOUT, event_handler, LV_EVENT_CLICKED);
 }
 
-void gf_create_sub_setting_menu(void)
+static void sf_create_sub_setting_menu(lv_obj_t *par)
 {
     lv_obj_t * btn;
-    lv_obj_t *main_ctr = sf_create_sub_setting_container(lv_screen_active(), ID_SETTING_SUB_CTR);
+    lv_obj_t *main_ctr = sf_create_sub_setting_container(par, ID_SETTING_SUB_CTR);
     lv_obj_t *child_ctr = sf_create_setting_title_ctr(main_ctr, ID_COMM);
 
     sf_create_sub_setting_title(child_ctr, "Airplane", ID_SETTING_SUB_TITLE);
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+void gf_create_setting_menu(lv_obj_t *par)
+{
+    sf_create_main_setting_menu(par);
+    sf_create_sub_setting_menu(par);
+    gf_hide_setting();
+}
+
+void gf_hide_setting()
+{
+    lv_obj_t *lv_obj = gf_get_obj(ID_SETTING_MAIN_CTR, NULL);
+    lv_obj_add_flag(lv_obj, LV_OBJ_FLAG_HIDDEN);
+    lv_obj = gf_get_obj(ID_SETTING_SUB_CTR, NULL);
+    lv_obj_add_flag(lv_obj, LV_OBJ_FLAG_HIDDEN);
+}
+
+void gf_show_setting()
+{
+    lv_obj_t *lv_obj = gf_get_obj(ID_SETTING_MAIN_CTR, NULL);
+    lv_obj_remove_flag(lv_obj, LV_OBJ_FLAG_HIDDEN);
+    lv_obj = gf_get_obj(ID_SETTING_SUB_CTR, NULL);
+    lv_obj_remove_flag(lv_obj, LV_OBJ_FLAG_HIDDEN);
 }
