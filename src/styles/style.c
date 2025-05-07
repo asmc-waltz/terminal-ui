@@ -223,6 +223,19 @@ static void sf_setting_btn_style_init(lv_style_t *p_style)
     lv_style_set_radius(p_style, 8);
 }
 
+static void sf_search_box_style_init(lv_style_t *p_style)
+{
+    lv_style_init(p_style);
+    lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
+    lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_ROW);
+    lv_style_set_flex_main_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_flex_cross_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_flex_track_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_pad_all(p_style, 5);
+    lv_style_set_pad_gap(p_style, 0);
+    lv_style_set_size(p_style, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_style_set_radius(p_style, 10);
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -305,6 +318,10 @@ void gf_styles_init(void)
     p_style = sf_create_style_data(STY_SETTING_SUB_CTR);
     LV_ASSERT_NULL(p_style);
     sf_setting_ctr_style_init(p_style, 669, 554);
+
+    p_style = sf_create_style_data(STY_SEARCH_BOX);
+    LV_ASSERT_NULL(p_style);
+    sf_search_box_style_init(p_style);
 }
 
 void sf_delete_all_style_data(void)

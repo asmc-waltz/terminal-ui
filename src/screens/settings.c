@@ -74,6 +74,53 @@ static lv_obj_t * sf_create_sub_setting_container(lv_obj_t *par, uint32_t id)
     return ctr;
 }
 
+
+static void sf_search_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    lv_obj_t * kb = lv_event_get_user_data(e);
+
+    if(code == LV_EVENT_FOCUSED) {
+        if(lv_indev_get_type(lv_indev_active()) != LV_INDEV_TYPE_KEYPAD) {
+            lv_keyboard_set_textarea(kb, ta);
+            lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+    else if(code == LV_EVENT_DEFOCUSED) {
+        lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_state(ta, LV_STATE_FOCUSED);
+        lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
+    }
+}
+
+static lv_obj_t * sf_create_search_box(lv_obj_t *par, uint32_t id)
+{
+    lv_obj_t *search_ctr = gf_create_obj(par, id);
+    lv_style_t *p_style = NULL;
+
+    p_style = gf_get_lv_style(STY_SEARCH_BOX);
+    lv_obj_add_style(search_ctr, p_style, 0);
+
+    sf_create_main_setting_icon(search_ctr, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
+
+    lv_obj_t *search_ta = lv_textarea_create(search_ctr);
+    gf_register_obj(search_ctr, search_ta, ID_SETTING_SEACH);
+
+    lv_obj_set_size(search_ta, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_textarea_set_placeholder_text(search_ta, "Search...");
+    lv_obj_set_style_text_font(search_ta, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_outline_width(search_ta, 0, 0);
+    lv_obj_set_style_border_width(search_ta, 0, 0);
+    lv_obj_set_style_shadow_width(search_ta, 0, 0);
+    lv_obj_set_flex_grow(search_ta, 1);
+
+    lv_obj_add_event_cb(search_ta, sf_search_cb, LV_EVENT_ALL, glob_kb);
+
+    return search_ctr;
+}
+
+
 static lv_obj_t * sf_create_main_setting_child_ctr(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t *child_ctr = lv_obj_create(par);
@@ -205,12 +252,7 @@ void gf_create_main_setting_menu(void)
     sf_create_main_setting_title(child_ctr, "Settings", ID_SETTING_MAIN_TITLE);
 
     // Seach
-    child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_SEARCH);
-
-    btn = sf_create_setting_btn(child_ctr, ID_SETTING_SEACH);
-    sf_create_main_setting_icon(btn, 0xffffff, ICON_MAGNIFYING_GLASS_SOLID);
-    sf_create_setting_btn_name(btn, "Search...");
-    gf_register_handler(btn, ID_SETTING_SEACH, event_handler, LV_EVENT_CLICKED);
+    child_ctr = sf_create_search_box(main_ctr, ID_SETTING_SUB_CRT_SEARCH);
 
     // Wireless
     child_ctr = sf_create_main_setting_child_ctr(main_ctr, ID_SETTING_SUB_CRT_WIRELESS);

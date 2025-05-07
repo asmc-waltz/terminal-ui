@@ -19,8 +19,9 @@
  *      TYPEDEFS
  **********************/
 typedef enum {
-	STY_BG = 1,
-	STY_TASKBAR,
+    STY_BG = 1,
+    STY_SEARCH_BOX,
+    STY_TASKBAR,
     STY_BG_ICON_79,
     STY_SYM_48,
     STY_STATUS_BAR,
