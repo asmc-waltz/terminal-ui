@@ -49,6 +49,55 @@ static void home_indicator_handler(lv_event_t *e)
     }
 }
 
+static void gesture_event_handler(lv_event_t * e)
+{
+    LV_UNUSED(e);
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_indev_t * indev_act = lv_indev_active();
+    lv_dir_t dir = lv_indev_get_gesture_dir(indev_act);
+
+    static uint32_t start_x = 0;
+    static uint32_t start_y = 0;
+
+    // LV_LOG_USER("event code %d", code);
+    lv_point_t point;
+    lv_indev_get_point(lv_indev_active(), &point);
+
+    if (code == LV_EVENT_PRESSED) {
+        if (point.x > 355 && point.x < 670) {
+            if (point.y > 580) {
+                // LV_LOG_USER("look like BACK HOME", point.x);
+                start_x = point.x;
+                start_y = point.y;
+                // LV_LOG_USER("start x %d", point.x);
+                // LV_LOG_USER("start y %d", point.y);
+            }
+        }
+    }
+
+    if (code == LV_EVENT_PRESSING) {
+        if (point.x > 355 && dir == LV_DIR_TOP && point.x < 670) {
+            if (start_y > 580 && point.y < 550) {
+                gf_show_taskbar();
+            }
+            if (start_y > 580 && point.y < 500 && dir == LV_DIR_TOP) {
+                // LV_LOG_USER("pressing x %d -> back home", point.x);
+                gf_hide_setting();
+                // gf_show_taskbar();
+                gf_hide_home_indicator();
+                start_x = 0;
+                start_y = 0;
+            }
+        }
+    }
+
+    if (code == LV_EVENT_RELEASED) {
+        // LV_LOG_USER("release x %d", point.x);
+        // LV_LOG_USER("release y %d", point.y);
+        start_x = 0;
+        start_y = 0;
+    }
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -63,9 +112,12 @@ lv_obj_t * gf_create_home_indicator(lv_obj_t *parent)
 
     p_style = gf_get_lv_style(STY_HOME_INDICATOR);
     lv_obj_add_style(p_home_indicator, p_style, 0);
-    lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, 0);
 
-    gf_register_handler(p_home_indicator, ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
+    // gf_register_handler(p_home_indicator, ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
+    lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_PRESSED , NULL);
+    lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_PRESSING , NULL);
+    lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_RELEASED, NULL);
 
     gf_hide_home_indicator();
 

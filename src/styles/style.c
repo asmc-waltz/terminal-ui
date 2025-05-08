@@ -181,6 +181,13 @@ static void sf_home_indicator_style_init(lv_style_t *p_style)
     lv_style_set_size(p_style, 315, 10);
     lv_style_set_border_width(p_style, 0);
     lv_style_set_pad_all(p_style, 0);
+
+    lv_style_set_border_width(p_style, 0);
+    lv_style_set_border_post(p_style, true);
+    lv_style_set_pad_all(p_style, 0);
+    lv_style_set_pad_gap(p_style, 0);
+    lv_style_set_shadow_width(p_style, 0);
+    lv_style_set_outline_width(p_style, 0);
 }
 
 static void sf_setting_ctr_style_init(lv_style_t *p_style, uint32_t w, uint32_t h)
