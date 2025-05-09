@@ -90,5 +90,34 @@ lv_obj_t * gf_create_status_bar(lv_obj_t *par) {
     icon = sf_create_status_icon(ctr, ICON_BELL_SLASH_SOLID, ID_STATUS_BAR_ALERT);
     icon = sf_create_status_icon(ctr, ICON_PLUG_CIRCLE_BOLT_SOLID, ID_STATUS_BAR_POWER);
 
+    lv_obj_add_flag(status_bar, LV_OBJ_FLAG_HIDDEN);
+
     return status_bar;
 }
+
+void gf_hide_status_bar(void)
+{
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
+
+    pl_obj = gf_get_obj(ID_STATUS_BAR, NULL);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_add_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = false;
+}
+
+void gf_show_status_bar(void)
+{
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
+
+    pl_obj = gf_get_obj(ID_STATUS_BAR, NULL);
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_remove_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = true;
+}
+
