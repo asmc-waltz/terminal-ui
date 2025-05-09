@@ -169,13 +169,3 @@ void gf_refresh_all_layer(void)
     lv_obj_invalidate(lv_layer_bottom());
 }
 
-void gf_create_common_components(void)
-{
-    gf_create_background(lv_layer_bottom(), 1024, 600);
-    gf_create_setting_menu(lv_screen_active());
-    gf_create_status_bar(lv_layer_top());
-    gf_create_taskbar(lv_layer_top());
-    gf_create_home_indicator(lv_layer_top());
-    // Initialize the default keyboard that will always be accessible on the top layer.
-    gf_keyboard_create();
-}

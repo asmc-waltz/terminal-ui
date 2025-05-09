@@ -31,6 +31,17 @@ void gtimer_handler(lv_timer_t * timer)
     lv_tick_inc(UI_LVGL_TIMER_MS);
 }
 
+static void sf_create_common_components(void)
+{
+    gf_create_background(lv_layer_bottom(), 1024, 600);
+    gf_create_setting_menu(lv_screen_active());
+    gf_create_status_bar(lv_layer_top());
+    gf_create_taskbar(lv_layer_top());
+    gf_create_home_indicator(lv_layer_top());
+    // Initialize the default keyboard that will always be accessible on the top layer.
+    gf_keyboard_create();
+}
+
 int main(void) {
     lv_timer_t * task_timer = NULL;
 
@@ -67,7 +78,7 @@ int main(void) {
     gf_styles_init();
 
     // Create shared components commonly displayed on screens
-    gf_create_common_components();
+    sf_create_common_components();
 
     // Display the home screen
     gf_create_home_screen();
