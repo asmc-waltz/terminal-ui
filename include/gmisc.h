@@ -148,6 +148,7 @@ void gf_refresh_all_layer(void);
 lv_obj_t * gf_create_status_bar(lv_obj_t *par);
 void gf_hide_status_bar(void);
 void gf_show_status_bar(void);
+void gf_delete_status_bar(void);
 
 lv_obj_t * gf_create_taskbar(lv_obj_t *parent);
 void gf_hide_taskbar();

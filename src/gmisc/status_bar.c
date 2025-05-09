@@ -121,3 +121,7 @@ void gf_show_status_bar(void)
     pg_obj->visible = true;
 }
 
+void gf_delete_status_bar(void)
+{
+    gf_remove_obj_and_child(ID_STATUS_BAR, NULL);
+}
