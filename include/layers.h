@@ -34,8 +34,8 @@
 /*=====================
  * Other functions
  *====================*/
-void top_layer_cfg();
-void active_layer_cfg();
+void gf_config_top_layer();
+void gf_config_active_layer();
 
 /**********************
  *      MACROS

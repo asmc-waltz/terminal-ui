@@ -39,7 +39,7 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void active_layer_cfg() {
+void gf_config_active_layer() {
     lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
 }
 

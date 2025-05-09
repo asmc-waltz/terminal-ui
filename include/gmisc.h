@@ -160,6 +160,8 @@ void gf_delete_home_indicator(void);
 void gf_keyboard_create();
 void gf_hide_keyboard();
 void gf_show_keyboard();
+
+void gf_create_common_components(void);
 /**********************
  *      MACROS
  **********************/
