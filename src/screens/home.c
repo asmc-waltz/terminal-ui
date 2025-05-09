@@ -42,6 +42,7 @@
  **********************/
 void gf_create_home_screen(void)
 {
+    gf_show_status_bar();
     gf_show_taskbar();
 }
 
