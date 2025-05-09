@@ -35,17 +35,16 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void taskbar_app_icon_handler(lv_event_t *event)
+static void app_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
     lv_obj_t *par = lv_obj_get_parent(btn);
     g_obj *pg_obj = NULL;
 
-    LV_LOG_USER("Button was clicked!");
-
     gf_refresh_all_layer();
 
     pg_obj = btn->user_data;
+    LV_LOG_USER("ID %d: Taskbar button clicked", pg_obj->id);
     if (pg_obj->id != ID_TASK_BAR_SETTING)
     {
         return;
@@ -97,16 +96,16 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
     lv_obj_set_size(p_taskbar, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
     btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_PHONE, 0x03BF1F, ICON_PHONE_SOLID);
-    gf_register_handler(btn, ID_TASK_BAR_PHONE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_TASK_BAR_PHONE, app_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_MESSAGE, 0x03BF1F, ICON_COMMENT_SOLID);
-    gf_register_handler(btn, ID_TASK_BAR_MESSAGE, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_TASK_BAR_MESSAGE, app_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_TOOLBOX, 0xFFAE3B, ICON_TOOLBOX_SOLID);
-    gf_register_handler(btn, ID_TASK_BAR_TOOLBOX, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_TASK_BAR_TOOLBOX, app_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_app_icon(p_taskbar, ID_TASK_BAR_SETTING, 0x4F8DFF, ICON_GEAR_SOLID);
-    gf_register_handler(btn, ID_TASK_BAR_SETTING, taskbar_app_icon_handler, LV_EVENT_CLICKED);
+    gf_register_handler(btn, ID_TASK_BAR_SETTING, app_handler, LV_EVENT_CLICKED);
 
     // Align it to bottom-middle AFTER children are added
     lv_obj_align_to(p_taskbar, parent, LV_ALIGN_BOTTOM_MID, 0, -10);
