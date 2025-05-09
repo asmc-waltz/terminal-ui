@@ -134,7 +134,7 @@ g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t * gf_get_g_obj(uint32_t req_id);
-void gf_remove_obj(uint32_t req_id);
+bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
 
 lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, uint32_t w, uint32_t h);
 lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h);

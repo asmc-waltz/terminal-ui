@@ -152,5 +152,5 @@ void gf_show_home_indicator(void)
 
 void gf_delete_home_indicator(void)
 {
-    gf_remove_obj(ID_HOME_INDICATOR);
+    gf_remove_obj_and_child(ID_HOME_INDICATOR, NULL);
 }

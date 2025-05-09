@@ -144,5 +144,5 @@ void gf_show_taskbar(void)
 
 void gf_delete_taskbar(void)
 {
-    gf_remove_obj(ID_TASK_BAR);
+    gf_remove_obj_and_child(ID_TASK_BAR, NULL);
 }
