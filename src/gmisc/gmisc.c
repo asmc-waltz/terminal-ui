@@ -150,10 +150,10 @@ bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
     struct list_head *par_list = NULL;
 
     if (head_lst == NULL) {
-        LV_LOG_USER("Scan from Root object");
+        G_DEBUG("Scan from Root object");
         par_list = &global_data->obj_list;
     } else {
-        LV_LOG_USER("Scan from parent");
+        G_DEBUG("Scan from parent");
         par_list = head_lst;
     }
 
@@ -161,40 +161,40 @@ bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
     if (p_obj->id) {
         if (p_obj->id == req_id || req_id == ID_NONE) {
             if (p_obj->id == req_id) {
-                LV_LOG_USER("### ID %d: Object is detected — initiating deletion |--->", p_obj->id);
+                G_DEBUG("### ID %d: Object is detected — initiating deletion |--->", p_obj->id);
             }
 
-            LV_LOG_USER("*** ID %d: Scanning object for child object deletion ***", p_obj->id);
+            G_DEBUG("*** ID %d: Scanning object for child object deletion ***", p_obj->id);
 
             if (!gf_remove_obj_and_child(ID_NONE, &p_obj->child)) {
-                LV_LOG_USER("*** ID %d: No more child objects to delete ***", p_obj->id);
+                G_DEBUG("*** ID %d: No more child objects to delete ***", p_obj->id);
             }
 
             if (lv_obj_is_valid(p_obj->obj)) {
-                LV_LOG_USER("ID %d: deleting lvgl object", p_obj->id);
+                G_DEBUG("ID %d: deleting lvgl object", p_obj->id);
                 lv_obj_delete(p_obj->obj);
             }
 
             list_del(&p_obj->node);
-            LV_LOG_USER("ID %d is deleted from list global data", p_obj->id);
+            G_DEBUG("ID %d is deleted from list global data", p_obj->id);
             free(p_obj);
 
             if (req_id != ID_NONE) {
-                LV_LOG_USER("ID %d: Object and all child objects have been deleted", req_id);
+                G_DEBUG("ID %d: Object and all child objects have been deleted", req_id);
                 return true;
             } else {
-                LV_LOG_USER("Continuing the deletion of child objects");
+                G_DEBUG("Continuing the deletion of child objects");
                 continue;
             }
 
         } else if (p_obj->id != req_id) {
             if (gf_remove_obj_and_child(req_id, &p_obj->child)) {
-                LV_LOG_USER("### ID %d: Object and all child objects have been deleted <---|", req_id);
+                G_DEBUG("### ID %d: Object and all child objects have been deleted <---|", req_id);
                 return true;
             }
             continue;
         } else {
-            LV_LOG_USER("Warning: This message indicates an unexpected condition");
+            G_DEBUG("Warning: This message indicates an unexpected condition");
         }
     }
 
