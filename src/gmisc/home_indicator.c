@@ -35,20 +35,6 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void home_indicator_handler(lv_event_t *e)
-{
-    g_obj *pg_obj = lv_event_get_user_data(e);
-
-    LV_LOG_USER("Home bar was clicked!");
-    gf_refresh_all_layer();
-
-    if (pg_obj->visible) {
-        gf_hide_home_indicator();
-        gf_hide_setting();
-        gf_show_taskbar();
-    }
-}
-
 static void gesture_event_handler(lv_event_t * e)
 {
     LV_UNUSED(e);
@@ -83,8 +69,9 @@ static void gesture_event_handler(lv_event_t * e)
             if (start_y > 580 && point.y < 500 && dir == LV_DIR_TOP) {
                 // LV_LOG_USER("pressing x %d -> back home", point.x);
                 gf_hide_setting();
-                // gf_show_taskbar();
                 gf_hide_home_indicator();
+                gf_hide_control_center();
+                gf_hide_system_status();
                 start_x = 0;
                 start_y = 0;
             }
@@ -114,7 +101,6 @@ lv_obj_t * gf_create_home_indicator(lv_obj_t *parent)
     lv_obj_add_style(p_home_indicator, p_style, 0);
     lv_obj_align_to(p_home_indicator, parent, LV_ALIGN_BOTTOM_MID, 0, 0);
 
-    // gf_register_handler(p_home_indicator, ID_HOME_INDICATOR, home_indicator_handler, LV_EVENT_CLICKED);
     lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_PRESSED , NULL);
     lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_PRESSING , NULL);
     lv_obj_add_event_cb(p_home_indicator, gesture_event_handler, LV_EVENT_RELEASED, NULL);
