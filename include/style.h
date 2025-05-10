@@ -20,6 +20,7 @@
  **********************/
 typedef enum {
     STY_BG = 1,
+    STY_BG_TRANS,
     STY_SEARCH_BOX,
     STY_TASKBAR,
     STY_BG_ICON_79,
@@ -37,6 +38,7 @@ typedef enum {
     STY_SETTING_TXT,
     STY_SETTING_SUB_CTR,
     STY_SETTING_SUB_CHILD_CTR,
+    STY_CTRL_CENTER,
 } g_style_id;
 
 typedef struct {
