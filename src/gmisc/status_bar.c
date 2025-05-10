@@ -71,6 +71,8 @@ static void gesture_event_handler(lv_event_t * e)
         if (point.x >= 0 && dir == LV_DIR_BOTTOM && point.x <= 340) {
             LV_LOG_USER("Swipe down from the top-left corner of the screen");
             if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
+                gf_show_system_status();
+                gf_show_home_indicator();
                 start_x = 0;
                 start_y = 0;
             }
@@ -88,7 +90,6 @@ static void gesture_event_handler(lv_event_t * e)
             LV_LOG_USER("Swipe down from the top-right corner of the screen");
             if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
                 gf_show_control_center();
-                gf_show_status_bar();
                 gf_show_home_indicator();
                 start_x = 0;
                 start_y = 0;
