@@ -84,6 +84,7 @@ typedef enum {
     ID_SETTING_SUB_CTR,
         ID_SETTING_SUB_TITLE,
     ID_CONTROL_CENTER,
+    ID_SYSTEM_STATUS,
 } g_id;
 
 typedef struct {

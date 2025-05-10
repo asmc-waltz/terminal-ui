@@ -41,6 +41,7 @@ static void sf_create_common_components(void)
     // Initialize the default keyboard that will always be accessible on the top layer.
     gf_keyboard_create();
     gf_create_control_center(lv_layer_top());
+    gf_create_system_status(lv_layer_top());
 }
 
 int main(void) {
