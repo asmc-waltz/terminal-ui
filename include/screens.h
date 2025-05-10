@@ -44,6 +44,11 @@ void gf_create_control_center(lv_obj_t *par);
 void gf_hide_control_center(void);
 void gf_show_control_center(void);
 void gf_delete_control_center(void);
+
+void gf_create_system_status(lv_obj_t *par);
+void gf_hide_system_status(void);
+void gf_show_system_status(void);
+void gf_delete_system_status(void);
 /**********************
  *      MACROS
  **********************/
