@@ -46,6 +46,62 @@ static lv_obj_t * sf_create_status_icon(lv_obj_t *par, uint32_t symbol, uint32_t
     return lbl;
 }
 
+static void gesture_event_handler(lv_event_t * e)
+{
+    LV_UNUSED(e);
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_indev_t * indev_act = lv_indev_active();
+    lv_dir_t dir = lv_indev_get_gesture_dir(indev_act);
+    static uint32_t start_x = 0;
+    static uint32_t start_y = 0;
+
+    lv_point_t point;
+    lv_indev_get_point(lv_indev_active(), &point);
+
+    LV_LOG_USER("Status bar event code %d", code);
+    if (code == LV_EVENT_PRESSED) {
+        // Store the starting point only if it appears to be a gesture
+        if (point.y < 20) {
+            start_x = point.x;
+            start_y = point.y;
+        }
+    }
+
+    if (code == LV_EVENT_PRESSING) {
+        if (point.x >= 0 && dir == LV_DIR_BOTTOM && point.x <= 340) {
+            LV_LOG_USER("Swipe down from the top-left corner of the screen");
+            if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
+                start_x = 0;
+                start_y = 0;
+            }
+        }
+
+        if (point.x > 340 && dir == LV_DIR_BOTTOM && point.x <= 680) {
+            LV_LOG_USER("Swipe down from the top-mid of the screen");
+            if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
+                start_x = 0;
+                start_y = 0;
+            }
+        }
+
+        if (point.x > 680 && dir == LV_DIR_BOTTOM && point.x <= 1024) {
+            LV_LOG_USER("Swipe down from the top-right corner of the screen");
+            if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
+                gf_show_control_center();
+                gf_show_status_bar();
+                gf_show_home_indicator();
+                start_x = 0;
+                start_y = 0;
+            }
+        }
+    }
+
+    if (code == LV_EVENT_RELEASED) {
+        start_x = 0;
+        start_y = 0;
+    }
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -91,6 +147,10 @@ lv_obj_t * gf_create_status_bar(lv_obj_t *par) {
     icon = sf_create_status_icon(ctr, ICON_PLUG_CIRCLE_BOLT_SOLID, ID_STATUS_BAR_POWER);
 
     lv_obj_add_flag(status_bar, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_add_event_cb(status_bar, gesture_event_handler, LV_EVENT_PRESSED , NULL);
+    lv_obj_add_event_cb(status_bar, gesture_event_handler, LV_EVENT_PRESSING , NULL);
+    lv_obj_add_event_cb(status_bar, gesture_event_handler, LV_EVENT_RELEASED, NULL);
 
     return status_bar;
 }
