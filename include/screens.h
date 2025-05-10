@@ -39,6 +39,11 @@ void gf_create_home_screen();
 void gf_create_setting_menu(lv_obj_t *par);
 void gf_hide_setting();
 void gf_show_setting();
+
+void gf_create_control_center(lv_obj_t *par);
+void gf_hide_control_center(void);
+void gf_show_control_center(void);
+void gf_delete_control_center(void);
 /**********************
  *      MACROS
  **********************/
