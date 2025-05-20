@@ -87,7 +87,7 @@ int main(void) {
 
     while (1) {
         lv_task_handler();
-        usleep(5000);
+        usleep(1000);
     }
 
     // If there are no other components, we can safely clear all current style data
