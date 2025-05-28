@@ -1,4 +1,5 @@
 #include <terminal-ui.h>
+#include <log.h>
 
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
@@ -7,7 +8,7 @@ static lv_indev_t *touch_scr = NULL;
 static int sf_init_drm_display() {
     drm_disp = lv_linux_drm_create();
     if (drm_disp == NULL) {
-        printf("Error: Failed to initialize the display.\n");
+        LOG_FATAL("Failed to initialize the display.\n");
         return LV_RESULT_INVALID;
     }
     lv_display_set_default(drm_disp);
@@ -19,7 +20,7 @@ static int sf_init_drm_display() {
 static int sf_init_touch_screen() {
     touch_scr = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event1");
     if (touch_scr == NULL) {
-        printf("Error: Failed to initialize touch input device");
+        LOG_FATAL("Failed to initialize touch input device");
         return LV_RESULT_INVALID;
     }
     lv_indev_set_display(touch_scr, drm_disp);
@@ -47,7 +48,7 @@ static void sf_create_common_components(void)
 int main(void) {
     lv_timer_t * task_timer = NULL;
 
-    LV_LOG_USER("******** TERMINAL UI ********");
+    LOG_INFO("******** TERMINAL UI ********");
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
     LV_ASSERT_NULL(global_data);
@@ -61,7 +62,7 @@ int main(void) {
 
     task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
     if (task_timer == NULL) {
-        LV_LOG_ERROR("Failed to create timer for LVGL task handler");
+        LOG_FATAL("Failed to create timer for LVGL task handler");
         return LV_RESULT_INVALID;
     }
     lv_timer_ready(task_timer);

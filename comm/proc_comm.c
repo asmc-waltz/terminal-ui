@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <comm.h>
+#include <log.h>
 
 /*********************
  *      DEFINES
@@ -48,7 +49,7 @@ int cmd_executor(char *cmd, bool interact, char *input, char *output)
     if (!interact) {
         pfd = popen(cmd, "r");
         if (pfd == NULL) {
-            puts("Unable to open process");
+            LOG_ERROR("Unable to open process");
             return 1;
         }
         while((ch = fgetc(pfd)) != EOF)
@@ -56,7 +57,7 @@ int cmd_executor(char *cmd, bool interact, char *input, char *output)
     } else {
         pfd = popen(cmd, "w");
         if (pfd == NULL) {
-            puts("Unable to open process");
+            LOG_ERROR("Unable to open process");
             return 1;
         }
         fprintf(pfd, input);

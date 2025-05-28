@@ -8,6 +8,7 @@
  *********************/
 #include <style.h>
 #include <fonts.h>
+#include <log.h>
 
 /*********************
  *      DEFINES
@@ -302,7 +303,7 @@ lv_style_t * gf_get_lv_style(char style_id)
     list_for_each_entry(p_style, &HEAD_OF_STYLES, node)
     if (p_style->id != 0) {
         if (p_style->id == style_id) {
-            // LV_LOG_USER("Style REQ id is detected %d", p_style->id);
+            // LOG_DEBUG("Style REQ id is detected %d", p_style->id);
             break;
         } else {
             // TODO
@@ -317,9 +318,9 @@ void gf_styles_init(void)
 {
     lv_style_t *p_style;
     if (list_empty(&HEAD_OF_STYLES)) {
-        LV_LOG_USER("Style list is empty: init");
+        LOG_DEBUG("Style list is empty: init");
     } else {
-        LV_LOG_WARN("Style list has been initialized: do nothing!");
+        LOG_DEBUG("Style list has been initialized: do nothing!");
         return;
     }
 
@@ -395,7 +396,7 @@ void sf_delete_all_style_data(void)
 
     list_for_each_entry_safe(p_style, p_tmp, &HEAD_OF_STYLES, node)
     if (p_style->id != 0) {
-        LV_LOG_USER("Free Style id %d", p_style->id);
+        LOG_DEBUG("Free Style id %d", p_style->id);
         list_del(&p_style->node);
         free(p_style);
     }

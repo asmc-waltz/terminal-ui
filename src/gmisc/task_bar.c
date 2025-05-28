@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <gmisc.h>
+#include <log.h>
 
 /*********************
  *      DEFINES
@@ -44,7 +45,7 @@ static void app_handler(lv_event_t *event)
     gf_refresh_all_layer();
 
     pg_obj = btn->user_data;
-    LV_LOG_USER("ID %d: Taskbar button clicked", pg_obj->id);
+    LOG_DEBUG("ID %d: Taskbar button clicked", pg_obj->id);
     if (pg_obj->id != ID_TASK_BAR_SETTING)
     {
         return;
