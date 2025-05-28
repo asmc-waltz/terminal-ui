@@ -9,6 +9,7 @@
 #include <screens.h>
 #include <gmisc.h>
 #include <fonts.h>
+#include <log.h>
 
 /*********************
  *      DEFINES
