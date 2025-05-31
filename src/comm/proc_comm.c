@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <ui_comm.h>
 #include <log.h>

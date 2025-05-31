@@ -5,9 +5,13 @@ project(terminal-ui)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LVGL REQUIRED lvgl)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
+pkg_check_modules(DBUS REQUIRED dbus-1)
 
 include_directories(${LVGL_INCLUDE_DIRS})
 link_directories(${LVGL_LIBRARY_DIRS})
+
+include_directories(${DBUS_INCLUDE_DIRS})
+link_directories(${DBUS_LIBRARY_DIRS})
 
 include_directories(include)
 file(GLOB_RECURSE SRC_FILES "src/*.c")
