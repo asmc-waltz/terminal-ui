@@ -1,5 +1,19 @@
-#include <terminal-ui.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#include <lvgl.h>
+
 #include <log.h>
+#include <list.h>
+#include <fonts.h>
+#include <style.h>
+#include <layers.h>
+#include <gmisc.h>
+#include <comm.h>
+#include <style.h>
+#include <terminal-ui.h>
 
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;

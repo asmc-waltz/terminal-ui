@@ -8,18 +8,6 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <lvgl.h>
-#include <list.h>
-#include <fonts.h>
-#include <style.h>
-#include <layers.h>
-#include <gmisc.h>
-#include <comm.h>
-#include <style.h>
 
 /*********************
  *      DEFINES

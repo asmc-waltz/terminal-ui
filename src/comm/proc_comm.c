@@ -6,6 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdio.h>
+
 #include <comm.h>
 #include <log.h>
 
@@ -60,7 +62,7 @@ int cmd_executor(char *cmd, bool interact, char *input, char *output)
             LOG_ERROR("Unable to open process");
             return 1;
         }
-        fprintf(pfd, input);
+        fprintf(pfd, "%s", input);
     }
 
     pclose(pfd);
