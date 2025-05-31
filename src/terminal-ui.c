@@ -7,11 +7,11 @@
 
 #include <log.h>
 #include <list.h>
+#include <ui_comm.h>
 #include <fonts.h>
 #include <style.h>
 #include <layers.h>
 #include <gmisc.h>
-#include <comm.h>
 #include <style.h>
 #include <terminal-ui.h>
 

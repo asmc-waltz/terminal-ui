@@ -8,7 +8,7 @@
  *********************/
 #include <stdio.h>
 
-#include <comm.h>
+#include <ui_comm.h>
 #include <log.h>
 
 /*********************

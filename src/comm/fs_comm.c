@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <comm.h>
+#include <ui_comm.h>
 
 /*********************
  *      DEFINES
