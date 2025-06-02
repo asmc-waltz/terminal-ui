@@ -20,6 +20,7 @@ add_executable(terminal-ui ${SRC_FILES})
 
 target_link_libraries(terminal-ui lvgl)
 target_link_libraries(terminal-ui ${LIBDRM_LIBRARIES})
+target_link_libraries(terminal-ui ${DBUS_LIBRARIES})
 target_include_directories(terminal-ui PRIVATE ${LIBDRM_INCLUDE_DIRS})
 
 
