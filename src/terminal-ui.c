@@ -105,10 +105,17 @@ static void sf_create_common_components(void)
 }
 
 int main(void) {
+    DBusConnection *conn;
     lv_timer_t * task_timer = NULL;
 
     LOG_INFO("******** TERMINAL UI ********");
     if (setup_signal_handler()) {
+        goto exit_error;
+    }
+
+    conn = setup_dbus();
+    if (!conn) {
+        LOG_FATAL("Terminal UI: Unable to establish connection with DBus");
         goto exit_error;
     }
 
