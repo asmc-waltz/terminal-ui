@@ -128,6 +128,13 @@ int main(void) {
         goto exit_dbus;
     }
 
+    // Prepare eventfd to notify epoll when communicating with a thread
+    ret = init_event_file();
+    if (ret) {
+        LOG_FATAL("Failed to initialize eventfd");
+        goto exit_workqueue;
+    }
+
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
     LV_ASSERT_NULL(global_data);
@@ -173,6 +180,10 @@ int main(void) {
     // If there are no other components, we can safely clear all current style data
     // sf_delete_all_style_data();
     return LV_RESULT_OK;
+
+exit_workqueue:
+    workqueue_stop();
+    pthread_join(task_handler, NULL);
 
 exit_dbus:
     dbus_connection_unref(conn);
