@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include <lvgl.h>
 
@@ -18,6 +19,8 @@
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
 static lv_indev_t *touch_scr = NULL;
+
+volatile sig_atomic_t g_run = 1;
 
 static int sf_init_drm_display() {
     drm_disp = lv_linux_drm_create();
