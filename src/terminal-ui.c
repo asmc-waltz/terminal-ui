@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include <lvgl.h>
 
@@ -106,7 +107,9 @@ static void sf_create_common_components(void)
 
 int main(void) {
     DBusConnection *conn;
+    pthread_t task_handler;
     lv_timer_t * task_timer = NULL;
+    int ret = 0;
 
     LOG_INFO("******** TERMINAL UI ********");
     if (setup_signal_handler()) {
@@ -117,6 +120,12 @@ int main(void) {
     if (!conn) {
         LOG_FATAL("Terminal UI: Unable to establish connection with DBus");
         goto exit_error;
+    }
+
+    ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
+    if (ret) {
+        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
+        goto exit_dbus;
     }
 
     // Global data used to manage all created objects and their associated handlers
@@ -164,6 +173,9 @@ int main(void) {
     // If there are no other components, we can safely clear all current style data
     // sf_delete_all_style_data();
     return LV_RESULT_OK;
+
+exit_dbus:
+    dbus_connection_unref(conn);
 
 exit_error:
     return EXIT_FAILURE;
