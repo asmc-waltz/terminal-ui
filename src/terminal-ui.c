@@ -105,6 +105,18 @@ static void sf_create_common_components(void)
     gf_create_system_status(lv_layer_top());
 }
 
+int main_loop()
+{
+    LOG_INFO("Terminal UI service is running...");
+    while (g_run) {
+        lv_task_handler();
+        usleep(5000);
+    };
+
+    LOG_INFO("Terminal UI service is exiting...");
+    return 0;
+}
+
 int main(void) {
     DBusConnection *conn;
     pthread_t task_handler;
@@ -157,7 +169,7 @@ int main(void) {
     task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
     if (task_timer == NULL) {
         LOG_FATAL("Failed to create timer for LVGL task handler");
-        return LV_RESULT_INVALID;
+        goto exit_listener;
     }
     lv_timer_ready(task_timer);
 
@@ -180,14 +192,26 @@ int main(void) {
     // Display the home screen
     gf_create_home_screen();
 
-    while (1) {
-        lv_task_handler();
-        usleep(5000);
+    // Terminal-UI's primary tasks are executed within a loop
+    ret = main_loop();
+    if (ret) {
+        goto exit_listener;
     }
 
-    // If there are no other components, we can safely clear all current style data
-    // sf_delete_all_style_data();
-    return LV_RESULT_OK;
+    pthread_join(dbus_listener, NULL);
+    pthread_join(task_handler, NULL);
+
+    sf_delete_all_style_data();
+    free(global_data);
+    close(event_fd);
+    dbus_connection_unref(conn);
+
+    LOG_DEBUG("All services stopped. Safe exit.\n");
+    return EXIT_SUCCESS;
+
+exit_listener:
+    event_set(event_fd, SIGUSR1);
+    pthread_join(dbus_listener, NULL);
 
 exit_workqueue:
     workqueue_stop();
