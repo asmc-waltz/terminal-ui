@@ -108,6 +108,7 @@ static void sf_create_common_components(void)
 int main(void) {
     DBusConnection *conn;
     pthread_t task_handler;
+    pthread_t dbus_listener;
     lv_timer_t * task_timer = NULL;
     int ret = 0;
 
@@ -132,6 +133,13 @@ int main(void) {
     ret = init_event_file();
     if (ret) {
         LOG_FATAL("Failed to initialize eventfd");
+        goto exit_workqueue;
+    }
+
+    // This thread processes DBus messages for the system manager
+    ret = pthread_create(&dbus_listener, NULL, dbus_listen_thread, conn);
+    if (ret) {
+        LOG_FATAL("Failed to create DBus listen thread: %s", strerror(ret));
         goto exit_workqueue;
     }
 
