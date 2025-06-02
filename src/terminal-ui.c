@@ -20,7 +20,49 @@ g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
 static lv_indev_t *touch_scr = NULL;
 
+extern int event_fd;
 volatile sig_atomic_t g_run = 1;
+
+void sig_handler(int sig) {
+    switch (sig) {
+        case SIGINT:
+            LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
+            g_run = 0;
+            event_set(event_fd, SIGINT);
+            workqueue_stop();
+            break;
+        case SIGTERM:
+            LOG_WARN("[+] Received SIGTERM. Shutdown...");
+            exit(0);
+        case SIGABRT:
+            LOG_WARN("[+] Received SIGABRT. Exiting...");
+            event_set(event_fd, SIGABRT);
+            break;
+        default:
+            LOG_WARN("[!] Received unidentified signal: %d", sig);
+            break;
+    }
+}
+
+int setup_signal_handler()
+{
+    if (signal(SIGINT, sig_handler) == SIG_ERR) {
+        LOG_ERROR("Error registering signal SIGINT handler");
+        return EXIT_FAILURE;
+    }
+
+    if (signal(SIGTERM, sig_handler) == SIG_ERR) {
+        LOG_ERROR("Error registering signal SIGTERM handler");
+        return EXIT_FAILURE;
+    }
+
+    if (signal(SIGABRT, sig_handler) == SIG_ERR) {
+        LOG_ERROR("Error registering signal SIGABRT handler");
+        return EXIT_FAILURE;
+    }
+
+    return 0;
+}
 
 static int sf_init_drm_display() {
     drm_disp = lv_linux_drm_create();
@@ -66,6 +108,10 @@ int main(void) {
     lv_timer_t * task_timer = NULL;
 
     LOG_INFO("******** TERMINAL UI ********");
+    if (setup_signal_handler()) {
+        goto exit_error;
+    }
+
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
     LV_ASSERT_NULL(global_data);
@@ -111,5 +157,8 @@ int main(void) {
     // If there are no other components, we can safely clear all current style data
     // sf_delete_all_style_data();
     return LV_RESULT_OK;
+
+exit_error:
+    return EXIT_FAILURE;
 }
 
