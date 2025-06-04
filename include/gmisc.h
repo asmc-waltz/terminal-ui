@@ -10,8 +10,6 @@
  *********************/
 #include <lvgl.h>
 #include <list.h>
-#include <style.h>
-#include <fonts.h>
 
 /*********************
  *      DEFINES

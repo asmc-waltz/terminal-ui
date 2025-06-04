@@ -6,7 +6,10 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <lvgl.h>
 #include <screens.h>
+#include <fonts.h>
+#include <style.h>
 #include <gmisc.h>
 
 /*********************

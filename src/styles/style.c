@@ -6,9 +6,11 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <lvgl.h>
 #include <style.h>
 #include <fonts.h>
 #include <log.h>
+#include <list.h>
 
 /*********************
  *      DEFINES

@@ -6,7 +6,9 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <lvgl.h>
 #include <gmisc.h>
+#include <fonts.h>
 
 /*********************
  *      DEFINES
