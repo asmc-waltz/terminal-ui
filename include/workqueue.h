@@ -8,6 +8,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <dbus_comm.h>
 
 /*********************
  *      DEFINES
@@ -17,8 +18,7 @@
  *      TYPEDEFS
  **********************/
 typedef struct work {
-    int opcode;
-    char data[256];
+    cmd_data_t *cmd;
     struct work *next;
 } work_t;
 
@@ -59,6 +59,8 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+work_t * create_work(cmd_data_t *cmd);
+void delete_work(work_t *work);
 void push_work(work_t *work);
 work_t* pop_work_wait();
 void workqueue_stop();

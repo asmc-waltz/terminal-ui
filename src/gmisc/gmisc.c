@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <lvgl.h>
+#include <list.h>
 #include <gmisc.h>
 #include <log.h>
 

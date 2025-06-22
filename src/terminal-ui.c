@@ -9,7 +9,7 @@
 
 #include <log.h>
 #include <list.h>
-#include <ui_comm.h>
+#include <dbus_comm.h>
 #include <fonts.h>
 #include <style.h>
 #include <layers.h>

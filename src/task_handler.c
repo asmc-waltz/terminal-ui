@@ -15,18 +15,18 @@ void * main_task_handler(void* arg)
     LOG_INFO("Task handler is running...");
     while (g_run) {
         usleep(200000);
-        LOG_DEBUG("Task handler is waiting for new task...");
+        LOG_DEBUG("[Task handler] --> waiting for new task...");
         w = pop_work_wait();
         if (w == NULL) {
             LOG_INFO("Task handler is exiting...");
             break;
         }
-        LOG_TRACE("Task: received opcode=%d, data=%s", w->opcode, w->data);
+        LOG_TRACE("Task: received opcode=%d", w->cmd->opcode);
 
-        sleep(1);
-        LOG_TRACE("Task done: %s", w->data);
+        LOG_INFO("#############################################");
 
-        free(w);
+        LOG_TRACE("Task done: %d", w->cmd->opcode);
+        delete_work(w);
     };
 
     LOG_INFO("Task handler thread exiting...");

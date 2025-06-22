@@ -12,6 +12,44 @@ static workqueue_t g_wqueue = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
+work_t *create_work(cmd_data_t *cmd)
+{
+	work_t *work;
+
+	if (!cmd)
+		return NULL;
+
+	work = calloc(1, sizeof(*work));
+	if (!work)
+		return NULL;
+
+	work->cmd = cmd;
+	LOG_TRACE("Created work for opcode: %d", cmd->opcode);
+
+	return work;
+}
+
+void delete_work(work_t *work)
+{
+	cmd_data_t *cmd;
+
+	if (!work) {
+		LOG_WARN("Unable to delete work: null work pointer");
+		return;
+	}
+
+	cmd = work->cmd;
+	if (!cmd) {
+		LOG_WARN("Unable to delete work: null cmd pointer");
+		free(work);
+		return;
+	}
+
+	LOG_TRACE("Deleting work for opcode: %d", cmd->opcode);
+	free(cmd);
+	free(work);
+}
+
 void push_work(work_t *w) {
     pthread_mutex_lock(&g_wqueue.mutex);
 
