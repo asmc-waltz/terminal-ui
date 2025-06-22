@@ -267,8 +267,8 @@ int dbus_event_handler(DBusConnection *conn)
 			const char *member = dbus_message_get_member(msg);
 
 			if (iface && member && \
-			    strcmp(iface, SYS_MGR_DBUS_IFACE) == 0 && \
-			    strcmp(member, SYS_MGR_DBUS_METH) == 0) {
+			    strcmp(iface, UI_DBUS_IFACE) == 0 && \
+			    strcmp(member, UI_DBUS_METH) == 0) {
 				ret = dispatch_cmd_from_message(msg);
 				if (ret < 0) {
 					LOG_ERROR("Dispatch failed: iface=%s, meth=%s",
@@ -295,8 +295,8 @@ int dbus_event_handler(DBusConnection *conn)
 			const char *member = dbus_message_get_member(msg);
 
 			if (iface && member && \
-			    strcmp(iface, UI_DBUS_IFACE) == 0 && \
-			    strcmp(member, UI_DBUS_SIG) == 0) {
+			    strcmp(iface, SYS_MGR_DBUS_IFACE) == 0 && \
+			    strcmp(member, SYS_MGR_DBUS_SIG) == 0) {
 				ret = dispatch_cmd_from_message(msg);
 				if (ret < 0)
 					LOG_ERROR("Dispatch signal failed: %s.%s",
@@ -350,7 +350,7 @@ DBusConnection * setup_dbus()
     }
 
     ret = dbus_bus_request_name(conn, \
-                                SYS_MGR_DBUS_SER, \
+                                UI_DBUS_SER, \
                                 DBUS_NAME_FLAG_REPLACE_EXISTING, \
                                 &err);
     if (dbus_error_is_set(&err)) {
@@ -369,7 +369,7 @@ DBusConnection * setup_dbus()
         return NULL;
     }
     sprintf(match_rule, "type='signal',interface='%s',member='%s',path='%s'",
-            UI_DBUS_IFACE, UI_DBUS_SIG, UI_DBUS_OBJ_PATH);
+            SYS_MGR_DBUS_IFACE, SYS_MGR_DBUS_SIG, SYS_MGR_DBUS_OBJ_PATH);
 
     ret = add_dbus_match_rule(conn, match_rule);
     if (ret) {
