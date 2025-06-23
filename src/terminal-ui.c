@@ -15,6 +15,7 @@
 #include <layers.h>
 #include <gmisc.h>
 #include <style.h>
+#include <screens.h>
 #include <terminal-ui.h>
 
 g_app_data *global_data = NULL;
