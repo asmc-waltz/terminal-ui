@@ -251,7 +251,7 @@ static void sf_transparent_bg_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
     lv_style_set_radius(p_style, 16);
-    lv_style_set_bg_opa(p_style, LV_OPA_90);
+    lv_style_set_bg_opa(p_style, LV_OPA_COVER);
     lv_style_set_bg_color(p_style, lv_color_white());
     lv_style_set_text_font(p_style, &terminal_icons_20);
     lv_style_set_text_color(p_style, lv_color_black());
