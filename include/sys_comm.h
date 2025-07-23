@@ -7,7 +7,6 @@
 #define G_SYS_COMM_H
 
 #include <stddef.h>
-#include <sys_comm/network.h>
 
 int init_event_file();
 void event_set(int evfd, uint64_t code);

@@ -12,6 +12,7 @@
 #include <fonts.h>
 #include <style.h>
 #include <log.h>
+#include <sys_comm.h>
 
 /*********************
  *      DEFINES
@@ -241,6 +242,9 @@ static void setting_handler(lv_event_t *e)
 
         if (id == ID_SETTING_SEACH) {
             gf_show_keyboard();
+        } else if (id == ID_SETTING_BRIGHTNESS) {
+            lv_obj_t *ctr = gf_get_obj(ID_SETTING_SUB_CTR, NULL);
+            gf_create_backlight_control_slider(ctr);
         }
     }
 }
