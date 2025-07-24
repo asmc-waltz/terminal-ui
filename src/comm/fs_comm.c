@@ -62,9 +62,9 @@ static int __sf_fs_write_internal(const char *path,  const char *data, \
     flags = O_WRONLY | O_CREAT;
     flags |= append ? O_APPEND : O_TRUNC;
 
-    LOG_INFO("%s to %s, len=%zu", \
+    LOG_TRACE("%s to %s, len=%zu", \
          append ? "append" : "write", path, len);
-    LOG_DEBUG("data:\n%.*s", (int)len, data);
+    LOG_TRACE("write data:\n%.*s", (int)len, data);
 
     fd = open(path, flags, 0644);
     if (fd < 0) {
@@ -80,7 +80,7 @@ static int __sf_fs_write_internal(const char *path,  const char *data, \
     }
 
     close(fd);
-    LOG_INFO("%s success", append ? "append" : "write");
+    LOG_TRACE("%s success", append ? "append" : "write");
     return 0;
 }
 
