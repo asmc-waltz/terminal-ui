@@ -209,6 +209,25 @@ static void sf_setting_ctr_style_init(lv_style_t *p_style, uint32_t w, uint32_t 
     lv_style_set_anim_duration(p_style, 50);
 }
 
+static void sf_setting_sub_ctr_style_init(lv_style_t *p_style, uint32_t w, uint32_t h)
+{
+    lv_style_init(p_style);
+    lv_style_set_size(p_style, w, h);
+    lv_style_set_radius(p_style, 16);
+    lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_COLUMN);
+    lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
+    lv_style_set_flex_main_place(p_style, LV_FLEX_ALIGN_START);
+    lv_style_set_flex_cross_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_flex_track_place(p_style, LV_FLEX_ALIGN_CENTER);
+    lv_style_set_bg_color(p_style, lv_color_hex(0xE9EDF2));
+    lv_style_set_pad_all(p_style, 15);
+    lv_style_set_pad_gap(p_style, 0);
+    lv_style_set_border_width(p_style, 1);
+    lv_style_set_border_color(p_style, lv_color_hex(0x979797));
+    lv_style_set_pad_row(p_style, 20);
+    lv_style_set_anim_duration(p_style, 50);
+}
+
 static void sf_setting_main_child_ctr_style_init(lv_style_t *p_style)
 {
     lv_style_init(p_style);
@@ -380,7 +399,7 @@ void gf_styles_init(void)
 
     p_style = sf_create_style_data(STY_SETTING_SUB_CTR);
     LV_ASSERT_NULL(p_style);
-    sf_setting_ctr_style_init(p_style, 669, 554);
+    sf_setting_sub_ctr_style_init(p_style, 669, 554);
 
     p_style = sf_create_style_data(STY_SEARCH_BOX);
     LV_ASSERT_NULL(p_style);
