@@ -243,8 +243,17 @@ static void setting_handler(lv_event_t *e)
         if (id == ID_SETTING_SEACH) {
             gf_show_keyboard();
         } else if (id == ID_SETTING_BRIGHTNESS) {
-            lv_obj_t *ctr = gf_get_obj(ID_SETTING_SUB_CTR, NULL);
-            gf_create_backlight_control_slider(ctr);
+            lv_obj_t *sub_ctr = gf_get_obj(ID_SETTING_SUB_CTR, NULL);
+
+            // TODO: search quicker with list
+            lv_obj_t *bl_ctr = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
+            if (bl_ctr) {
+                gf_show_brighness_setting();
+            } else {
+                gf_create_backlight_setting_container(sub_ctr);
+            }
+        } else {
+            gf_hide_brighness_setting();
         }
     }
 }

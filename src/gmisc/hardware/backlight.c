@@ -71,10 +71,41 @@ void gf_create_backlight_control_slider(lv_obj_t *par)
     lv_obj_set_style_anim_duration(slider, 2000, 0);
 }
 
+void gf_create_backlight_setting_container(lv_obj_t *par)
+{
+    lv_obj_t *ctr = gf_create_obj(par, ID_SETTING_BRIGHTNESS_CTR);
+    lv_style_t *p_style = gf_get_lv_style(STY_SETTING_SUB_CHILD_CTR);
+
+    lv_obj_add_style(ctr, p_style, 0);
+    gf_create_backlight_control_slider(ctr);
+}
+
 void gf_hide_brighness_setting()
 {
+
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
+
+    pl_obj = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
+
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_add_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = false;
 }
 
 void gf_show_brighness_setting()
 {
+
+    lv_obj_t *pl_obj = NULL;
+    g_obj *pg_obj = NULL;
+
+    pl_obj = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
+
+    LV_ASSERT_NULL(pl_obj);
+    pg_obj = pl_obj->user_data;
+
+    lv_obj_remove_flag(pl_obj, LV_OBJ_FLAG_HIDDEN);
+    pg_obj->visible = true;
 }
