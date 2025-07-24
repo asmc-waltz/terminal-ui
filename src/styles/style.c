@@ -216,7 +216,7 @@ static void sf_setting_sub_ctr_style_init(lv_style_t *p_style, uint32_t w, uint3
     lv_style_set_radius(p_style, 16);
     lv_style_set_flex_flow(p_style, LV_FLEX_FLOW_COLUMN);
     lv_style_set_layout(p_style, LV_LAYOUT_FLEX);
-    lv_style_set_flex_main_place(p_style, LV_FLEX_ALIGN_START);
+    lv_style_set_flex_main_place(p_style, LV_FLEX_ALIGN_SPACE_AROUND);
     lv_style_set_flex_cross_place(p_style, LV_FLEX_ALIGN_CENTER);
     lv_style_set_flex_track_place(p_style, LV_FLEX_ALIGN_CENTER);
     lv_style_set_bg_color(p_style, lv_color_hex(0xE9EDF2));
@@ -400,6 +400,10 @@ void gf_styles_init(void)
     p_style = sf_create_style_data(STY_SETTING_SUB_CTR);
     LV_ASSERT_NULL(p_style);
     sf_setting_sub_ctr_style_init(p_style, 669, 554);
+
+    p_style = sf_create_style_data(STY_SETTING_SUB_CHILD_CTR);
+    LV_ASSERT_NULL(p_style);
+    sf_setting_sub_ctr_style_init(p_style, LV_PCT(100), LV_PCT(90));
 
     p_style = sf_create_style_data(STY_SEARCH_BOX);
     LV_ASSERT_NULL(p_style);
