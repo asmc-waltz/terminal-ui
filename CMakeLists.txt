@@ -23,4 +23,6 @@ target_link_libraries(terminal-ui ${LIBDRM_LIBRARIES})
 target_link_libraries(terminal-ui ${DBUS_LIBRARIES})
 target_include_directories(terminal-ui PRIVATE ${LIBDRM_INCLUDE_DIRS})
 
+file(GLOB_RECURSE UTILS_FILES "utils/*.c")
+add_executable(ui-utils ${UTILS_FILES})
 
