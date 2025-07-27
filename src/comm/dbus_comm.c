@@ -21,6 +21,7 @@
 #include <log.h>
 #include <dbus_comm.h>
 #include <workqueue.h>
+#include <task_handler.h>
 
 /*********************
  *      DEFINES
@@ -53,28 +54,6 @@ static void parse_dbus_iter(DBusMessageIter* iter, int indent);
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-remote_cmd_t *create_cmd(void)
-{
-	remote_cmd_t *cmd;
-
-	cmd = calloc(1, sizeof(*cmd));
-	if (!cmd) {
-		return NULL;
-	}
-
-	return cmd;
-}
-
-void delete_cmd(remote_cmd_t *cmd)
-{
-	if (!cmd) {
-		LOG_WARN("Unable to delete cmd: null pointer");
-		return;
-	}
-
-	free(cmd);
-}
-
 // Encode remote_cmd_t into an existing DBusMessage
 bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 {
@@ -202,7 +181,7 @@ int dispatch_cmd_from_message(DBusMessage *msg)
 	work_t *work;
 	int i;
 
-	cmd = create_cmd();
+	cmd = create_remote_cmd();
 	if (!cmd) {
 		LOG_ERROR("Failed to allocate memory for cmd_data");
 		return -ENOMEM;
@@ -210,7 +189,7 @@ int dispatch_cmd_from_message(DBusMessage *msg)
 
 	if (!decode_data_frame(msg, cmd)) {
 		LOG_ERROR("Failed to decode DBus message");
-		delete_cmd(cmd);
+		delete_remote_cmd(cmd);
 		return -EINVAL;
 	}
 
@@ -233,10 +212,10 @@ int dispatch_cmd_from_message(DBusMessage *msg)
 		}
 	}
 
-	work = create_work(REMOTE_WORK, (void *)cmd);
+	work = create_work(REMOTE, SERIAL, (void *)cmd);
 	if (!work) {
 		LOG_ERROR("Failed to create work from cmd");
-		delete_cmd(cmd);
+		delete_remote_cmd(cmd);
 		return -ENOMEM;
 	}
 

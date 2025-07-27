@@ -8,21 +8,28 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <pthread.h>
 #include <dbus_comm.h>
 
 /*********************
  *      DEFINES
  *********************/
 typedef enum {
-    LOCAL_WORK = 0,
-    REMOTE_WORK,
-} work_types;
+    LOCAL = 0,
+    REMOTE,
+} worktype_t;
+
+typedef enum {
+    SERIAL = 0,
+    PARALLEL,
+} workflow_t;
 
 /**********************
  *      TYPEDEFS
  **********************/
 typedef struct work {
-    unsigned int type;
+    uint8_t type;
+    uint8_t flow;
     void *data;
     struct work *next;
 } work_t;
@@ -64,7 +71,7 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-work_t *create_work(uint32_t type, void *data);
+work_t *create_work(uint8_t type, uint8_t flow, void *data);
 void delete_work(work_t *work);
 void push_work(work_t *work);
 work_t* pop_work_wait();

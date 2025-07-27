@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <workqueue.h>
+#include <task_handler.h>
 #include <dbus_comm.h>
 
 extern volatile sig_atomic_t g_run;
@@ -14,7 +15,7 @@ static workqueue_t g_wqueue = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
-work_t *create_work(uint32_t type, void *data)
+work_t *create_work(uint8_t type, uint8_t flow, void *data)
 {
 	work_t *work;
 
@@ -29,7 +30,7 @@ work_t *create_work(uint32_t type, void *data)
 
     work->type = type;
 	work->data = data;
-    if (work->type == REMOTE_WORK) {
+    if (work->type == REMOTE) {
 	    LOG_TRACE("Created work for opcode: %d", ((remote_cmd_t *)data)->opcode);
     }
 
@@ -52,7 +53,7 @@ void delete_work(work_t *work)
 		return;
 	}
 
-    if (work->type == REMOTE_WORK) {
+    if (work->type == REMOTE) {
 	    LOG_TRACE("Deleting work for opcode: %d", ((remote_cmd_t *)data)->opcode);
     }
 
