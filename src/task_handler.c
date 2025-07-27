@@ -5,6 +5,7 @@
 #include <log.h>
 #include <terminal-ui.h>
 #include <workqueue.h>
+#include <dbus_comm.h>
 
 extern volatile sig_atomic_t g_run;
 
@@ -21,11 +22,16 @@ void * main_task_handler(void* arg)
             LOG_INFO("Task handler is exiting...");
             break;
         }
-        LOG_TRACE("Task: received opcode=%d", w->cmd->opcode);
+
+        if (w->type == REMOTE_WORK) {
+            LOG_TRACE("Task: received opcode=%d", ((cmd_data_t *)w->data)->opcode);
+        }
 
         LOG_INFO("#############################################");
 
-        LOG_TRACE("Task done: %d", w->cmd->opcode);
+        if (w->type == REMOTE_WORK) {
+            LOG_TRACE("Task done: %d", ((cmd_data_t *)w->data)->opcode);
+        }
         delete_work(w);
     };
 

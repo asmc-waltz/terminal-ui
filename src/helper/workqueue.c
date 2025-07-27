@@ -1,7 +1,9 @@
 #include <pthread.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include <workqueue.h>
+#include <dbus_comm.h>
 
 extern volatile sig_atomic_t g_run;
 
@@ -12,41 +14,49 @@ static workqueue_t g_wqueue = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
-work_t *create_work(cmd_data_t *cmd)
+work_t *create_work(uint32_t type, void *data)
 {
 	work_t *work;
 
-	if (!cmd)
+	if (!data) {
+		LOG_WARN("Unable to create work: invalid data pointer");
 		return NULL;
+    }
 
 	work = calloc(1, sizeof(*work));
 	if (!work)
 		return NULL;
 
-	work->cmd = cmd;
-	LOG_TRACE("Created work for opcode: %d", cmd->opcode);
+    work->type = type;
+	work->data = data;
+    if (work->type == REMOTE_WORK) {
+	    LOG_TRACE("Created work for opcode: %d", ((cmd_data_t *)data)->opcode);
+    }
 
 	return work;
 }
 
 void delete_work(work_t *work)
 {
-	cmd_data_t *cmd;
+	void *data;
 
 	if (!work) {
 		LOG_WARN("Unable to delete work: null work pointer");
 		return;
 	}
 
-	cmd = work->cmd;
-	if (!cmd) {
-		LOG_WARN("Unable to delete work: null cmd pointer");
+	data = work->data;
+	if (!data) {
+		LOG_WARN("Unable to delete work: null data pointer");
 		free(work);
 		return;
 	}
 
-	LOG_TRACE("Deleting work for opcode: %d", cmd->opcode);
-	free(cmd);
+    if (work->type == REMOTE_WORK) {
+	    LOG_TRACE("Deleting work for opcode: %d", ((cmd_data_t *)data)->opcode);
+    }
+
+	free(data);
 	free(work);
 }
 

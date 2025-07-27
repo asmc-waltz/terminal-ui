@@ -13,12 +13,17 @@
 /*********************
  *      DEFINES
  *********************/
+typedef enum {
+    LOCAL_WORK = 0,
+    REMOTE_WORK,
+} work_types;
 
 /**********************
  *      TYPEDEFS
  **********************/
 typedef struct work {
-    cmd_data_t *cmd;
+    unsigned int type;
+    void *data;
     struct work *next;
 } work_t;
 
@@ -59,7 +64,7 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-work_t * create_work(cmd_data_t *cmd);
+work_t *create_work(uint32_t type, void *data);
 void delete_work(work_t *work);
 void push_work(work_t *work);
 work_t* pop_work_wait();
