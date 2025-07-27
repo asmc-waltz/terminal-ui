@@ -62,7 +62,7 @@ static void gesture_event_handler(lv_event_t * e)
     lv_point_t point;
     lv_indev_get_point(lv_indev_active(), &point);
 
-    LOG_DEBUG("Status bar event code %d", code);
+    LOG_TRACE("Status bar event code %d", code);
     if (code == LV_EVENT_PRESSED) {
         // Store the starting point only if it appears to be a gesture
         if (point.y < 20) {
@@ -73,7 +73,7 @@ static void gesture_event_handler(lv_event_t * e)
 
     if (code == LV_EVENT_PRESSING) {
         if (point.x >= 0 && dir == LV_DIR_BOTTOM && point.x <= 340) {
-            LOG_DEBUG("Swipe down from the top-left corner of the screen");
+            LOG_TRACE("Swipe down from the top-left corner of the screen");
             if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
                 gf_show_system_status();
                 gf_show_home_indicator();
@@ -83,7 +83,7 @@ static void gesture_event_handler(lv_event_t * e)
         }
 
         if (point.x > 340 && dir == LV_DIR_BOTTOM && point.x <= 680) {
-            LOG_DEBUG("Swipe down from the top-mid of the screen");
+            LOG_TRACE("Swipe down from the top-mid of the screen");
             if (start_y < 20 && point.y < 300 && dir == LV_DIR_BOTTOM) {
                 start_x = 0;
                 start_y = 0;
@@ -91,7 +91,7 @@ static void gesture_event_handler(lv_event_t * e)
         }
 
         if (point.x > 680 && dir == LV_DIR_BOTTOM && point.x <= 1024) {
-            LOG_DEBUG("Swipe down from the top-right corner of the screen");
+            LOG_TRACE("Swipe down from the top-right corner of the screen");
             if (start_y < 20 && point.y < 600 && dir == LV_DIR_BOTTOM) {
                 gf_show_control_center(point.y);
                 gf_show_home_indicator();
