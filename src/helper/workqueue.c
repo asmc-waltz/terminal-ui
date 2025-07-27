@@ -29,6 +29,7 @@ work_t *create_work(uint8_t type, uint8_t flow, void *data)
 		return NULL;
 
     work->type = type;
+    work->flow = flow;
 	work->data = data;
     if (work->type == REMOTE) {
 	    LOG_TRACE("Created work for opcode: %d", ((remote_cmd_t *)data)->opcode);

@@ -20,7 +20,7 @@
 
 // Set current log level here
 #ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_DEBUG
 #endif
 
 // Color macros for terminal output (optional)

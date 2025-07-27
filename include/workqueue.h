@@ -20,8 +20,8 @@ typedef enum {
 } worktype_t;
 
 typedef enum {
-    SERIAL = 0,
-    PARALLEL,
+    PARALLEL = 0,
+    SERIAL,
 } workflow_t;
 
 /**********************

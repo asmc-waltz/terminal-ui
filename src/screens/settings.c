@@ -239,7 +239,7 @@ static void setting_handler(lv_event_t *e)
 
     if (code == LV_EVENT_CLICKED) {
         id = ((g_obj *)(obj->user_data))->id;
-        LOG_DEBUG("ID %d: %s is clicked", id, lv_list_get_button_text(NULL, obj));
+        LOG_TRACE("ID %d: %s is clicked", id, lv_list_get_button_text(NULL, obj));
         sf_update_sub_setting_title(lv_list_get_button_text(NULL, obj));
 
 
@@ -247,7 +247,21 @@ static void setting_handler(lv_event_t *e)
             local_cmd_t *cmd = create_local_cmd();
             cmd->opcode = OP_ID_LEFT_VIBRATOR;
 
-            work_t *work = create_work(LOCAL, SERIAL, (void *)cmd);
+            work_t *work = create_work(LOCAL, PARALLEL, (void *)cmd);
+            if (!work) {
+                LOG_ERROR("Failed to create work from cmd");
+                delete_remote_cmd(cmd);
+                return;
+            }
+
+            push_work(work);
+
+
+
+            cmd = create_local_cmd();
+            cmd->opcode = OP_ID_RIGHT_VIBRATOR;
+
+            work = create_work(LOCAL, PARALLEL, (void *)cmd);
             if (!work) {
                 LOG_ERROR("Failed to create work from cmd");
                 delete_remote_cmd(cmd);
