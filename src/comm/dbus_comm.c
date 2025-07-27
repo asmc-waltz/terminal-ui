@@ -53,9 +53,9 @@ static void parse_dbus_iter(DBusMessageIter* iter, int indent);
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-cmd_data_t *create_cmd(void)
+remote_cmd_t *create_cmd(void)
 {
-	cmd_data_t *cmd;
+	remote_cmd_t *cmd;
 
 	cmd = calloc(1, sizeof(*cmd));
 	if (!cmd) {
@@ -65,7 +65,7 @@ cmd_data_t *create_cmd(void)
 	return cmd;
 }
 
-void delete_cmd(cmd_data_t *cmd)
+void delete_cmd(remote_cmd_t *cmd)
 {
 	if (!cmd) {
 		LOG_WARN("Unable to delete cmd: null pointer");
@@ -75,8 +75,8 @@ void delete_cmd(cmd_data_t *cmd)
 	free(cmd);
 }
 
-// Encode cmd_data_t into an existing DBusMessage
-bool encode_data_frame(DBusMessage *msg, const cmd_data_t *cmd)
+// Encode remote_cmd_t into an existing DBusMessage
+bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
@@ -133,8 +133,8 @@ bool encode_data_frame(DBusMessage *msg, const cmd_data_t *cmd)
     return true;
 }
 
-// Decode DBusMessage into cmd_data_t
-bool decode_data_frame(DBusMessage *msg, cmd_data_t *out)
+// Decode DBusMessage into remote_cmd_t
+bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
@@ -198,7 +198,7 @@ bool decode_data_frame(DBusMessage *msg, cmd_data_t *out)
 
 int dispatch_cmd_from_message(DBusMessage *msg)
 {
-	cmd_data_t *cmd;
+	remote_cmd_t *cmd;
 	work_t *work;
 	int i;
 

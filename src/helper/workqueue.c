@@ -30,7 +30,7 @@ work_t *create_work(uint32_t type, void *data)
     work->type = type;
 	work->data = data;
     if (work->type == REMOTE_WORK) {
-	    LOG_TRACE("Created work for opcode: %d", ((cmd_data_t *)data)->opcode);
+	    LOG_TRACE("Created work for opcode: %d", ((remote_cmd_t *)data)->opcode);
     }
 
 	return work;
@@ -53,7 +53,7 @@ void delete_work(work_t *work)
 	}
 
     if (work->type == REMOTE_WORK) {
-	    LOG_TRACE("Deleting work for opcode: %d", ((cmd_data_t *)data)->opcode);
+	    LOG_TRACE("Deleting work for opcode: %d", ((remote_cmd_t *)data)->opcode);
     }
 
 	free(data);

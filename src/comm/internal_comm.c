@@ -4,6 +4,7 @@
 #include <sys/eventfd.h>
 
 #include <log.h>
+#include <sys_comm.h>
 
 int event_fd;
 

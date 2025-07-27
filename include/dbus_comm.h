@@ -94,7 +94,7 @@ typedef struct {
     uint32_t opcode;              // Operation code
     uint32_t entry_count;         // Number of entries in the payload
     payload_t entries[MAX_ENTRIES]; // Payload entries
-} cmd_data_t;
+} remote_cmd_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -107,11 +107,11 @@ typedef struct {
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
-// Encode cmd_data_t into DBusMessage
-bool encode_data_frame(DBusMessage *msg, const cmd_data_t *frame);
+// Encode remote_cmd_t into DBusMessage
+bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *frame);
 
-// Decode DBusMessage into cmd_data_t
-bool decode_data_frame(DBusMessage *msg, cmd_data_t *out);
+// Decode DBusMessage into remote_cmd_t
+bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out);
 
 DBusConnection * setup_dbus();
 void* dbus_listen_thread(void* arg);

@@ -24,13 +24,13 @@ void * main_task_handler(void* arg)
         }
 
         if (w->type == REMOTE_WORK) {
-            LOG_TRACE("Task: received opcode=%d", ((cmd_data_t *)w->data)->opcode);
+            LOG_TRACE("Task: received opcode=%d", ((remote_cmd_t *)w->data)->opcode);
         }
 
         LOG_INFO("#############################################");
 
         if (w->type == REMOTE_WORK) {
-            LOG_TRACE("Task done: %d", ((cmd_data_t *)w->data)->opcode);
+            LOG_TRACE("Task done: %d", ((remote_cmd_t *)w->data)->opcode);
         }
         delete_work(w);
     };
