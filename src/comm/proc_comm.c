@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include <log.h>
+#include <sys_comm.h>
 
 /*********************
  *      DEFINES

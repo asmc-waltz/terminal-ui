@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 
 #include <log.h>
+#include <sys_comm.h>
 
 /*********************
  *      DEFINES
