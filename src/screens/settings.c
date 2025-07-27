@@ -13,6 +13,8 @@
 #include <style.h>
 #include <log.h>
 #include <sys_comm.h>
+#include <workqueue.h>
+#include <task_handler.h>
 
 /*********************
  *      DEFINES
@@ -240,6 +242,21 @@ static void setting_handler(lv_event_t *e)
         LOG_DEBUG("ID %d: %s is clicked", id, lv_list_get_button_text(NULL, obj));
         sf_update_sub_setting_title(lv_list_get_button_text(NULL, obj));
 
+
+//########################## TEST
+            local_cmd_t *cmd = create_local_cmd();
+            cmd->opcode = OP_ID_LEFT_VIBRATOR;
+
+            work_t *work = create_work(LOCAL, SERIAL, (void *)cmd);
+            if (!work) {
+                LOG_ERROR("Failed to create work from cmd");
+                delete_remote_cmd(cmd);
+                return;
+            }
+
+            push_work(work);
+
+
         if (id == ID_SETTING_SEACH) {
             gf_show_keyboard();
         } else if (id == ID_SETTING_BRIGHTNESS) {
@@ -252,9 +269,16 @@ static void setting_handler(lv_event_t *e)
             } else {
                 gf_create_backlight_setting_container(sub_ctr);
             }
+
         } else {
-            gf_hide_brighness_setting();
+            // TODO: search quicker with list
+            lv_obj_t *bl_ctr = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
+            if (bl_ctr) {
+                gf_hide_brighness_setting();
+            }
         }
+
+//##########################
     }
 }
 
