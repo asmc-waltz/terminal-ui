@@ -18,6 +18,7 @@ file(GLOB_RECURSE SRC_FILES "src/*.c")
 
 add_executable(terminal-ui ${SRC_FILES})
 
+target_link_libraries(terminal-ui m)
 target_link_libraries(terminal-ui lvgl)
 target_link_libraries(terminal-ui ${LIBDRM_LIBRARIES})
 target_link_libraries(terminal-ui ${DBUS_LIBRARIES})
