@@ -58,6 +58,10 @@ typedef enum {
     /* Vibrator API */
     OP_ID_LEFT_VIBRATOR,
     OP_ID_RIGHT_VIBRATOR,
+    /* IMU API */
+    OP_ID_START_IMU,
+    OP_ID_STOP_IMU,
+    OP_ID_READ_IMU,
 } opcode_t;
 
 
