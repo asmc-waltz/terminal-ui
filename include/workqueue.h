@@ -17,12 +17,18 @@
 typedef enum {
     LOCAL = 0,
     REMOTE,
-} worktype_t;
+} work_type_t;
 
 typedef enum {
-    PARALLEL = 0,
-    SERIAL,
-} workflow_t;
+    BLOCK = 0,
+    NON_BLOCK,
+} work_flow_t;
+
+typedef enum {
+    SHORT = 0,
+    LONG,
+    ENDLESS,
+} work_duration_t;
 
 /**********************
  *      TYPEDEFS
@@ -30,6 +36,7 @@ typedef enum {
 typedef struct work {
     uint8_t type;
     uint8_t flow;
+    uint8_t duration;
     void *data;
     struct work *next;
 } work_t;
@@ -71,7 +78,7 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-work_t *create_work(uint8_t type, uint8_t flow, void *data);
+work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, void *data);
 void delete_work(work_t *work);
 void push_work(work_t *work);
 work_t* pop_work_wait();

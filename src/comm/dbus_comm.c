@@ -212,7 +212,7 @@ int dispatch_cmd_from_message(DBusMessage *msg)
 		}
 	}
 
-	work = create_work(REMOTE, SERIAL, (void *)cmd);
+	work = create_work(REMOTE, BLOCK, SHORT, (void *)cmd);
 	if (!work) {
 		LOG_ERROR("Failed to create work from cmd");
 		delete_remote_cmd(cmd);

@@ -15,7 +15,7 @@ static workqueue_t g_wqueue = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
-work_t *create_work(uint8_t type, uint8_t flow, void *data)
+work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, void *data)
 {
 	work_t *work;
 
@@ -30,6 +30,7 @@ work_t *create_work(uint8_t type, uint8_t flow, void *data)
 
     work->type = type;
     work->flow = flow;
+    work->duration = duration;
 	work->data = data;
     if (work->type == REMOTE) {
 	    LOG_TRACE("Created work for opcode: %d", ((remote_cmd_t *)data)->opcode);

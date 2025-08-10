@@ -12,18 +12,24 @@ extern volatile sig_atomic_t g_run;
 
 void *non_blocking_task_handler(void *arg)
 {
-    int ret;
     work_t *w = (work_t *)arg;
 
     local_cmd_t *local_data = NULL;
     remote_cmd_t *remote_data = NULL;
 
-    if (w->type == REMOTE) {
-        LOG_TRACE("REMOTE Task: received opcode=%d", ((remote_cmd_t *)w->data)->opcode);
-        remote_data = (remote_cmd_t *)w->data;
-    } else if (w->type == LOCAL) {
-        LOG_TRACE("LOCAL Task: received opcode=%d", ((local_cmd_t *)w->data)->opcode);
+    if (w->type == LOCAL) {
+        LOG_TRACE("start LOCAL task: opcode [%d]", \
+                  ((local_cmd_t *)w->data)->opcode);
         local_data = (local_cmd_t *)w->data;
+    } else if (w->type == REMOTE) {
+        LOG_TRACE("start REMOTE task: opcode [%d]", \
+                  ((remote_cmd_t *)w->data)->opcode);
+        remote_data = (remote_cmd_t *)w->data;
+    }
+
+    // The working data structures for ENDLESS task need to be freed
+    if (w->duration == ENDLESS) {
+        delete_work(w);
     }
 
     // TESTING: TODO: opcode parser
@@ -35,7 +41,10 @@ void *non_blocking_task_handler(void *arg)
 
     // TODO: Handle work done notification
 
-    delete_work(w);
+    // The working data structures for the ENDLESS task are freed.
+    if (w->duration != ENDLESS) {
+        delete_work(w);
+    }
 }
 
 int create_non_blocking_task_handler(work_t *w)
@@ -54,7 +63,7 @@ int create_non_blocking_task_handler(work_t *w)
     return EXIT_SUCCESS;
 }
 
-int blocking_task_handler()
+int create_blocking_task_handler()
 {
     return 0;
 }
@@ -91,11 +100,11 @@ void *main_task_handler(void* arg)
                   w->type == REMOTE ? ((remote_cmd_t *)w->data)->opcode : \
                   ((local_cmd_t *)w->data)->opcode);
 
-        if (w->flow == SERIAL) {
-            blocking_task_handler();
+        if (w->flow == BLOCK) {
+            create_blocking_task_handler();
             // the work struct must be deleted after use
             delete_work(w);
-        } else if (w->flow == PARALLEL) {
+        } else if (w->flow == NON_BLOCK) {
             create_non_blocking_task_handler(w);
         }
     };
