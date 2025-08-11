@@ -10,45 +10,40 @@
 
 extern volatile sig_atomic_t g_run;
 
-static void *non_blocking_task_handler(void *arg)
+/*
+ * The non-blocking task will be started by the task handler and run in the
+ * background. Depending on the type of work, it could have a short, long,
+ * or endless duration. All such tasks must be controlled by g_run, which
+ * is also known as the common exit flag for the system.
+ */
+static void *non_blocking_task_thread(void *arg)
 {
     work_t *w = (work_t *)arg;
+    int rc = 0;
 
-    local_cmd_t *local_data = NULL;
-    remote_cmd_t *remote_data = NULL;
+    LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
+              w->type, w->flow, w->duration, w->opcode);
 
-    if (w->type == LOCAL) {
-        LOG_TRACE("start LOCAL task: opcode [%d]", \
-                  ((local_cmd_t *)w->data)->opcode);
-        local_data = (local_cmd_t *)w->data;
-    } else if (w->type == REMOTE) {
-        LOG_TRACE("start REMOTE task: opcode [%d]", \
-                  ((remote_cmd_t *)w->data)->opcode);
-        remote_data = (remote_cmd_t *)w->data;
-    }
-
-    // The working data structures for ENDLESS tasks need to be freed 
-    // since they are never returned during normal operation
     if (w->duration == ENDLESS) {
-        delete_work(w);
+        rc = process_opcode_endless(w->opcode, NULL);
+    } else {
+        rc = process_opcode(w->opcode, w->data);
     }
-
-    process_opcode(local_data->opcode, NULL);
 
     // TODO: Handle work done notification
+    LOG_TRACE("TASK: [%d:%d:%d:%d] is completed - return %d", \
+              w->type, w->flow, w->duration, w->opcode, rc);
 
-    // The working data structures for the ENDLESS task are freed.
-    if (w->duration != ENDLESS) {
-        delete_work(w);
-    }
+    // Free working data structures for non-blocking tasks.
+    delete_work(w);
 }
 
-static int create_non_blocking_task_handler(work_t *w)
+static int create_non_blocking_task(work_t *w)
 {
     pthread_t thread_id;
     int ret;
 
-    ret = pthread_create(&thread_id, NULL, non_blocking_task_handler, w);
+    ret = pthread_create(&thread_id, NULL, non_blocking_task_thread, w);
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         return ret;
@@ -59,31 +54,29 @@ static int create_non_blocking_task_handler(work_t *w)
     return EXIT_SUCCESS;
 }
 
-static int create_blocking_task_handler(work_t *w)
+static int create_blocking_task(work_t *w)
 {
-    local_cmd_t *local_data = NULL;
-    remote_cmd_t *remote_data = NULL;
+    int rc = 0;
 
-    if (w->type == LOCAL) {
-        LOG_TRACE("start LOCAL task: opcode [%d]", \
-                  ((local_cmd_t *)w->data)->opcode);
-        local_data = (local_cmd_t *)w->data;
-    } else if (w->type == REMOTE) {
-        LOG_TRACE("start REMOTE task: opcode [%d]", \
-                  ((remote_cmd_t *)w->data)->opcode);
-        remote_data = (remote_cmd_t *)w->data;
-    }
+    LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
+              w->type, w->flow, w->duration, w->opcode);
 
-    process_opcode(local_data->opcode, NULL);
+    rc = process_opcode(w->opcode, w->data);
 
     // TODO: Handle work done notification
+    LOG_TRACE("TASK: [%d:%d:%d:%d] is completed - return %d", \
+              w->type, w->flow, w->duration, w->opcode, rc);
 
-    return 0;
+    // The working data structures for normal tasks need to be freed
+    delete_work(w);
+
+    return rc;
 }
 
 void *main_task_handler(void* arg)
 {
     work_t *w = NULL;
+    int rc = 0;
 
     LOG_INFO("Task handler is running...");
     while (g_run) {
@@ -109,16 +102,17 @@ void *main_task_handler(void* arg)
             break;
         }
 
-        LOG_TRACE("Task type: [%d] - flow [%d] - opcode [%d]", w->type, w->flow, \
-                  w->type == REMOTE ? ((remote_cmd_t *)w->data)->opcode : \
-                  ((local_cmd_t *)w->data)->opcode);
+        LOG_TRACE("Task type: [%d] - flow [%d] - opcode [%d]", w->type, \
+                  w->flow, w->opcode);
 
         if (w->flow == BLOCK) {
-            create_blocking_task_handler(w);
-            // the work struct must be deleted after use
-            delete_work(w);
+            // run blocking task; return after it completes
+            // other tasks in queue wait until it's done
+            rc = create_blocking_task(w);
         } else if (w->flow == NON_BLOCK) {
-            create_non_blocking_task_handler(w);
+            // create a thread to handle requests in the background
+            // the function returns immediately after the thread is created
+            rc = create_non_blocking_task(w);
         }
     };
 

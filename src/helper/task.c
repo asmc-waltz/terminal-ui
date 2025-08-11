@@ -1,4 +1,4 @@
-    
+#include <stdlib.h>
 #include <log.h>
 #include <task_handler.h>
 
@@ -49,19 +49,27 @@ void delete_local_cmd(local_cmd_t *cmd)
 	free(cmd);
 }
 
+int process_opcode_endless(uint32_t opcode, void *data)
+{
+    return EXIT_SUCCESS;
+}
+
 int process_opcode(uint32_t opcode, void *data)
 {
+    int rc = 0;
+
     switch (opcode) {
     case OP_ID_LEFT_VIBRATOR:
-        rumble_trigger(2, 80, 150);
+        rc = rumble_trigger(2, 80, 150);
         break;
     case OP_ID_RIGHT_VIBRATOR:
-        rumble_trigger(3, 80, 150);
+        rc = rumble_trigger(3, 80, 150);
         break;
     case OP_ID_START_IMU:
-        imu_kalman_init("/sys/bus/iio/devices/iio:device2/", 100, 0.001f, 0.003f, 0.03f);
+        rc = imu_kalman_init("/sys/bus/iio/devices/iio:device2/", 100, 0.001f, 0.003f, 0.03f);
         imu_kalman_set_debug(1);
-        imu_kalman_start();
+        if (!rc)
+            rc = imu_kalman_start();
         break;
     case OP_ID_STOP_IMU:
         imu_kalman_stop();
@@ -75,4 +83,5 @@ int process_opcode(uint32_t opcode, void *data)
         break;
     }
 
+    return rc;
 }
