@@ -10,7 +10,7 @@
 
 extern volatile sig_atomic_t g_run;
 
-void *non_blocking_task_handler(void *arg)
+static void *non_blocking_task_handler(void *arg)
 {
     work_t *w = (work_t *)arg;
 
@@ -27,17 +27,13 @@ void *non_blocking_task_handler(void *arg)
         remote_data = (remote_cmd_t *)w->data;
     }
 
-    // The working data structures for ENDLESS task need to be freed
+    // The working data structures for ENDLESS tasks need to be freed 
+    // since they are never returned during normal operation
     if (w->duration == ENDLESS) {
         delete_work(w);
     }
 
-    // TESTING: TODO: opcode parser
-    if (local_data->opcode == OP_ID_LEFT_VIBRATOR) {
-        rumble_trigger(2, 80, 150);
-    } else if (local_data->opcode == OP_ID_RIGHT_VIBRATOR) {
-        rumble_trigger(3, 80, 150);
-    }
+    process_opcode(local_data->opcode, NULL);
 
     // TODO: Handle work done notification
 
@@ -47,7 +43,7 @@ void *non_blocking_task_handler(void *arg)
     }
 }
 
-int create_non_blocking_task_handler(work_t *w)
+static int create_non_blocking_task_handler(work_t *w)
 {
     pthread_t thread_id;
     int ret;
@@ -63,8 +59,25 @@ int create_non_blocking_task_handler(work_t *w)
     return EXIT_SUCCESS;
 }
 
-int create_blocking_task_handler()
+static int create_blocking_task_handler(work_t *w)
 {
+    local_cmd_t *local_data = NULL;
+    remote_cmd_t *remote_data = NULL;
+
+    if (w->type == LOCAL) {
+        LOG_TRACE("start LOCAL task: opcode [%d]", \
+                  ((local_cmd_t *)w->data)->opcode);
+        local_data = (local_cmd_t *)w->data;
+    } else if (w->type == REMOTE) {
+        LOG_TRACE("start REMOTE task: opcode [%d]", \
+                  ((remote_cmd_t *)w->data)->opcode);
+        remote_data = (remote_cmd_t *)w->data;
+    }
+
+    process_opcode(local_data->opcode, NULL);
+
+    // TODO: Handle work done notification
+
     return 0;
 }
 
@@ -101,7 +114,7 @@ void *main_task_handler(void* arg)
                   ((local_cmd_t *)w->data)->opcode);
 
         if (w->flow == BLOCK) {
-            create_blocking_task_handler();
+            create_blocking_task_handler(w);
             // the work struct must be deleted after use
             delete_work(w);
         } else if (w->flow == NON_BLOCK) {

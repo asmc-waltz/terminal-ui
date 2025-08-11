@@ -109,6 +109,7 @@ typedef struct {
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
+int process_opcode(uint32_t opcode, void *data);
 
 /**********************
  *  STATIC VARIABLES
