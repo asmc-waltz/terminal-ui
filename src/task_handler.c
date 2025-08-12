@@ -140,13 +140,18 @@ static int create_blocking_task(work_t *w)
 
 bool is_task_handler_idle()
 {
+    static int32_t pre_nrml_cnt, pre_endl_cnt;
     int32_t nrml_cnt, endl_cnt;
 
     nrml_cnt = normal_task_cnt_get();
     endl_cnt = endless_task_cnt_get();
     if (nrml_cnt || endl_cnt ) {
-        LOG_INFO("Current tasks: Normal: %d - Endless %d", \
-                 nrml_cnt, endl_cnt);
+        if (pre_nrml_cnt != nrml_cnt || pre_endl_cnt != endl_cnt) {
+            LOG_INFO("Current tasks: Normal: %d - Endless %d", \
+                     nrml_cnt, endl_cnt);
+            pre_nrml_cnt = nrml_cnt;
+            pre_endl_cnt = endl_cnt;
+        }
         return false;
     } else {
         LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \

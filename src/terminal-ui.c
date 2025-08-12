@@ -117,7 +117,7 @@ int main_loop()
     while (g_run) {
         lv_task_handler();
         usleep(5000);
-        if (++cnt == 200) {
+        if (++cnt == 20) {
             cnt = 0;
             is_task_handler_idle();
         }
