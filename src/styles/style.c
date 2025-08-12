@@ -423,7 +423,7 @@ void sf_delete_all_style_data(void)
 
     list_for_each_entry_safe(p_style, p_tmp, &HEAD_OF_STYLES, node)
     if (p_style->id != 0) {
-        LOG_DEBUG("Free Style id %d", p_style->id);
+        LOG_TRACE("Free Style id %d", p_style->id);
         list_del(&p_style->node);
         free(p_style);
     }
