@@ -8,6 +8,7 @@
  *********************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
@@ -513,7 +514,6 @@ static int imu_fn_handler()
         usleep((int)(1000000.0f / (float)sample_hz));
     }
 
-    LOG_WARN("IMU handler is exited");
     return EXIT_SUCCESS;
 }
 
@@ -574,8 +574,7 @@ int imu_kalman_init(const char *path, int hz, float q_angle, float q_bias, float
 
     return 0;
 }
-
-int imu_background_task_start(void)
+int32_t imu_fn_thread_handler()
 {
     int rc;
 
@@ -597,7 +596,7 @@ int imu_background_task_start(void)
     return rc;
 }
 
-void imu_background_task_stop(void)
+void imu_fn_thread_stop(void)
 {
     if (!imu_running) {
         LOG_WARN("imu not running");
@@ -624,7 +623,7 @@ void imu_kalman_reset_yaw(float yaw_deg)
     LOG_INFO("imu_kalman_reset_yaw -> %.3f deg", shared_angles.yaw);
 }
 
-struct imu_angles imu_kalman_get_angles(void)
+struct imu_angles imu_get_angles(void)
 {
     struct imu_angles out;
     pthread_mutex_lock(&angles_lock);

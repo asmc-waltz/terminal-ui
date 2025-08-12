@@ -8,6 +8,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdint.h>
 
 /*********************
  *      DEFINES
@@ -64,7 +65,7 @@ int imu_kalman_calibrate(void);
 void imu_kalman_reset_yaw(float yaw_deg);
 
 /* Snapshot latest fused angles (thread-safe) */
-struct imu_angles imu_kalman_get_angles(void);
+struct imu_angles imu_get_angles(void);
 
 /* Toggle detailed debug logs */
 void imu_kalman_set_debug(int on);
@@ -83,6 +84,8 @@ int imu_kalman_is_running(void);
 int imu_kalman_read_raw(float *ax, float *ay, float *az,
             float *gx, float *gy, float *gz);
 
+int32_t imu_fn_thread_handler();
+void imu_fn_thread_stop(void);
 /**********************
  *      MACROS
  **********************/
