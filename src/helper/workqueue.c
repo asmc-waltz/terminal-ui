@@ -1,6 +1,6 @@
+#include <stdint.h>
 #include <pthread.h>
 #include <signal.h>
-#include <stdint.h>
 
 #include <workqueue.h>
 #include <task_handler.h>

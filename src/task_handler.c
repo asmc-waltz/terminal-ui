@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <stdatomic.h>
 #include <stdbool.h>

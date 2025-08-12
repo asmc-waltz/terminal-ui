@@ -6,6 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdint.h>
+
 #include <lvgl.h>
 #include <screens.h>
 #include <gmisc.h>

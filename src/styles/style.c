@@ -6,6 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdint.h>
+
 #include <lvgl.h>
 #include <style.h>
 #include <fonts.h>

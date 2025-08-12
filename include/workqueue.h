@@ -8,7 +8,9 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdint.h>
 #include <pthread.h>
+
 #include <dbus_comm.h>
 
 /*********************
