@@ -1,6 +1,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdatomic.h>
 
 #include <log.h>
 #include <terminal-ui.h>
@@ -9,6 +10,58 @@
 #include <dbus_comm.h>
 
 extern volatile sig_atomic_t g_run;
+
+static atomic_int g_endless_task_cnt;
+static atomic_int g_normal_task_cnt;
+
+/* Normal task counter */
+void normal_task_cnt_reset(void)
+{
+    atomic_store(&g_normal_task_cnt, 0);
+}
+
+void normal_task_cnt_inc(void)
+{
+    atomic_fetch_add(&g_normal_task_cnt, 1);
+}
+
+void normal_task_cnt_dec(void)
+{
+    atomic_fetch_sub(&g_normal_task_cnt, 1);
+}
+
+int normal_task_cnt_get(void)
+{
+    int val;
+
+    val = atomic_load(&g_normal_task_cnt);
+    return val;
+}
+
+/* Endless task counter */
+
+void endless_task_cnt_reset(void)
+{
+    atomic_store(&g_endless_task_cnt, 0);
+}
+
+void endless_task_cnt_inc(void)
+{
+    atomic_fetch_add(&g_endless_task_cnt, 1);
+}
+
+void endless_task_cnt_dec(void)
+{
+    atomic_fetch_sub(&g_endless_task_cnt, 1);
+}
+
+int endless_task_cnt_get(void)
+{
+    int val;
+
+    val = atomic_load(&g_endless_task_cnt);
+    return val;
+}
 
 /*
  * The non-blocking task will be started by the task handler and run in the
@@ -25,8 +78,10 @@ static void *non_blocking_task_thread(void *arg)
               w->type, w->flow, w->duration, w->opcode);
 
     if (w->duration == ENDLESS) {
+        endless_task_cnt_inc();
         rc = process_opcode_endless(w->opcode, NULL);
     } else {
+        normal_task_cnt_inc();
         rc = process_opcode(w->opcode, w->data);
     }
 
@@ -35,6 +90,11 @@ static void *non_blocking_task_thread(void *arg)
               w->type, w->flow, w->duration, w->opcode, rc);
 
     // Free working data structures for non-blocking tasks.
+    if (w->duration == ENDLESS) {
+        endless_task_cnt_dec();
+    } else {
+        normal_task_cnt_dec();
+    }
     delete_work(w);
 }
 
@@ -61,6 +121,7 @@ static int create_blocking_task(work_t *w)
     LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
               w->type, w->flow, w->duration, w->opcode);
 
+    normal_task_cnt_inc();
     rc = process_opcode(w->opcode, w->data);
 
     // TODO: Handle work done notification
@@ -69,6 +130,7 @@ static int create_blocking_task(work_t *w)
 
     // The working data structures for normal tasks need to be freed
     delete_work(w);
+    normal_task_cnt_dec();
 
     return rc;
 }
@@ -77,6 +139,9 @@ void *main_task_handler(void* arg)
 {
     work_t *w = NULL;
     int rc = 0;
+
+    normal_task_cnt_reset();
+    endless_task_cnt_reset();
 
     LOG_INFO("Task handler is running...");
     while (g_run) {
@@ -117,6 +182,22 @@ void *main_task_handler(void* arg)
     };
 
     LOG_INFO("Task handler thread exiting...");
+
+    while (1) {
+        uint32_t normal_cnt, endless_cnt;
+        normal_cnt = normal_task_cnt_get();
+        endless_cnt = endless_task_cnt_get();
+        if (normal_cnt || endless_cnt) {
+            LOG_INFO("Subtasks are exiting: NORMAL=[%d] ENDLESS=[%d]", \
+                     normal_cnt, endless_cnt);
+            usleep(5000);
+        } else {
+            LOG_INFO("All subtasks are exited: NORMAL=[%d] ENDLESS=[%d]", \
+                     normal_cnt, endless_cnt);
+            break;
+        }
+    }
+
     return NULL;
 }
 
