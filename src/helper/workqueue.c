@@ -18,51 +18,36 @@ static workqueue_t g_wqueue = {
 work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, \
                     uint32_t opcode, void *data)
 {
-	work_t *work;
+	work_t *w;
 
-	if (!data) {
-		LOG_WARN("Unable to create work: invalid data pointer");
-		return NULL;
-    }
-
-	work = calloc(1, sizeof(*work));
-	if (!work)
+	w = calloc(1, sizeof(*w));
+	if (!w)
 		return NULL;
 
-    work->type = type;
-    work->flow = flow;
-    work->duration = duration;
-    work->opcode = opcode;
-	work->data = data;
-    if (work->type == REMOTE) {
-	    LOG_TRACE("Created work for opcode: %d", ((remote_cmd_t *)data)->opcode);
-    }
+    w->type = type;
+    w->flow = flow;
+    w->duration = duration;
+    w->opcode = opcode;
+	w->data = data;
+	LOG_TRACE("Created work for opcode: %d", w->opcode);
 
-	return work;
+	return w;
 }
 
-void delete_work(work_t *work)
+void delete_work(work_t *w)
 {
-	void *data;
-
-	if (!work) {
+	if (!w) {
 		LOG_WARN("Unable to delete work: null work pointer");
 		return;
 	}
 
-	data = work->data;
-	if (!data) {
-		LOG_WARN("Unable to delete work: null data pointer");
-		free(work);
+	LOG_TRACE("Deleting work for opcode: %d", w->opcode);
+	if (w->data) {
+	    free(w->data);
 		return;
 	}
 
-    if (work->type == REMOTE) {
-	    LOG_TRACE("Deleting work for opcode: %d", ((remote_cmd_t *)data)->opcode);
-    }
-
-	free(data);
-	free(work);
+	free(w);
 }
 
 void push_work(work_t *w) {
