@@ -110,6 +110,7 @@ typedef struct {
  *  GLOBAL PROTOTYPES
  **********************/
 int process_opcode(uint32_t opcode, void *data);
+int create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode);
 
 /**********************
  *  STATIC VARIABLES

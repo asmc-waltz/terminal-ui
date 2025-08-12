@@ -37,7 +37,7 @@ typedef struct work {
     uint8_t type;
     uint8_t flow;
     uint8_t duration;
-    uint8_t opcode;
+    uint32_t opcode;
     void *data;
     struct work *next;
 } work_t;
@@ -80,7 +80,7 @@ typedef struct workqueue {
  *   GLOBAL FUNCTIONS
  **********************/
 work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, \
-                    uint8_t opcode, void *data);
+                    uint32_t opcode, void *data);
 void delete_work(work_t *work);
 void push_work(work_t *work);
 work_t* pop_work_wait();

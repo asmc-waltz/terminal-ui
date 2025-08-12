@@ -16,7 +16,7 @@ static workqueue_t g_wqueue = {
 };
 
 work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, \
-                    uint8_t opcode, void *data)
+                    uint32_t opcode, void *data)
 {
 	work_t *work;
 

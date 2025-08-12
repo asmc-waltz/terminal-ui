@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <log.h>
+#include <workqueue.h>
 #include <task_handler.h>
 
 #include <imu.h>
@@ -84,4 +85,17 @@ int process_opcode(uint32_t opcode, void *data)
     }
 
     return rc;
+}
+
+int create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode)
+{
+    work_t *work = create_work(LOCAL, flow, duration, opcode, NULL);
+    if (!work) {
+        LOG_ERROR("Failed to create work from cmd");
+        return EXIT_FAILURE;
+    }
+
+    push_work(work);
+
+    return EXIT_SUCCESS;
 }
