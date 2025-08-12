@@ -49,6 +49,7 @@ typedef enum {
 typedef enum {
     OP_ID_NONE = 0,
     /* Common API */
+    OP_ID_START_DBUS,
     OP_ID_PING,
     /* Network API */
     OP_ID_WIFI_RESCAN,

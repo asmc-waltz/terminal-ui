@@ -52,8 +52,8 @@ bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *frame);
 bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out);
 
 DBusConnection * setup_dbus();
-void* dbus_listen_thread(void* arg);
 
+int32_t dbus_fn_thread_handler();
 /**********************
  *  STATIC VARIABLES
  **********************/

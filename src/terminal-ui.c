@@ -9,7 +9,6 @@
 
 #include <log.h>
 #include <list.h>
-#include <dbus_comm.h>
 #include <fonts.h>
 #include <style.h>
 #include <layers.h>
@@ -17,6 +16,9 @@
 #include <style.h>
 #include <screens.h>
 #include <terminal-ui.h>
+
+#include <workqueue.h>
+#include <task_handler.h>
 
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
@@ -119,27 +121,19 @@ int main_loop()
 }
 
 int main(void) {
-    DBusConnection *conn;
     pthread_t task_handler;
-    pthread_t dbus_listener;
-    lv_timer_t * task_timer = NULL;
+    lv_timer_t *task_timer = NULL;
     int ret = 0;
 
-    LOG_INFO("******** TERMINAL UI ********");
+    LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
     if (setup_signal_handler()) {
-        goto exit_error;
-    }
-
-    conn = setup_dbus();
-    if (!conn) {
-        LOG_FATAL("Terminal UI: Unable to establish connection with DBus");
         goto exit_error;
     }
 
     ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
-        goto exit_dbus;
+        goto exit_error;
     }
 
     // Prepare eventfd to notify epoll when communicating with a thread
@@ -149,12 +143,7 @@ int main(void) {
         goto exit_workqueue;
     }
 
-    // This thread processes DBus messages for the system manager
-    ret = pthread_create(&dbus_listener, NULL, dbus_listen_thread, conn);
-    if (ret) {
-        LOG_FATAL("Failed to create DBus listen thread: %s", strerror(ret));
-        goto exit_workqueue;
-    }
+    create_local_simple_task(NON_BLOCK, ENDLESS, OP_ID_START_DBUS);
 
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
@@ -199,27 +188,21 @@ int main(void) {
         goto exit_listener;
     }
 
-    pthread_join(dbus_listener, NULL);
     pthread_join(task_handler, NULL);
 
     sf_delete_all_style_data();
     free(global_data);
     close(event_fd);
-    dbus_connection_unref(conn);
 
-    LOG_DEBUG("All services stopped. Safe exit.\n");
+    LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
     return EXIT_SUCCESS;
 
 exit_listener:
     event_set(event_fd, SIGUSR1);
-    pthread_join(dbus_listener, NULL);
 
 exit_workqueue:
     workqueue_stop();
     pthread_join(task_handler, NULL);
-
-exit_dbus:
-    dbus_connection_unref(conn);
 
 exit_error:
     return EXIT_FAILURE;

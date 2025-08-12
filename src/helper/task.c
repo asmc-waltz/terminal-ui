@@ -3,6 +3,7 @@
 #include <workqueue.h>
 #include <task_handler.h>
 
+#include <dbus_comm.h>
 #include <imu.h>
 
 remote_cmd_t *create_remote_cmd(void)
@@ -55,6 +56,9 @@ int process_opcode_endless(uint32_t opcode, void *data)
     int rc = 0;
 
     switch (opcode) {
+    case OP_ID_START_DBUS:
+        rc = dbus_fn_thread_handler();
+        break;
     case OP_ID_START_IMU:
         rc = imu_kalman_init("/sys/bus/iio/devices/iio:device1/", 100, 0.001f, 0.003f, 0.03f);
         imu_kalman_set_debug(1);

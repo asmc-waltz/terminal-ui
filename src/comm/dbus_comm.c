@@ -360,27 +360,27 @@ DBusConnection * setup_dbus()
     return conn;
 }
 
-void* dbus_listen_thread(void* arg) {
-    DBusConnection *conn = (DBusConnection*)arg;
-    int dbus_fd;
-    int epoll_fd;
+int32_t dbus_listener(DBusConnection *conn)
+{
+    int32_t dbus_fd;
+    int32_t epoll_fd;
     struct epoll_event ev;
     struct epoll_event events_detected[MAX_EVENTS];
-    int n_ready;
-    int ready_fd;
+    int32_t n_ready;
+    int32_t ready_fd;
 
     // Get DBus file desc
     dbus_connection_get_unix_fd(conn, &dbus_fd);
     if (dbus_fd < 0) {
         LOG_ERROR("Failed to get dbus fd");
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     // Create epoll file desc
     epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
         LOG_ERROR("Failed to create epoll fd");
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     ev.events = EPOLLIN;
@@ -390,7 +390,7 @@ void* dbus_listen_thread(void* arg) {
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, dbus_fd, &ev) == -1) {
         LOG_ERROR("Failed to add fd to epoll_ctl");
         close(epoll_fd);
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     // Add Event file desc
@@ -398,7 +398,7 @@ void* dbus_listen_thread(void* arg) {
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event_fd, &ev) == -1) {
         LOG_ERROR("Failed to add fd to epoll_ctl");
         close(epoll_fd);
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     LOG_INFO("System manager DBus communication is running...");
@@ -418,8 +418,29 @@ void* dbus_listen_thread(void* arg) {
     }
 
     close(epoll_fd);
-    LOG_INFO("The DBus handler thread in System Manager exited successfully");
+    LOG_INFO("The DBus handler thread exited successfully");
 
-    return NULL;
+    return EXIT_SUCCESS;
+}
+
+int32_t dbus_fn_thread_handler()
+{
+    DBusConnection *conn;
+    int32_t rc;
+
+    conn = setup_dbus();
+    if (!conn) {
+        LOG_FATAL("Unable to establish connection with DBus");
+        return EXIT_FAILURE;
+    }
+
+    // This thread processes DBus messages
+    rc = dbus_listener(conn);
+    if (rc) {
+        LOG_FATAL("Failed to create DBus listener");
+    }
+
+    dbus_connection_unref(conn);
+    return rc;
 }
 
