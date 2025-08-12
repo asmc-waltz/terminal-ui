@@ -30,9 +30,9 @@ void normal_task_cnt_dec(void)
     atomic_fetch_sub(&g_normal_task_cnt, 1);
 }
 
-int normal_task_cnt_get(void)
+int32_t normal_task_cnt_get(void)
 {
-    int val;
+    int32_t val;
 
     val = atomic_load(&g_normal_task_cnt);
     return val;
@@ -55,9 +55,9 @@ void endless_task_cnt_dec(void)
     atomic_fetch_sub(&g_endless_task_cnt, 1);
 }
 
-int endless_task_cnt_get(void)
+int32_t endless_task_cnt_get(void)
 {
-    int val;
+    int32_t val;
 
     val = atomic_load(&g_endless_task_cnt);
     return val;
@@ -184,16 +184,16 @@ void *main_task_handler(void* arg)
     LOG_INFO("Task handler thread exiting...");
 
     while (1) {
-        uint32_t normal_cnt, endless_cnt;
-        normal_cnt = normal_task_cnt_get();
-        endless_cnt = endless_task_cnt_get();
-        if (normal_cnt || endless_cnt) {
-            LOG_INFO("Subtasks are exiting: NORMAL=[%d] ENDLESS=[%d]", \
-                     normal_cnt, endless_cnt);
+        int32_t nrml_cnt, endl_cnt;
+        nrml_cnt = normal_task_cnt_get();
+        endl_cnt  = endless_task_cnt_get();
+        if (nrml_cnt || endl_cnt ) {
+            LOG_INFO("Subtasks are exiting: Normal: %d - Endless %d", \
+                     nrml_cnt, endl_cnt);
             usleep(5000);
         } else {
-            LOG_INFO("All subtasks are exited: NORMAL=[%d] ENDLESS=[%d]", \
-                     normal_cnt, endless_cnt);
+            LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
+                     nrml_cnt, endl_cnt);
             break;
         }
     }
