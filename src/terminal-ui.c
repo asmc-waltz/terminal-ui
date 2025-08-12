@@ -15,10 +15,10 @@
 #include <gmisc.h>
 #include <style.h>
 #include <screens.h>
-#include <terminal-ui.h>
-
 #include <workqueue.h>
 #include <task_handler.h>
+
+#include <terminal-ui.h>
 
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
@@ -110,10 +110,16 @@ static void sf_create_common_components(void)
 
 int main_loop()
 {
+    uint32_t cnt = 0;
+
     LOG_INFO("Terminal UI service is running...");
     while (g_run) {
         lv_task_handler();
         usleep(5000);
+        if (++cnt == 200) {
+            cnt = 0;
+            is_task_handler_idle();
+        }
     };
 
     LOG_INFO("Terminal UI service is exiting...");

@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 
 #include <log.h>
 #include <terminal-ui.h>
 #include <workqueue.h>
-#include <task_handler.h>
 #include <dbus_comm.h>
+
+#include <task_handler.h>
 
 extern volatile sig_atomic_t g_run;
 
@@ -135,6 +137,24 @@ static int create_blocking_task(work_t *w)
     return rc;
 }
 
+bool is_task_handler_idle()
+{
+    int32_t nrml_cnt, endl_cnt;
+
+    nrml_cnt = normal_task_cnt_get();
+    endl_cnt = endless_task_cnt_get();
+    if (nrml_cnt || endl_cnt ) {
+        LOG_INFO("Current tasks: Normal: %d - Endless %d", \
+                 nrml_cnt, endl_cnt);
+        return false;
+    } else {
+        LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
+                 nrml_cnt, endl_cnt);
+    }
+
+    return true;
+}
+
 void *main_task_handler(void* arg)
 {
     work_t *w = NULL;
@@ -184,18 +204,9 @@ void *main_task_handler(void* arg)
     LOG_INFO("Task handler thread exiting...");
 
     while (1) {
-        int32_t nrml_cnt, endl_cnt;
-        nrml_cnt = normal_task_cnt_get();
-        endl_cnt  = endless_task_cnt_get();
-        if (nrml_cnt || endl_cnt ) {
-            LOG_INFO("Subtasks are exiting: Normal: %d - Endless %d", \
-                     nrml_cnt, endl_cnt);
-            usleep(5000);
-        } else {
-            LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
-                     nrml_cnt, endl_cnt);
+        if (is_task_handler_idle())
             break;
-        }
+        usleep(5000);
     }
 
     return NULL;

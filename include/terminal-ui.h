@@ -36,7 +36,6 @@
 /*=====================
  * Other functions
  *====================*/
-void * main_task_handler(void* arg);
 
 /**********************
  *      MACROS
