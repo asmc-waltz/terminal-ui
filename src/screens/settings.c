@@ -283,7 +283,17 @@ static void setting_handler(lv_event_t *e)
             } else {
                 gf_create_backlight_setting_container(sub_ctr);
             }
-
+        } else if (id == ID_SETTING_ROTATE) {
+            LOG_DEBUG("Rotate BOX");
+            create_local_simple_task(BLOCK, ENDLESS, OP_ID_READ_IMU);
+        } else if (id == ID_SETTING_ROTATE_SW) {
+            if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+                LOG_DEBUG("Rotate sensor is ON");
+                create_local_simple_task(NON_BLOCK, SHORT, OP_ID_START_IMU);
+            } else {
+                LOG_DEBUG("Rotate sensor is OFF");
+                create_local_simple_task(BLOCK, SHORT, OP_ID_STOP_IMU);
+            }
         } else {
             // TODO: search quicker with list
             lv_obj_t *bl_ctr = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
@@ -394,7 +404,8 @@ static void sf_create_main_setting_menu(lv_obj_t *par)
     sf_create_main_setting_icon(btn, 0x7AB6FE, ICON_ROTATE_SOLID);
     sf_create_setting_btn_name(btn, "Rotate");
     gf_register_handler(btn, ID_SETTING_ROTATE, setting_handler, LV_EVENT_CLICKED);
-    sf_create_setting_btn_switch(btn, ID_SETTING_ROTATE_SW);
+    btn = sf_create_setting_btn_switch(btn, ID_SETTING_ROTATE_SW);
+    gf_register_handler(btn, ID_SETTING_ROTATE_SW, setting_handler, LV_EVENT_CLICKED);
 
     btn = sf_create_setting_btn(child_ctr, ID_SETTING_DATE_TIME);
     sf_create_main_setting_icon(btn, 0x008097, ICON_CALENDAR_DAYS_SOLID);
