@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
 
 #include <log.h>
 #include <imu.h>
@@ -41,6 +42,7 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
+extern volatile sig_atomic_t g_run;
 
 /**********************
  *  STATIC VARIABLES
@@ -56,8 +58,7 @@ static struct kalman k_roll, k_pitch;
 static float yaw_integral = 0.0f; /* degrees */
 
 /* thread + sync */
-static pthread_t imu_thread;
-static int running = 0;
+static int imu_running = 0;
 static pthread_mutex_t angles_lock = PTHREAD_MUTEX_INITIALIZER;
 static struct imu_angles shared_angles = {0.0f, 0.0f, 0.0f};
 static int debug_log = 0;
@@ -285,7 +286,7 @@ int imu_kalman_calibrate(void)
     double mag_sum = 0.0;
     float axs, ays, azs, gxs, gys, gzs;
 
-    if (running) {
+    if (imu_running) {
         LOG_WARN("calibrate: cannot calibrate while running");
         return -1;
     }
@@ -394,9 +395,8 @@ static float compute_adaptive_r_factor(float accel_mag_g, float innovation_deg)
 }
 
 /* ---------- IMU thread ---------- */
-static void *imu_thread_fn(void *arg)
+static int imu_fn_handler()
 {
-    (void)arg;
     struct timespec t_prev, t_now;
     float axs, ays, azs, gxs, gys, gzs;
     float axc, ayc, azc, gxc, gyc, gzc;
@@ -406,15 +406,15 @@ static void *imu_thread_fn(void *arg)
     int sleep_us;
     float last_roll = 0.0f, last_pitch = 0.0f;
 
-    LOG_INFO("imu_thread_fn start path=%s hz=%d", iio_base, sample_hz);
+    LOG_INFO("start path=%s hz=%d", iio_base, sample_hz);
 
     clock_gettime(CLOCK_MONOTONIC, &t_prev);
     sleep_us = (int)(1000000.0f / (float)sample_hz);
 
-    while (running) {
+    while (imu_running && g_run) {
         /* read raw scaled (no unit conversion), then convert here */
         if (read_raw_scaled_no_unit_convert(&axs, &ays, &azs, &gxs, &gys, &gzs) != 0) {
-            LOG_ERROR("imu_thread: read_raw_scaled_no_unit_convert failed");
+            LOG_ERROR("read_raw_scaled_no_unit_convert failed");
             usleep(sleep_us);
             continue;
         }
@@ -513,8 +513,8 @@ static void *imu_thread_fn(void *arg)
         usleep((int)(1000000.0f / (float)sample_hz));
     }
 
-    LOG_INFO("imu_thread_fn exit");
-    return NULL;
+    LOG_WARN("IMU handler is exited");
+    return EXIT_SUCCESS;
 }
 
 /* ---------- Public API ---------- */
@@ -575,41 +575,41 @@ int imu_kalman_init(const char *path, int hz, float q_angle, float q_bias, float
     return 0;
 }
 
-int imu_kalman_start(void)
+int imu_background_task_start(void)
 {
     int rc;
-    if (running) {
+
+    if (imu_running) {
         LOG_WARN("imu already running");
         return 0;
     }
 
-    running = 1;
-    rc = pthread_create(&imu_thread, NULL, imu_thread_fn, NULL);
-    if (rc != 0) {
-        LOG_ERROR("pthread_create failed (%d)", rc);
-        running = 0;
-        return -1;
+    imu_running = 1;
+    rc = imu_fn_handler();
+    if (rc != EXIT_SUCCESS) {
+        LOG_ERROR("IMU background task has failed (%d)", rc);
+        imu_running = 0;
+        return rc;
+    } else {
+        LOG_INFO("IMU handler is exited");
     }
 
-    LOG_INFO("imu_kalman_start ok");
-    return 0;
+    return rc;
 }
 
-void imu_kalman_stop(void)
+void imu_background_task_stop(void)
 {
-    if (!running) {
+    if (!imu_running) {
         LOG_WARN("imu not running");
         return;
     }
 
-    running = 0;
-    pthread_join(imu_thread, NULL);
-    LOG_INFO("imu_kalman_stop done");
+    imu_running = 0;
 }
 
 int imu_kalman_is_running(void)
 {
-    return running;
+    return imu_running;
 }
 
 void imu_kalman_reset_yaw(float yaw_deg)

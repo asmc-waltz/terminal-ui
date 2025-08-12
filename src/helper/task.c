@@ -52,7 +52,21 @@ void delete_local_cmd(local_cmd_t *cmd)
 
 int process_opcode_endless(uint32_t opcode, void *data)
 {
-    return EXIT_SUCCESS;
+    int rc = 0;
+
+    switch (opcode) {
+    case OP_ID_START_IMU:
+        rc = imu_kalman_init("/sys/bus/iio/devices/iio:device1/", 100, 0.001f, 0.003f, 0.03f);
+        imu_kalman_set_debug(1);
+        if (!rc)
+            rc = imu_background_task_start();
+        break;
+    default:
+        LOG_ERROR("Opcode [%d] is invalid");
+        break;
+    }
+
+    return rc;
 }
 
 int process_opcode(uint32_t opcode, void *data)
@@ -66,14 +80,8 @@ int process_opcode(uint32_t opcode, void *data)
     case OP_ID_RIGHT_VIBRATOR:
         rc = rumble_trigger(3, 80, 150);
         break;
-    case OP_ID_START_IMU:
-        rc = imu_kalman_init("/sys/bus/iio/devices/iio:device2/", 100, 0.001f, 0.003f, 0.03f);
-        imu_kalman_set_debug(1);
-        if (!rc)
-            rc = imu_kalman_start();
-        break;
     case OP_ID_STOP_IMU:
-        imu_kalman_stop();
+        imu_background_task_stop();
         break;
     case OP_ID_READ_IMU:
         struct imu_angles a = imu_kalman_get_angles();
