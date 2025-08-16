@@ -1,122 +1,133 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <linux/input.h>
-#include <sys/ioctl.h>
+#include <alsa/asoundlib.h>
 
-#define MAX_PATH_LEN 64
-
-static int open_event_device(int id)
-{
-    char path[MAX_PATH_LEN];
-    snprintf(path, sizeof(path), "/dev/input/event%d", id);
-    return open(path, O_RDWR);
-}
-
-static void usage(const char *prog)
-{
-    fprintf(stderr,
-        "Usage: %s <event_id> <ff_type> <duration_ms>\n"
-        "  ff_type:\n"
-        "    80: FF_RUMBLE\n"
-        "    81: FF_PERIODIC (FF_SINE)\n"
-        "    82: FF_CONSTANT\n"
-        "    83: FF_SPRING\n"
-        "    84: FF_FRICTION\n"
-        "    88: FF_SQUARE\n"
-        "    89: FF_TRIANGLE\n"
-        "    90: FF_SINE\n"
-        "    91: FF_SAW_UP\n"
-        "    92: FF_SAW_DOWN\n"
-        "\n", prog);
-}
+struct wav_header {
+	char riff_id[4];       /* "RIFF" */
+	uint32_t riff_size;
+	char wave_id[4];       /* "WAVE" */
+	char fmt_id[4];        /* "fmt " */
+	uint32_t fmt_size;
+	uint16_t audio_format; /* 1 = PCM */
+	uint16_t num_channels;
+	uint32_t sample_rate;
+	uint32_t byte_rate;
+	uint16_t block_align;
+	uint16_t bits_per_sample;
+	char data_id[4];       /* "data" */
+	uint32_t data_size;
+} __attribute__((packed));
 
 int main(int argc, char *argv[])
 {
-    int fd, event_id, ff_type, duration;
-    struct ff_effect effect;
-    struct input_event play;
+	FILE *fp;
+	struct wav_header hdr;
+	snd_pcm_t *handle;
+	snd_pcm_hw_params_t *params;
+	snd_pcm_format_t pcm_fmt;
+	const char *dev_name;
+	const char *file_path;
+	int dir;
+	int rc;
+	size_t read_size;
+	char *buffer;
 
-    if (argc < 4) {
-        usage(argv[0]);
-        return 1;
-    }
+	dev_name = "default";
+	file_path = "/usr/share/sounds/alsa/Front_Left.wav";
 
-    event_id = atoi(argv[1]);
-    ff_type = atoi(argv[2]);
-    duration = atoi(argv[3]);
+	if (argc >= 2)
+		dev_name = argv[1];
 
-    fd = open_event_device(event_id);
-    if (fd < 0) {
-        perror("open");
-        return 1;
-    }
+	fp = fopen(file_path, "rb");
+	if (!fp) {
+		perror("fopen");
+		return 1;
+	}
 
-    memset(&effect, 0, sizeof(effect));
-    effect.type = ff_type;
-    effect.id = -1;
-    effect.replay.length = duration;
-    effect.replay.delay = 0;
+	if (fread(&hdr, sizeof(hdr), 1, fp) != 1) {
+		fprintf(stderr, "failed to read wav header\n");
+		fclose(fp);
+		return 1;
+	}
 
-    switch (ff_type) {
-    case FF_RUMBLE:
-        effect.u.rumble.strong_magnitude = 0xffff;
-        effect.u.rumble.weak_magnitude = 0x8000;
-        break;
+	if (memcmp(hdr.riff_id, "RIFF", 4) || memcmp(hdr.wave_id, "WAVE", 4)) {
+		fprintf(stderr, "not a valid wav file\n");
+		fclose(fp);
+		return 1;
+	}
 
-    case FF_PERIODIC:
-    case FF_SINE:
-    case FF_SQUARE:
-    case FF_TRIANGLE:
-    case FF_SAW_UP:
-    case FF_SAW_DOWN:
-        effect.u.periodic.waveform = ff_type;
-        effect.u.periodic.magnitude = 0x7fff;
-        effect.u.periodic.period = 100; // ms
-        effect.u.periodic.offset = 0;
-        effect.u.periodic.phase = 0;
-        effect.u.periodic.envelope.attack_length = 50;
-        effect.u.periodic.envelope.attack_level = 0x1000;
-        effect.u.periodic.envelope.fade_length = 50;
-        effect.u.periodic.envelope.fade_level = 0x1000;
-        break;
+	if (hdr.audio_format != 1) {
+		fprintf(stderr, "unsupported format (only PCM)\n");
+		fclose(fp);
+		return 1;
+	}
 
-    case FF_CONSTANT:
-        effect.u.constant.level = 0x5000;
-        effect.u.constant.envelope.attack_length = 100;
-        effect.u.constant.envelope.attack_level = 0x2000;
-        effect.u.constant.envelope.fade_length = 100;
-        effect.u.constant.envelope.fade_level = 0x2000;
-        break;
+	switch (hdr.bits_per_sample) {
+	case 8:
+		pcm_fmt = SND_PCM_FORMAT_U8;
+		break;
+	case 16:
+		pcm_fmt = SND_PCM_FORMAT_S16_LE;
+		break;
+	case 24:
+		pcm_fmt = SND_PCM_FORMAT_S24_LE;
+		break;
+	case 32:
+		pcm_fmt = SND_PCM_FORMAT_S32_LE;
+		break;
+	default:
+		fprintf(stderr, "unsupported bits per sample: %u\n",
+			hdr.bits_per_sample);
+		fclose(fp);
+		return 1;
+	}
 
-    default:
-        fprintf(stderr, "Unsupported ff_type: %d\n", ff_type);
-        close(fd);
-        return 1;
-    }
+	rc = snd_pcm_open(&handle, dev_name, SND_PCM_STREAM_PLAYBACK, 0);
+	if (rc < 0) {
+		fprintf(stderr, "snd_pcm_open: %s\n", snd_strerror(rc));
+		fclose(fp);
+		return 1;
+	}
 
-    if (ioctl(fd, EVIOCSFF, &effect) < 0) {
-        perror("EVIOCSFF");
-        close(fd);
-        return 1;
-    }
+	snd_pcm_hw_params_malloc(&params);
+	snd_pcm_hw_params_any(handle, params);
+	snd_pcm_hw_params_set_access(handle, params,
+				     SND_PCM_ACCESS_RW_INTERLEAVED);
+	snd_pcm_hw_params_set_format(handle, params, pcm_fmt);
+	snd_pcm_hw_params_set_channels(handle, params, hdr.num_channels);
+	snd_pcm_hw_params_set_rate_near(handle, params,
+					&hdr.sample_rate, 0);
+	snd_pcm_hw_params(handle, params);
+	snd_pcm_hw_params_free(params);
+	snd_pcm_prepare(handle);
 
-    play.type = EV_FF;
-    play.code = effect.id;
-    play.value = 1;
+	buffer = malloc(hdr.block_align * 1024);
+	if (!buffer) {
+		perror("malloc");
+		snd_pcm_close(handle);
+		fclose(fp);
+		return 1;
+	}
 
-    if (write(fd, &play, sizeof(play)) < 0) {
-        perror("write");
-        close(fd);
-        return 1;
-    }
+	while ((read_size = fread(buffer, 1,
+			hdr.block_align * 1024, fp)) > 0) {
+		rc = snd_pcm_writei(handle, buffer,
+				    read_size / hdr.block_align);
+		if (rc == -EPIPE) {
+			snd_pcm_prepare(handle);
+		} else if (rc < 0) {
+			fprintf(stderr, "snd_pcm_writei: %s\n",
+				snd_strerror(rc));
+			break;
+		}
+	}
 
-    usleep(duration * 1000);
+	free(buffer);
+	snd_pcm_drain(handle);
+	snd_pcm_close(handle);
+	fclose(fp);
 
-    ioctl(fd, EVIOCRMFF, effect.id);
-
-    close(fd);
-    return 0;
+	return 0;
 }
