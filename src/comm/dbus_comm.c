@@ -15,13 +15,13 @@
 #include <sys/eventfd.h>
 #include <inttypes.h>
 #include <stdbool.h>
-
 #include <dbus/dbus.h>
 
-#include <log.h>
 #include <dbus_comm.h>
+
 #include <workqueue.h>
-#include <task_handler.h>
+#include <task.h>
+#include <log.h>
 
 /*********************
  *      DEFINES

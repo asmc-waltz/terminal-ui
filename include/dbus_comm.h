@@ -12,8 +12,9 @@
 #include <stdbool.h>
 #include <dbus/dbus.h>
 
+#include <workqueue.h>
+#include <task.h>
 #include <log.h>
-#include <task_handler.h>
 
 /*********************
  *      DEFINES

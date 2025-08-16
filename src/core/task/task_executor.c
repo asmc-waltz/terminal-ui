@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdint.h>
-#include <log.h>
-#include <workqueue.h>
-#include <task_handler.h>
 
 #include <dbus_comm.h>
 #include <imu.h>
+
+#include <workqueue.h>
+#include <task.h>
+#include <log.h>
+
 
 remote_cmd_t *create_remote_cmd(void)
 {

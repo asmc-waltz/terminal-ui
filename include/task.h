@@ -1,10 +1,10 @@
 /**
- * @file task_handler.h
+ * @file task.h
  *
  */
 
-#ifndef G_TASK_HANDLER_H
-#define G_TASK_HANDLER_H
+#ifndef G_TASK_H
+#define G_TASK_H
 /*********************
  *      INCLUDES
  *********************/
@@ -140,4 +140,4 @@ void * main_task_handler(void* arg);
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /* G_TASK_HANDLER_H */
+#endif /* G_TASK_H */

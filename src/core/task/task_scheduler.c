@@ -5,12 +5,12 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
-#include <log.h>
 #include <terminal-ui.h>
-#include <workqueue.h>
 #include <dbus_comm.h>
 
-#include <task_handler.h>
+#include <workqueue.h>
+#include <task.h>
+#include <log.h>
 
 extern volatile sig_atomic_t g_run;
 

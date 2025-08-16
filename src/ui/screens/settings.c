@@ -13,10 +13,11 @@
 #include <gmisc.h>
 #include <fonts.h>
 #include <style.h>
-#include <log.h>
 #include <sys_comm.h>
+
 #include <workqueue.h>
-#include <task_handler.h>
+#include <task.h>
+#include <log.h>
 
 /*********************
  *      DEFINES

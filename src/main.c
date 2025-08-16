@@ -8,7 +8,6 @@
 
 #include <lvgl.h>
 
-#include <log.h>
 #include <list.h>
 #include <fonts.h>
 #include <style.h>
@@ -16,10 +15,12 @@
 #include <gmisc.h>
 #include <style.h>
 #include <screens.h>
-#include <workqueue.h>
-#include <task_handler.h>
-
 #include <terminal-ui.h>
+
+#include <workqueue.h>
+#include <task.h>
+#include <log.h>
+
 
 g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;

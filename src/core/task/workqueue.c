@@ -2,9 +2,11 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include <workqueue.h>
-#include <task_handler.h>
 #include <dbus_comm.h>
+
+#include <workqueue.h>
+#include <task.h>
+#include <log.h>
 
 extern volatile sig_atomic_t g_run;
 
