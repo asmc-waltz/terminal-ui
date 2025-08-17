@@ -343,7 +343,7 @@ void audio_mgr_release(struct audio_mgr *mgr)
         mgr->device_name = NULL;
     }
     memset(mgr, 0, sizeof(*mgr));
-    LOG_INFO("audio_mgr: released");
+    LOG_INFO("Audio system has been released");
 }
 
 /* set options */
