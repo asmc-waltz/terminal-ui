@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 #include <dbus_comm.h>
-#include <imu.h>
 
 #include <workqueue.h>
 #include <task.h>
@@ -63,10 +62,6 @@ int process_opcode_endless(uint32_t opcode, void *data)
         rc = dbus_fn_thread_handler();
         break;
     case OP_ID_START_IMU:
-        rc = imu_kalman_init("/sys/bus/iio/devices/iio:device0/", 100, 0.001f, 0.003f, 0.03f);
-        imu_kalman_set_debug(1);
-        if (!rc)
-            rc = imu_fn_thread_handler();
         break;
     default:
         LOG_ERROR("Opcode [%d] is invalid");
@@ -88,11 +83,8 @@ int process_opcode(uint32_t opcode, void *data)
         rc = rumble_trigger(3, 80, 150);
         break;
     case OP_ID_STOP_IMU:
-        imu_fn_thread_stop();
         break;
     case OP_ID_READ_IMU:
-        struct imu_angles a = imu_get_angles();
-        LOG_DEBUG("roll=%.2f pitch=%.2f yaw=%.2f\n", a.roll, a.pitch, a.yaw);
         break;
     default:
         LOG_ERROR("Opcode [%d] is invalid");
