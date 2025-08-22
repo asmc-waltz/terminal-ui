@@ -253,7 +253,7 @@ static void setting_handler(lv_event_t *e)
             work_t *work = create_work(LOCAL, NON_BLOCK, SHORT, OP_ID_LEFT_VIBRATOR, (void *)cmd);
             if (!work) {
                 LOG_ERROR("Failed to create work from cmd");
-                delete_remote_cmd(cmd);
+                delete_local_cmd(cmd);
                 return;
             }
 
@@ -267,7 +267,7 @@ static void setting_handler(lv_event_t *e)
             work = create_work(LOCAL, NON_BLOCK, SHORT, OP_ID_RIGHT_VIBRATOR, (void *)cmd);
             if (!work) {
                 LOG_ERROR("Failed to create work from cmd");
-                delete_remote_cmd(cmd);
+                delete_local_cmd(cmd);
                 return;
             }
 
