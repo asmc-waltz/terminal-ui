@@ -10,12 +10,12 @@
 #include <gmisc.h>
 #include <fonts.h>
 #include <style.h>
+
 #include <log.h>
 
 /*********************
  *      DEFINES
  *********************/
-#define FS_BRIGHTNESS   "/sys/class/backlight/backlight/brightness"
 
 /**********************
  *      TYPEDEFS
@@ -52,8 +52,7 @@ static void sf_backlight_slider_event_cb(lv_event_t * e)
     }
 
     sprintf(str_percent, "%d", brightness_percent);
-    gf_fs_write_file(FS_BRIGHTNESS, str_percent, sizeof(str_percent));
-
+    // TODO: call dbus set backlight API
 }
 
 /**********************
