@@ -274,7 +274,6 @@ static void setting_handler(lv_event_t *e)
             push_work(work);
 
 
-            create_local_simple_task(NON_BLOCK, SHORT, OP_ID_SOUND_PLAY);
 
         if (id == ID_SETTING_SEACH) {
             gf_show_keyboard();

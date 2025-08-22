@@ -64,8 +64,6 @@ typedef enum {
     OP_ID_STOP_IMU,
     OP_ID_READ_IMU,
     /* AUDIO API */
-    OP_ID_AUDIO_INIT,
-    OP_ID_AUDIO_RELEASE,
     OP_ID_SOUND_PLAY,
 } opcode_t;
 

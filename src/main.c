@@ -152,7 +152,6 @@ int main(void) {
     }
 
     create_local_simple_task(NON_BLOCK, ENDLESS, OP_ID_START_DBUS);
-    create_local_simple_task(NON_BLOCK, SHORT, OP_ID_AUDIO_INIT);
 
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
@@ -198,9 +197,6 @@ int main(void) {
     }
 
     pthread_join(task_handler, NULL);
-
-    // TODO:
-    snd_sys_release();
 
     sf_delete_all_style_data();
     free(global_data);
