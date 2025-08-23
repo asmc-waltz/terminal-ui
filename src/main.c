@@ -26,7 +26,7 @@ g_app_data *global_data = NULL;
 static lv_display_t *drm_disp = NULL;
 static lv_indev_t *touch_scr = NULL;
 
-extern int event_fd;
+extern int32_t event_fd;
 volatile sig_atomic_t g_run = 1;
 
 void sig_handler(int sig) {

@@ -8,6 +8,7 @@
  *********************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/epoll.h>
@@ -36,12 +37,11 @@
  *  GLOBAL VARIABLES
  **********************/
 extern volatile sig_atomic_t g_run;
-extern int event_fd;
+extern int32_t event_fd;
 
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static void parse_dbus_iter(DBusMessageIter* iter, int indent);
 
 /**********************
  *  STATIC VARIABLES
@@ -55,7 +55,7 @@ static void parse_dbus_iter(DBusMessageIter* iter, int indent);
  *   STATIC FUNCTIONS
  **********************/
 // Encode remote_cmd_t into an existing DBusMessage
-bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
+static bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
@@ -67,7 +67,7 @@ bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 
     dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, "(siiv)", &array_iter);
 
-    for (int i = 0; i < cmd->entry_count; ++i) {
+    for (int32_t i = 0; i < cmd->entry_count; ++i) {
         const payload_t *entry = &cmd->entries[i];
 
         dbus_message_iter_open_container(&array_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
@@ -113,7 +113,7 @@ bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 }
 
 // Decode DBusMessage into remote_cmd_t
-bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
+static bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
@@ -133,7 +133,7 @@ bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
 
     dbus_message_iter_recurse(&iter, &array_iter);
 
-    int i = 0;
+    int32_t i = 0;
     while (dbus_message_iter_get_arg_type(&array_iter) == DBUS_TYPE_STRUCT && i < MAX_ENTRIES) {
         payload_t *entry = &out->entries[i];
         dbus_message_iter_recurse(&array_iter, &struct_iter);
@@ -175,11 +175,11 @@ bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
     return true;
 }
 
-int dispatch_cmd_from_message(DBusMessage *msg)
+static int32_t dispatch_cmd_from_message(DBusMessage *msg)
 {
 	remote_cmd_t *cmd;
 	work_t *work;
-	int i;
+	int32_t i;
 
 	cmd = create_remote_cmd();
 	if (!cmd) {
@@ -223,13 +223,13 @@ int dispatch_cmd_from_message(DBusMessage *msg)
 	return 0;
 }
 
-int dbus_event_handler(DBusConnection *conn)
+static int32_t dbus_event_handler(DBusConnection *conn)
 {
 	DBusMessage *msg;
 	DBusMessage *reply;
 	DBusMessageIter args;
 	const char *reply_str = "Method reply OK";
-	int ret;
+	int32_t ret;
 
 	msg = NULL;
 	reply = NULL;
@@ -290,32 +290,11 @@ int dbus_event_handler(DBusConnection *conn)
 	return 0;
 }
 
-int add_dbus_match_rule(DBusConnection *conn, const char *rule)
-{
-    DBusError err;
-    if (NULL == conn) {
-        return EINVAL;
-    }
-
-    LOG_INFO("Adds a match rule: [%s]", rule);
-    dbus_error_init(&err);
-    dbus_bus_add_match(conn, rule, &err);
-    if (dbus_error_is_set(&err)) {
-        LOG_ERROR("Add failed (error: %s)", err.message);
-        dbus_error_free(&err);
-        return EINVAL;
-    }
-
-    dbus_connection_flush(conn);
-    LOG_TRACE("Add match rule succeeded");
-    return 0;
-}
-
-DBusConnection * setup_dbus()
+static DBusConnection * setup_dbus()
 {
     DBusConnection *conn = NULL;
     DBusError err;
-    int ret = 0;
+    int32_t ret = 0;
 
     dbus_error_init(&err);
     conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
@@ -360,7 +339,7 @@ DBusConnection * setup_dbus()
     return conn;
 }
 
-int32_t dbus_listener(DBusConnection *conn)
+static int32_t dbus_listener(DBusConnection *conn)
 {
     int32_t dbus_fd;
     int32_t epoll_fd;
@@ -405,7 +384,7 @@ int32_t dbus_listener(DBusConnection *conn)
     while (g_run) {
         LOG_DEBUG("[DBus]--> Waiting for next DBus message...");
         n_ready = epoll_wait(epoll_fd, events_detected, MAX_EVENTS, -1);
-        for (int cnt = 0; cnt < n_ready; cnt++) {
+        for (int32_t cnt = 0; cnt < n_ready; cnt++) {
             ready_fd = events_detected[cnt].data.fd;
             if (ready_fd == dbus_fd) {
                 dbus_event_handler(conn);
@@ -420,6 +399,30 @@ int32_t dbus_listener(DBusConnection *conn)
     close(epoll_fd);
     LOG_INFO("The DBus handler thread exited successfully");
 
+    return EXIT_SUCCESS;
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
+{
+    DBusError err;
+    if (NULL == conn) {
+        return EINVAL;
+    }
+
+    LOG_INFO("Adds a match rule: [%s]", rule);
+    dbus_error_init(&err);
+    dbus_bus_add_match(conn, rule, &err);
+    if (dbus_error_is_set(&err)) {
+        LOG_ERROR("Add failed (error: %s)", err.message);
+        dbus_error_free(&err);
+        return EINVAL;
+    }
+
+    dbus_connection_flush(conn);
+    LOG_TRACE("Add match rule succeeded");
     return EXIT_SUCCESS;
 }
 

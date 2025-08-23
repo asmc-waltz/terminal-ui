@@ -6,7 +6,7 @@
 #include <log.h>
 #include <sys_comm.h>
 
-int event_fd;
+int32_t event_fd;
 
 void event_set(int evfd, uint64_t code)
 {

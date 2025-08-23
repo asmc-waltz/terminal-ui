@@ -46,15 +46,9 @@
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
-// Encode remote_cmd_t into DBusMessage
-bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *frame);
-
-// Decode DBusMessage into remote_cmd_t
-bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out);
-
-DBusConnection * setup_dbus();
-
+int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule);
 int32_t dbus_fn_thread_handler();
+
 /**********************
  *  STATIC VARIABLES
  **********************/
