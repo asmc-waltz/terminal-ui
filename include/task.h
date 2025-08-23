@@ -51,6 +51,11 @@ typedef enum {
     /* Common API */
     OP_ID_START_DBUS,
     OP_ID_PING,
+    /* Brightness API */
+    OP_ID_BACKLIGHT_INIT,
+    OP_ID_BACKLIGHT_DEINIT,
+    OP_ID_GET_BRIGHTNESS,
+    OP_ID_SET_BRIGHTNESS,
     /* Network API */
     OP_ID_WIFI_RESCAN,
     OP_ID_WIFI_GET_AP_LIST,
@@ -64,6 +69,8 @@ typedef enum {
     OP_ID_STOP_IMU,
     OP_ID_READ_IMU,
     /* AUDIO API */
+    OP_ID_AUDIO_INIT,
+    OP_ID_AUDIO_RELEASE,
     OP_ID_SOUND_PLAY,
 } opcode_t;
 
