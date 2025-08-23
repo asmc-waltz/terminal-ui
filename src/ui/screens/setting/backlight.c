@@ -6,10 +6,17 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <errno.h>
+
 #include <lvgl.h>
 #include <gmisc.h>
 #include <fonts.h>
 #include <style.h>
+#include <dbus_comm.h>
+#include <task.h>
 
 #include <log.h>
 
@@ -40,19 +47,46 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static int32_t send_dbus_set_brightness_cmd(int32_t value)
+{
+    remote_cmd_t cmd;
+    int32_t ret = EXIT_SUCCESS;
+
+    remote_cmd_init(&cmd, "terminal-ui", 1001, OP_ID_SET_BRIGHTNESS);
+
+    /* Add parameters */
+    if (remote_cmd_add_string(&cmd, "backlight", "max") || \
+        remote_cmd_add_int(&cmd, "brightness", value)) {
+        ret = -EINVAL;
+        goto out;
+    }
+
+    /* Send command */
+    if (send_remote_cmd(&cmd))
+        ret = -EIO;
+
+out:
+    return ret;
+}
+
 static void sf_backlight_slider_event_cb(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
-    char str_percent[10];
     int brightness_percent = (int)lv_slider_get_value(slider);
+    int32_t ret;
 
     // TODO: workaround when backlight cannot be set to zero from kernel
-    if (brightness_percent == 0) {
+    if (brightness_percent <= 0) {
         brightness_percent = 1;
+    } else if (brightness_percent >= 100) {
+        brightness_percent = 100;
     }
 
-    sprintf(str_percent, "%d", brightness_percent);
-    // TODO: call dbus set backlight API
+    // TODO: push workqueue???
+    ret = send_dbus_set_brightness_cmd(brightness_percent);
+    if (ret) {
+        LOG_ERROR("Set brightness failed: ret %d", ret);
+    }
 }
 
 /**********************
