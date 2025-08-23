@@ -46,6 +46,7 @@ extern int32_t event_fd;
 /**********************
  *  STATIC VARIABLES
  **********************/
+static DBusConnection *dbus_conn = NULL;
 
 /**********************
  *      MACROS
@@ -405,6 +406,21 @@ static int32_t dbus_listener(DBusConnection *conn)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+DBusConnection *get_dbus_conn()
+{
+    return dbus_conn;
+}
+
+bool set_dbus_conn(DBusConnection *ptr)
+{
+    if (!ptr) {
+        return false;
+    }
+
+    dbus_conn = ptr;
+    return true;
+}
+
 int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
 {
     DBusError err;
@@ -436,6 +452,12 @@ int32_t dbus_fn_thread_handler()
         LOG_FATAL("Unable to establish connection with DBus");
         return EXIT_FAILURE;
     }
+
+    if (!set_dbus_conn(conn)) {
+        LOG_FATAL("Unable to save connection with DBus");
+        return EXIT_FAILURE;
+    }
+
 
     // This thread processes DBus messages
     rc = dbus_listener(conn);
