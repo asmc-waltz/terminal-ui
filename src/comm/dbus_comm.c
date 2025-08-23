@@ -282,7 +282,10 @@ static int32_t dbus_event_handler(DBusConnection *conn)
 					LOG_ERROR("Dispatch signal failed: %s.%s",
 						  iface, member);
 			}
-		}
+		} else if (dbus_message_get_type(msg) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
+		    LOG_TRACE("Dbus method return is detected");
+        }
+
 
 		dbus_message_unref(msg);
 		break;
@@ -467,5 +470,99 @@ int32_t dbus_fn_thread_handler()
 
     dbus_connection_unref(conn);
     return rc;
+}
+
+void remote_cmd_init(remote_cmd_t *cmd, const char *component_id, \
+                     int32_t topic_id, int32_t opcode)
+{
+    int32_t i;
+
+    cmd->component_id = component_id;
+    cmd->topic_id = topic_id;
+    cmd->opcode = opcode;
+    cmd->entry_count = 0;
+
+    for (i = 0; i < MAX_ENTRIES; i++) {
+        cmd->entries[i].key = NULL;
+        cmd->entries[i].data_type = 0;
+        cmd->entries[i].data_length = 0;
+    }
+}
+
+int remote_cmd_add_string(remote_cmd_t *cmd, const char *key, const char *value)
+{
+    payload_t *entry;
+    if (cmd->entry_count >= MAX_ENTRIES)
+        return -1;
+
+    entry = &cmd->entries[cmd->entry_count++];
+    entry->key = key;
+    entry->data_type = DBUS_TYPE_STRING;
+    entry->data_length = strlen(value) + 1;;
+    entry->value.str = value;
+
+    return 0;
+}
+
+int remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value)
+{
+    payload_t *entry;
+
+    if (cmd->entry_count >= MAX_ENTRIES)
+        return -1;
+
+    entry = &cmd->entries[cmd->entry_count++];
+    entry->key = key;
+    entry->data_type = DBUS_TYPE_INT32;
+    entry->data_length = sizeof(int32_t);
+    entry->value.i32 = value;
+
+    return 0;
+}
+
+/*
+ * This function sends a D-Bus method call to the system manager.
+ * It operates without a specific callback for the reply message
+ * because all responses are processed centrally in the D-Bus
+ * listener thread rather than assigning per-call callbacks.
+ */
+int send_remote_cmd(remote_cmd_t *cmd)
+{
+    DBusConnection *conn;
+    DBusMessage *msg;
+    int32_t ret = EXIT_SUCCESS;
+
+    conn = get_dbus_conn();
+    if (!conn) {
+        LOG_ERROR("Failed to get dbus connection");
+        return EXIT_FAILURE;
+    }
+
+    msg = dbus_message_new_method_call(SYS_MGR_DBUS_SER,
+                                       SYS_MGR_DBUS_OBJ_PATH,
+                                       SYS_MGR_DBUS_IFACE,
+                                       SYS_MGR_DBUS_METH);
+    if (!msg) {
+        LOG_FATAL("Failed to create method call message");
+        return EXIT_FAILURE;
+    }
+
+    if (!encode_data_frame(msg, cmd)) {
+        LOG_ERROR("Failed to encode data frame");
+        dbus_message_unref(msg);
+        return EXIT_FAILURE;
+    }
+
+    if (!dbus_connection_send(conn, msg, NULL)) {
+
+        LOG_ERROR("Out of memory while sending method call");
+        dbus_message_unref(msg);
+        return EXIT_FAILURE;
+    }
+
+    dbus_connection_flush(conn);
+    dbus_message_unref(msg);
+
+    return ret;
 }
 
