@@ -16,6 +16,7 @@
 #include <style.h>
 #include <screens.h>
 #include <terminal-ui.h>
+#include <cmd_payload.h>
 
 #include <workqueue.h>
 #include <task.h>

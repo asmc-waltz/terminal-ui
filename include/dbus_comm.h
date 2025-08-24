@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <dbus/dbus.h>
 
+#include <cmd_payload.h>
+
 #include <workqueue.h>
 #include <task.h>
 #include <log.h>
@@ -49,14 +51,9 @@
 int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule);
 int32_t dbus_fn_thread_handler();
 
-
-void remote_cmd_init(remote_cmd_t *cmd, const char *component_id, \
-                     int32_t topic_id, int32_t opcode);
-int remote_cmd_add_string(remote_cmd_t *cmd, const char *key, \
-			  const char *value);
-int remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value);
-int send_remote_cmd(remote_cmd_t *cmd);
-
+int32_t dbus_method_call(const char *destination, const char *path, \
+                         const char *iface, const char *method, \
+                         remote_cmd_t *cmd);
 /**********************
  *  STATIC VARIABLES
  **********************/

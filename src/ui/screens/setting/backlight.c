@@ -16,6 +16,7 @@
 #include <fonts.h>
 #include <style.h>
 #include <dbus_comm.h>
+#include <cmd_payload.h>
 #include <task.h>
 
 #include <log.h>
@@ -47,25 +48,31 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static int32_t send_dbus_set_brightness_cmd(int32_t value)
+static int32_t set_brightness_cmd(int32_t value)
 {
-    remote_cmd_t cmd;
-    int32_t ret = EXIT_SUCCESS;
+    remote_cmd_t *cmd;
+    int32_t ret = 0;
 
-    remote_cmd_init(&cmd, "terminal-ui", 1001, OP_ID_SET_BRIGHTNESS);
+    cmd = create_remote_cmd();
+    if (!cmd) {
+		return -ENOMEM;
+    }
+
+    remote_cmd_init(cmd, "terminal-ui", 1001, OP_ID_SET_BRIGHTNESS);
 
     /* Add parameters */
-    if (remote_cmd_add_string(&cmd, "backlight", "max") || \
-        remote_cmd_add_int(&cmd, "brightness", value)) {
+    if (remote_cmd_add_string(cmd, "backlight", "max") || \
+        remote_cmd_add_int(cmd, "brightness", value)) {
         ret = -EINVAL;
         goto out;
     }
 
     /* Send command */
-    if (send_remote_cmd(&cmd))
+    if (send_remote_cmd(cmd))
         ret = -EIO;
 
 out:
+    delete_remote_cmd(cmd);
     return ret;
 }
 
@@ -83,7 +90,7 @@ static void sf_backlight_slider_event_cb(lv_event_t * e)
     }
 
     // TODO: push workqueue???
-    ret = send_dbus_set_brightness_cmd(brightness_percent);
+    ret = set_brightness_cmd(brightness_percent);
     if (ret) {
         LOG_ERROR("Set brightness failed: ret %d", ret);
     }

@@ -2,56 +2,11 @@
 #include <stdint.h>
 
 #include <dbus_comm.h>
+#include <cmd_payload.h>
 
 #include <workqueue.h>
 #include <task.h>
 #include <log.h>
-
-
-remote_cmd_t *create_remote_cmd(void)
-{
-    remote_cmd_t *cmd;
-
-    cmd = calloc(1, sizeof(*cmd));
-    if (!cmd) {
-        return NULL;
-    }
-
-    return cmd;
-}
-
-void delete_remote_cmd(remote_cmd_t *cmd)
-{
-    if (!cmd) {
-        LOG_WARN("Unable to delete cmd: null pointer");
-        return;
-    }
-
-    free(cmd);
-}
-
-local_cmd_t *create_local_cmd()
-{
-    local_cmd_t *cmd = NULL;
-
-    cmd = calloc(1, sizeof(*cmd));
-    if (!cmd) {
-        return NULL;
-    }
-
-    return cmd;
-}
-
-
-void delete_local_cmd(local_cmd_t *cmd)
-{
-    if (!cmd) {
-        LOG_WARN("Unable to delete cmd: null pointer");
-        return;
-    }
-
-    free(cmd);
-}
 
 int process_opcode_endless(uint32_t opcode, void *data)
 {
@@ -95,6 +50,21 @@ int process_opcode(uint32_t opcode, void *data)
 int create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode)
 {
     work_t *work = create_work(LOCAL, flow, duration, opcode, NULL);
+    if (!work) {
+        LOG_ERROR("Failed to create work from cmd");
+        return EXIT_FAILURE;
+    }
+
+    push_work(work);
+
+    return EXIT_SUCCESS;
+}
+
+int32_t create_remote_task(uint8_t flow, void *data)
+{
+    work_t *work;
+
+    work = create_work(REMOTE, flow, SHORT, OP_DBUS_SENT_CMD_DATA, data);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
         return EXIT_FAILURE;

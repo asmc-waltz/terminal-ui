@@ -14,6 +14,7 @@
 #include <fonts.h>
 #include <style.h>
 #include <sys_comm.h>
+#include <cmd_payload.h>
 
 #include <workqueue.h>
 #include <task.h>
@@ -288,15 +289,12 @@ static void setting_handler(lv_event_t *e)
                 gf_create_backlight_setting_container(sub_ctr);
             }
         } else if (id == ID_SETTING_ROTATE) {
-            LOG_DEBUG("Rotate BOX");
-            create_local_simple_task(BLOCK, SHORT, OP_ID_READ_IMU);
+            ;
         } else if (id == ID_SETTING_ROTATE_SW) {
             if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
-                LOG_DEBUG("Rotate sensor is ON");
-                create_local_simple_task(NON_BLOCK, ENDLESS, OP_ID_START_IMU);
+                ;
             } else {
-                LOG_DEBUG("Rotate sensor is OFF");
-                create_local_simple_task(BLOCK, SHORT, OP_ID_STOP_IMU);
+                ;
             }
         } else {
             // TODO: search quicker with list
