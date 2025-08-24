@@ -13,10 +13,10 @@ int process_opcode_endless(uint32_t opcode, void *data)
     int rc = 0;
 
     switch (opcode) {
-    case OP_ID_START_DBUS:
+    case OP_START_DBUS:
         rc = dbus_fn_thread_handler();
         break;
-    case OP_ID_START_IMU:
+    case OP_START_IMU:
         break;
     default:
         LOG_ERROR("Opcode [%d] is invalid");
@@ -31,13 +31,13 @@ int process_opcode(uint32_t opcode, void *data)
     int rc = 0;
 
     switch (opcode) {
-    case OP_ID_LEFT_VIBRATOR:
+    case OP_LEFT_VIBRATOR:
         break;
-    case OP_ID_RIGHT_VIBRATOR:
+    case OP_RIGHT_VIBRATOR:
         break;
-    case OP_ID_STOP_IMU:
+    case OP_STOP_IMU:
         break;
-    case OP_ID_READ_IMU:
+    case OP_READ_IMU:
         break;
     default:
         LOG_ERROR("Opcode [%d] is invalid");

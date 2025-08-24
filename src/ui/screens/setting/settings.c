@@ -249,9 +249,9 @@ static void setting_handler(lv_event_t *e)
 
 //########################## TEST
             local_cmd_t *cmd = create_local_cmd();
-            cmd->opcode = OP_ID_LEFT_VIBRATOR;
+            cmd->opcode = OP_LEFT_VIBRATOR;
 
-            work_t *work = create_work(LOCAL, NON_BLOCK, SHORT, OP_ID_LEFT_VIBRATOR, (void *)cmd);
+            work_t *work = create_work(LOCAL, NON_BLOCK, SHORT, OP_LEFT_VIBRATOR, (void *)cmd);
             if (!work) {
                 LOG_ERROR("Failed to create work from cmd");
                 delete_local_cmd(cmd);
@@ -263,9 +263,9 @@ static void setting_handler(lv_event_t *e)
 
 
             cmd = create_local_cmd();
-            cmd->opcode = OP_ID_RIGHT_VIBRATOR;
+            cmd->opcode = OP_RIGHT_VIBRATOR;
 
-            work = create_work(LOCAL, NON_BLOCK, SHORT, OP_ID_RIGHT_VIBRATOR, (void *)cmd);
+            work = create_work(LOCAL, NON_BLOCK, SHORT, OP_RIGHT_VIBRATOR, (void *)cmd);
             if (!work) {
                 LOG_ERROR("Failed to create work from cmd");
                 delete_local_cmd(cmd);

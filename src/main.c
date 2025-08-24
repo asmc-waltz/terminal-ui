@@ -152,7 +152,7 @@ int main(void) {
         goto exit_workqueue;
     }
 
-    create_local_simple_task(NON_BLOCK, ENDLESS, OP_ID_START_DBUS);
+    create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
 
     // Global data used to manage all created objects and their associated handlers
     global_data = calloc(sizeof(g_app_data), 1);
