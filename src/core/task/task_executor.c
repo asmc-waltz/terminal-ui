@@ -10,24 +10,24 @@
 
 remote_cmd_t *create_remote_cmd(void)
 {
-	remote_cmd_t *cmd;
+    remote_cmd_t *cmd;
 
-	cmd = calloc(1, sizeof(*cmd));
-	if (!cmd) {
-		return NULL;
-	}
+    cmd = calloc(1, sizeof(*cmd));
+    if (!cmd) {
+        return NULL;
+    }
 
-	return cmd;
+    return cmd;
 }
 
 void delete_remote_cmd(remote_cmd_t *cmd)
 {
-	if (!cmd) {
-		LOG_WARN("Unable to delete cmd: null pointer");
-		return;
-	}
+    if (!cmd) {
+        LOG_WARN("Unable to delete cmd: null pointer");
+        return;
+    }
 
-	free(cmd);
+    free(cmd);
 }
 
 local_cmd_t *create_local_cmd()
@@ -36,7 +36,7 @@ local_cmd_t *create_local_cmd()
 
     cmd = calloc(1, sizeof(*cmd));
     if (!cmd) {
-		return NULL;
+        return NULL;
     }
 
     return cmd;
@@ -45,12 +45,12 @@ local_cmd_t *create_local_cmd()
 
 void delete_local_cmd(local_cmd_t *cmd)
 {
-	if (!cmd) {
-		LOG_WARN("Unable to delete cmd: null pointer");
-		return;
-	}
+    if (!cmd) {
+        LOG_WARN("Unable to delete cmd: null pointer");
+        return;
+    }
 
-	free(cmd);
+    free(cmd);
 }
 
 int process_opcode_endless(uint32_t opcode, void *data)
