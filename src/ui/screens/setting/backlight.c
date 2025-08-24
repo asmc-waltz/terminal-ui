@@ -48,7 +48,7 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static int32_t set_brightness_cmd(int32_t value)
+static int32_t create_set_brightness_cmd(int32_t value)
 {
     remote_cmd_t *cmd;
     int32_t ret = 0;
@@ -67,9 +67,9 @@ static int32_t set_brightness_cmd(int32_t value)
         goto out;
     }
 
-    /* Send command */
-    if (send_remote_cmd(cmd))
-        ret = -EIO;
+    // NOTE: Command data will be released after the work completes
+    ret = create_remote_task(BLOCK, cmd);
+    return ret;
 
 out:
     delete_remote_cmd(cmd);
@@ -89,8 +89,7 @@ static void sf_backlight_slider_event_cb(lv_event_t * e)
         brightness_percent = 100;
     }
 
-    // TODO: push workqueue???
-    ret = set_brightness_cmd(brightness_percent);
+    ret = create_set_brightness_cmd(brightness_percent);
     if (ret) {
         LOG_ERROR("Set brightness failed: ret %d", ret);
     }

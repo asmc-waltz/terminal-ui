@@ -42,6 +42,7 @@ int32_t endless_task_cnt_get();
 
 int process_opcode(uint32_t opcode, void *data);
 int create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode);
+int32_t create_remote_task(uint8_t flow, void *data);
 
 bool is_task_handler_idle();
 void * main_task_handler(void* arg);

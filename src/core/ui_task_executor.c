@@ -31,6 +31,9 @@ int process_opcode(uint32_t opcode, void *data)
     int rc = 0;
 
     switch (opcode) {
+    case OP_DBUS_SENT_CMD_DATA:
+        rc = send_remote_cmd((remote_cmd_t *)data);
+        break;
     case OP_LEFT_VIBRATOR:
         break;
     case OP_RIGHT_VIBRATOR:
