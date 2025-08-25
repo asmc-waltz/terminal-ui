@@ -243,7 +243,7 @@ int32_t main(void) {
 
     sf_delete_all_style_data();
     free(global_data);
-    close(event_fd);
+    cleanup_event_file();
 
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
     return EXIT_SUCCESS;
@@ -254,8 +254,8 @@ exit_listener:
 exit_workqueue:
     workqueue_stop();
     pthread_join(task_handler, NULL);
+    cleanup_event_file();
 
 exit_error:
     return EXIT_FAILURE;
 }
-

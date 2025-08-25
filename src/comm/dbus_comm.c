@@ -399,9 +399,11 @@ static int32_t dbus_listener(DBusConnection *conn)
             if (ready_fd == dbus_fd) {
                 dbus_event_handler(conn);
             } else if (ready_fd == event_fd) {
-                LOG_INFO("Received event ID [%" PRIu64 \
-                                "], stopping DBus listener...", \
-                                event_get(event_fd));
+                uint64_t event_id = 0;
+                if (!event_get(event_fd, &event_id)) {
+                    LOG_INFO("Received event ID [%" PRIu64 "], stopping DBus listener...", \
+                             event_id);
+                }
             }
         }
     }
