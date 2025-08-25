@@ -18,13 +18,12 @@
 #include <errno.h>
 
 #include <lvgl.h>
-#include <gmisc.h>
-#include <fonts.h>
-#include <style.h>
-#include <dbus_comm.h>
-#include <cmd_payload.h>
-
-#include <task.h>
+#include <ui/gmisc.h>
+#include <ui/fonts.h>
+#include <ui/style.h>
+#include <comm/dbus_comm.h>
+#include <comm/cmd_payload.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES

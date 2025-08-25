@@ -13,8 +13,8 @@
 #include <log.h>
 
 #include <lvgl.h>
-#include <screens.h>
-#include <gmisc.h>
+#include <ui/screens.h>
+#include <ui/gmisc.h>
 
 /*********************
  *      DEFINES

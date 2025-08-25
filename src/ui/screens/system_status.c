@@ -13,9 +13,9 @@
 #include <log.h>
 
 #include <lvgl.h>
-#include <screens.h>
-#include <gmisc.h>
-#include <style.h>
+#include <ui/screens.h>
+#include <ui/gmisc.h>
+#include <ui/style.h>
 
 /*********************
  *      DEFINES

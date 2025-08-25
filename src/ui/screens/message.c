@@ -13,7 +13,7 @@
 #include <log.h>
 
 #include <lvgl.h>
-#include <screens.h>
+#include <ui/screens.h>
 
 /*********************
  *      DEFINES

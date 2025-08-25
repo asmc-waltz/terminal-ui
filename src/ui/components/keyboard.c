@@ -13,8 +13,8 @@
 #include <log.h>
 
 #include <lvgl.h>
-#include <gmisc.h>
-#include <fonts.h>
+#include <ui/gmisc.h>
+#include <ui/fonts.h>
 
 /*********************
  *      DEFINES

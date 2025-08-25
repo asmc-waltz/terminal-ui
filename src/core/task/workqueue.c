@@ -17,10 +17,9 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include <dbus_comm.h>
-
-#include <workqueue.h>
-#include <task.h>
+#include <comm/dbus_comm.h>
+#include <sched/workqueue.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES

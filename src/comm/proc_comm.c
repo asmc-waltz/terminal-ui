@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <sys_comm.h>
+#include <comm/sys_comm.h>
 
 /*********************
  *      DEFINES

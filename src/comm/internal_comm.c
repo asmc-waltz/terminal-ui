@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <sys/eventfd.h>
 
-#include <sys_comm.h>
+#include <comm/sys_comm.h>
 
 /*********************
  *      DEFINES

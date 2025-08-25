@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include <dbus_comm.h>
+#include <comm/dbus_comm.h>
 
 /*********************
  *      DEFINES

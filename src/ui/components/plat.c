@@ -15,8 +15,8 @@
 #include <stdint.h>
 
 #include <lvgl.h>
-#include <gmisc.h>
-#include <style.h>
+#include <ui/gmisc.h>
+#include <ui/style.h>
 
 /*********************
  *      DEFINES

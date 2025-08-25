@@ -12,10 +12,9 @@
 #include <stdbool.h>
 #include <dbus/dbus.h>
 
-#include <cmd_payload.h>
-
-#include <workqueue.h>
-#include <task.h>
+#include <comm/cmd_payload.h>
+#include <sched/workqueue.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES

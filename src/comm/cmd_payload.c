@@ -17,8 +17,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <dbus_comm.h>
-#include <cmd_payload.h>
+#include <comm/dbus_comm.h>
+#include <comm/cmd_payload.h>
 
 /*********************
  *      DEFINES

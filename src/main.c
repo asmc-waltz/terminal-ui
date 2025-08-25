@@ -22,19 +22,17 @@
 #include <pthread.h>
 
 #include <lvgl.h>
-
 #include <list.h>
-#include <fonts.h>
-#include <style.h>
-#include <layers.h>
-#include <gmisc.h>
-#include <style.h>
-#include <screens.h>
-#include <cmd_payload.h>
-#include <sys_comm.h>
-
-#include <workqueue.h>
-#include <task.h>
+#include <ui/fonts.h>
+#include <ui/style.h>
+#include <ui/layers.h>
+#include <ui/gmisc.h>
+#include <ui/style.h>
+#include <ui/screens.h>
+#include <comm/cmd_payload.h>
+#include <comm/sys_comm.h>
+#include <sched/workqueue.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES

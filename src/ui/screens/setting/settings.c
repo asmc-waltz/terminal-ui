@@ -15,15 +15,14 @@
 #include <stdint.h>
 
 #include <lvgl.h>
-#include <screens.h>
-#include <gmisc.h>
-#include <fonts.h>
-#include <style.h>
-#include <sys_comm.h>
-#include <cmd_payload.h>
-
-#include <workqueue.h>
-#include <task.h>
+#include <ui/screens.h>
+#include <ui/gmisc.h>
+#include <ui/fonts.h>
+#include <ui/style.h>
+#include <comm/sys_comm.h>
+#include <comm/cmd_payload.h>
+#include <sched/workqueue.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES

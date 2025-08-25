@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <lvgl.h>
-#include <style.h>
-#include <fonts.h>
 #include <list.h>
+#include <lvgl.h>
+#include <ui/style.h>
+#include <ui/fonts.h>
 
 /*********************
  *      DEFINES
