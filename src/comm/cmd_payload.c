@@ -154,6 +154,9 @@ int32_t send_remote_cmd(remote_cmd_t *cmd)
     int32_t ret;
     ret = dbus_method_call(SYS_MGR_DBUS_SER, SYS_MGR_DBUS_OBJ_PATH,
                            SYS_MGR_DBUS_IFACE, SYS_MGR_DBUS_METH, cmd);
+    // TODO: Option
+    // ret = dbus_emit_signal(UI_DBUS_OBJ_PATH, UI_DBUS_IFACE, \
+    //                      UI_DBUS_SIG, cmd);
     if (ret) {
         LOG_FATAL("Failed to create method call message");
     }

@@ -63,7 +63,7 @@ static DBusConnection *dbus_conn = NULL;
  *   STATIC FUNCTIONS
  **********************/
 // Encode remote_cmd_t into an existing DBusMessage
-static bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
+static int32_t encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
@@ -92,7 +92,7 @@ static bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
             case DBUS_TYPE_DOUBLE: sig = "d"; break;
             default:
                 LOG_ERROR("Unsupported data_type %d for key '%s'", entry->data_type, entry->key);
-                return false;
+                return -EINVAL;
         }
 
         dbus_message_iter_open_container(&struct_iter, DBUS_TYPE_VARIANT, sig, &variant_iter);
@@ -117,17 +117,17 @@ static bool encode_data_frame(DBusMessage *msg, const remote_cmd_t *cmd)
     }
 
     dbus_message_iter_close_container(&iter, &array_iter);
-    return true;
+    return 0;
 }
 
 // Decode DBusMessage into remote_cmd_t
-static bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
+static int32_t decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
 {
     DBusMessageIter iter, array_iter, struct_iter, variant_iter;
 
     if (!dbus_message_iter_init(msg, &iter)) {
         LOG_ERROR("Failed to init DBus iterator");
-        return false;
+        return -EINVAL;
     }
 
     dbus_message_iter_get_basic(&iter, &out->component_id);
@@ -180,7 +180,7 @@ static bool decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
     }
 
     out->entry_count = i;
-    return true;
+    return 0;
 }
 
 static int32_t dispatch_cmd_from_message(DBusMessage *msg)
@@ -494,6 +494,37 @@ int32_t dbus_fn_thread_handler()
     return ret;
 }
 
+static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
+{
+    DBusConnection *conn;
+
+    if (!msg || !cmd)
+        return -EINVAL;
+
+    conn = get_dbus_conn();
+    if (!conn) {
+        LOG_ERROR("Failed to get dbus connection");
+        return -EIO;
+    }
+
+    if (encode_data_frame(msg, cmd)) {
+        LOG_ERROR("Failed to encode data frame");
+        dbus_message_unref(msg);
+        return -EIO;
+    }
+
+    if (!dbus_connection_send(conn, msg, NULL)) {
+        LOG_ERROR("Out of memory while sending message");
+        dbus_message_unref(msg);
+        return -ENOMEM;
+    }
+
+    dbus_connection_flush(conn);
+    dbus_message_unref(msg);
+
+    return 0;
+}
+
 /*
  * This function sends a D-Bus method call to the dbus client.
  * It operates without a specific callback for the reply message
@@ -504,18 +535,11 @@ int32_t dbus_method_call(const char *destination, const char *path, \
                          const char *iface, const char *method, \
                          remote_cmd_t *cmd)
 {
-    DBusConnection *conn;
     DBusMessage *msg;
 
     if (!destination || !path || !iface || !method || !cmd) {
         LOG_ERROR("Invalid argument");
         return -EINVAL;
-    }
-
-    conn = get_dbus_conn();
-    if (!conn) {
-        LOG_ERROR("Failed to get dbus connection");
-        return -EIO;
     }
 
     msg = dbus_message_new_method_call(destination, path, iface, method);
@@ -524,20 +548,24 @@ int32_t dbus_method_call(const char *destination, const char *path, \
         return -ENOMEM;
     }
 
-    if (!encode_data_frame(msg, cmd)) {
-        LOG_ERROR("Failed to encode data frame");
-        dbus_message_unref(msg);
-        return -EIO;
+    return dbus_send_message(msg, cmd);
+}
+
+int32_t dbus_emit_signal(const char *path, const char *iface, \
+                         const char *sig, remote_cmd_t *cmd)
+{
+    DBusMessage *msg;
+
+    if (!path || !iface || !sig || !cmd) {
+        LOG_ERROR("Invalid argument");
+        return -EINVAL;
     }
 
-    if (!dbus_connection_send(conn, msg, NULL)) {
-        LOG_ERROR("Out of memory while sending method call");
-        dbus_message_unref(msg);
+    msg = dbus_message_new_signal(path, iface, sig);
+    if (!msg) {
+        LOG_FATAL("Failed to create signal message");
         return -ENOMEM;
     }
 
-    dbus_connection_flush(conn);
-    dbus_message_unref(msg);
-
-    return 0;
+    return dbus_send_message(msg, cmd);
 }

@@ -62,6 +62,8 @@ int32_t dbus_fn_thread_handler();
 int32_t dbus_method_call(const char *destination, const char *path, \
                          const char *iface, const char *method, \
                          remote_cmd_t *cmd);
+int32_t dbus_emit_signal(const char *path, const char *iface, \
+                         const char *sig, remote_cmd_t *cmd);
 /**********************
  *  STATIC VARIABLES
  **********************/
