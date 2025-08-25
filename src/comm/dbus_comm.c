@@ -254,8 +254,8 @@ static int32_t dbus_event_handler(DBusConnection *conn)
             const char *member = dbus_message_get_member(msg);
 
             if (iface && member && \
-                strcmp(iface, UI_DBUS_IFACE) == 0 && \
-                strcmp(member, UI_DBUS_METH) == 0) {
+                strcmp(iface, SER_IFACE) == 0 && \
+                strcmp(member, SER_METH) == 0) {
                 ret = dispatch_cmd_from_message(msg);
                 if (ret < 0) {
                     LOG_ERROR("Dispatch failed: iface=%s, meth=%s",
@@ -282,8 +282,8 @@ static int32_t dbus_event_handler(DBusConnection *conn)
             const char *member = dbus_message_get_member(msg);
 
             if (iface && member && \
-                strcmp(iface, SYS_MGR_DBUS_IFACE) == 0 && \
-                strcmp(member, SYS_MGR_DBUS_SIG) == 0) {
+                strcmp(iface, SER_LISTEN_IFACE) == 0 && \
+                strcmp(member, SER_LISTEN_SIGNAL) == 0) {
                 ret = dispatch_cmd_from_message(msg);
                 if (ret < 0)
                     LOG_ERROR("Dispatch signal failed: %s.%s",
@@ -301,51 +301,64 @@ static int32_t dbus_event_handler(DBusConnection *conn)
     return 0;
 }
 
-static DBusConnection * setup_dbus()
+static int32_t set_dbus_signal_match_rule(DBusConnection *conn)
+{
+    int32_t ret = 0;
+    char *match_rule;
+
+    match_rule = calloc(256, sizeof(char));
+    if (!match_rule)
+        return -ENOMEM;
+
+    snprintf(match_rule, 256,
+             "type='signal',interface='%s',member='%s',path='%s'",
+             SER_LISTEN_IFACE, SER_LISTEN_SIGNAL, SER_LISTEN_OBJ_PATH);
+
+    ret = add_dbus_match_rule(conn, match_rule);
+    if (ret)
+        LOG_ERROR("Failed to add DBus match rule: %d", ret);
+
+    free(match_rule);
+    return ret;
+}
+
+static DBusConnection *setup_dbus()
 {
     DBusConnection *conn = NULL;
     DBusError err;
-    int32_t ret = 0;
+    int32_t ret;
 
     dbus_error_init(&err);
-    conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
+
+    conn = dbus_bus_get(SER_BUS_TYPE, &err);
     if (dbus_error_is_set(&err)) {
         LOG_ERROR("DBus connection Error: %s", err.message);
         dbus_error_free(&err);
     }
-
-    if (NULL == conn) {
+    if (!conn)
         return NULL;
-    }
 
     ret = dbus_bus_request_name(conn, \
-                                UI_DBUS_SER, \
+                                SER_NAME, \
                                 DBUS_NAME_FLAG_REPLACE_EXISTING, \
                                 &err);
     if (dbus_error_is_set(&err)) {
-        LOG_FATAL("Dbus request name error: %s", err.message);
+        LOG_FATAL("DBus request name error: %s", err.message);
         dbus_error_free(&err);
+        dbus_connection_unref(conn);
         return NULL;
     }
-
     if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
+        dbus_connection_unref(conn);
         return NULL;
     }
 
-    char* match_rule = (char*)calloc(256, sizeof(char));
-    if (!match_rule) {
-        LOG_ERROR("Failed to allocate memory");
-        return NULL;
-    }
-    sprintf(match_rule, "type='signal',interface='%s',member='%s',path='%s'",
-            SYS_MGR_DBUS_IFACE, SYS_MGR_DBUS_SIG, SYS_MGR_DBUS_OBJ_PATH);
-
-    ret = add_dbus_match_rule(conn, match_rule);
+    ret = set_dbus_signal_match_rule(conn);
     if (ret) {
+        LOG_ERROR("DBus add signal match rule Error: %d", ret);
+        dbus_connection_unref(conn);
         return NULL;
     }
-
-    free(match_rule);
 
     return conn;
 }

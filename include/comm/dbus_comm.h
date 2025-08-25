@@ -31,6 +31,16 @@
 #define UI_DBUS_METH                    "UIMeth"
 #define UI_DBUS_SIG                     "UISig"
 
+
+#define SER_BUS_TYPE                    DBUS_BUS_SYSTEM
+#define SER_NAME                        UI_DBUS_SER
+#define SER_IFACE                       UI_DBUS_IFACE
+#define SER_METH                        UI_DBUS_METH
+
+#define SER_LISTEN_IFACE                SYS_MGR_DBUS_IFACE
+#define SER_LISTEN_SIGNAL               SYS_MGR_DBUS_SIG
+#define SER_LISTEN_OBJ_PATH             SYS_MGR_DBUS_OBJ_PATH
+
 /**********************
  *      TYPEDEFS
  **********************/
