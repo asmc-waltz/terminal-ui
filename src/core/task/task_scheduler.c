@@ -104,7 +104,7 @@ static int32_t create_non_blocking_task(work_t *w)
         pthread_detach(thread_id);
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 static int32_t create_blocking_task(work_t *w)

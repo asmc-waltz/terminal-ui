@@ -364,14 +364,14 @@ static int32_t dbus_listener(DBusConnection *conn)
     dbus_connection_get_unix_fd(conn, &dbus_fd);
     if (dbus_fd < 0) {
         LOG_ERROR("Failed to get dbus fd");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     // Create epoll file desc
     epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
         LOG_ERROR("Failed to create epoll fd");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     ev.events = EPOLLIN;
@@ -381,7 +381,7 @@ static int32_t dbus_listener(DBusConnection *conn)
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, dbus_fd, &ev) == -1) {
         LOG_ERROR("Failed to add fd to epoll_ctl");
         close(epoll_fd);
-        return EXIT_FAILURE;
+        return -1;
     }
 
     // Add Event file desc
@@ -389,7 +389,7 @@ static int32_t dbus_listener(DBusConnection *conn)
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event_fd, &ev) == -1) {
         LOG_ERROR("Failed to add fd to epoll_ctl");
         close(epoll_fd);
-        return EXIT_FAILURE;
+        return -1;
     }
 
     LOG_INFO("System manager DBus communication is running...");
@@ -413,7 +413,7 @@ static int32_t dbus_listener(DBusConnection *conn)
     close(epoll_fd);
     LOG_INFO("The DBus handler thread exited successfully");
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 /**********************
@@ -452,7 +452,7 @@ int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
 
     dbus_connection_flush(conn);
     LOG_TRACE("Add match rule succeeded");
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int32_t dbus_fn_thread_handler()
@@ -463,12 +463,12 @@ int32_t dbus_fn_thread_handler()
     conn = setup_dbus();
     if (!conn) {
         LOG_FATAL("Unable to establish connection with DBus");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if (!set_dbus_conn(conn)) {
         LOG_FATAL("Unable to save connection with DBus");
-        return EXIT_FAILURE;
+        return -1;
     }
 
 

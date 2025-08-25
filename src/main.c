@@ -96,17 +96,17 @@ static int32_t setup_signal_handler()
 {
     if (signal(SIGINT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGINT handler");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if (signal(SIGTERM, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGTERM handler");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if (signal(SIGABRT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGABRT handler");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     return 0;
@@ -248,7 +248,7 @@ int32_t main(void) {
     cleanup_event_file();
 
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
-    return EXIT_SUCCESS;
+    return 0;
 
 exit_listener:
     event_set(event_fd, SIGUSR1);
@@ -259,5 +259,5 @@ exit_workqueue:
     cleanup_event_file();
 
 exit_error:
-    return EXIT_FAILURE;
+    return -1;
 }

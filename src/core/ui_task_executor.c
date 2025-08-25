@@ -99,12 +99,12 @@ int32_t create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode
     work_t *work = create_work(LOCAL, flow, duration, opcode, NULL);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     push_work(work);
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int32_t create_remote_task(uint8_t flow, void *data)
@@ -114,10 +114,10 @@ int32_t create_remote_task(uint8_t flow, void *data)
     work = create_work(REMOTE, flow, SHORT, OP_DBUS_SENT_CMD_DATA, data);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     push_work(work);
 
-    return EXIT_SUCCESS;
+    return 0;
 }
