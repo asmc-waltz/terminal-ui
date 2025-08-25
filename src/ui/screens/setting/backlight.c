@@ -18,7 +18,7 @@
 #include <errno.h>
 
 #include <lvgl.h>
-#include <ui/gmisc.h>
+#include <ui/ui_plat.h>
 #include <ui/fonts.h>
 #include <ui/style.h>
 #include <comm/dbus_comm.h>

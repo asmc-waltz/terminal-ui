@@ -13,7 +13,7 @@
 #include <log.h>
 
 #include <lvgl.h>
-#include <ui/gmisc.h>
+#include <ui/ui_plat.h>
 
 /*********************
  *      DEFINES

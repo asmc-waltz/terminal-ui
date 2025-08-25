@@ -14,7 +14,7 @@
 
 #include <lvgl.h>
 #include <ui/screens.h>
-#include <ui/gmisc.h>
+#include <ui/ui_plat.h>
 #include <ui/style.h>
 
 /*********************

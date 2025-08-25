@@ -26,7 +26,7 @@
 #include <ui/fonts.h>
 #include <ui/style.h>
 #include <ui/layers.h>
-#include <ui/gmisc.h>
+#include <ui/ui_plat.h>
 #include <ui/style.h>
 #include <ui/screens.h>
 #include <comm/cmd_payload.h>

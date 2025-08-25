@@ -17,7 +17,7 @@
 
 #include <lvgl.h>
 #include <list.h>
-#include <ui/gmisc.h>
+#include <ui/ui_plat.h>
 
 /*********************
  *      DEFINES

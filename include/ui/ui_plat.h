@@ -1,10 +1,10 @@
 /**
- * @file gmisc.h
+ * @file ui_plat.h
  *
  */
 
-#ifndef G_GMISC_H
-#define G_GMISC_H
+#ifndef G_UI_PLAT_H
+#define G_UI_PLAT_H
 /*********************
  *      INCLUDES
  *********************/
@@ -175,4 +175,4 @@ void gf_show_keyboard();
  *      MACROS
  **********************/
 
-#endif /* G_GMISC_H */
+#endif /* G_UI_PLAT_H */
