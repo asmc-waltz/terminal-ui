@@ -9,7 +9,6 @@
  *      INCLUDES
  *********************/
 #include <stdint.h>
-#include <stdbool.h>
 #include <dbus/dbus.h>
 
 #include <comm/cmd_payload.h>

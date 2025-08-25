@@ -22,7 +22,6 @@
 #include <signal.h>
 #include <sys/eventfd.h>
 #include <inttypes.h>
-#include <stdbool.h>
 #include <dbus/dbus.h>
 
 #include <comm/dbus_comm.h>

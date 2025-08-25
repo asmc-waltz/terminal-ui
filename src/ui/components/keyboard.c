@@ -12,6 +12,8 @@
 #endif
 #include <log.h>
 
+#include <stdbool.h>
+
 #include <lvgl.h>
 #include <ui/ui_plat.h>
 #include <ui/fonts.h>
