@@ -1,3 +1,17 @@
+/**
+ * @file workqueue.c
+ *
+ */
+
+/*********************
+ *      INCLUDES
+ *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <stdint.h>
 #include <pthread.h>
 #include <signal.h>
@@ -6,10 +20,27 @@
 
 #include <workqueue.h>
 #include <task.h>
-#include <log.h>
 
+/*********************
+ *      DEFINES
+ *********************/
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
 extern volatile sig_atomic_t g_run;
 
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+
+/**********************
+ *  STATIC VARIABLES
+ **********************/
 static workqueue_t g_wqueue = {
     .head = NULL,
     .tail = NULL,
@@ -17,6 +48,17 @@ static workqueue_t g_wqueue = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
+/**********************
+ *      MACROS
+ **********************/
+
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
 work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, \
                     uint32_t opcode, void *data)
 {

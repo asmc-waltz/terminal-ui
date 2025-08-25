@@ -1,3 +1,17 @@
+/**
+ * @file ui_task_executor.c
+ *
+ */
+
+/*********************
+ *      INCLUDES
+ *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -6,11 +20,41 @@
 
 #include <workqueue.h>
 #include <task.h>
-#include <log.h>
 
-int process_opcode_endless(uint32_t opcode, void *data)
+/*********************
+ *      DEFINES
+ *********************/
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
+
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+
+/**********************
+ *  STATIC VARIABLES
+ **********************/
+
+/**********************
+ *      MACROS
+ **********************/
+
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t process_opcode_endless(uint32_t opcode, void *data)
 {
-    int rc = 0;
+    int32_t rc = 0;
 
     switch (opcode) {
     case OP_START_DBUS:
@@ -26,9 +70,9 @@ int process_opcode_endless(uint32_t opcode, void *data)
     return rc;
 }
 
-int process_opcode(uint32_t opcode, void *data)
+int32_t process_opcode(uint32_t opcode, void *data)
 {
-    int rc = 0;
+    int32_t rc = 0;
 
     switch (opcode) {
     case OP_DBUS_SENT_CMD_DATA:
@@ -50,7 +94,7 @@ int process_opcode(uint32_t opcode, void *data)
     return rc;
 }
 
-int create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode)
+int32_t create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode)
 {
     work_t *work = create_work(LOCAL, flow, duration, opcode, NULL);
     if (!work) {

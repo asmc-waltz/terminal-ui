@@ -1,3 +1,17 @@
+/**
+ * @file task_scheduler.c
+ *
+ */
+
+/*********************
+ *      INCLUDES
+ *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <signal.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,62 +24,37 @@
 
 #include <workqueue.h>
 #include <task.h>
-#include <log.h>
 
+/*********************
+ *      DEFINES
+ *********************/
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
 extern volatile sig_atomic_t g_run;
 
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+
+/**********************
+ *  STATIC VARIABLES
+ **********************/
 static atomic_int g_endless_task_cnt;
 static atomic_int g_normal_task_cnt;
 
-/* Normal task counter */
-void normal_task_cnt_reset(void)
-{
-    atomic_store(&g_normal_task_cnt, 0);
-}
+/**********************
+ *      MACROS
+ **********************/
 
-void normal_task_cnt_inc(void)
-{
-    atomic_fetch_add(&g_normal_task_cnt, 1);
-}
-
-void normal_task_cnt_dec(void)
-{
-    atomic_fetch_sub(&g_normal_task_cnt, 1);
-}
-
-int32_t normal_task_cnt_get(void)
-{
-    int32_t val;
-
-    val = atomic_load(&g_normal_task_cnt);
-    return val;
-}
-
-/* Endless task counter */
-
-void endless_task_cnt_reset(void)
-{
-    atomic_store(&g_endless_task_cnt, 0);
-}
-
-void endless_task_cnt_inc(void)
-{
-    atomic_fetch_add(&g_endless_task_cnt, 1);
-}
-
-void endless_task_cnt_dec(void)
-{
-    atomic_fetch_sub(&g_endless_task_cnt, 1);
-}
-
-int32_t endless_task_cnt_get(void)
-{
-    int32_t val;
-
-    val = atomic_load(&g_endless_task_cnt);
-    return val;
-}
-
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
 /*
  * The non-blocking task will be started by the task handler and run in the
  * background. Depending on the type of work, it could have a short, long,
@@ -75,7 +64,7 @@ int32_t endless_task_cnt_get(void)
 static void *non_blocking_task_thread(void *arg)
 {
     work_t *w = (work_t *)arg;
-    int rc = 0;
+    int32_t rc = 0;
 
     LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
               w->type, w->flow, w->duration, w->opcode);
@@ -101,10 +90,10 @@ static void *non_blocking_task_thread(void *arg)
     delete_work(w);
 }
 
-static int create_non_blocking_task(work_t *w)
+static int32_t create_non_blocking_task(work_t *w)
 {
     pthread_t thread_id;
-    int ret;
+    int32_t ret;
 
     ret = pthread_create(&thread_id, NULL, non_blocking_task_thread, w);
     if (ret) {
@@ -117,9 +106,9 @@ static int create_non_blocking_task(work_t *w)
     return EXIT_SUCCESS;
 }
 
-static int create_blocking_task(work_t *w)
+static int32_t create_blocking_task(work_t *w)
 {
-    int rc = 0;
+    int32_t rc = 0;
 
     LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
               w->type, w->flow, w->duration, w->opcode);
@@ -136,6 +125,57 @@ static int create_blocking_task(work_t *w)
     normal_task_cnt_dec();
 
     return rc;
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+/* Normal task counter */
+void normal_task_cnt_reset(void)
+{
+    atomic_store(&g_normal_task_cnt, 0);
+}
+
+void normal_task_cnt_inc(void)
+{
+    atomic_fetch_add(&g_normal_task_cnt, 1);
+}
+
+void normal_task_cnt_dec(void)
+{
+    atomic_fetch_sub(&g_normal_task_cnt, 1);
+}
+
+int32_t normal_task_cnt_get(void)
+{
+    int32_t val;
+
+    val = atomic_load(&g_normal_task_cnt);
+    return val;
+}
+
+/* Endless task counter */
+void endless_task_cnt_reset(void)
+{
+    atomic_store(&g_endless_task_cnt, 0);
+}
+
+void endless_task_cnt_inc(void)
+{
+    atomic_fetch_add(&g_endless_task_cnt, 1);
+}
+
+void endless_task_cnt_dec(void)
+{
+    atomic_fetch_sub(&g_endless_task_cnt, 1);
+}
+
+int32_t endless_task_cnt_get(void)
+{
+    int32_t val;
+
+    val = atomic_load(&g_endless_task_cnt);
+    return val;
 }
 
 bool is_task_handler_idle()
@@ -164,7 +204,7 @@ bool is_task_handler_idle()
 void *main_task_handler(void* arg)
 {
     work_t *w = NULL;
-    int rc = 0;
+    int32_t rc = 0;
 
     normal_task_cnt_reset();
     endless_task_cnt_reset();
