@@ -96,18 +96,18 @@ void gf_hide_control_center(void)
 
 void scroll_down_anim(lv_obj_t *obj, lv_coord_t distance, uint32_t duration_ms)
 {
-	lv_anim_t a;
+    lv_anim_t a;
     static lv_coord_t previous_y = 0;
 
-	lv_coord_t start_y = 0;
-	lv_coord_t end_y = 0;
+    lv_coord_t start_y = 0;
+    lv_coord_t end_y = 0;
 
 
 
-	lv_anim_init(&a);
-	lv_anim_set_var(&a, obj);
-	lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
-	lv_anim_set_time(&a, duration_ms);
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, obj);
+    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+    lv_anim_set_time(&a, duration_ms);
 
     lv_coord_t obj_height = lv_obj_get_height(obj);
     // lv_coord_t obj_width = lv_obj_get_width(obj);
@@ -131,10 +131,10 @@ void scroll_down_anim(lv_obj_t *obj, lv_coord_t distance, uint32_t duration_ms)
 
 
 
-	// lv_coord_t start_y = lv_obj_get_y(obj);
-	// lv_coord_t end_y = start_y + distance;
+    // lv_coord_t start_y = lv_obj_get_y(obj);
+    // lv_coord_t end_y = start_y + distance;
 
-	// lv_anim_set_values(&a, lv_obj_get_y(obj), lv_obj_get_y(obj) - distance);
+    // lv_anim_set_values(&a, lv_obj_get_y(obj), lv_obj_get_y(obj) - distance);
     // lv_anim_set_values(&a, start_y, end_y);
     // lv_anim_set_values(&a, -obj_height, -obj_height + distance);
     if (previous_y == 0) {
@@ -142,7 +142,7 @@ void scroll_down_anim(lv_obj_t *obj, lv_coord_t distance, uint32_t duration_ms)
     } else {
         lv_anim_set_values(&a, start_y, end_y);
     }
-	lv_anim_start(&a);
+    lv_anim_start(&a);
 }
 
 void gf_show_control_center(lv_coord_t cur_y)

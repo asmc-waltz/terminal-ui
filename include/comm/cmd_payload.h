@@ -130,7 +130,7 @@ void delete_local_cmd(local_cmd_t *cmd);
 void remote_cmd_init(remote_cmd_t *cmd, const char *component_id, \
                      int32_t topic_id, int32_t opcode);
 int32_t remote_cmd_add_string(remote_cmd_t *cmd, const char *key, \
-			  const char *value);
+              const char *value);
 int32_t remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value);
 
 int32_t send_remote_cmd(remote_cmd_t *cmd);

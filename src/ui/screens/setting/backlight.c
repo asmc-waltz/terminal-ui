@@ -59,7 +59,7 @@ static int32_t create_set_brightness_cmd(int32_t value)
 
     cmd = create_remote_cmd();
     if (!cmd) {
-		return -ENOMEM;
+        return -ENOMEM;
     }
 
     remote_cmd_init(cmd, "terminal-ui", 1001, OP_SET_BRIGHTNESS);
