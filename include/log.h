@@ -18,9 +18,14 @@
 #define LOG_LEVEL_DEBUG   5
 #define LOG_LEVEL_TRACE   6
 
-// Set current log level here
+/* Global default log level */
+#ifndef GLOBAL_LOG_LEVEL
+#define GLOBAL_LOG_LEVEL LOG_LEVEL_INFO
+#endif
+
+/* Per-file log level override: uses global level if not defined by the file */
 #ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_LEVEL_DEBUG
+#define LOG_LEVEL GLOBAL_LOG_LEVEL
 #endif
 
 // Color macros for terminal output (optional)
