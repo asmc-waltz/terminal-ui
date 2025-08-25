@@ -19,7 +19,6 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
-#include <terminal-ui.h>
 #include <dbus_comm.h>
 
 #include <workqueue.h>

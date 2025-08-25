@@ -1,3 +1,17 @@
+/**
+ * @file main.c
+ *
+ */
+
+/*********************
+ *      INCLUDES
+ *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -15,22 +29,47 @@
 #include <gmisc.h>
 #include <style.h>
 #include <screens.h>
-#include <terminal-ui.h>
 #include <cmd_payload.h>
 
 #include <workqueue.h>
 #include <task.h>
-#include <log.h>
 
+/*********************
+ *      DEFINES
+ *********************/
+#define UI_LVGL_TIMER_MS                5
+#define UI_SCR_WIDTH                    1024
+#define UI_SCR_HEIGHT                   600
 
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
 g_app_data *global_data = NULL;
-static lv_display_t *drm_disp = NULL;
-static lv_indev_t *touch_scr = NULL;
-
 extern int32_t event_fd;
 volatile sig_atomic_t g_run = 1;
 
-void sig_handler(int sig) {
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+
+/**********************
+ *  STATIC VARIABLES
+ **********************/
+static lv_display_t *drm_disp = NULL;
+static lv_indev_t *touch_scr = NULL;
+
+/**********************
+ *      MACROS
+ **********************/
+
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
+static void sig_handler(int32_t sig) {
     switch (sig) {
         case SIGINT:
             LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
@@ -51,7 +90,7 @@ void sig_handler(int sig) {
     }
 }
 
-int setup_signal_handler()
+static int32_t setup_signal_handler()
 {
     if (signal(SIGINT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGINT handler");
@@ -71,7 +110,7 @@ int setup_signal_handler()
     return 0;
 }
 
-static int sf_init_drm_display() {
+static int32_t sf_init_drm_display() {
     drm_disp = lv_linux_drm_create();
     if (drm_disp == NULL) {
         LOG_FATAL("Failed to initialize the display.\n");
@@ -83,7 +122,7 @@ static int sf_init_drm_display() {
     return 0;
 }
 
-static int sf_init_touch_screen() {
+static int32_t sf_init_touch_screen() {
     touch_scr = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event1");
     if (touch_scr == NULL) {
         LOG_FATAL("Failed to initialize touch input device");
@@ -93,7 +132,7 @@ static int sf_init_touch_screen() {
     return 0;
 }
 
-void gtimer_handler(lv_timer_t * timer)
+static void gtimer_handler(lv_timer_t * timer)
 {
     lv_tick_inc(UI_LVGL_TIMER_MS);
 }
@@ -111,7 +150,7 @@ static void sf_create_common_components(void)
     gf_create_system_status(lv_layer_top());
 }
 
-int main_loop()
+static int32_t main_loop()
 {
     uint32_t cnt = 0;
 
@@ -129,10 +168,13 @@ int main_loop()
     return 0;
 }
 
-int main(void) {
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t main(void) {
     pthread_t task_handler;
     lv_timer_t *task_timer = NULL;
-    int ret = 0;
+    int32_t ret = 0;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
     if (setup_signal_handler()) {
