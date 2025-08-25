@@ -142,7 +142,8 @@ static int32_t decode_data_frame(DBusMessage *msg, remote_cmd_t *out)
     dbus_message_iter_recurse(&iter, &array_iter);
 
     int32_t i = 0;
-    while (dbus_message_iter_get_arg_type(&array_iter) == DBUS_TYPE_STRUCT && i < MAX_ENTRIES) {
+    while (dbus_message_iter_get_arg_type(&array_iter) == DBUS_TYPE_STRUCT && \
+           i < MAX_ENTRIES) {
         payload_t *entry = &out->entries[i];
         dbus_message_iter_recurse(&array_iter, &struct_iter);
 
@@ -231,16 +232,13 @@ static int32_t dispatch_cmd_from_message(DBusMessage *msg)
     return 0;
 }
 
-static int32_t dbus_event_handler(DBusConnection *conn)
+static int32_t dbus_connection_event_handler(DBusConnection *conn)
 {
-    DBusMessage *msg;
-    DBusMessage *reply;
+    DBusMessage *msg = NULL;
+    DBusMessage *reply = NULL;
     DBusMessageIter args;
     const char *reply_str = "Method reply OK";
     int32_t ret;
-
-    msg = NULL;
-    reply = NULL;
 
     while (dbus_connection_read_write_dispatch(conn, 0)) {
         msg = dbus_connection_pop_message(conn);
@@ -253,22 +251,19 @@ static int32_t dbus_event_handler(DBusConnection *conn)
             const char *iface = dbus_message_get_interface(msg);
             const char *member = dbus_message_get_member(msg);
 
-            if (iface && member && \
-                strcmp(iface, SER_IFACE) == 0 && \
+            if (iface && member && strcmp(iface, SER_IFACE) == 0 && \
                 strcmp(member, SER_METH) == 0) {
                 ret = dispatch_cmd_from_message(msg);
                 if (ret < 0) {
-                    LOG_ERROR("Dispatch failed: iface=%s, meth=%s",
-                          iface, member);
-                    reply = dbus_message_new_error(msg,
-                                       DBUS_ERROR_FAILED,
-                                       "Dispatch failed");
+                    LOG_ERROR("Dispatch failed: iface=%s, meth=%s", iface, \
+                              member);
+                    reply = dbus_message_new_error(msg, DBUS_ERROR_FAILED, \
+                                                   "Dispatch failed");
                 } else {
                     reply = dbus_message_new_method_return(msg);
                     dbus_message_iter_init_append(reply, &args);
-                    dbus_message_iter_append_basic(&args,
-                                       DBUS_TYPE_STRING,
-                                       &reply_str);
+                    dbus_message_iter_append_basic(&args, DBUS_TYPE_STRING, \
+                                                   &reply_str);
                 }
 
                 if (reply) {
@@ -276,13 +271,11 @@ static int32_t dbus_event_handler(DBusConnection *conn)
                     dbus_message_unref(reply);
                 }
             }
-
         } else if (dbus_message_get_type(msg) == DBUS_MESSAGE_TYPE_SIGNAL) {
             const char *iface = dbus_message_get_interface(msg);
             const char *member = dbus_message_get_member(msg);
 
-            if (iface && member && \
-                strcmp(iface, SER_LISTEN_IFACE) == 0 && \
+            if (iface && member && strcmp(iface, SER_LISTEN_IFACE) == 0 && \
                 strcmp(member, SER_LISTEN_SIGNAL) == 0) {
                 ret = dispatch_cmd_from_message(msg);
                 if (ret < 0)
@@ -292,7 +285,6 @@ static int32_t dbus_event_handler(DBusConnection *conn)
         } else if (dbus_message_get_type(msg) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
             LOG_TRACE("Dbus method return is detected");
         }
-
 
         dbus_message_unref(msg);
         break;
@@ -322,7 +314,7 @@ static int32_t set_dbus_signal_match_rule(DBusConnection *conn)
     return ret;
 }
 
-static DBusConnection *setup_dbus()
+static DBusConnection *setup_dbus_connection()
 {
     DBusConnection *conn = NULL;
     DBusError err;
@@ -353,13 +345,6 @@ static DBusConnection *setup_dbus()
         return NULL;
     }
 
-    ret = set_dbus_signal_match_rule(conn);
-    if (ret) {
-        LOG_ERROR("DBus add signal match rule Error: %d", ret);
-        dbus_connection_unref(conn);
-        return NULL;
-    }
-
     return conn;
 }
 
@@ -372,18 +357,23 @@ static int32_t dbus_listener(DBusConnection *conn)
     int32_t n_ready;
     int32_t ready_fd;
 
+    if (!conn) {
+        LOG_ERROR("Invalid DBus connection");
+        return -EINVAL; /* Invalid argument */
+    }
+
     // Get DBus file desc
     dbus_connection_get_unix_fd(conn, &dbus_fd);
     if (dbus_fd < 0) {
         LOG_ERROR("Failed to get dbus fd");
-        return -1;
+        return -EBADF; /* Bad file descriptor */
     }
 
     // Create epoll file desc
     epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
-        LOG_ERROR("Failed to create epoll fd");
-        return -1;
+        LOG_ERROR("Failed to create epoll fd: %s", strerror(errno));
+        return -errno;
     }
 
     ev.events = EPOLLIN;
@@ -391,27 +381,37 @@ static int32_t dbus_listener(DBusConnection *conn)
     // Add DBus file desc
     ev.data.fd = dbus_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, dbus_fd, &ev) == -1) {
-        LOG_ERROR("Failed to add fd to epoll_ctl");
+        LOG_ERROR("Failed to add DBus fd to epoll: %s", strerror(errno));
         close(epoll_fd);
-        return -1;
+        return -errno;
     }
 
     // Add Event file desc
     ev.data.fd = event_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event_fd, &ev) == -1) {
-        LOG_ERROR("Failed to add fd to epoll_ctl");
+        LOG_ERROR("Failed to add event fd to epoll: %s", strerror(errno));
         close(epoll_fd);
-        return -1;
+        return -errno;
     }
 
     LOG_INFO("System manager DBus communication is running...");
     while (g_run) {
         LOG_TRACE("[DBus]--> Waiting for next DBus message...");
         n_ready = epoll_wait(epoll_fd, events_detected, MAX_EVENTS, -1);
+        if (n_ready == -1) {
+            if (errno == EINTR) {
+                LOG_WARN("epoll_wait interrupted, continuing...");
+                continue;
+            }
+            LOG_ERROR("epoll_wait failed: %s", strerror(errno));
+            close(epoll_fd);
+            return -errno;
+        }
+
         for (int32_t cnt = 0; cnt < n_ready; cnt++) {
             ready_fd = events_detected[cnt].data.fd;
             if (ready_fd == dbus_fd) {
-                dbus_event_handler(conn);
+                dbus_connection_event_handler(conn);
             } else if (ready_fd == event_fd) {
                 uint64_t event_id = 0;
                 if (!event_get(event_fd, &event_id)) {
@@ -431,26 +431,26 @@ static int32_t dbus_listener(DBusConnection *conn)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-DBusConnection *get_dbus_conn()
+DBusConnection *get_dbus_connection()
 {
     return dbus_conn;
 }
 
-bool set_dbus_conn(DBusConnection *ptr)
+int32_t set_dbus_connection(DBusConnection *conn)
 {
-    if (!ptr) {
-        return false;
+    if (!conn) {
+        return -1;
     }
 
-    dbus_conn = ptr;
-    return true;
+    dbus_conn = conn;
+    return 0;
 }
 
 int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
 {
     DBusError err;
     if (NULL == conn) {
-        return EINVAL;
+        return -EINVAL;
     }
 
     LOG_INFO("Adds a match rule: [%s]", rule);
@@ -459,7 +459,7 @@ int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
     if (dbus_error_is_set(&err)) {
         LOG_ERROR("Add failed (error: %s)", err.message);
         dbus_error_free(&err);
-        return EINVAL;
+        return -EINVAL;
     }
 
     dbus_connection_flush(conn);
@@ -472,26 +472,33 @@ int32_t dbus_fn_thread_handler()
     DBusConnection *conn;
     int32_t ret;
 
-    conn = setup_dbus();
+    conn = setup_dbus_connection();
     if (!conn) {
         LOG_FATAL("Unable to establish connection with DBus");
-        return -1;
+        return -EIO;
     }
 
-    if (!set_dbus_conn(conn)) {
-        LOG_FATAL("Unable to save connection with DBus");
-        return -1;
+    ret = set_dbus_signal_match_rule(conn);
+    if (ret) {
+        LOG_ERROR("DBus add signal match rule Error: %d", ret);
+        return ret;
     }
 
+    ret = set_dbus_connection(conn);
+    if (ret) {
+        LOG_FATAL("Unable to save connection with DBus: %d", ret);
+        return ret;
+    }
 
     // This thread processes DBus messages
     ret = dbus_listener(conn);
     if (ret) {
         LOG_FATAL("Failed to create DBus listener");
+        return ret;
     }
 
     dbus_connection_unref(conn);
-    return ret;
+    return 0;
 }
 
 static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
@@ -501,7 +508,7 @@ static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
     if (!msg || !cmd)
         return -EINVAL;
 
-    conn = get_dbus_conn();
+    conn = get_dbus_connection();
     if (!conn) {
         LOG_ERROR("Failed to get dbus connection");
         return -EIO;
