@@ -52,20 +52,20 @@ int32_t event_fd;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void event_set(int evfd, uint64_t code)
+void event_set(int32_t evfd, uint64_t code)
 {
     uint64_t val = code;
     write(evfd, &val, sizeof(val));
 }
 
-uint64_t event_get(int evfd)
+uint64_t event_get(int32_t evfd)
 {
     uint64_t val;
     read(evfd, &val, sizeof(uint64_t));
     return val;
 }
 
-int init_event_file()
+int32_t init_event_file()
 {
     event_fd = eventfd(0, EFD_NONBLOCK);
     if (event_fd == -1) {

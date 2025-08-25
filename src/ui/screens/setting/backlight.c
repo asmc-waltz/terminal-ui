@@ -84,7 +84,7 @@ out:
 static void sf_backlight_slider_event_cb(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
-    int brightness_percent = (int)lv_slider_get_value(slider);
+    int32_t brightness_percent = (int)lv_slider_get_value(slider);
     int32_t ret;
 
     // TODO: workaround when backlight cannot be set to zero from kernel

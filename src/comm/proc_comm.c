@@ -48,11 +48,11 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int cmd_executor(char *cmd, bool interact, char *input, char *output)
+int32_t cmd_executor(char *cmd, bool interact, char *input, char *output)
 {
     FILE *pfd;
-    int ch;
-    int cnt = 0;
+    int32_t ch;
+    int32_t cnt = 0;
 
     if (!interact) {
         pfd = popen(cmd, "r");
@@ -75,12 +75,12 @@ int cmd_executor(char *cmd, bool interact, char *input, char *output)
     return cnt;
 }
 
-int exec_cmd_with_interact(char *cmd, char *input)
+int32_t exec_cmd_with_interact(char *cmd, char *input)
 {
     return cmd_executor(cmd, true, input, NULL);
 }
 
-int exec_cmd_get_output(char *cmd, char *output)
+int32_t exec_cmd_get_output(char *cmd, char *output)
 {
     return cmd_executor(cmd, false, NULL, output);
 }
