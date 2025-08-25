@@ -6,6 +6,12 @@
 /*********************
  *      INCLUDES
  *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +21,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <log.h>
 #include <sys_comm.h>
 
 /*********************

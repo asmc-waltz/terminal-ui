@@ -16,7 +16,6 @@
 
 #include <workqueue.h>
 #include <task.h>
-#include <log.h>
 
 /*********************
  *      DEFINES

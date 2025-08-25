@@ -6,14 +6,18 @@
 /*********************
  *      INCLUDES
  *********************/
+// #define LOG_LEVEL LOG_LEVEL_TRACE
+#if defined(LOG_LEVEL)
+#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#endif
+#include <log.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
 #include <dbus_comm.h>
 #include <cmd_payload.h>
-
-#include <log.h>
 
 /*********************
  *      DEFINES
