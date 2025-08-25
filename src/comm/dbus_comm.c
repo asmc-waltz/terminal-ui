@@ -454,7 +454,7 @@ int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
 int32_t dbus_fn_thread_handler()
 {
     DBusConnection *conn;
-    int32_t rc;
+    int32_t ret;
 
     conn = setup_dbus();
     if (!conn) {
@@ -469,13 +469,13 @@ int32_t dbus_fn_thread_handler()
 
 
     // This thread processes DBus messages
-    rc = dbus_listener(conn);
-    if (rc) {
+    ret = dbus_listener(conn);
+    if (ret) {
         LOG_FATAL("Failed to create DBus listener");
     }
 
     dbus_connection_unref(conn);
-    return rc;
+    return ret;
 }
 
 /*

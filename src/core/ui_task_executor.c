@@ -54,11 +54,11 @@
  **********************/
 int32_t process_opcode_endless(uint32_t opcode, void *data)
 {
-    int32_t rc = 0;
+    int32_t ret = 0;
 
     switch (opcode) {
     case OP_START_DBUS:
-        rc = dbus_fn_thread_handler();
+        ret = dbus_fn_thread_handler();
         break;
     case OP_START_IMU:
         break;
@@ -67,16 +67,16 @@ int32_t process_opcode_endless(uint32_t opcode, void *data)
         break;
     }
 
-    return rc;
+    return ret;
 }
 
 int32_t process_opcode(uint32_t opcode, void *data)
 {
-    int32_t rc = 0;
+    int32_t ret = 0;
 
     switch (opcode) {
     case OP_DBUS_SENT_CMD_DATA:
-        rc = send_remote_cmd((remote_cmd_t *)data);
+        ret = send_remote_cmd((remote_cmd_t *)data);
         break;
     case OP_LEFT_VIBRATOR:
         break;
@@ -91,7 +91,7 @@ int32_t process_opcode(uint32_t opcode, void *data)
         break;
     }
 
-    return rc;
+    return ret;
 }
 
 int32_t create_local_simple_task(uint8_t flow, uint8_t duration, uint32_t opcode)
