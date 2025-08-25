@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -53,7 +53,7 @@
  *   STATIC FUNCTIONS
  **********************/
 static lv_obj_t * sf_create_main_setting_icon(lv_obj_t *par, uint32_t bg_color, \
-                                              uint32_t symbol)
+                                              const char *symbol)
 {
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;
@@ -234,7 +234,7 @@ static lv_obj_t * sf_create_sub_setting_title(lv_obj_t *par, char *text, uint32_
     return lbl;
 }
 
-static void sf_update_sub_setting_title(char *text)
+static void sf_update_sub_setting_title(const char *text)
 {
     lv_obj_t *lv_obj = gf_get_obj(ID_SETTING_SUB_TITLE, NULL);
     lv_label_set_text_fmt(lv_obj, "%s", text);

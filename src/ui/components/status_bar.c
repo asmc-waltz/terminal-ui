@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -18,6 +18,7 @@
 #include <gmisc.h>
 #include <fonts.h>
 #include <style.h>
+#include <screens.h>
 
 /*********************
  *      DEFINES
@@ -46,7 +47,8 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static lv_obj_t * sf_create_status_icon(lv_obj_t *par, uint32_t symbol, uint32_t id)
+static lv_obj_t * sf_create_status_icon(lv_obj_t *par, const char *symbol, \
+                                        uint32_t id)
 {
     lv_obj_t *lbl = lv_label_create(par);
 

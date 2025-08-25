@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -86,7 +86,8 @@ lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_co
     return icon_bg;
 }
 
-lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index)
+lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, \
+                            const char *index)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);
@@ -96,7 +97,8 @@ lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t in
     return symbol;
 }
 
-lv_obj_t * gf_create_interact_symbol(lv_obj_t *par, uint32_t id, lv_style_t *symbol_style, uint32_t index)
+lv_obj_t * gf_create_interact_symbol(lv_obj_t *par, uint32_t id, \
+                                     lv_style_t *symbol_style, const char *index)
 {
     LV_ASSERT_NULL(par);
     lv_obj_t *symbol = lv_label_create(par);

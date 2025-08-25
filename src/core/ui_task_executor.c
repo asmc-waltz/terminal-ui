@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -63,7 +63,7 @@ int32_t process_opcode_endless(uint32_t opcode, void *data)
     case OP_START_IMU:
         break;
     default:
-        LOG_ERROR("Opcode [%d] is invalid");
+        LOG_ERROR("Opcode [%d] is invalid", opcode);
         break;
     }
 
@@ -87,7 +87,7 @@ int32_t process_opcode(uint32_t opcode, void *data)
     case OP_READ_IMU:
         break;
     default:
-        LOG_ERROR("Opcode [%d] is invalid");
+        LOG_ERROR("Opcode [%d] is invalid", opcode);
         break;
     }
 

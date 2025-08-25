@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -18,6 +18,7 @@
 #include <gmisc.h>
 #include <fonts.h>
 #include <style.h>
+#include <screens.h>
 
 /*********************
  *      DEFINES
@@ -70,8 +71,8 @@ static void app_handler(lv_event_t *event)
     }
 }
 
-static lv_obj_t * sf_create_app_icon(lv_obj_t *par, uint32_t id, uint32_t bg_color, \
-                            uint32_t symbol)
+static lv_obj_t * sf_create_app_icon(lv_obj_t *par, uint32_t id, \
+                                     uint32_t bg_color, const char *symbol)
 {
     LV_ASSERT_NULL(par);
     lv_style_t *p_style = NULL;

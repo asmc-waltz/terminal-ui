@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -17,6 +17,7 @@
 #include <lvgl.h>
 #include <gmisc.h>
 #include <style.h>
+#include <screens.h>
 
 /*********************
  *      DEFINES

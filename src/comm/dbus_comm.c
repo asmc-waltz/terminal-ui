@@ -8,13 +8,14 @@
  *********************/
 #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/epoll.h>
@@ -25,6 +26,7 @@
 #include <dbus/dbus.h>
 
 #include <dbus_comm.h>
+#include <sys_comm.h>
 #include <cmd_payload.h>
 
 #include <workqueue.h>
@@ -392,7 +394,7 @@ static int32_t dbus_listener(DBusConnection *conn)
 
     LOG_INFO("System manager DBus communication is running...");
     while (g_run) {
-        LOG_DEBUG("[DBus]--> Waiting for next DBus message...");
+        LOG_TRACE("[DBus]--> Waiting for next DBus message...");
         n_ready = epoll_wait(epoll_fd, events_detected, MAX_EVENTS, -1);
         for (int32_t cnt = 0; cnt < n_ready; cnt++) {
             ready_fd = events_detected[cnt].data.fd;

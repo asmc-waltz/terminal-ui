@@ -147,7 +147,8 @@ lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h);
 
 lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);
 lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color);
-lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, uint32_t index);
+lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, \
+                            const char *index);
 
 void gf_refresh_all_layer(void);
 

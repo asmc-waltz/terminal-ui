@@ -8,7 +8,7 @@
  *********************/
 // #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
-#warning "LOG_LEVEL=" TOSTRING(LOG_LEVEL) ", will take precedence in this file."
+#warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
 #include <log.h>
 
@@ -143,7 +143,7 @@ char *gf_fs_read_file(const char *path, size_t *out_len)
     buf[size] = '\0';
     *out_len = size;
 
-    LOG_INFO("read from %s, len=%zu", path, size);
+    LOG_INFO("read from %s, len=%lld", path, (long long)size);
     LOG_DEBUG("content:\n%.*s", (int)size, buf);
 
     close(fd);
