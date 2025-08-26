@@ -195,7 +195,7 @@ static int32_t dispatch_cmd_from_message(DBusMessage *msg)
         return -ENOMEM;
     }
 
-    if (!decode_data_frame(msg, cmd)) {
+    if (decode_data_frame(msg, cmd)) {
         LOG_ERROR("Failed to decode DBus message");
         delete_remote_cmd(cmd);
         return -EINVAL;
