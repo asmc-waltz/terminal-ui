@@ -30,7 +30,7 @@
 #include <ui/style.h>
 #include <ui/screens.h>
 #include <comm/cmd_payload.h>
-#include <comm/sys_comm.h>
+#include <comm/f_comm.h>
 #include <sched/workqueue.h>
 #include <sched/task.h>
 

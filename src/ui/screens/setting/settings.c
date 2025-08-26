@@ -19,7 +19,6 @@
 #include <ui/ui_plat.h>
 #include <ui/fonts.h>
 #include <ui/style.h>
-#include <comm/sys_comm.h>
 #include <comm/cmd_payload.h>
 #include <sched/workqueue.h>
 #include <sched/task.h>

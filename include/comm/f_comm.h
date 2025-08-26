@@ -1,14 +1,36 @@
 /**
- * @file sys_comm.h
+ * @file f_comm.h
  *
  */
 
-#ifndef G_SYS_COMM_H
-#define G_SYS_COMM_H
+#ifndef G_F_COMM_H
+#define G_F_COMM_H
 
+/*********************
+ *      INCLUDES
+ *********************/
 #include <stddef.h>
 #include <stdint.h>
 
+/*********************
+ *      DEFINES
+ *********************/
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *      MACROS
+ **********************/
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
+
+/**********************
+ *  GLOBAL PROTOTYPES
+ **********************/
 // internal comm
 int32_t event_set(int32_t evfd, uint64_t code);
 int32_t event_get(int32_t evfd, uint64_t *out_val);
@@ -25,4 +47,4 @@ int32_t gf_fs_file_exists(const char *path);
 int32_t exec_cmd_with_interact(char *cmd, char *input);
 
 
-#endif /* G_SYS_COMM_H */
+#endif /* G_F_COMM_H */

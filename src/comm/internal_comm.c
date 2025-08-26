@@ -17,9 +17,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/eventfd.h>
 
-#include <comm/sys_comm.h>
+#include <comm/f_comm.h>
 
 /*********************
  *      DEFINES
