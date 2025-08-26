@@ -35,10 +35,17 @@
 #define SER_NAME                        UI_DBUS_SER
 #define SER_IFACE                       UI_DBUS_IFACE
 #define SER_METH                        UI_DBUS_METH
+#define SER_SIG                         UI_DBUS_SIG
+#define SER_OBJ_PATH                    UI_DBUS_OBJ_PATH
 
-#define SER_LISTEN_IFACE                SYS_MGR_DBUS_IFACE
-#define SER_LISTEN_SIGNAL               SYS_MGR_DBUS_SIG
-#define SER_LISTEN_OBJ_PATH             SYS_MGR_DBUS_OBJ_PATH
+#define LISTEN_IFACE                    SYS_MGR_DBUS_IFACE
+#define LISTEN_SIG                      SYS_MGR_DBUS_SIG
+#define LISTEN_OBJ_PATH                 SYS_MGR_DBUS_OBJ_PATH
+
+#define REMOTE_SER_NAME                 SYS_MGR_DBUS_SER
+#define REMOTE_SER_OBJ_PATH             SYS_MGR_DBUS_OBJ_PATH
+#define REMOTE_SER_IFACE                SYS_MGR_DBUS_IFACE
+#define REMOTE_SER_METH                 SYS_MGR_DBUS_METH
 
 /**********************
  *      TYPEDEFS
@@ -61,8 +68,11 @@ int32_t dbus_fn_thread_handler();
 int32_t dbus_method_call(const char *destination, const char *path, \
                          const char *iface, const char *method, \
                          remote_cmd_t *cmd);
+int32_t dbus_method_call_with_data(remote_cmd_t *cmd);
+
 int32_t dbus_emit_signal(const char *path, const char *iface, \
                          const char *sig, remote_cmd_t *cmd);
+int32_t dbus_emit_signal_with_data(remote_cmd_t *cmd);
 /**********************
  *  STATIC VARIABLES
  **********************/

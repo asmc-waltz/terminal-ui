@@ -133,7 +133,6 @@ int32_t remote_cmd_add_string(remote_cmd_t *cmd, const char *key, \
               const char *value);
 int32_t remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value);
 
-int32_t send_remote_cmd(remote_cmd_t *cmd);
 /**********************
  *  STATIC VARIABLES
  **********************/

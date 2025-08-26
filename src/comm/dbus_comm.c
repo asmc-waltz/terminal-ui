@@ -274,8 +274,8 @@ static int32_t dbus_connection_event_handler(DBusConnection *conn)
             const char *iface = dbus_message_get_interface(msg);
             const char *member = dbus_message_get_member(msg);
 
-            if (iface && member && strcmp(iface, SER_LISTEN_IFACE) == 0 && \
-                strcmp(member, SER_LISTEN_SIGNAL) == 0) {
+            if (iface && member && strcmp(iface, LISTEN_IFACE) == 0 && \
+                strcmp(member, LISTEN_SIG) == 0) {
                 ret = dispatch_cmd_from_message(msg);
                 if (ret < 0)
                     LOG_ERROR("Dispatch signal failed: %s.%s",
@@ -303,7 +303,7 @@ static int32_t set_dbus_signal_match_rule(DBusConnection *conn)
 
     snprintf(match_rule, 256,
              "type='signal',interface='%s',member='%s',path='%s'",
-             SER_LISTEN_IFACE, SER_LISTEN_SIGNAL, SER_LISTEN_OBJ_PATH);
+             LISTEN_IFACE, LISTEN_SIG, LISTEN_OBJ_PATH);
 
     ret = add_dbus_match_rule(conn, match_rule);
     if (ret)
@@ -452,17 +452,16 @@ int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
         return -EINVAL;
     }
 
-    LOG_INFO("Adds a match rule: [%s]", rule);
+    LOG_INFO("Dbus + match rule: [%s]", rule);
     dbus_error_init(&err);
     dbus_bus_add_match(conn, rule, &err);
     if (dbus_error_is_set(&err)) {
-        LOG_ERROR("Add failed (error: %s)", err.message);
+        LOG_ERROR("Dbus + match rule, error: %s", err.message);
         dbus_error_free(&err);
         return -EINVAL;
     }
 
     dbus_connection_flush(conn);
-    LOG_TRACE("Add match rule succeeded");
     return 0;
 }
 
@@ -514,7 +513,7 @@ int32_t dbus_fn_thread_handler()
  * which will be encoded and decoded by the DBus communication framework during
  * message transmission and reception.
  */
-static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
+static int32_t dbus_send_message_async(DBusMessage *msg, remote_cmd_t *cmd)
 {
     DBusConnection *conn;
 
@@ -568,13 +567,28 @@ int32_t dbus_method_call(const char *destination, const char *path, \
 
     msg = dbus_message_new_method_call(destination, path, iface, method);
     if (!msg) {
-        LOG_FATAL("Failed to create method call message");
+        LOG_ERROR("Failed to create method call message");
         return -ENOMEM;
     }
 
-    return dbus_send_message(msg, cmd);
+    return dbus_send_message_async(msg, cmd);
 }
 
+int32_t dbus_method_call_with_data(remote_cmd_t *cmd)
+{
+    int32_t ret;
+    ret = dbus_method_call(REMOTE_SER_NAME, REMOTE_SER_OBJ_PATH,
+                           REMOTE_SER_IFACE, REMOTE_SER_METH, cmd);
+    if (ret) {
+        LOG_ERROR("Failed to send method call message, ret %d", ret);
+    }
+
+    return ret;
+}
+
+/*
+ * This function sends a D-Bus signal to the dbus.
+ */
 int32_t dbus_emit_signal(const char *path, const char *iface, \
                          const char *sig, remote_cmd_t *cmd)
 {
@@ -587,9 +601,21 @@ int32_t dbus_emit_signal(const char *path, const char *iface, \
 
     msg = dbus_message_new_signal(path, iface, sig);
     if (!msg) {
-        LOG_FATAL("Failed to create signal message");
+        LOG_ERROR("Failed to create signal message");
         return -ENOMEM;
     }
 
-    return dbus_send_message(msg, cmd);
+    return dbus_send_message_async(msg, cmd);
 }
+
+int32_t dbus_emit_signal_with_data(remote_cmd_t *cmd)
+{
+    int32_t ret;
+    ret = dbus_emit_signal(SER_OBJ_PATH, SER_IFACE, SER_SIG, cmd);
+    if (ret) {
+        LOG_ERROR("Failed to emit signal message, ret %d", ret);
+    }
+
+    return ret;
+}
+

@@ -143,24 +143,3 @@ int32_t remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value)
     return 0;
 }
 
-/*
- * This function sends a D-Bus method call to the system manager.
- * It operates without a specific callback for the reply message
- * because all responses are processed centrally in the D-Bus
- * listener thread rather than assigning per-call callbacks.
- */
-int32_t send_remote_cmd(remote_cmd_t *cmd)
-{
-    int32_t ret;
-    ret = dbus_method_call(SYS_MGR_DBUS_SER, SYS_MGR_DBUS_OBJ_PATH,
-                           SYS_MGR_DBUS_IFACE, SYS_MGR_DBUS_METH, cmd);
-    // TODO: Option
-    // ret = dbus_emit_signal(UI_DBUS_OBJ_PATH, UI_DBUS_IFACE, \
-    //                      UI_DBUS_SIG, cmd);
-    if (ret) {
-        LOG_FATAL("Failed to create method call message");
-    }
-
-    return ret;
-}
-
