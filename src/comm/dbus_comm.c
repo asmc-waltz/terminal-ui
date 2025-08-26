@@ -347,7 +347,7 @@ static DBusConnection *setup_dbus_connection()
     return conn;
 }
 
-static int32_t dbus_listener(DBusConnection *conn)
+static int32_t dbus_listener_loop(DBusConnection *conn)
 {
     int32_t dbus_fd;
     int32_t epoll_fd;
@@ -466,6 +466,12 @@ int32_t add_dbus_match_rule(DBusConnection *conn, const char *rule)
     return 0;
 }
 
+/*
+ * DBus thread function, called after the DBus listener task is initialized.
+ * It keeps the listener running for the entire lifetime of this service
+ * to handle DBus communication, including method calls from other services
+ * and signal events registered for this service.
+ */
 int32_t dbus_fn_thread_handler()
 {
     DBusConnection *conn;
@@ -489,8 +495,8 @@ int32_t dbus_fn_thread_handler()
         return ret;
     }
 
-    // This thread processes DBus messages
-    ret = dbus_listener(conn);
+    // This loop processes DBus messages
+    ret = dbus_listener_loop(conn);
     if (ret) {
         LOG_FATAL("Failed to create DBus listener");
         return ret;
@@ -500,6 +506,14 @@ int32_t dbus_fn_thread_handler()
     return 0;
 }
 
+/*
+ * The DBus command will be sent by the task handler after the corresponding
+ * work item is created and pushed into the workqueue. This work item will hold
+ * an operation ID indicating that it is responsible for sending a DBus message.
+ * The actual operation ID will be stored inside the associated data structure,
+ * which will be encoded and decoded by the DBus communication framework during
+ * message transmission and reception.
+ */
 static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
 {
     DBusConnection *conn;
@@ -519,6 +533,10 @@ static int32_t dbus_send_message(DBusMessage *msg, remote_cmd_t *cmd)
         return -EIO;
     }
 
+    /*
+     * Sends a method call or signal without waiting for a reply, because the
+     * listener thread will handle the reply message.
+     */
     if (!dbus_connection_send(conn, msg, NULL)) {
         LOG_ERROR("Out of memory while sending message");
         dbus_message_unref(msg);

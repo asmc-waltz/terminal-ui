@@ -164,11 +164,3 @@ int32_t send_remote_cmd(remote_cmd_t *cmd)
     return ret;
 }
 
-/*
- * The DBus command will be sent by the task handler after the corresponding work
- * item is created and pushed into the workqueue. This work item will hold an
- * operation ID indicating that it is responsible for sending a DBus message.
- * The actual operation ID will be stored inside the associated data structure,
- * which will be encoded and decoded by the DBus communication framework during
- * message transmission and reception.
- */
