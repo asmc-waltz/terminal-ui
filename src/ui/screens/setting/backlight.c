@@ -62,7 +62,7 @@ static int32_t create_set_brightness_cmd(int32_t value)
         return -ENOMEM;
     }
 
-    remote_cmd_init(cmd, "terminal-ui", 1001, OP_SET_BRIGHTNESS);
+    remote_cmd_init(cmd, COMP_NAME, 1001, OP_SET_BRIGHTNESS, NON_BLOCK, SHORT);
 
     /* Add parameters */
     if (remote_cmd_add_string(cmd, "backlight", "max") || \
