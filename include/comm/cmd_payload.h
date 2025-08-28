@@ -13,7 +13,8 @@
 /*********************
  *      DEFINES
  *********************/
-#define MAX_ENTRIES 32
+#define COMP_NAME                       "TERMINAL-UI"
+#define MAX_ENTRIES                     32
 
 /**********************
  *      TYPEDEFS
