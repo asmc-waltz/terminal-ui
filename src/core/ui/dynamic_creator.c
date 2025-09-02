@@ -18,6 +18,7 @@
 #include <lvgl.h>
 
 #include <ui/ui_plat.h>
+#include <ui/fonts.h>
 
 /*********************
  *      DEFINES
@@ -291,6 +292,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
             break;
         case OBJ_LABEL:
         case OBJ_SWITCH:
+        case OBJ_ICON:
             ret = g_transform_obj_rotate(pg_obj);
             break;
         default:
@@ -512,6 +514,22 @@ lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
     return sw;
 }
 
+lv_obj_t * gf_create_sym(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                         const lv_font_t *font, const char *index, \
+                         lv_color_t color)
+{
+    lv_obj_t *symbol = gf_create_gobj_type(par, OBJ_ICON, id);
+
+    lv_obj_set_style_text_font(symbol, font, 0);
+    lv_obj_set_style_text_color(symbol, color, 0);
+    lv_label_set_text(symbol, index);
+
+    gf_gobj_get_size(symbol);
+    gf_gobj_set_pos(symbol, x, y);
+
+    return symbol;
+}
+
 /*
  * TESTING *********************************************************************
  */
@@ -521,26 +539,30 @@ void create_dynamic_ui()
     lv_obj_t *pl_child_box = NULL;
     lv_obj_t *pl_text_box = NULL;
     lv_obj_t *pl_switch = NULL;
+    lv_obj_t *pl_icon = NULL;
 
     pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
-                                lv_color_hex(0x66D500));
+                                lv_color_hex(0x000000));
     pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 300, 200, \
-                                 lv_color_hex(0x00EEFF));
+                                 lv_color_hex(0xFFFFFF));
     pl_text_box = gf_create_textbox(pl_child_box, 0, 15, 25, "Go001 hahaha");
 
     pl_switch = gf_create_switch(pl_child_box, 0, 10, 55, 60, 30);
 
+    pl_icon = gf_create_sym(pl_child_box, 0, 10, 100, &terminal_icons_32, \
+                            ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
 
-    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
+
+    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
     g_obj_rotate(pl_child_box->user_data);
     g_obj_rotate(pl_text_box->user_data);
     g_obj_rotate(pl_switch->user_data);
+    g_obj_rotate(pl_icon->user_data);
 
     LOG_INFO("LBL after rotate H=%d W=%d", ((g_obj *)(pl_text_box->user_data))->inf.h, \
              ((g_obj *)(pl_text_box->user_data))->inf.w);
 
     lv_obj_clear_flag(pl_main_box, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(pl_child_box, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(pl_text_box, LV_OBJ_FLAG_SCROLLABLE);
 }
 
