@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -389,25 +389,142 @@ int32_t g_rotate_event_handler()
     // Invalidate layers to refresh UI.
 }
 
-
-static lv_obj_t * gf_create_obj_type(lv_obj_t *par, int32_t type, uint32_t id)
+lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 {
-    g_obj *p_obj = NULL;
-    lv_obj_t *obj = NULL;
+    g_obj *pg_obj = NULL;
+    lv_obj_t *pl_obj = NULL;
 
     LV_ASSERT_NULL(par);
     LOG_TRACE("Create obj id %d", id);
 
-    if (type == OBJ_LABEL)
-        obj = lv_label_create(par);
-    else
-        obj = lv_obj_create(par);
+    if (type == OBJ_BASE) {
+        pl_obj = lv_obj_create(par);
+    } else if (type == OBJ_BTN) {
+        pl_obj = lv_btn_create(par);
+    } else if (type == OBJ_SLIDER) {
+        pl_obj = lv_slider_create(par);
+    } else if (type == OBJ_LABEL) {
+        pl_obj = lv_label_create(par);
+    } else if (type == OBJ_ICON) {
+        // TODO: ICON is the combination of BASE & LABEL
+        pl_obj = lv_label_create(par);
+    } else if (type == OBJ_SWITCH) {
+        pl_obj = lv_switch_create(par);
+    } else {
+        LOG_TRACE("G Object type %d - id %d invalid", type, id);
+        return NULL;
+    }
 
-    LV_ASSERT_NULL(obj);
+    LV_ASSERT_NULL(pl_obj);
 
-    p_obj = gf_register_obj(par, obj, id);
-    LV_ASSERT_NULL(p_obj);
+    pg_obj = gf_register_obj(par, pl_obj, id);
+    pg_obj->inf.type = type;
+    pg_obj->inf.rot = ROT_0;
 
-    return p_obj->obj;
+    LV_ASSERT_NULL(pg_obj);
+
+    return pg_obj->obj;
+}
+
+void gf_gobj_set_size(lv_obj_t *pl_obj, int32_t w, int32_t h)
+{
+    g_obj *pg_obj = NULL;
+    LV_ASSERT_NULL(pl_obj);
+
+    pg_obj = pl_obj->user_data;
+    pg_obj->inf.w = w;
+    pg_obj->inf.h = h;
+
+    lv_obj_set_size(pl_obj, pg_obj->inf.w, pg_obj->inf.h);
+}
+
+void gf_gobj_get_size(lv_obj_t *pl_obj)
+{
+    g_obj *pg_obj = NULL;
+    LV_ASSERT_NULL(pl_obj);
+
+    lv_obj_update_layout(pl_obj);
+    pg_obj = pl_obj->user_data;
+    pg_obj->inf.w = lv_obj_get_width(pl_obj);
+    pg_obj->inf.h = lv_obj_get_height(pl_obj);
+}
+
+void gf_gobj_set_pos(lv_obj_t *pl_obj, int32_t x_ofs, int32_t y_ofs)
+{
+    g_obj *pg_obj = NULL;
+    LV_ASSERT_NULL(pl_obj);
+
+    lv_obj_set_pos(pl_obj, x_ofs, y_ofs);
+
+    pg_obj = pl_obj->user_data;
+    if (!pg_obj->inf.w)
+        LOG_WARN("Cannot calculate the center x");
+    if (!pg_obj->inf.h)
+        LOG_WARN("Cannot calculate the center y");
+    pg_obj->inf.x_mid = x_ofs + (pg_obj->inf.w / 2);
+    pg_obj->inf.y_mid = y_ofs + (pg_obj->inf.h / 2);
+}
+
+lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                         uint32_t w, uint32_t h, lv_color_t color)
+{
+    lv_obj_t *pl_obj = gf_create_gobj_type(par, OBJ_BASE, id);
+
+    gf_gobj_set_size(pl_obj, w, h);
+    gf_gobj_set_pos(pl_obj, x, y);
+
+    lv_obj_set_style_pad_all(pl_obj, 0, 0);
+    lv_obj_set_style_pad_gap(pl_obj, 0, 0);
+
+    lv_obj_set_style_bg_color(pl_obj, color, 0);
+    return pl_obj;
+}
+
+lv_obj_t * gf_create_textbox(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                             const char *txt_str)
+{
+    int32_t w, h;
+    lv_obj_t *lbl = gf_create_gobj_type(par, OBJ_LABEL, id);
+
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
+    lv_label_set_text_fmt(lbl, "%s", txt_str);
+
+    lv_obj_update_layout(lbl);
+    w = lv_obj_get_width(lbl);
+    h = lv_obj_get_height(lbl);
+    gf_gobj_set_size(lbl, w, h);
+    gf_gobj_set_pos(lbl, x, y);
+
+    LOG_TRACE("Textbox is created: h=%d w=%d - x=%d y=%d", h, w, x, y);
+    return lbl;
+}
+
+/*
+ * TESTING *********************************************************************
+ */
+void create_dynamic_ui()
+{
+    lv_obj_t *pl_main_box = NULL;
+    lv_obj_t *pl_child_box = NULL;
+    lv_obj_t *pl_text_box = NULL;
+
+    pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
+                                lv_color_hex(0x66D500));
+    pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 300, 200, \
+                                 lv_color_hex(0x00EEFF));
+    pl_text_box = gf_create_textbox(pl_child_box, 0, 15, 25, "Go001 hahaha");
+
+
+
+    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
+    g_obj_rotate(pl_child_box->user_data);
+    g_obj_rotate(pl_text_box->user_data);
+
+    LOG_INFO("LBL after rotate H=%d W=%d", ((g_obj *)(pl_text_box->user_data))->inf.h, \
+             ((g_obj *)(pl_text_box->user_data))->inf.w);
+
+    lv_obj_clear_flag(pl_main_box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(pl_child_box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(pl_text_box, LV_OBJ_FLAG_SCROLLABLE);
 }
 
