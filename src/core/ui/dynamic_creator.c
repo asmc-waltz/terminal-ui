@@ -122,19 +122,19 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
         }
     }
 
-    if (new_x_mid >= 0) {
+    // if (new_x_mid >= 0) {
         pg_obj->inf.x_mid = new_x_mid;
-    } else {
-        LOG_ERROR("Relocation x_mid=%d", new_x_mid);
-        return -1;
-    }
+    // } else {
+    //     LOG_ERROR("Relocation x_mid=%d", new_x_mid);
+    //     return -1;
+    // }
 
-    if (new_y_mid >= 0) {
+    // if (new_y_mid >= 0) {
         pg_obj->inf.y_mid = new_y_mid;
-    } else {
-        LOG_ERROR("Relocation y_mid=%d", new_y_mid);
-        return -1;
-    }
+    // } else {
+    //     LOG_ERROR("Relocation y_mid=%d", new_y_mid);
+    //     return -1;
+    // }
 
     return 0;
 }
@@ -297,8 +297,16 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
         case OBJ_ICON:
             ret = g_transform_obj_rotate(pg_obj);
             break;
+
+        case OBJ_CONTAINER:
+            /*
+             * The container maintains its original offset (0,0)
+             * for scrolling purposes.
+             */
+            ret = g_obj_rot_resize(pg_obj, 1);
+            break;
         default:
-            LOG_WARN("Unknown G object type");
+            LOG_WARN("Unknown G object type: %d", pg_obj->inf.type);
             break;
     }
 
@@ -402,22 +410,30 @@ lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
     LV_ASSERT_NULL(par);
     LOG_TRACE("Create obj id %d", id);
 
-    if (type == OBJ_BASE) {
-        pl_obj = lv_obj_create(par);
-    } else if (type == OBJ_BTN) {
-        pl_obj = lv_btn_create(par);
-    } else if (type == OBJ_SLIDER) {
-        pl_obj = lv_slider_create(par);
-    } else if (type == OBJ_LABEL) {
-        pl_obj = lv_label_create(par);
-    } else if (type == OBJ_ICON) {
-        // TODO: ICON is the combination of BASE & LABEL
-        pl_obj = lv_label_create(par);
-    } else if (type == OBJ_SWITCH) {
-        pl_obj = lv_switch_create(par);
-    } else {
-        LOG_TRACE("G Object type %d - id %d invalid", type, id);
-        return NULL;
+
+    switch (type) {
+        case OBJ_BASE:
+        case OBJ_CONTAINER:
+            pl_obj = lv_obj_create(par);
+            break;
+        case OBJ_BTN:
+            pl_obj = lv_btn_create(par);
+            break;
+        case OBJ_SLIDER:
+            pl_obj = lv_slider_create(par);
+            break;
+        case OBJ_LABEL:
+        case OBJ_ICON:
+            pl_obj = lv_label_create(par);
+            break;
+        case OBJ_SWITCH:
+            pl_obj = lv_switch_create(par);
+            break;
+        default:
+            LOG_ERROR("G Object type %d - id %d invalid", type, id);
+            pl_obj = NULL;
+            break;
+
     }
 
     LV_ASSERT_NULL(pl_obj);
@@ -474,6 +490,22 @@ lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
                          uint32_t w, uint32_t h, lv_color_t color)
 {
     lv_obj_t *pl_obj = gf_create_gobj_type(par, OBJ_BASE, id);
+
+    gf_gobj_set_size(pl_obj, w, h);
+    gf_gobj_set_pos(pl_obj, x, y);
+
+    lv_obj_set_style_pad_all(pl_obj, 0, 0);
+    lv_obj_set_style_pad_gap(pl_obj, 0, 0);
+
+    lv_obj_set_style_bg_color(pl_obj, color, 0);
+    return pl_obj;
+}
+
+lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id, int32_t x, \
+                               int32_t y, uint32_t w, uint32_t h, \
+                               lv_color_t color)
+{
+    lv_obj_t *pl_obj = gf_create_gobj_type(par, OBJ_CONTAINER, id);
 
     gf_gobj_set_size(pl_obj, w, h);
     gf_gobj_set_pos(pl_obj, x, y);
@@ -559,38 +591,90 @@ void create_dynamic_ui()
 {
     lv_obj_t *pl_main_box = NULL;
     lv_obj_t *pl_child_box = NULL;
+    lv_obj_t *pl_container_box = NULL;
+
     lv_obj_t *pl_text_box = NULL;
+    lv_obj_t *pl_text_wrapper = NULL;
     lv_obj_t *pl_switch = NULL;
+    lv_obj_t *pl_switch_wrapper = NULL;
     lv_obj_t *pl_icon = NULL;
+    lv_obj_t *pl_icon_wrapper = NULL;
     lv_obj_t *pl_btn = NULL;
     lv_obj_t *pl_slider = NULL;
 
+    int8_t l_align = 30;
+
+    // Main box as screen background
     pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
                                 lv_color_hex(0x000000));
-    pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 300, 200, \
+    // Child box as a menu bar
+    pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 400, 500, \
                                  lv_color_hex(0xFFFFFF));
-    pl_text_box = gf_create_textbox(pl_child_box, 0, 15, 25, "Go001 hahaha");
+    // Container for all sub components
+    pl_container_box = gf_create_container(pl_child_box, 0, 10, 10, 370, 800, \
+                                 lv_color_hex(0xFFEE8C));
 
-    pl_switch = gf_create_switch(pl_child_box, 0, 10, 55, 60, 30);
 
-    pl_icon = gf_create_sym(pl_child_box, 0, 10, 100, &terminal_icons_32, \
+
+
+    pl_text_wrapper = gf_create_box(pl_container_box, 0, l_align, 25, 150, 40, \
+                                 lv_color_hex(0xFFFFFF));
+    lv_obj_clear_flag(pl_text_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    pl_text_box = gf_create_textbox(pl_text_wrapper, 0, 10, 10, "Go001 hahaha");
+
+    pl_switch_wrapper = gf_create_box(pl_container_box, 0, l_align, 85, 80, 50, \
+                                 lv_color_hex(0xFFFFFF));
+    lv_obj_clear_flag(pl_switch_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    pl_switch = gf_create_switch(pl_switch_wrapper, 0, 10, 10, 60, 30);
+
+
+    pl_icon_wrapper = gf_create_box(pl_container_box, 0, l_align, 150, 50, 50, \
+                                 lv_color_hex(0xFFFFFF));
+    lv_obj_clear_flag(pl_icon_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    pl_icon = gf_create_sym(pl_icon_wrapper, 0, 10, 10, &terminal_icons_32, \
                             ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
-    pl_btn = gf_create_btn(pl_child_box, 0, 40, 150, 80, 50);
 
-    pl_slider = gf_create_slider(pl_child_box, 0, 100, 110, 150, 20);
 
-    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
+
+    pl_btn = gf_create_btn(pl_container_box, 0, l_align, 230, 80, 50);
+    pl_slider = gf_create_slider(pl_container_box, 0, l_align, 300, 100, 20);
+
+
+
+    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_0);
     g_obj_rotate(pl_child_box->user_data);
+
+    g_obj_rotate(pl_container_box->user_data);
+
+    g_obj_rotate(pl_text_wrapper->user_data);
     g_obj_rotate(pl_text_box->user_data);
+
+    g_obj_rotate(pl_switch_wrapper->user_data);
     g_obj_rotate(pl_switch->user_data);
+
+    g_obj_rotate(pl_icon_wrapper->user_data);
     g_obj_rotate(pl_icon->user_data);
+
     g_obj_rotate(pl_btn->user_data);
     g_obj_rotate(pl_slider->user_data);
 
-    LOG_INFO("LBL after rotate H=%d W=%d", ((g_obj *)(pl_text_box->user_data))->inf.h, \
-             ((g_obj *)(pl_text_box->user_data))->inf.w);
 
-    lv_obj_clear_flag(pl_main_box, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(pl_child_box, LV_OBJ_FLAG_SCROLLABLE);
+    int32_t w, h;
+    lv_obj_update_layout(pl_container_box);
+    w = lv_obj_get_width(pl_container_box);
+    h = lv_obj_get_height(pl_container_box);
+
+    int32_t rot_dir = g_get_scr_rot_dir();
+
+    // Adjust screen scroll accordingly.
+    if (rot_dir == LV_DISPLAY_ROTATION_0) {
+        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_90) {
+        lv_obj_scroll_to(pl_child_box, w, 0, LV_ANIM_OFF);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_180) {
+        lv_obj_scroll_to(pl_child_box, 0, h, LV_ANIM_OFF);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_270) {
+        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
+    }
 }
 
