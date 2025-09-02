@@ -224,7 +224,7 @@ static int32_t g_base_obj_rotate(g_obj *pg_obj)
     return 0;
 }
 
-static int32_t g_label_obj_rotate(g_obj *pg_obj)
+static int32_t g_transform_obj_rotate(g_obj *pg_obj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
@@ -290,7 +290,8 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
             ret = g_base_obj_rotate(pg_obj);
             break;
         case OBJ_LABEL:
-            ret = g_label_obj_rotate(pg_obj);
+        case OBJ_SWITCH:
+            ret = g_transform_obj_rotate(pg_obj);
             break;
         default:
             LOG_WARN("Unknown G object type");
@@ -499,6 +500,18 @@ lv_obj_t * gf_create_textbox(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
     return lbl;
 }
 
+lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                         uint32_t w, uint32_t h)
+{
+    lv_obj_t *sw = gf_create_gobj_type(par, OBJ_SWITCH, id);
+
+    gf_gobj_set_size(sw, w, h);
+    gf_gobj_set_pos(sw, x, y);
+
+    LOG_TRACE("Switch is created: h=%d w=%d - x=%d y=%d", h, w, x, y);
+    return sw;
+}
+
 /*
  * TESTING *********************************************************************
  */
@@ -507,6 +520,7 @@ void create_dynamic_ui()
     lv_obj_t *pl_main_box = NULL;
     lv_obj_t *pl_child_box = NULL;
     lv_obj_t *pl_text_box = NULL;
+    lv_obj_t *pl_switch = NULL;
 
     pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
                                 lv_color_hex(0x66D500));
@@ -514,11 +528,13 @@ void create_dynamic_ui()
                                  lv_color_hex(0x00EEFF));
     pl_text_box = gf_create_textbox(pl_child_box, 0, 15, 25, "Go001 hahaha");
 
+    pl_switch = gf_create_switch(pl_child_box, 0, 10, 55, 60, 30);
 
 
     g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
     g_obj_rotate(pl_child_box->user_data);
     g_obj_rotate(pl_text_box->user_data);
+    g_obj_rotate(pl_switch->user_data);
 
     LOG_INFO("LBL after rotate H=%d W=%d", ((g_obj *)(pl_text_box->user_data))->inf.h, \
              ((g_obj *)(pl_text_box->user_data))->inf.w);
