@@ -92,6 +92,28 @@ typedef enum {
     ID_SYSTEM_STATUS,
 } g_id;
 
+typedef enum {
+    OBJ_NONE = 0,
+    OBJ_BASE,
+    OBJ_CONTAINER,
+    OBJ_BTN,
+    OBJ_SLIDER,
+    OBJ_LABEL,
+    OBJ_ICON,
+    OBJ_SWITCH,
+} g_obj_type;
+
+typedef struct {
+    int32_t x_mid;      // Latest center point X coordinate
+    int32_t y_mid;      // Latest center point Y coordinate
+    int32_t par_w;      // Parent width when x_mid was calculated
+    int32_t par_h;      // Parent height when y_mid was calculated
+    int32_t w;
+    int32_t h;
+    int8_t rot;
+    g_obj_type type;
+} g_inf;
+
 typedef struct {
     struct list_head node;
     struct list_head child;
@@ -99,6 +121,7 @@ typedef struct {
     lv_obj_t *obj;
     char *name;
     bool visible;
+    g_inf inf;
 } g_obj;
 
 typedef struct {
