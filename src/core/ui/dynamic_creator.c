@@ -20,6 +20,11 @@
 #include <ui/ui_plat.h>
 #include <ui/fonts.h>
 
+#define TEST 1 
+#if defined(TEST)
+#include <time.h>
+#endif
+
 /*********************
  *      DEFINES
  *********************/
@@ -73,8 +78,12 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
         return 0;
     }
 
-    LOG_INFO("ROTATE [%d]: par-w=(%d) par-h=(%d)", \
-             scr_rot, par_w, par_h);
+    LOG_DEBUG("\tLastest: par_h: %d par_w: %d \n"
+              "\t\tCurrent: par_h:%d par_w:%d \n"
+              "\t\tCurrent: x_mid:%d y_mid:%d", \
+              par_h, par_w, \
+              pg_obj->inf.par_h, pg_obj->inf.par_w,
+              pg_obj->inf.x_mid, pg_obj->inf.y_mid);
 
     if (pg_obj->inf.rot == ROT_0) {
         if (scr_rot == ROT_90) {
@@ -90,10 +99,10 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
     } else if (pg_obj->inf.rot == ROT_90) {
         if (scr_rot == ROT_0) {
             new_x_mid = pg_obj->inf.y_mid;
-            new_y_mid = par_w - pg_obj->inf.x_mid;
+            new_y_mid = pg_obj->inf.par_w - pg_obj->inf.x_mid;
         } else if (scr_rot == ROT_180) {
             new_x_mid = par_w - pg_obj->inf.y_mid;
-            new_y_mid = par_h - (par_w - pg_obj->inf.x_mid);
+            new_y_mid = par_h - (pg_obj->inf.par_w - pg_obj->inf.x_mid);
         } else if (scr_rot == ROT_270) {
             new_x_mid = par_w - pg_obj->inf.x_mid;
             new_y_mid = par_h - pg_obj->inf.y_mid;
@@ -103,38 +112,38 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
             new_x_mid = par_w - pg_obj->inf.x_mid;
             new_y_mid = par_h - pg_obj->inf.y_mid;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - (par_h - pg_obj->inf.y_mid);
-            new_y_mid = par_w - pg_obj->inf.x_mid;
+            new_x_mid = par_w - (pg_obj->inf.par_h - pg_obj->inf.y_mid);
+            new_y_mid = pg_obj->inf.par_w - pg_obj->inf.x_mid;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = par_h - pg_obj->inf.y_mid;
-            new_y_mid = par_h - (par_w - pg_obj->inf.x_mid);
+            new_x_mid = pg_obj->inf.par_h - pg_obj->inf.y_mid;
+            new_y_mid = par_h - (pg_obj->inf.par_w - pg_obj->inf.x_mid);
         }
     } else if (pg_obj->inf.rot == ROT_270) {
         if (scr_rot == ROT_0) {
-            new_x_mid = par_h - pg_obj->inf.y_mid;
+            new_x_mid = pg_obj->inf.par_h - pg_obj->inf.y_mid;
             new_y_mid = pg_obj->inf.x_mid;
         } else if (scr_rot == ROT_90) {
             new_x_mid = par_w - pg_obj->inf.x_mid;
             new_y_mid = par_h - pg_obj->inf.y_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - (par_h - pg_obj->inf.y_mid);
+            new_x_mid = par_w - (pg_obj->inf.par_h - pg_obj->inf.y_mid);
             new_y_mid = par_h - pg_obj->inf.x_mid;
         }
     }
 
-    // if (new_x_mid >= 0) {
-        pg_obj->inf.x_mid = new_x_mid;
-    // } else {
-    //     LOG_ERROR("Relocation x_mid=%d", new_x_mid);
-    //     return -1;
-    // }
+    pg_obj->inf.x_mid = new_x_mid;
+    pg_obj->inf.par_w = par_w;
+    if (new_x_mid <= 0) {
+        LOG_WARN("Negative x_mid: %d", new_x_mid);
+    }
 
-    // if (new_y_mid >= 0) {
-        pg_obj->inf.y_mid = new_y_mid;
-    // } else {
-    //     LOG_ERROR("Relocation y_mid=%d", new_y_mid);
-    //     return -1;
-    // }
+    pg_obj->inf.y_mid = new_y_mid;
+    pg_obj->inf.par_h = par_h;
+    if (new_y_mid <= 0) {
+        LOG_WARN("* Negative y_mid: %d", new_y_mid);
+        return -1;
+    }
+    LOG_TRACE("Relocation x_mid: %d  -  y_mid: %d", new_x_mid, new_y_mid);
 
     return 0;
 }
@@ -584,24 +593,98 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
 
     return slider;
 }
+
+#if defined(TEST)
 /*
  * TESTING *********************************************************************
  */
+
+lv_obj_t *pl_main_box = NULL;
+lv_obj_t *pl_child_box = NULL;
+lv_obj_t *pl_container_box = NULL;
+
+lv_obj_t *pl_text_box = NULL;
+lv_obj_t *pl_text_wrapper = NULL;
+lv_obj_t *pl_switch = NULL;
+lv_obj_t *pl_switch_wrapper = NULL;
+lv_obj_t *pl_icon = NULL;
+lv_obj_t *pl_icon_wrapper = NULL;
+lv_obj_t *pl_btn = NULL;
+lv_obj_t *pl_slider = NULL;
+
+void sample_rot(int32_t angle)
+{
+    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
+    g_set_scr_rot_dir(angle);
+    LOG_TRACE("### ### ROTATE - CHILD BOX -------------------------------------------------");
+    g_obj_rotate(pl_child_box->user_data);
+
+    LOG_TRACE("### ROTATE - CONTAINER-------------------------------------------------");
+    g_obj_rotate(pl_container_box->user_data);
+
+    LOG_TRACE("### ROTATE - TEXT wrapper-------------------------------------------------");
+    g_obj_rotate(pl_text_wrapper->user_data);
+    LOG_TRACE("### ROTATE - TEXT-------------------------------------------------");
+    g_obj_rotate(pl_text_box->user_data);
+
+    LOG_TRACE("### ROTATE - SWITCH wrapper-------------------------------------------------");
+    g_obj_rotate(pl_switch_wrapper->user_data);
+    LOG_TRACE("### ROTATE - SWITCH-------------------------------------------------");
+    g_obj_rotate(pl_switch->user_data);
+
+    LOG_TRACE("### ROTATE - ICON wrapper-------------------------------------------------");
+    g_obj_rotate(pl_icon_wrapper->user_data);
+    LOG_TRACE("### ROTATE - ICON-------------------------------------------------");
+    g_obj_rotate(pl_icon->user_data);
+
+    LOG_TRACE("### ROTATE - BUTTON-------------------------------------------------");
+    g_obj_rotate(pl_btn->user_data);
+    LOG_TRACE("### ROTATE - SLIDER-------------------------------------------------");
+    g_obj_rotate(pl_slider->user_data);
+
+
+    int32_t w, h;
+    lv_obj_update_layout(pl_container_box);
+    w = lv_obj_get_width(pl_container_box);
+    h = lv_obj_get_height(pl_container_box);
+
+    int32_t rot_dir = g_get_scr_rot_dir();
+
+    // Adjust screen scroll accordingly.
+    if (rot_dir == ROT_0) {
+        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
+    } else if (rot_dir == ROT_90) {
+        lv_obj_scroll_to(pl_child_box, w, 0, LV_ANIM_OFF);
+    } else if (rot_dir == ROT_180) {
+        lv_obj_scroll_to(pl_child_box, 0, h, LV_ANIM_OFF);
+    } else if (rot_dir == ROT_270) {
+        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
+    }
+}
+
+int32_t get_random_0_3(void)
+{
+    int32_t val;
+
+    val = rand() % 4;
+    return val;
+}
+static void btn_handler(lv_event_t *event)
+{
+    lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn);
+    g_obj *pg_obj = NULL;
+
+    // gf_refresh_all_layer();
+
+    pg_obj = btn->user_data;
+    LOG_DEBUG("ID %d: Taskbar button clicked", pg_obj->id);
+    sample_rot(get_random_0_3());
+
+}
+
 void create_dynamic_ui()
 {
-    lv_obj_t *pl_main_box = NULL;
-    lv_obj_t *pl_child_box = NULL;
-    lv_obj_t *pl_container_box = NULL;
-
-    lv_obj_t *pl_text_box = NULL;
-    lv_obj_t *pl_text_wrapper = NULL;
-    lv_obj_t *pl_switch = NULL;
-    lv_obj_t *pl_switch_wrapper = NULL;
-    lv_obj_t *pl_icon = NULL;
-    lv_obj_t *pl_icon_wrapper = NULL;
-    lv_obj_t *pl_btn = NULL;
-    lv_obj_t *pl_slider = NULL;
-
     int8_t l_align = 30;
 
     // Main box as screen background
@@ -640,41 +723,6 @@ void create_dynamic_ui()
     pl_slider = gf_create_slider(pl_container_box, 0, l_align, 300, 100, 20);
 
 
-
-    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_0);
-    g_obj_rotate(pl_child_box->user_data);
-
-    g_obj_rotate(pl_container_box->user_data);
-
-    g_obj_rotate(pl_text_wrapper->user_data);
-    g_obj_rotate(pl_text_box->user_data);
-
-    g_obj_rotate(pl_switch_wrapper->user_data);
-    g_obj_rotate(pl_switch->user_data);
-
-    g_obj_rotate(pl_icon_wrapper->user_data);
-    g_obj_rotate(pl_icon->user_data);
-
-    g_obj_rotate(pl_btn->user_data);
-    g_obj_rotate(pl_slider->user_data);
-
-
-    int32_t w, h;
-    lv_obj_update_layout(pl_container_box);
-    w = lv_obj_get_width(pl_container_box);
-    h = lv_obj_get_height(pl_container_box);
-
-    int32_t rot_dir = g_get_scr_rot_dir();
-
-    // Adjust screen scroll accordingly.
-    if (rot_dir == LV_DISPLAY_ROTATION_0) {
-        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_90) {
-        lv_obj_scroll_to(pl_child_box, w, 0, LV_ANIM_OFF);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_180) {
-        lv_obj_scroll_to(pl_child_box, 0, h, LV_ANIM_OFF);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_270) {
-        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
-    }
+    gf_register_handler(pl_btn, 0, btn_handler, LV_EVENT_CLICKED);
 }
-
+#endif
