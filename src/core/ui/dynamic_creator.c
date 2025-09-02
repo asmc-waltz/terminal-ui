@@ -289,6 +289,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
     switch (pg_obj->inf.type) {
         case OBJ_BASE:
         case OBJ_BTN:
+        case OBJ_SLIDER:
             ret = g_base_obj_rotate(pg_obj);
             break;
         case OBJ_LABEL:
@@ -541,6 +542,16 @@ lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
     return btn;
 }
 
+lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                         uint32_t w, uint32_t h)
+{
+    lv_obj_t *slider = gf_create_gobj_type(par, OBJ_SLIDER, id);
+
+    gf_gobj_set_size(slider, w, h);
+    gf_gobj_set_pos(slider, x, y);
+
+    return slider;
+}
 /*
  * TESTING *********************************************************************
  */
@@ -552,6 +563,7 @@ void create_dynamic_ui()
     lv_obj_t *pl_switch = NULL;
     lv_obj_t *pl_icon = NULL;
     lv_obj_t *pl_btn = NULL;
+    lv_obj_t *pl_slider = NULL;
 
     pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
                                 lv_color_hex(0x000000));
@@ -565,12 +577,15 @@ void create_dynamic_ui()
                             ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
     pl_btn = gf_create_btn(pl_child_box, 0, 40, 150, 80, 50);
 
+    pl_slider = gf_create_slider(pl_child_box, 0, 100, 110, 150, 20);
+
     g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
     g_obj_rotate(pl_child_box->user_data);
     g_obj_rotate(pl_text_box->user_data);
     g_obj_rotate(pl_switch->user_data);
     g_obj_rotate(pl_icon->user_data);
     g_obj_rotate(pl_btn->user_data);
+    g_obj_rotate(pl_slider->user_data);
 
     LOG_INFO("LBL after rotate H=%d W=%d", ((g_obj *)(pl_text_box->user_data))->inf.h, \
              ((g_obj *)(pl_text_box->user_data))->inf.w);
