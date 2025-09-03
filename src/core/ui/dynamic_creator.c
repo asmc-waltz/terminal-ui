@@ -63,18 +63,18 @@ static int32_t g_scr_rot_dir = ROT_0;
  **********************/
 
 // Location must be calculate after new size is calculated
-static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
+static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
 {
     int32_t new_x_mid = 0;
     int32_t new_y_mid = 0;
     int32_t scr_rot = g_get_scr_rot_dir();
 
-    if (!pg_obj) {
+    if (!gobj) {
         LOG_ERROR("Invalid g object");
         return -EINVAL;
     }
 
-    if (scr_rot == pg_obj->pos.rot) {
+    if (scr_rot == gobj->pos.rot) {
         return 0;
     }
 
@@ -82,63 +82,63 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
               "\t\tCurrent: par_h:%d par_w:%d \n"
               "\t\tCurrent: x_mid:%d y_mid:%d", \
               par_h, par_w, \
-              pg_obj->pos.par_h, pg_obj->pos.par_w,
-              pg_obj->pos.x_mid, pg_obj->pos.y_mid);
+              gobj->pos.par_h, gobj->pos.par_w,
+              gobj->pos.x_mid, gobj->pos.y_mid);
 
-    if (pg_obj->pos.rot == ROT_0) {
+    if (gobj->pos.rot == ROT_0) {
         if (scr_rot == ROT_90) {
-            new_x_mid = par_w - pg_obj->pos.y_mid;
-            new_y_mid = pg_obj->pos.x_mid;
+            new_x_mid = par_w - gobj->pos.y_mid;
+            new_y_mid = gobj->pos.x_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - pg_obj->pos.x_mid;
-            new_y_mid = par_h - pg_obj->pos.y_mid;
+            new_x_mid = par_w - gobj->pos.x_mid;
+            new_y_mid = par_h - gobj->pos.y_mid;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = pg_obj->pos.y_mid;
-            new_y_mid = par_h - pg_obj->pos.x_mid;
+            new_x_mid = gobj->pos.y_mid;
+            new_y_mid = par_h - gobj->pos.x_mid;
         }
-    } else if (pg_obj->pos.rot == ROT_90) {
+    } else if (gobj->pos.rot == ROT_90) {
         if (scr_rot == ROT_0) {
-            new_x_mid = pg_obj->pos.y_mid;
-            new_y_mid = pg_obj->pos.par_w - pg_obj->pos.x_mid;
+            new_x_mid = gobj->pos.y_mid;
+            new_y_mid = gobj->pos.par_w - gobj->pos.x_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - pg_obj->pos.y_mid;
-            new_y_mid = par_h - (pg_obj->pos.par_w - pg_obj->pos.x_mid);
+            new_x_mid = par_w - gobj->pos.y_mid;
+            new_y_mid = par_h - (gobj->pos.par_w - gobj->pos.x_mid);
         } else if (scr_rot == ROT_270) {
-            new_x_mid = par_w - pg_obj->pos.x_mid;
-            new_y_mid = par_h - pg_obj->pos.y_mid;
+            new_x_mid = par_w - gobj->pos.x_mid;
+            new_y_mid = par_h - gobj->pos.y_mid;
         }
-    } else if (pg_obj->pos.rot == ROT_180) {
+    } else if (gobj->pos.rot == ROT_180) {
         if (scr_rot == ROT_0) {
-            new_x_mid = par_w - pg_obj->pos.x_mid;
-            new_y_mid = par_h - pg_obj->pos.y_mid;
+            new_x_mid = par_w - gobj->pos.x_mid;
+            new_y_mid = par_h - gobj->pos.y_mid;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - (pg_obj->pos.par_h - pg_obj->pos.y_mid);
-            new_y_mid = pg_obj->pos.par_w - pg_obj->pos.x_mid;
+            new_x_mid = par_w - (gobj->pos.par_h - gobj->pos.y_mid);
+            new_y_mid = gobj->pos.par_w - gobj->pos.x_mid;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = pg_obj->pos.par_h - pg_obj->pos.y_mid;
-            new_y_mid = par_h - (pg_obj->pos.par_w - pg_obj->pos.x_mid);
+            new_x_mid = gobj->pos.par_h - gobj->pos.y_mid;
+            new_y_mid = par_h - (gobj->pos.par_w - gobj->pos.x_mid);
         }
-    } else if (pg_obj->pos.rot == ROT_270) {
+    } else if (gobj->pos.rot == ROT_270) {
         if (scr_rot == ROT_0) {
-            new_x_mid = pg_obj->pos.par_h - pg_obj->pos.y_mid;
-            new_y_mid = pg_obj->pos.x_mid;
+            new_x_mid = gobj->pos.par_h - gobj->pos.y_mid;
+            new_y_mid = gobj->pos.x_mid;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - pg_obj->pos.x_mid;
-            new_y_mid = par_h - pg_obj->pos.y_mid;
+            new_x_mid = par_w - gobj->pos.x_mid;
+            new_y_mid = par_h - gobj->pos.y_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - (pg_obj->pos.par_h - pg_obj->pos.y_mid);
-            new_y_mid = par_h - pg_obj->pos.x_mid;
+            new_x_mid = par_w - (gobj->pos.par_h - gobj->pos.y_mid);
+            new_y_mid = par_h - gobj->pos.x_mid;
         }
     }
 
-    pg_obj->pos.x_mid = new_x_mid;
-    pg_obj->pos.par_w = par_w;
+    gobj->pos.x_mid = new_x_mid;
+    gobj->pos.par_w = par_w;
     if (new_x_mid <= 0) {
         LOG_WARN("Negative x_mid: %d", new_x_mid);
     }
 
-    pg_obj->pos.y_mid = new_y_mid;
-    pg_obj->pos.par_h = par_h;
+    gobj->pos.y_mid = new_y_mid;
+    gobj->pos.par_h = par_h;
     if (new_y_mid <= 0) {
         LOG_WARN("* Negative y_mid: %d", new_y_mid);
         return -1;
@@ -148,47 +148,47 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
     return 0;
 }
 
-static int32_t g_obj_rot_relocation(g_obj *pg_obj)
+static int32_t g_obj_rot_relocation(g_obj *gobj)
 {
-    lv_obj_t *pl_obj_par = NULL;
-    g_obj *pg_obj_par = NULL;
+    lv_obj_t *lobj_par = NULL;
+    g_obj *gobj_par = NULL;
 
-    if (!pg_obj) {
+    if (!gobj) {
         LOG_ERROR("Invalid g object");
         return -EINVAL;
     }
 
-    pl_obj_par = lv_obj_get_parent(pg_obj->obj);
-    if (!pl_obj_par) {
+    lobj_par = lv_obj_get_parent(gobj->obj);
+    if (!lobj_par) {
         LOG_ERROR("Invalid lvgl object");
         return -EINVAL;
     }
 
-    pg_obj_par = pl_obj_par->user_data;
-    if (!pg_obj_par) {
+    gobj_par = lobj_par->user_data;
+    if (!gobj_par) {
         LOG_ERROR("Invalid g parent object");
         return -EINVAL;
     }
 
-    g_obj_get_center(pg_obj, pg_obj_par->pos.w, pg_obj_par->pos.h);
+    g_obj_get_center(gobj, gobj_par->pos.w, gobj_par->pos.h);
 
     return 0;
 }
 
-static void g_swap_xy_size(g_obj *pg_obj)
+static void g_swap_xy_size(g_obj *gobj)
 {
     int32_t tmp_width;
 
-    tmp_width = pg_obj->pos.w;
-    pg_obj->pos.w = pg_obj->pos.h;
-    pg_obj->pos.h = tmp_width;
+    tmp_width = gobj->pos.w;
+    gobj->pos.w = gobj->pos.h;
+    gobj->pos.h = tmp_width;
 }
 
-static int32_t g_obj_rot_resize(g_obj *pg_obj, int8_t set)
+static int32_t g_obj_rot_resize(g_obj *gobj, int8_t set)
 {
     int32_t scr_rot = g_get_scr_rot_dir();
 
-    if (!pg_obj) {
+    if (!gobj) {
         LOG_ERROR("Invalid g object");
         return -EINVAL;
     }
@@ -196,96 +196,96 @@ static int32_t g_obj_rot_resize(g_obj *pg_obj, int8_t set)
     // Must check: input rot is different from the current rotation inf
 
     if (scr_rot == ROT_0) {
-        if (pg_obj->pos.rot == ROT_90 || pg_obj->pos.rot == ROT_270)
-            g_swap_xy_size(pg_obj);
+        if (gobj->pos.rot == ROT_90 || gobj->pos.rot == ROT_270)
+            g_swap_xy_size(gobj);
     } else if (scr_rot == ROT_90) {
-        if (pg_obj->pos.rot == ROT_0 || pg_obj->pos.rot == ROT_180)
-            g_swap_xy_size(pg_obj);
+        if (gobj->pos.rot == ROT_0 || gobj->pos.rot == ROT_180)
+            g_swap_xy_size(gobj);
     } else if (scr_rot == ROT_180) {
-        if (pg_obj->pos.rot == ROT_90 || pg_obj->pos.rot == ROT_270)
-            g_swap_xy_size(pg_obj);
+        if (gobj->pos.rot == ROT_90 || gobj->pos.rot == ROT_270)
+            g_swap_xy_size(gobj);
     } else if (scr_rot == ROT_270) {
-        if (pg_obj->pos.rot == ROT_0 || pg_obj->pos.rot == ROT_180)
-            g_swap_xy_size(pg_obj);
+        if (gobj->pos.rot == ROT_0 || gobj->pos.rot == ROT_180)
+            g_swap_xy_size(gobj);
     }
 
     if (set)
-        lv_obj_set_size(pg_obj->obj, pg_obj->pos.w, pg_obj->pos.h);
+        lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
     return 0;
 }
 
-static int32_t g_base_obj_rotate(g_obj *pg_obj)
+static int32_t g_base_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
 
-    ret = g_obj_rot_resize(pg_obj, 1);
+    ret = g_obj_rot_resize(gobj, 1);
     if (ret) {
         return -EINVAL;
     }
 
-    ret= g_obj_rot_relocation(pg_obj);
+    ret= g_obj_rot_relocation(gobj);
     if (ret) {
         return -EINVAL;
     }
 
-    lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
-                   pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
+    lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
+                   gobj->pos.y_mid - (gobj->pos.h / 2));
 
     return 0;
 }
 
-static int32_t g_transform_obj_rotate(g_obj *pg_obj)
+static int32_t g_transform_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
     int32_t rot_val = 0;
 
-    ret = g_obj_rot_resize(pg_obj, 0);
+    ret = g_obj_rot_resize(gobj, 0);
     if (ret) {
         return -EINVAL;
     }
 
-    ret= g_obj_rot_relocation(pg_obj);
+    ret= g_obj_rot_relocation(gobj);
     if (ret) {
         return -EINVAL;
     }
 
     if (scr_rot == LV_DISPLAY_ROTATION_0) {
         rot_val = 0;
-        lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
-                       pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
+        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
+        lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
+                       gobj->pos.y_mid - (gobj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_90) {
         rot_val = 900;
-        lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid + (pg_obj->pos.w / 2), \
-                       pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
+        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
+        lv_obj_set_pos(gobj->obj, gobj->pos.x_mid + (gobj->pos.w / 2), \
+                       gobj->pos.y_mid - (gobj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_180) {
         rot_val = 1800;
-        lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid + (pg_obj->pos.w / 2), \
-                       pg_obj->pos.y_mid + (pg_obj->pos.h / 2));
+        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
+        lv_obj_set_pos(gobj->obj, gobj->pos.x_mid + (gobj->pos.w / 2), \
+                       gobj->pos.y_mid + (gobj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_270) {
         rot_val = 2700;
-        lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
-                       pg_obj->pos.y_mid + (pg_obj->pos.h / 2));
+        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
+        lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
+                       gobj->pos.y_mid + (gobj->pos.h / 2));
     }
 
     return 0;
 }
 
-static int32_t g_obj_rotate(g_obj *pg_obj)
+static int32_t g_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
 
-    if (!pg_obj) {
+    if (!gobj) {
         LOG_ERROR("Invalid g object");
         return -EINVAL;
     }
 
-    if (pg_obj->pos.rot == scr_rot) {
+    if (gobj->pos.rot == scr_rot) {
         LOG_TRACE("Object is rotated already");
         return 0;
     } else {
@@ -295,16 +295,16 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
     // TODO: check obj type and update flex flow, scale...
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
-    switch (pg_obj->type) {
+    switch (gobj->type) {
         case OBJ_BASE:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            ret = g_base_obj_rotate(pg_obj);
+            ret = g_base_obj_rotate(gobj);
             break;
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
-            ret = g_transform_obj_rotate(pg_obj);
+            ret = g_transform_obj_rotate(gobj);
             break;
 
         case OBJ_CONTAINER:
@@ -312,10 +312,10 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
              * The container maintains its original offset (0,0)
              * for scrolling purposes.
              */
-            ret = g_obj_rot_resize(pg_obj, 1);
+            ret = g_obj_rot_resize(gobj, 1);
             break;
         default:
-            LOG_WARN("Unknown G object type: %d", pg_obj->type);
+            LOG_WARN("Unknown G object type: %d", gobj->type);
             break;
     }
 
@@ -323,7 +323,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
         return ret;
     }
 
-    pg_obj->pos.rot = scr_rot;
+    gobj->pos.rot = scr_rot;
 
     return 0;
 }
@@ -413,8 +413,8 @@ int32_t g_rotate_event_handler()
 
 lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 {
-    g_obj *pg_obj = NULL;
-    lv_obj_t *pl_obj = NULL;
+    g_obj *gobj = NULL;
+    lv_obj_t *lobj = NULL;
 
     LV_ASSERT_NULL(par);
     LOG_TRACE("Create obj id %d", id);
@@ -423,107 +423,107 @@ lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
     switch (type) {
         case OBJ_BASE:
         case OBJ_CONTAINER:
-            pl_obj = lv_obj_create(par);
+            lobj = lv_obj_create(par);
             break;
         case OBJ_BTN:
-            pl_obj = lv_btn_create(par);
+            lobj = lv_btn_create(par);
             break;
         case OBJ_SLIDER:
-            pl_obj = lv_slider_create(par);
+            lobj = lv_slider_create(par);
             break;
         case OBJ_LABEL:
         case OBJ_ICON:
-            pl_obj = lv_label_create(par);
+            lobj = lv_label_create(par);
             break;
         case OBJ_SWITCH:
-            pl_obj = lv_switch_create(par);
+            lobj = lv_switch_create(par);
             break;
         default:
             LOG_ERROR("G Object type %d - id %d invalid", type, id);
-            pl_obj = NULL;
+            lobj = NULL;
             break;
 
     }
 
-    LV_ASSERT_NULL(pl_obj);
+    LV_ASSERT_NULL(lobj);
 
-    pg_obj = gf_register_obj(par, pl_obj, id);
-    pg_obj->type = type;
-    pg_obj->pos.rot = ROT_0;
+    gobj = gf_register_obj(par, lobj, id);
+    gobj->type = type;
+    gobj->pos.rot = ROT_0;
 
-    LV_ASSERT_NULL(pg_obj);
+    LV_ASSERT_NULL(gobj);
 
-    return pg_obj->obj;
+    return gobj->obj;
 }
 
-void gf_gobj_set_size(lv_obj_t *pl_obj, int32_t w, int32_t h)
+void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
 {
-    g_obj *pg_obj = NULL;
-    LV_ASSERT_NULL(pl_obj);
+    g_obj *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
 
-    pg_obj = pl_obj->user_data;
-    pg_obj->pos.w = w;
-    pg_obj->pos.h = h;
+    gobj = lobj->user_data;
+    gobj->pos.w = w;
+    gobj->pos.h = h;
 
-    lv_obj_set_size(pl_obj, pg_obj->pos.w, pg_obj->pos.h);
+    lv_obj_set_size(lobj, gobj->pos.w, gobj->pos.h);
 }
 
-void gf_gobj_get_size(lv_obj_t *pl_obj)
+void gf_gobj_get_size(lv_obj_t *lobj)
 {
-    g_obj *pg_obj = NULL;
-    LV_ASSERT_NULL(pl_obj);
+    g_obj *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
 
-    lv_obj_update_layout(pl_obj);
-    pg_obj = pl_obj->user_data;
-    pg_obj->pos.w = lv_obj_get_width(pl_obj);
-    pg_obj->pos.h = lv_obj_get_height(pl_obj);
+    lv_obj_update_layout(lobj);
+    gobj = lobj->user_data;
+    gobj->pos.w = lv_obj_get_width(lobj);
+    gobj->pos.h = lv_obj_get_height(lobj);
 }
 
-void gf_gobj_set_pos(lv_obj_t *pl_obj, int32_t x_ofs, int32_t y_ofs)
+void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 {
-    g_obj *pg_obj = NULL;
-    LV_ASSERT_NULL(pl_obj);
+    g_obj *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
 
-    lv_obj_set_pos(pl_obj, x_ofs, y_ofs);
+    lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
-    pg_obj = pl_obj->user_data;
-    if (!pg_obj->pos.w)
+    gobj = lobj->user_data;
+    if (!gobj->pos.w)
         LOG_WARN("Cannot calculate the center x");
-    if (!pg_obj->pos.h)
+    if (!gobj->pos.h)
         LOG_WARN("Cannot calculate the center y");
-    pg_obj->pos.x_mid = x_ofs + (pg_obj->pos.w / 2);
-    pg_obj->pos.y_mid = y_ofs + (pg_obj->pos.h / 2);
+    gobj->pos.x_mid = x_ofs + (gobj->pos.w / 2);
+    gobj->pos.y_mid = y_ofs + (gobj->pos.h / 2);
 }
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
                          uint32_t w, uint32_t h, lv_color_t color)
 {
-    lv_obj_t *pl_obj = gf_create_gobj_type(par, OBJ_BASE, id);
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BASE, id);
 
-    gf_gobj_set_size(pl_obj, w, h);
-    gf_gobj_set_pos(pl_obj, x, y);
+    gf_gobj_set_size(lobj, w, h);
+    gf_gobj_set_pos(lobj, x, y);
 
-    lv_obj_set_style_pad_all(pl_obj, 0, 0);
-    lv_obj_set_style_pad_gap(pl_obj, 0, 0);
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
 
-    lv_obj_set_style_bg_color(pl_obj, color, 0);
-    return pl_obj;
+    lv_obj_set_style_bg_color(lobj, color, 0);
+    return lobj;
 }
 
 lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id, int32_t x, \
                                int32_t y, uint32_t w, uint32_t h, \
                                lv_color_t color)
 {
-    lv_obj_t *pl_obj = gf_create_gobj_type(par, OBJ_CONTAINER, id);
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_CONTAINER, id);
 
-    gf_gobj_set_size(pl_obj, w, h);
-    gf_gobj_set_pos(pl_obj, x, y);
+    gf_gobj_set_size(lobj, w, h);
+    gf_gobj_set_pos(lobj, x, y);
 
-    lv_obj_set_style_pad_all(pl_obj, 0, 0);
-    lv_obj_set_style_pad_gap(pl_obj, 0, 0);
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
 
-    lv_obj_set_style_bg_color(pl_obj, color, 0);
-    return pl_obj;
+    lv_obj_set_style_bg_color(lobj, color, 0);
+    return lobj;
 }
 
 lv_obj_t * gf_create_textbox(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
@@ -673,12 +673,12 @@ static void btn_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
     lv_obj_t *par = lv_obj_get_parent(btn);
-    g_obj *pg_obj = NULL;
+    g_obj *gobj = NULL;
 
     // gf_refresh_all_layer();
 
-    pg_obj = btn->user_data;
-    LOG_DEBUG("ID %d: Taskbar button clicked", pg_obj->id);
+    gobj = btn->user_data;
+    LOG_DEBUG("ID %d: Taskbar button clicked", gobj->id);
     sample_rot(get_random_0_3());
 
 }
