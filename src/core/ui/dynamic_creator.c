@@ -148,7 +148,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     return 0;
 }
 
-static int32_t g_obj_rot_relocation(g_obj *gobj)
+static int32_t g_obj_rot_calc_center(g_obj *gobj)
 {
     lv_obj_t *lobj_par = NULL;
     g_obj *gobj_par = NULL;
@@ -184,7 +184,7 @@ static void g_swap_xy_size(g_obj *gobj)
     gobj->pos.h = tmp_width;
 }
 
-static int32_t g_obj_rot_resize(g_obj *gobj, int8_t set)
+static int32_t g_obj_rot_calc_size(g_obj *gobj)
 {
     int32_t scr_rot = g_get_scr_rot_dir();
 
@@ -209,8 +209,6 @@ static int32_t g_obj_rot_resize(g_obj *gobj, int8_t set)
             g_swap_xy_size(gobj);
     }
 
-    if (set)
-        lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
     return 0;
 }
 
@@ -218,12 +216,13 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
 
-    ret = g_obj_rot_resize(gobj, 1);
+    ret = g_obj_rot_calc_size(gobj);
     if (ret) {
         return -EINVAL;
     }
+    lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
 
-    ret= g_obj_rot_relocation(gobj);
+    ret= g_obj_rot_calc_center(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -240,12 +239,12 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
     int32_t scr_rot = g_get_scr_rot_dir();
     int32_t rot_val = 0;
 
-    ret = g_obj_rot_resize(gobj, 0);
+    ret = g_obj_rot_calc_size(gobj);
     if (ret) {
         return -EINVAL;
     }
 
-    ret= g_obj_rot_relocation(gobj);
+    ret= g_obj_rot_calc_center(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -312,7 +311,9 @@ static int32_t g_obj_rotate(g_obj *gobj)
              * The container maintains its original offset (0,0)
              * for scrolling purposes.
              */
-            ret = g_obj_rot_resize(gobj, 1);
+            ret = g_obj_rot_calc_size(gobj);
+            if (!ret)
+                lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
             break;
         default:
             LOG_WARN("Unknown G object type: %d", gobj->type);
