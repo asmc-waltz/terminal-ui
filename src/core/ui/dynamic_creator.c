@@ -74,7 +74,7 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
         return -EINVAL;
     }
 
-    if (scr_rot == pg_obj->inf.rot) {
+    if (scr_rot == pg_obj->pos.rot) {
         return 0;
     }
 
@@ -82,63 +82,63 @@ static int32_t g_obj_get_center(g_obj *pg_obj, int32_t par_w, int32_t par_h)
               "\t\tCurrent: par_h:%d par_w:%d \n"
               "\t\tCurrent: x_mid:%d y_mid:%d", \
               par_h, par_w, \
-              pg_obj->inf.par_h, pg_obj->inf.par_w,
-              pg_obj->inf.x_mid, pg_obj->inf.y_mid);
+              pg_obj->pos.par_h, pg_obj->pos.par_w,
+              pg_obj->pos.x_mid, pg_obj->pos.y_mid);
 
-    if (pg_obj->inf.rot == ROT_0) {
+    if (pg_obj->pos.rot == ROT_0) {
         if (scr_rot == ROT_90) {
-            new_x_mid = par_w - pg_obj->inf.y_mid;
-            new_y_mid = pg_obj->inf.x_mid;
+            new_x_mid = par_w - pg_obj->pos.y_mid;
+            new_y_mid = pg_obj->pos.x_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - pg_obj->inf.x_mid;
-            new_y_mid = par_h - pg_obj->inf.y_mid;
+            new_x_mid = par_w - pg_obj->pos.x_mid;
+            new_y_mid = par_h - pg_obj->pos.y_mid;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = pg_obj->inf.y_mid;
-            new_y_mid = par_h - pg_obj->inf.x_mid;
+            new_x_mid = pg_obj->pos.y_mid;
+            new_y_mid = par_h - pg_obj->pos.x_mid;
         }
-    } else if (pg_obj->inf.rot == ROT_90) {
+    } else if (pg_obj->pos.rot == ROT_90) {
         if (scr_rot == ROT_0) {
-            new_x_mid = pg_obj->inf.y_mid;
-            new_y_mid = pg_obj->inf.par_w - pg_obj->inf.x_mid;
+            new_x_mid = pg_obj->pos.y_mid;
+            new_y_mid = pg_obj->pos.par_w - pg_obj->pos.x_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - pg_obj->inf.y_mid;
-            new_y_mid = par_h - (pg_obj->inf.par_w - pg_obj->inf.x_mid);
+            new_x_mid = par_w - pg_obj->pos.y_mid;
+            new_y_mid = par_h - (pg_obj->pos.par_w - pg_obj->pos.x_mid);
         } else if (scr_rot == ROT_270) {
-            new_x_mid = par_w - pg_obj->inf.x_mid;
-            new_y_mid = par_h - pg_obj->inf.y_mid;
+            new_x_mid = par_w - pg_obj->pos.x_mid;
+            new_y_mid = par_h - pg_obj->pos.y_mid;
         }
-    } else if (pg_obj->inf.rot == ROT_180) {
+    } else if (pg_obj->pos.rot == ROT_180) {
         if (scr_rot == ROT_0) {
-            new_x_mid = par_w - pg_obj->inf.x_mid;
-            new_y_mid = par_h - pg_obj->inf.y_mid;
+            new_x_mid = par_w - pg_obj->pos.x_mid;
+            new_y_mid = par_h - pg_obj->pos.y_mid;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - (pg_obj->inf.par_h - pg_obj->inf.y_mid);
-            new_y_mid = pg_obj->inf.par_w - pg_obj->inf.x_mid;
+            new_x_mid = par_w - (pg_obj->pos.par_h - pg_obj->pos.y_mid);
+            new_y_mid = pg_obj->pos.par_w - pg_obj->pos.x_mid;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = pg_obj->inf.par_h - pg_obj->inf.y_mid;
-            new_y_mid = par_h - (pg_obj->inf.par_w - pg_obj->inf.x_mid);
+            new_x_mid = pg_obj->pos.par_h - pg_obj->pos.y_mid;
+            new_y_mid = par_h - (pg_obj->pos.par_w - pg_obj->pos.x_mid);
         }
-    } else if (pg_obj->inf.rot == ROT_270) {
+    } else if (pg_obj->pos.rot == ROT_270) {
         if (scr_rot == ROT_0) {
-            new_x_mid = pg_obj->inf.par_h - pg_obj->inf.y_mid;
-            new_y_mid = pg_obj->inf.x_mid;
+            new_x_mid = pg_obj->pos.par_h - pg_obj->pos.y_mid;
+            new_y_mid = pg_obj->pos.x_mid;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - pg_obj->inf.x_mid;
-            new_y_mid = par_h - pg_obj->inf.y_mid;
+            new_x_mid = par_w - pg_obj->pos.x_mid;
+            new_y_mid = par_h - pg_obj->pos.y_mid;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - (pg_obj->inf.par_h - pg_obj->inf.y_mid);
-            new_y_mid = par_h - pg_obj->inf.x_mid;
+            new_x_mid = par_w - (pg_obj->pos.par_h - pg_obj->pos.y_mid);
+            new_y_mid = par_h - pg_obj->pos.x_mid;
         }
     }
 
-    pg_obj->inf.x_mid = new_x_mid;
-    pg_obj->inf.par_w = par_w;
+    pg_obj->pos.x_mid = new_x_mid;
+    pg_obj->pos.par_w = par_w;
     if (new_x_mid <= 0) {
         LOG_WARN("Negative x_mid: %d", new_x_mid);
     }
 
-    pg_obj->inf.y_mid = new_y_mid;
-    pg_obj->inf.par_h = par_h;
+    pg_obj->pos.y_mid = new_y_mid;
+    pg_obj->pos.par_h = par_h;
     if (new_y_mid <= 0) {
         LOG_WARN("* Negative y_mid: %d", new_y_mid);
         return -1;
@@ -170,7 +170,7 @@ static int32_t g_obj_rot_relocation(g_obj *pg_obj)
         return -EINVAL;
     }
 
-    g_obj_get_center(pg_obj, pg_obj_par->inf.w, pg_obj_par->inf.h);
+    g_obj_get_center(pg_obj, pg_obj_par->pos.w, pg_obj_par->pos.h);
 
     return 0;
 }
@@ -179,9 +179,9 @@ static void g_swap_xy_size(g_obj *pg_obj)
 {
     int32_t tmp_width;
 
-    tmp_width = pg_obj->inf.w;
-    pg_obj->inf.w = pg_obj->inf.h;
-    pg_obj->inf.h = tmp_width;
+    tmp_width = pg_obj->pos.w;
+    pg_obj->pos.w = pg_obj->pos.h;
+    pg_obj->pos.h = tmp_width;
 }
 
 static int32_t g_obj_rot_resize(g_obj *pg_obj, int8_t set)
@@ -196,21 +196,21 @@ static int32_t g_obj_rot_resize(g_obj *pg_obj, int8_t set)
     // Must check: input rot is different from the current rotation inf
 
     if (scr_rot == ROT_0) {
-        if (pg_obj->inf.rot == ROT_90 || pg_obj->inf.rot == ROT_270)
+        if (pg_obj->pos.rot == ROT_90 || pg_obj->pos.rot == ROT_270)
             g_swap_xy_size(pg_obj);
     } else if (scr_rot == ROT_90) {
-        if (pg_obj->inf.rot == ROT_0 || pg_obj->inf.rot == ROT_180)
+        if (pg_obj->pos.rot == ROT_0 || pg_obj->pos.rot == ROT_180)
             g_swap_xy_size(pg_obj);
     } else if (scr_rot == ROT_180) {
-        if (pg_obj->inf.rot == ROT_90 || pg_obj->inf.rot == ROT_270)
+        if (pg_obj->pos.rot == ROT_90 || pg_obj->pos.rot == ROT_270)
             g_swap_xy_size(pg_obj);
     } else if (scr_rot == ROT_270) {
-        if (pg_obj->inf.rot == ROT_0 || pg_obj->inf.rot == ROT_180)
+        if (pg_obj->pos.rot == ROT_0 || pg_obj->pos.rot == ROT_180)
             g_swap_xy_size(pg_obj);
     }
 
     if (set)
-        lv_obj_set_size(pg_obj->obj, pg_obj->inf.w, pg_obj->inf.h);
+        lv_obj_set_size(pg_obj->obj, pg_obj->pos.w, pg_obj->pos.h);
     return 0;
 }
 
@@ -228,8 +228,8 @@ static int32_t g_base_obj_rotate(g_obj *pg_obj)
         return -EINVAL;
     }
 
-    lv_obj_set_pos(pg_obj->obj, pg_obj->inf.x_mid - (pg_obj->inf.w / 2), \
-                   pg_obj->inf.y_mid - (pg_obj->inf.h / 2));
+    lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
+                   pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
 
     return 0;
 }
@@ -253,23 +253,23 @@ static int32_t g_transform_obj_rotate(g_obj *pg_obj)
     if (scr_rot == LV_DISPLAY_ROTATION_0) {
         rot_val = 0;
         lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->inf.x_mid - (pg_obj->inf.w / 2), \
-                       pg_obj->inf.y_mid - (pg_obj->inf.h / 2));
+        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
+                       pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_90) {
         rot_val = 900;
         lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->inf.x_mid + (pg_obj->inf.w / 2), \
-                       pg_obj->inf.y_mid - (pg_obj->inf.h / 2));
+        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid + (pg_obj->pos.w / 2), \
+                       pg_obj->pos.y_mid - (pg_obj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_180) {
         rot_val = 1800;
         lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->inf.x_mid + (pg_obj->inf.w / 2), \
-                       pg_obj->inf.y_mid + (pg_obj->inf.h / 2));
+        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid + (pg_obj->pos.w / 2), \
+                       pg_obj->pos.y_mid + (pg_obj->pos.h / 2));
     } else if (scr_rot == LV_DISPLAY_ROTATION_270) {
         rot_val = 2700;
         lv_obj_set_style_transform_rotation(pg_obj->obj, rot_val, 0);
-        lv_obj_set_pos(pg_obj->obj, pg_obj->inf.x_mid - (pg_obj->inf.w / 2), \
-                       pg_obj->inf.y_mid + (pg_obj->inf.h / 2));
+        lv_obj_set_pos(pg_obj->obj, pg_obj->pos.x_mid - (pg_obj->pos.w / 2), \
+                       pg_obj->pos.y_mid + (pg_obj->pos.h / 2));
     }
 
     return 0;
@@ -285,7 +285,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
         return -EINVAL;
     }
 
-    if (pg_obj->inf.rot == scr_rot) {
+    if (pg_obj->pos.rot == scr_rot) {
         LOG_TRACE("Object is rotated already");
         return 0;
     } else {
@@ -295,7 +295,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
     // TODO: check obj type and update flex flow, scale...
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
-    switch (pg_obj->inf.type) {
+    switch (pg_obj->type) {
         case OBJ_BASE:
         case OBJ_BTN:
         case OBJ_SLIDER:
@@ -315,7 +315,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
             ret = g_obj_rot_resize(pg_obj, 1);
             break;
         default:
-            LOG_WARN("Unknown G object type: %d", pg_obj->inf.type);
+            LOG_WARN("Unknown G object type: %d", pg_obj->type);
             break;
     }
 
@@ -323,7 +323,7 @@ static int32_t g_obj_rotate(g_obj *pg_obj)
         return ret;
     }
 
-    pg_obj->inf.rot = scr_rot;
+    pg_obj->pos.rot = scr_rot;
 
     return 0;
 }
@@ -448,8 +448,8 @@ lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
     LV_ASSERT_NULL(pl_obj);
 
     pg_obj = gf_register_obj(par, pl_obj, id);
-    pg_obj->inf.type = type;
-    pg_obj->inf.rot = ROT_0;
+    pg_obj->type = type;
+    pg_obj->pos.rot = ROT_0;
 
     LV_ASSERT_NULL(pg_obj);
 
@@ -462,10 +462,10 @@ void gf_gobj_set_size(lv_obj_t *pl_obj, int32_t w, int32_t h)
     LV_ASSERT_NULL(pl_obj);
 
     pg_obj = pl_obj->user_data;
-    pg_obj->inf.w = w;
-    pg_obj->inf.h = h;
+    pg_obj->pos.w = w;
+    pg_obj->pos.h = h;
 
-    lv_obj_set_size(pl_obj, pg_obj->inf.w, pg_obj->inf.h);
+    lv_obj_set_size(pl_obj, pg_obj->pos.w, pg_obj->pos.h);
 }
 
 void gf_gobj_get_size(lv_obj_t *pl_obj)
@@ -475,8 +475,8 @@ void gf_gobj_get_size(lv_obj_t *pl_obj)
 
     lv_obj_update_layout(pl_obj);
     pg_obj = pl_obj->user_data;
-    pg_obj->inf.w = lv_obj_get_width(pl_obj);
-    pg_obj->inf.h = lv_obj_get_height(pl_obj);
+    pg_obj->pos.w = lv_obj_get_width(pl_obj);
+    pg_obj->pos.h = lv_obj_get_height(pl_obj);
 }
 
 void gf_gobj_set_pos(lv_obj_t *pl_obj, int32_t x_ofs, int32_t y_ofs)
@@ -487,12 +487,12 @@ void gf_gobj_set_pos(lv_obj_t *pl_obj, int32_t x_ofs, int32_t y_ofs)
     lv_obj_set_pos(pl_obj, x_ofs, y_ofs);
 
     pg_obj = pl_obj->user_data;
-    if (!pg_obj->inf.w)
+    if (!pg_obj->pos.w)
         LOG_WARN("Cannot calculate the center x");
-    if (!pg_obj->inf.h)
+    if (!pg_obj->pos.h)
         LOG_WARN("Cannot calculate the center y");
-    pg_obj->inf.x_mid = x_ofs + (pg_obj->inf.w / 2);
-    pg_obj->inf.y_mid = y_ofs + (pg_obj->inf.h / 2);
+    pg_obj->pos.x_mid = x_ofs + (pg_obj->pos.w / 2);
+    pg_obj->pos.y_mid = y_ofs + (pg_obj->pos.h / 2);
 }
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
