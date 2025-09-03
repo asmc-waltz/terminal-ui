@@ -411,10 +411,7 @@ static int32_t g_obj_rotate(g_obj *gobj)
     }
 
     if (gobj->pos.rot == scr_rot) {
-        LOG_TRACE("Object is rotated already");
         return 0;
-    } else {
-        LOG_TRACE("Object is rotating to %d", scr_rot);
     }
 
     // TODO: check obj type and update flex flow, scale...
@@ -745,6 +742,10 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
 
 lv_obj_t *pl_main_box = NULL;
 lv_obj_t *pl_child_box = NULL;
+lv_obj_t *pl_child_box_corner1 = NULL;
+lv_obj_t *pl_child_box_corner2 = NULL;
+lv_obj_t *pl_child_box_corner2_text_wrapper = NULL;
+lv_obj_t *pl_child_box_corner2_text_box = NULL;
 lv_obj_t *pl_container_box = NULL;
 
 lv_obj_t *pl_text_box = NULL;
@@ -758,32 +759,21 @@ lv_obj_t *pl_slider = NULL;
 
 void sample_rot(int32_t angle)
 {
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
+    // TODO: implement recursive rotate from parent
     g_set_scr_rot_dir(angle);
-    LOG_TRACE("### ### ROTATE - CHILD BOX -------------------------------------------------");
     g_obj_rotate(pl_child_box->user_data);
-
-    LOG_TRACE("### ROTATE - CONTAINER-------------------------------------------------");
+    g_obj_rotate(pl_child_box_corner1->user_data);
+    g_obj_rotate(pl_child_box_corner2->user_data);
+    g_obj_rotate(pl_child_box_corner2_text_wrapper->user_data);
+    g_obj_rotate(pl_child_box_corner2_text_box->user_data);
     g_obj_rotate(pl_container_box->user_data);
-
-    LOG_TRACE("### ROTATE - TEXT wrapper-------------------------------------------------");
     g_obj_rotate(pl_text_wrapper->user_data);
-    LOG_TRACE("### ROTATE - TEXT-------------------------------------------------");
     g_obj_rotate(pl_text_box->user_data);
-
-    LOG_TRACE("### ROTATE - SWITCH wrapper-------------------------------------------------");
     g_obj_rotate(pl_switch_wrapper->user_data);
-    LOG_TRACE("### ROTATE - SWITCH-------------------------------------------------");
     g_obj_rotate(pl_switch->user_data);
-
-    LOG_TRACE("### ROTATE - ICON wrapper-------------------------------------------------");
     g_obj_rotate(pl_icon_wrapper->user_data);
-    LOG_TRACE("### ROTATE - ICON-------------------------------------------------");
     g_obj_rotate(pl_icon->user_data);
-
-    LOG_TRACE("### ROTATE - BUTTON-------------------------------------------------");
     g_obj_rotate(pl_btn->user_data);
-    LOG_TRACE("### ROTATE - SLIDER-------------------------------------------------");
     g_obj_rotate(pl_slider->user_data);
 
 
@@ -834,6 +824,31 @@ void create_dynamic_ui()
     // Main box as screen background
     pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
                                 lv_color_hex(0x000000));
+
+    pl_child_box_corner1 = gf_create_box(pl_main_box, 0, 0, 0, 80, 90, \
+                                         lv_color_hex(0x0000FF));
+    gf_gobj_align_to(pl_child_box_corner1, pl_main_box, \
+                     LV_ALIGN_BOTTOM_MID,  0, 0);
+    pl_child_box_corner2 = gf_create_box(pl_main_box, 0, 0, 0, 200, 200, \
+                                         lv_color_hex(0x00FF00));
+    gf_gobj_align_to(pl_child_box_corner2, pl_main_box, \
+                     LV_ALIGN_BOTTOM_RIGHT, 0, 0);
+
+
+
+    pl_child_box_corner2_text_wrapper = gf_create_box(\
+            pl_child_box_corner2, 0, 0, 0, 150, 40, lv_color_hex(0xFFFFFF));
+    lv_obj_clear_flag(pl_child_box_corner2_text_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(pl_child_box_corner2_text_wrapper, pl_child_box_corner2, \
+                     LV_ALIGN_CENTER, 10, 25);
+    pl_child_box_corner2_text_box = gf_create_textbox(\
+            pl_child_box_corner2_text_wrapper, 0, 10, 10, "CORNER");
+    // TODO: verify text box alignment
+    // gf_gobj_align_to(pl_child_box_corner2_text_box, \
+    //                  pl_child_box_corner2_text_wrapper, \
+    //                  LV_ALIGN_CENTER, 0, 0);
+
+
     // Child box as a menu bar
     pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 400, 500, \
                                  lv_color_hex(0xFFFFFF));
