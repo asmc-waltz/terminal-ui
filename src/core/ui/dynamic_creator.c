@@ -212,70 +212,108 @@ static int32_t g_obj_rot_calc_size(g_obj *gobj)
     return 0;
 }
 
+static void g_obj_rot_90_set_aln(g_obj *gobj)
+{
+    int8_t align = LV_ALIGN_DEFAULT;
+
+    switch (gobj->aln.align) {
+        case LV_ALIGN_TOP_LEFT:         align = LV_ALIGN_TOP_RIGHT; break;
+        case LV_ALIGN_TOP_MID:          align = LV_ALIGN_RIGHT_MID; break;
+        case LV_ALIGN_TOP_RIGHT:        align = LV_ALIGN_BOTTOM_RIGHT; break;
+        case LV_ALIGN_LEFT_MID:         align = LV_ALIGN_TOP_MID; break;
+        case LV_ALIGN_CENTER:           align = LV_ALIGN_CENTER; break;
+        case LV_ALIGN_RIGHT_MID:        align = LV_ALIGN_BOTTOM_MID; break;
+        case LV_ALIGN_BOTTOM_LEFT:      align = LV_ALIGN_TOP_LEFT; break;
+        case LV_ALIGN_BOTTOM_MID:       align = LV_ALIGN_LEFT_MID; break;
+        case LV_ALIGN_BOTTOM_RIGHT:     align = LV_ALIGN_BOTTOM_LEFT; break;
+
+        /* Outside aligns on TOP side -> RIGHT side */
+        case LV_ALIGN_OUT_TOP_LEFT:     align = LV_ALIGN_OUT_RIGHT_TOP; break;
+        case LV_ALIGN_OUT_TOP_MID:      align = LV_ALIGN_OUT_RIGHT_MID; break;
+        case LV_ALIGN_OUT_TOP_RIGHT:    align = LV_ALIGN_OUT_RIGHT_BOTTOM; break;
+        /* Outside aligns on BOTTOM side -> LEFT side */
+        case LV_ALIGN_OUT_BOTTOM_LEFT:  align = LV_ALIGN_OUT_LEFT_TOP; break;
+        case LV_ALIGN_OUT_BOTTOM_MID:   align = LV_ALIGN_OUT_LEFT_MID; break;
+        case LV_ALIGN_OUT_BOTTOM_RIGHT: align = LV_ALIGN_OUT_LEFT_BOTTOM; break;
+        /* Outside aligns on LEFT side -> TOP side */
+        case LV_ALIGN_OUT_LEFT_TOP:     align = LV_ALIGN_OUT_TOP_RIGHT; break;
+        case LV_ALIGN_OUT_LEFT_MID:     align = LV_ALIGN_OUT_TOP_MID; break;
+        case LV_ALIGN_OUT_LEFT_BOTTOM:  align = LV_ALIGN_OUT_TOP_LEFT; break;
+        /* Outside aligns on RIGHT side -> BOTTOM side */
+        case LV_ALIGN_OUT_RIGHT_TOP:    align = LV_ALIGN_OUT_BOTTOM_RIGHT; break;
+        case LV_ALIGN_OUT_RIGHT_MID:    align = LV_ALIGN_OUT_BOTTOM_MID; break;
+        case LV_ALIGN_OUT_RIGHT_BOTTOM: align = LV_ALIGN_OUT_BOTTOM_LEFT; break;
+        default:
+            LOG_ERROR("The current object alignment is invalid");
+            return;
+    }
+
+    gobj->aln.align = align;
+}
+
+static void g_obj_rot_90_swap_ofs(g_obj *gobj)
+{
+    int32_t swap;
+
+    swap = gobj->aln.x;
+    gobj->aln.x = -(gobj->aln.y);
+    gobj->aln.y = swap;
+}
+
 static int32_t g_obj_rot_calc_align(g_obj *gobj)
 {
-    int32_t ret;
-    int8_t align;
-    int8_t obj_rot;
     int8_t scr_rot;
-    int8_t new_align;
-    int32_t new_x_ofs;
-    int32_t new_y_ofs;
+    int8_t rot_cnt;
 
-    align = gobj->aln.align;
-    obj_rot = gobj->pos.rot;
     scr_rot = g_get_scr_rot_dir();
-    new_align = LV_ALIGN_DEFAULT;
-    new_x_ofs = 0;
-    new_y_ofs = 0;
-
-    switch (align) {
-        case LV_ALIGN_TOP_LEFT:
-
-
-
+    switch (gobj->pos.rot) {
+        case ROT_0:
+            switch (scr_rot) {
+                case ROT_0: rot_cnt = 0; break;
+                case ROT_90: rot_cnt = 1; break;
+                case ROT_180: rot_cnt = 2; break;
+                case ROT_270: rot_cnt = 3; break;
+                default:
+                    return -1;
+            }
             break;
-        case LV_ALIGN_TOP_MID:
+        case ROT_90:
+            switch (scr_rot) {
+                case ROT_0: rot_cnt = 3; break;
+                case ROT_90: rot_cnt = 0; break;
+                case ROT_180: rot_cnt = 1; break;
+                case ROT_270: rot_cnt = 2; break;
+                default:
+                    return -1;
+            }
             break;
-        case LV_ALIGN_TOP_RIGHT:
+        case ROT_180:
+            switch (scr_rot) {
+                case ROT_0: rot_cnt = 2; break;
+                case ROT_90: rot_cnt = 3; break;
+                case ROT_180: rot_cnt = 0; break;
+                case ROT_270: rot_cnt = 1; break;
+                default:
+                    return -1;
+            }
             break;
-        case LV_ALIGN_BOTTOM_LEFT:
+        case ROT_270:
+            switch (scr_rot) {
+                case ROT_0: rot_cnt = 1; break;
+                case ROT_90: rot_cnt = 2; break;
+                case ROT_180: rot_cnt = 3; break;
+                case ROT_270: rot_cnt = 0; break;
+                default:
+                    return -1;
+            }
             break;
-        case LV_ALIGN_BOTTOM_MID:
-            break;
-        case LV_ALIGN_BOTTOM_RIGHT:
-            break;
-        case LV_ALIGN_LEFT_MID:
-            break;
-        case LV_ALIGN_RIGHT_MID:
-            break;
-        case LV_ALIGN_CENTER:
-            break;
-        case LV_ALIGN_OUT_TOP_LEFT:
-            break;
-        case LV_ALIGN_OUT_TOP_MID:
-            break;
-        case LV_ALIGN_OUT_TOP_RIGHT:
-            break;
-        case LV_ALIGN_OUT_BOTTOM_LEFT:
-            break;
-        case LV_ALIGN_OUT_BOTTOM_MID:
-            break;
-        case LV_ALIGN_OUT_BOTTOM_RIGHT:
-            break;
-        case LV_ALIGN_OUT_LEFT_TOP:
-            break;
-        case LV_ALIGN_OUT_LEFT_MID:
-            break;
-        case LV_ALIGN_OUT_LEFT_BOTTOM:
-            break;
-        case LV_ALIGN_OUT_RIGHT_TOP:
-            break;
-        case LV_ALIGN_OUT_RIGHT_MID:
-            break;
-        case LV_ALIGN_OUT_RIGHT_BOTTOM:
         default:
-            break;
+            return -1;
+    }
+
+    for (int8_t cnt = 0; cnt < rot_cnt; cnt++) {
+        g_obj_rot_90_set_aln(gobj);
+        g_obj_rot_90_swap_ofs(gobj);
     }
 
     return 0;
@@ -309,7 +347,7 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
                        gobj->pos.y_mid - (gobj->pos.h / 2));
     } else {
-        // TODO: Update object alignment according to logical rotation
+        // Update object alignment according to logical rotation
         ret = g_obj_rot_calc_align(gobj);
         if (ret) {
             return -EINVAL;
@@ -809,24 +847,33 @@ void create_dynamic_ui()
     pl_text_wrapper = gf_create_box(pl_container_box, 0, l_align, 25, 150, 40, \
                                  lv_color_hex(0xFFFFFF));
     lv_obj_clear_flag(pl_text_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+
+    gf_gobj_align_to(pl_text_wrapper, pl_container_box, LV_ALIGN_TOP_LEFT, 30, 25);
     pl_text_box = gf_create_textbox(pl_text_wrapper, 0, 10, 10, "Go001 hahaha");
+
+
+
 
     pl_switch_wrapper = gf_create_box(pl_container_box, 0, l_align, 85, 80, 50, \
                                  lv_color_hex(0xFFFFFF));
     lv_obj_clear_flag(pl_switch_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(pl_switch_wrapper, pl_text_wrapper, LV_ALIGN_OUT_BOTTOM_MID, 15, 25);
     pl_switch = gf_create_switch(pl_switch_wrapper, 0, 10, 10, 60, 30);
 
 
     pl_icon_wrapper = gf_create_box(pl_container_box, 0, l_align, 150, 50, 50, \
                                  lv_color_hex(0xFFFFFF));
     lv_obj_clear_flag(pl_icon_wrapper, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(pl_icon_wrapper, pl_switch_wrapper, LV_ALIGN_OUT_BOTTOM_MID, 30, 25);
     pl_icon = gf_create_sym(pl_icon_wrapper, 0, 10, 10, &terminal_icons_32, \
                             ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
 
 
 
     pl_btn = gf_create_btn(pl_container_box, 0, l_align, 230, 80, 50);
+    gf_gobj_align_to(pl_btn, pl_icon_wrapper, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 25);
     pl_slider = gf_create_slider(pl_container_box, 0, l_align, 300, 100, 20);
+    gf_gobj_align_to(pl_slider, pl_btn, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
 
 
     gf_register_handler(pl_btn, 0, btn_handler, LV_EVENT_CLICKED);
