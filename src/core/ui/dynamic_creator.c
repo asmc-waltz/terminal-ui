@@ -31,10 +31,10 @@
 #define HW_DISPLAY_WIDTH                1024
 #define HW_DISPLAY_HEIGHT               600
 
-#define ROT_0                           LV_DISPLAY_ROTATION_0
-#define ROT_90                          LV_DISPLAY_ROTATION_90
-#define ROT_180                         LV_DISPLAY_ROTATION_180
-#define ROT_270                         LV_DISPLAY_ROTATION_270
+#define ROTATION_0                      LV_DISPLAY_ROTATION_0
+#define ROTATION_90                     LV_DISPLAY_ROTATION_90
+#define ROTATION_180                    LV_DISPLAY_ROTATION_180
+#define ROTATION_270                    LV_DISPLAY_ROTATION_270
 /**********************
  *      TYPEDEFS
  **********************/
@@ -52,7 +52,7 @@
  **********************/
 static int32_t g_scr_width = HW_DISPLAY_WIDTH;
 static int32_t g_scr_hight = HW_DISPLAY_HEIGHT;
-static int32_t g_scr_rot_dir = ROT_0;
+static int32_t g_scr_rot_dir = ROTATION_0;
 
 /**********************
  *      MACROS
@@ -107,8 +107,8 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
         return 0;
 
     /* sanity check rotation values (expect 0..3 mapping to 0/90/180/270) */
-    if (old_rot < ROT_0 || old_rot > ROT_270 ||
-        scr_rot < ROT_0 || scr_rot > ROT_270) {
+    if (old_rot < ROTATION_0 || old_rot > ROTATION_270 ||
+        scr_rot < ROTATION_0 || scr_rot > ROTATION_270) {
         LOG_ERROR("g_obj_get_center: invalid rot old=%d new=%d",
                   old_rot, scr_rot);
         return -EINVAL;
@@ -132,50 +132,50 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
      * Each expression computes new center coordinates relative to new parent.
      */
     switch (old_rot) {
-    case ROT_0:
-        if (scr_rot == ROT_90) {
+    case ROTATION_0:
+        if (scr_rot == ROTATION_90) {
             new_x_mid = par_w - T;
             new_y_mid = L;
-        } else if (scr_rot == ROT_180) {
+        } else if (scr_rot == ROTATION_180) {
             new_x_mid = par_w - L;
             new_y_mid = par_h - T;
-        } else if (scr_rot == ROT_270) {
+        } else if (scr_rot == ROTATION_270) {
             new_x_mid = T;
             new_y_mid = par_h - L;
         }
         break;
-    case ROT_90:
-        if (scr_rot == ROT_0) {
+    case ROTATION_90:
+        if (scr_rot == ROTATION_0) {
             new_x_mid = T;
             new_y_mid = old_pw - L; /* old_pw == parent's width before rotation */
-        } else if (scr_rot == ROT_180) {
+        } else if (scr_rot == ROTATION_180) {
             new_x_mid = par_w - T;
             new_y_mid = par_h - (old_pw - L);
-        } else if (scr_rot == ROT_270) {
+        } else if (scr_rot == ROTATION_270) {
             new_x_mid = par_w - L;
             new_y_mid = par_h - T;
         }
         break;
-    case ROT_180:
-        if (scr_rot == ROT_0) {
+    case ROTATION_180:
+        if (scr_rot == ROTATION_0) {
             new_x_mid = par_w - L;
             new_y_mid = par_h - T;
-        } else if (scr_rot == ROT_90) {
+        } else if (scr_rot == ROTATION_90) {
             new_x_mid = par_w - (old_ph - T);
             new_y_mid = old_pw - L;
-        } else if (scr_rot == ROT_270) {
+        } else if (scr_rot == ROTATION_270) {
             new_x_mid = old_ph - T;
             new_y_mid = par_h - (old_pw - L);
         }
         break;
-    case ROT_270:
-        if (scr_rot == ROT_0) {
+    case ROTATION_270:
+        if (scr_rot == ROTATION_0) {
             new_x_mid = old_ph - T;
             new_y_mid = L;
-        } else if (scr_rot == ROT_90) {
+        } else if (scr_rot == ROTATION_90) {
             new_x_mid = par_w - L;
             new_y_mid = par_h - T;
-        } else if (scr_rot == ROT_180) {
+        } else if (scr_rot == ROTATION_180) {
             new_x_mid = par_w - (old_ph - T);
             new_y_mid = par_h - L;
         }
@@ -261,17 +261,17 @@ static int32_t g_obj_rot_calc_size(g_obj *gobj)
 
     // Must check: input rot is different from the current rotation inf
 
-    if (scr_rot == ROT_0) {
-        if (gobj->pos.rot == ROT_90 || gobj->pos.rot == ROT_270)
+    if (scr_rot == ROTATION_0) {
+        if (gobj->pos.rot == ROTATION_90 || gobj->pos.rot == ROTATION_270)
             g_swap_xy_size(gobj);
-    } else if (scr_rot == ROT_90) {
-        if (gobj->pos.rot == ROT_0 || gobj->pos.rot == ROT_180)
+    } else if (scr_rot == ROTATION_90) {
+        if (gobj->pos.rot == ROTATION_0 || gobj->pos.rot == ROTATION_180)
             g_swap_xy_size(gobj);
-    } else if (scr_rot == ROT_180) {
-        if (gobj->pos.rot == ROT_90 || gobj->pos.rot == ROT_270)
+    } else if (scr_rot == ROTATION_180) {
+        if (gobj->pos.rot == ROTATION_90 || gobj->pos.rot == ROTATION_270)
             g_swap_xy_size(gobj);
-    } else if (scr_rot == ROT_270) {
-        if (gobj->pos.rot == ROT_0 || gobj->pos.rot == ROT_180)
+    } else if (scr_rot == ROTATION_270) {
+        if (gobj->pos.rot == ROTATION_0 || gobj->pos.rot == ROTATION_180)
             g_swap_xy_size(gobj);
     }
 
@@ -380,8 +380,8 @@ static int32_t g_obj_rot_calc_align(g_obj *gobj)
     cur_rot = gobj->pos.rot;
     scr_rot = g_get_scr_rot_dir();
 
-    if (cur_rot < ROT_0 || cur_rot > ROT_270 ||
-        scr_rot < ROT_0 || scr_rot > ROT_270)
+    if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
+        scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
         return -EINVAL;
 
     rot_cnt = (scr_rot - cur_rot + 4) % 4;
@@ -527,97 +527,12 @@ static int32_t g_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-int32_t g_set_scr_size(int32_t width, int32_t hight)
-{
-    // TODO: lock
-    g_scr_hight = hight;
-    g_scr_width = width;
-    return 0;
-}
-
-int32_t g_get_scr_width(int32_t width, int32_t hight)
-{
-    return g_scr_width;
-}
-
-int32_t g_get_scr_hight()
-{
-    return g_scr_hight;
-}
-
-int32_t g_set_scr_rot_dir(int32_t rot_dir)
-{
-    g_scr_rot_dir = rot_dir;
-    return 0;
-}
-
-int32_t g_get_scr_rot_dir()
-{
-    return g_scr_rot_dir;
-}
-
-int32_t g_relocation_all()
-{
-    // Retrieve current screen dimensions.
-    // Recalculate object size, position, and layout based on rotation.
-}
-
-int32_t g_scale_all()
-{
-    // Retrieve current screen dimensions.
-    // Recalculate object size, position, and layout based on rotation.
-}
-
-int32_t g_rotate_event_handler()
-{
-    int32_t ret;
-    int32_t rot_dir;
-    // e.g. from dbus
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_0);
-    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_180);
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
-
-    // Retrieve rotation state.
-    rot_dir = g_get_scr_rot_dir();
-
-    // Adjust screen size accordingly.
-    if (rot_dir == LV_DISPLAY_ROTATION_0) {
-        g_set_scr_size(1024, 600);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_90) {
-        g_set_scr_size(600, 1024);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_180) {
-        g_set_scr_size(1024, 600);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_270) {
-        g_set_scr_size(600, 1024);
-    }
-
-    // Invoke scale event handler.
-    ret = g_scale_all();
-    if (ret) {
-        LOG_ERROR("Scale screen size failed");
-    }
-
-    // Invoke relocation event handler.
-    ret = g_relocation_all();
-    if (ret) {
-        LOG_ERROR("Relocation object on screen failed");
-    }
-
-    // Invalidate layers to refresh UI.
-}
-
-lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
+static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 {
     g_obj *gobj = NULL;
     lv_obj_t *lobj = NULL;
 
     LV_ASSERT_NULL(par);
-    LOG_TRACE("Create obj id %d", id);
-
 
     switch (type) {
         case OBJ_BASE:
@@ -648,12 +563,44 @@ lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 
     gobj = gf_register_obj(par, lobj, id);
     gobj->type = type;
-    gobj->pos.rot = ROT_0;
+    gobj->pos.rot = ROTATION_0;
     gobj->aln.align = LV_ALIGN_DEFAULT;
 
     LV_ASSERT_NULL(gobj);
 
     return gobj->obj;
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t g_set_scr_size(int32_t width, int32_t hight)
+{
+    // TODO: lock
+    g_scr_hight = hight;
+    g_scr_width = width;
+    return 0;
+}
+
+int32_t g_get_scr_width(int32_t width, int32_t hight)
+{
+    return g_scr_width;
+}
+
+int32_t g_get_scr_hight()
+{
+    return g_scr_hight;
+}
+
+int32_t g_set_scr_rot_dir(int32_t rot_dir)
+{
+    g_scr_rot_dir = rot_dir;
+    return 0;
+}
+
+int32_t g_get_scr_rot_dir()
+{
+    return g_scr_rot_dir;
 }
 
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
@@ -711,103 +658,137 @@ void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj->aln.y = y_ofs;
 }
 
-lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
-                         uint32_t w, uint32_t h, lv_color_t color)
+lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BASE, id);
 
-    gf_gobj_set_size(lobj, w, h);
-    gf_gobj_set_pos(lobj, x, y);
 
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
 
-    lv_obj_set_style_bg_color(lobj, color, 0);
     return lobj;
 }
 
-lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id, int32_t x, \
-                               int32_t y, uint32_t w, uint32_t h, \
-                               lv_color_t color)
+lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id)
 {
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_CONTAINER, id);
-
-    gf_gobj_set_size(lobj, w, h);
-    gf_gobj_set_pos(lobj, x, y);
-
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
-
-    lv_obj_set_style_bg_color(lobj, color, 0);
     return lobj;
 }
 
-lv_obj_t * gf_create_textbox(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+/*
+ * Fn: gf_create_text
+ *     gf_create_sym
+ * The textbox uses transform rotation instead of layout change like other
+ * components, so its root coordinate changes. This makes it difficult to
+ * apply normal object alignment as with other components. Additionally, the
+ * transform affects the logical size, impacting its parent. The workaround is
+ * to create a textbox container with scrolling disabled. Inside this box, we
+ * manually align the text or symbol, while the container itself can align to
+ * another object as normal.
+ */
+lv_obj_t * gf_create_text(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
                              const char *txt_str)
 {
     int32_t w, h;
-    lv_obj_t *lbl = gf_create_gobj_type(par, OBJ_LABEL, id);
-
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_18, 0);
-    lv_label_set_text_fmt(lbl, "%s", txt_str);
-
-    lv_obj_update_layout(lbl);
-    w = lv_obj_get_width(lbl);
-    h = lv_obj_get_height(lbl);
-    gf_gobj_set_size(lbl, w, h);
-    gf_gobj_set_pos(lbl, x, y);
-
-    LOG_TRACE("Textbox is created: h=%d w=%d - x=%d y=%d", h, w, x, y);
-    return lbl;
-}
-
-lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
-                         uint32_t w, uint32_t h)
-{
-    lv_obj_t *sw = gf_create_gobj_type(par, OBJ_SWITCH, id);
-
-    gf_gobj_set_size(sw, w, h);
-    gf_gobj_set_pos(sw, x, y);
-
-    LOG_TRACE("Switch is created: h=%d w=%d - x=%d y=%d", h, w, x, y);
-    return sw;
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_LABEL, id);
+    LV_ASSERT_NULL(lobj);
+    lv_obj_set_style_text_font(lobj, &lv_font_montserrat_18, 0);
+    lv_label_set_text_fmt(lobj, "%s", txt_str);
+    lv_obj_update_layout(lobj);
+    w = lv_obj_get_width(lobj);
+    h = lv_obj_get_height(lobj);
+    gf_gobj_set_size(lobj, w, h);
+    gf_gobj_set_pos(lobj, x, y);
+    return lobj;
 }
 
 lv_obj_t * gf_create_sym(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
                          const lv_font_t *font, const char *index, \
                          lv_color_t color)
 {
-    lv_obj_t *symbol = gf_create_gobj_type(par, OBJ_ICON, id);
-
-    lv_obj_set_style_text_font(symbol, font, 0);
-    lv_obj_set_style_text_color(symbol, color, 0);
-    lv_label_set_text(symbol, index);
-
-    gf_gobj_get_size(symbol);
-    gf_gobj_set_pos(symbol, x, y);
-
-    return symbol;
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_ICON, id);
+    LV_ASSERT_NULL(lobj);
+    lv_obj_set_style_text_font(lobj, font, 0);
+    lv_obj_set_style_text_color(lobj, color, 0);
+    lv_label_set_text(lobj, index);
+    gf_gobj_get_size(lobj);
+    gf_gobj_set_pos(lobj, x, y);
+    return lobj;
 }
 
-lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
-                         uint32_t w, uint32_t h)
+lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id)
 {
-    lv_obj_t *btn = gf_create_gobj_type(par, OBJ_BTN, id);
-    gf_gobj_set_size(btn, w, h);
-    gf_gobj_set_pos(btn, x, y);
-
-    return btn;
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_SWITCH, id);
+    LV_ASSERT_NULL(lobj);
+    return lobj;
 }
 
-lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
-                         uint32_t w, uint32_t h)
+
+lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id)
 {
-    lv_obj_t *slider = gf_create_gobj_type(par, OBJ_SLIDER, id);
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BTN, id);
+    LV_ASSERT_NULL(lobj);
+    return lobj;
+}
 
-    gf_gobj_set_size(slider, w, h);
-    gf_gobj_set_pos(slider, x, y);
+lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id)
+{
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_SLIDER, id);
+    LV_ASSERT_NULL(lobj);
+    return lobj;
+}
 
-    return slider;
+int32_t g_relocation_all()
+{
+    // Retrieve current screen dimensions.
+    // Recalculate object size, position, and layout based on rotation.
+}
+
+int32_t g_scale_all()
+{
+    // Retrieve current screen dimensions.
+    // Recalculate object size, position, and layout based on rotation.
+}
+
+int32_t g_rotate_event_handler()
+{
+    int32_t ret;
+    int32_t rot_dir;
+    // e.g. from dbus
+    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_0);
+    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
+    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_180);
+    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
+
+    // Retrieve rotation state.
+    rot_dir = g_get_scr_rot_dir();
+
+    // Adjust screen size accordingly.
+    if (rot_dir == LV_DISPLAY_ROTATION_0) {
+        g_set_scr_size(1024, 600);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_90) {
+        g_set_scr_size(600, 1024);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_180) {
+        g_set_scr_size(1024, 600);
+    } else if (rot_dir == LV_DISPLAY_ROTATION_270) {
+        g_set_scr_size(600, 1024);
+    }
+
+    // Invoke scale event handler.
+    ret = g_scale_all();
+    if (ret) {
+        LOG_ERROR("Scale screen size failed");
+    }
+
+    // Invoke relocation event handler.
+    ret = g_relocation_all();
+    if (ret) {
+        LOG_ERROR("Relocation object on screen failed");
+    }
+
+    // Invalidate layers to refresh UI.
 }
 
 #if defined(TEST)
@@ -815,59 +796,58 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
  * TESTING *********************************************************************
  */
 
-lv_obj_t *pl_main_box = NULL;
-lv_obj_t *pl_child_box = NULL;
-lv_obj_t *pl_child_box_corner1 = NULL;
-lv_obj_t *pl_child_box_corner2 = NULL;
-lv_obj_t *pl_child_box_corner2_text_wrapper = NULL;
-lv_obj_t *pl_child_box_corner2_text_box = NULL;
-lv_obj_t *pl_container_box = NULL;
-
-lv_obj_t *pl_text_box = NULL;
-lv_obj_t *pl_text_wrapper = NULL;
-lv_obj_t *pl_switch = NULL;
-lv_obj_t *pl_switch_wrapper = NULL;
-lv_obj_t *pl_icon = NULL;
-lv_obj_t *pl_icon_wrapper = NULL;
-lv_obj_t *pl_btn = NULL;
-lv_obj_t *pl_slider = NULL;
+lv_obj_t *ex_scr = NULL;
+lv_obj_t *ex_window = NULL;
+lv_obj_t *ex_mid_box = NULL;
+lv_obj_t *ex_corner_box = NULL;
+lv_obj_t *ex_text_box2 = NULL;
+lv_obj_t *ex_text_2 = NULL;
+lv_obj_t *ex_comp_cont = NULL;
+lv_obj_t *ex_text_box1 = NULL;
+lv_obj_t *ex_text1 = NULL;
+lv_obj_t *ex_sw_box = NULL;
+lv_obj_t *ex_sw1 = NULL;
+lv_obj_t *ex_sym_box1 = NULL;
+lv_obj_t *ex_sym1 = NULL;
+lv_obj_t *ex_btn1 = NULL;
+lv_obj_t *ex_slider1 = NULL;
 
 void sample_rot(int32_t angle)
 {
     // TODO: implement recursive rotate from parent
     g_set_scr_rot_dir(angle);
-    g_obj_rotate(pl_child_box->user_data);
-    g_obj_rotate(pl_child_box_corner1->user_data);
-    g_obj_rotate(pl_child_box_corner2->user_data);
-    g_obj_rotate(pl_child_box_corner2_text_wrapper->user_data);
-    g_obj_rotate(pl_child_box_corner2_text_box->user_data);
-    g_obj_rotate(pl_container_box->user_data);
-    g_obj_rotate(pl_text_wrapper->user_data);
-    g_obj_rotate(pl_text_box->user_data);
-    g_obj_rotate(pl_switch_wrapper->user_data);
-    g_obj_rotate(pl_switch->user_data);
-    g_obj_rotate(pl_icon_wrapper->user_data);
-    g_obj_rotate(pl_icon->user_data);
-    g_obj_rotate(pl_btn->user_data);
-    g_obj_rotate(pl_slider->user_data);
+    g_obj_rotate(ex_window->user_data);
+    g_obj_rotate(ex_mid_box->user_data);
+    g_obj_rotate(ex_corner_box->user_data);
+    g_obj_rotate(ex_text_box2->user_data);
+    g_obj_rotate(ex_text_2->user_data);
+    g_obj_rotate(ex_comp_cont->user_data);
+    g_obj_rotate(ex_text_box1->user_data);
+    g_obj_rotate(ex_text1->user_data);
+    g_obj_rotate(ex_sw_box->user_data);
+    g_obj_rotate(ex_sw1->user_data);
+    g_obj_rotate(ex_sym_box1->user_data);
+    g_obj_rotate(ex_sym1->user_data);
+    g_obj_rotate(ex_btn1->user_data);
+    g_obj_rotate(ex_slider1->user_data);
 
 
     int32_t w, h;
-    lv_obj_update_layout(pl_container_box);
-    w = lv_obj_get_width(pl_container_box);
-    h = lv_obj_get_height(pl_container_box);
+    lv_obj_update_layout(ex_comp_cont);
+    w = lv_obj_get_width(ex_comp_cont);
+    h = lv_obj_get_height(ex_comp_cont);
 
     int32_t rot_dir = g_get_scr_rot_dir();
 
     // Adjust screen scroll accordingly.
-    if (rot_dir == ROT_0) {
-        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
-    } else if (rot_dir == ROT_90) {
-        lv_obj_scroll_to(pl_child_box, w, 0, LV_ANIM_OFF);
-    } else if (rot_dir == ROT_180) {
-        lv_obj_scroll_to(pl_child_box, 0, h, LV_ANIM_OFF);
-    } else if (rot_dir == ROT_270) {
-        lv_obj_scroll_to(pl_child_box, 0, 0, LV_ANIM_OFF);
+    if (rot_dir == ROTATION_0) {
+        lv_obj_scroll_to(ex_window, 0, 0, LV_ANIM_OFF);
+    } else if (rot_dir == ROTATION_90) {
+        lv_obj_scroll_to(ex_window, w, 0, LV_ANIM_OFF);
+    } else if (rot_dir == ROTATION_180) {
+        lv_obj_scroll_to(ex_window, 0, h, LV_ANIM_OFF);
+    } else if (rot_dir == ROTATION_270) {
+        lv_obj_scroll_to(ex_window, 0, 0, LV_ANIM_OFF);
     }
 }
 
@@ -897,75 +877,75 @@ void create_dynamic_ui()
     int8_t l_align = 30;
 
     // Main box as screen background
-    pl_main_box = gf_create_box(lv_screen_active(), 0, 0, 0, 1024, 600, \
-                                lv_color_hex(0x000000));
-
-    pl_child_box_corner1 = gf_create_box(pl_main_box, 0, 0, 0, 80, 90, \
-                                         lv_color_hex(0x0000FF));
-    gf_gobj_align_to(pl_child_box_corner1, pl_main_box, \
-                     LV_ALIGN_BOTTOM_MID,  0, 0);
-    pl_child_box_corner2 = gf_create_box(pl_main_box, 0, 0, 0, 200, 200, \
-                                         lv_color_hex(0x00FF00));
-    gf_gobj_align_to(pl_child_box_corner2, pl_main_box, \
-                     LV_ALIGN_BOTTOM_RIGHT, 0, 0);
-
-
-
-    pl_child_box_corner2_text_wrapper = gf_create_box(\
-            pl_child_box_corner2, 0, 0, 0, 150, 40, lv_color_hex(0xFFFFFF));
-    lv_obj_clear_flag(pl_child_box_corner2_text_wrapper, LV_OBJ_FLAG_SCROLLABLE);
-    gf_gobj_align_to(pl_child_box_corner2_text_wrapper, pl_child_box_corner2, \
-                     LV_ALIGN_CENTER, 10, 25);
-    pl_child_box_corner2_text_box = gf_create_textbox(\
-            pl_child_box_corner2_text_wrapper, 0, 10, 10, "CORNER");
-    // TODO: verify text box alignment
-    // gf_gobj_align_to(pl_child_box_corner2_text_box, \
-    //                  pl_child_box_corner2_text_wrapper, \
-    //                  LV_ALIGN_CENTER, 0, 0);
-
-
+    ex_scr = gf_create_box(lv_screen_active(), 0);
+    gf_gobj_set_size(ex_scr, 1024, 600);
+    gf_gobj_set_pos(ex_scr, 0, 0);
+    lv_obj_set_style_bg_color(ex_scr, lv_color_hex(0x000000), 0);
+    //--------------------------------------------------------------------------
+    ex_mid_box = gf_create_box(ex_scr, 0);
+    gf_gobj_set_size(ex_mid_box, 80, 90);
+    lv_obj_set_style_bg_color(ex_mid_box, lv_color_hex(0x0000FF), 0);
+    gf_gobj_align_to(ex_mid_box, ex_scr, LV_ALIGN_BOTTOM_MID, 0, 0);
+    //--------------------------------------------------------------------------
+    ex_corner_box = gf_create_box(ex_scr, 0);
+    gf_gobj_set_size(ex_corner_box, 200, 200);
+    lv_obj_set_style_bg_color(ex_corner_box, lv_color_hex(0x00FF00), 0);
+    gf_gobj_align_to(ex_corner_box, ex_scr, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
+    //--------------------------------------------------------------------------
+    ex_text_box2 = gf_create_box(ex_corner_box, 0);
+    gf_gobj_set_size(ex_text_box2, 150, 40);
+    lv_obj_set_style_bg_color(ex_text_box2, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_clear_flag(ex_text_box2, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(ex_text_box2, ex_corner_box, LV_ALIGN_CENTER, 10, 25);
+    //--------------------------------------------------------------------------
+    ex_text_2 = gf_create_text(ex_text_box2, 0, 10, 10, "CORNER");
+    //--------------------------------------------------------------------------
     // Child box as a menu bar
-    pl_child_box = gf_create_box(pl_main_box, 0, 32, 51, 400, 500, \
-                                 lv_color_hex(0xFFFFFF));
+    ex_window = gf_create_box(ex_scr, 0);
+    gf_gobj_set_size(ex_window, 400, 500);
+    gf_gobj_set_pos(ex_window, 32, 51);
+    lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
+    //--------------------------------------------------------------------------
     // Container for all sub components
-    pl_container_box = gf_create_container(pl_child_box, 0, 10, 10, 370, 800, \
-                                 lv_color_hex(0xFFEE8C));
-
-
-
-
-    pl_text_wrapper = gf_create_box(pl_container_box, 0, l_align, 25, 150, 40, \
-                                 lv_color_hex(0xFFFFFF));
-    lv_obj_clear_flag(pl_text_wrapper, LV_OBJ_FLAG_SCROLLABLE);
-
-    gf_gobj_align_to(pl_text_wrapper, pl_container_box, LV_ALIGN_TOP_LEFT, 30, 25);
-    pl_text_box = gf_create_textbox(pl_text_wrapper, 0, 10, 10, "Go001 hahaha");
-
-
-
-
-    pl_switch_wrapper = gf_create_box(pl_container_box, 0, l_align, 85, 80, 50, \
-                                 lv_color_hex(0xFFFFFF));
-    lv_obj_clear_flag(pl_switch_wrapper, LV_OBJ_FLAG_SCROLLABLE);
-    gf_gobj_align_to(pl_switch_wrapper, pl_text_wrapper, LV_ALIGN_OUT_BOTTOM_MID, 15, 25);
-    pl_switch = gf_create_switch(pl_switch_wrapper, 0, 10, 10, 60, 30);
-
-
-    pl_icon_wrapper = gf_create_box(pl_container_box, 0, l_align, 150, 50, 50, \
-                                 lv_color_hex(0xFFFFFF));
-    lv_obj_clear_flag(pl_icon_wrapper, LV_OBJ_FLAG_SCROLLABLE);
-    gf_gobj_align_to(pl_icon_wrapper, pl_switch_wrapper, LV_ALIGN_OUT_BOTTOM_MID, 30, 25);
-    pl_icon = gf_create_sym(pl_icon_wrapper, 0, 10, 10, &terminal_icons_32, \
+    ex_comp_cont = gf_create_container(ex_window, 0);
+    gf_gobj_set_size(ex_comp_cont, 370, 1200);
+    gf_gobj_set_pos(ex_comp_cont, 10, 10);
+    lv_obj_set_style_bg_color(ex_comp_cont, lv_color_hex(0xFFEE8C), 0);
+    //--------------------------------------------------------------------------
+    ex_text_box1 = gf_create_box(ex_comp_cont, 0);
+    gf_gobj_set_size(ex_text_box1, 150, 40);
+    lv_obj_set_style_bg_color(ex_text_box1, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_clear_flag(ex_text_box1, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(ex_text_box1, ex_comp_cont, LV_ALIGN_TOP_LEFT, 30, 25);
+    //--------------------------------------------------------------------------
+    ex_text1 = gf_create_text(ex_text_box1, 0, 10, 10, "ASMC WALTZ");
+    //--------------------------------------------------------------------------
+    ex_sw_box = gf_create_box(ex_comp_cont, 0);
+    gf_gobj_set_size(ex_sw_box, 80, 50);
+    lv_obj_set_style_bg_color(ex_sw_box, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_clear_flag(ex_sw_box, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(ex_sw_box, ex_text_box1, LV_ALIGN_OUT_BOTTOM_MID, 15, 25);
+    //--------------------------------------------------------------------------
+    ex_sw1 = gf_create_switch(ex_sw_box, 0);
+    gf_gobj_set_size(ex_sw1, 60, 30);
+    gf_gobj_set_pos(ex_sw1, 10, 10);
+    //--------------------------------------------------------------------------
+    ex_sym_box1 = gf_create_box(ex_comp_cont, 0);
+    gf_gobj_set_size(ex_sym_box1, 50, 50);
+    lv_obj_set_style_bg_color(ex_sym_box1, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_clear_flag(ex_sym_box1, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(ex_sym_box1, ex_sw_box, LV_ALIGN_OUT_BOTTOM_MID, 30, 25);
+    //--------------------------------------------------------------------------
+    ex_sym1 = gf_create_sym(ex_sym_box1, 0, 10, 10, &terminal_icons_32, \
                             ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
-
-
-
-    pl_btn = gf_create_btn(pl_container_box, 0, l_align, 230, 80, 50);
-    gf_gobj_align_to(pl_btn, pl_icon_wrapper, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 25);
-    pl_slider = gf_create_slider(pl_container_box, 0, l_align, 300, 100, 20);
-    gf_gobj_align_to(pl_slider, pl_btn, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
-
-
-    gf_register_handler(pl_btn, 0, btn_handler, LV_EVENT_CLICKED);
+    //--------------------------------------------------------------------------
+    ex_btn1 = gf_create_btn(ex_comp_cont, 0);
+    gf_gobj_set_size(ex_btn1, 80, 50);
+    gf_gobj_align_to(ex_btn1, ex_sym_box1, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 25);
+    gf_register_handler(ex_btn1, 0, btn_handler, LV_EVENT_CLICKED);
+    //--------------------------------------------------------------------------
+    ex_slider1 = gf_create_slider(ex_comp_cont, 0);
+    gf_gobj_set_size(ex_slider1, 100, 20);
+    gf_gobj_align_to(ex_slider1, ex_btn1, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
 }
 #endif
