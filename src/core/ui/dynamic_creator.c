@@ -450,6 +450,7 @@ lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
     gobj = gf_register_obj(par, lobj, id);
     gobj->type = type;
     gobj->pos.rot = ROT_0;
+    gobj->aln.align = LV_ALIGN_DEFAULT;
 
     LV_ASSERT_NULL(gobj);
 
@@ -493,6 +494,22 @@ void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
         LOG_WARN("Cannot calculate the center y");
     gobj->pos.x_mid = x_ofs + (gobj->pos.w / 2);
     gobj->pos.y_mid = y_ofs + (gobj->pos.h / 2);
+}
+
+void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                      int32_t x_ofs, int32_t y_ofs)
+{
+    g_obj *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
+
+    lv_obj_align_to(lobj, base, align, x_ofs, y_ofs);
+
+    gobj = lobj->user_data;
+    LV_ASSERT_NULL(gobj);
+    gobj->aln.align = align;
+    gobj->aln.base = base;
+    gobj->aln.x = x_ofs;
+    gobj->aln.y = y_ofs;
 }
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \

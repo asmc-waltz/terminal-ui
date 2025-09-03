@@ -104,13 +104,11 @@ typedef enum {
 } g_type;
 
 /* forward declare */
-struct g_obj;
-
 typedef struct {
     int8_t align;
     int8_t x;
     int8_t y;
-    struct g_obj *ref_gobj;
+    lv_obj_t *base;
 } g_align;
 
 typedef struct {
