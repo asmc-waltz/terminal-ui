@@ -133,13 +133,13 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
 
     gobj->pos.x_mid = new_x_mid;
     gobj->pos.par_w = par_w;
-    if (new_x_mid <= 0) {
+    if (new_x_mid < 0) {
         LOG_WARN("Negative x_mid: %d", new_x_mid);
     }
 
     gobj->pos.y_mid = new_y_mid;
     gobj->pos.par_h = par_h;
-    if (new_y_mid <= 0) {
+    if (new_y_mid < 0) {
         LOG_WARN("* Negative y_mid: %d", new_y_mid);
         return -1;
     }
@@ -217,32 +217,74 @@ static void g_obj_rot_90_set_aln(g_obj *gobj)
     int8_t align = LV_ALIGN_DEFAULT;
 
     switch (gobj->aln.align) {
-        case LV_ALIGN_TOP_LEFT:         align = LV_ALIGN_TOP_RIGHT; break;
-        case LV_ALIGN_TOP_MID:          align = LV_ALIGN_RIGHT_MID; break;
-        case LV_ALIGN_TOP_RIGHT:        align = LV_ALIGN_BOTTOM_RIGHT; break;
-        case LV_ALIGN_LEFT_MID:         align = LV_ALIGN_TOP_MID; break;
-        case LV_ALIGN_CENTER:           align = LV_ALIGN_CENTER; break;
-        case LV_ALIGN_RIGHT_MID:        align = LV_ALIGN_BOTTOM_MID; break;
-        case LV_ALIGN_BOTTOM_LEFT:      align = LV_ALIGN_TOP_LEFT; break;
-        case LV_ALIGN_BOTTOM_MID:       align = LV_ALIGN_LEFT_MID; break;
-        case LV_ALIGN_BOTTOM_RIGHT:     align = LV_ALIGN_BOTTOM_LEFT; break;
+        case LV_ALIGN_TOP_LEFT:
+            align = LV_ALIGN_TOP_RIGHT;
+            break;
+        case LV_ALIGN_TOP_MID:
+            align = LV_ALIGN_RIGHT_MID;
+            break;
+        case LV_ALIGN_TOP_RIGHT:
+            align = LV_ALIGN_BOTTOM_RIGHT;
+            break;
+        case LV_ALIGN_LEFT_MID:
+            align = LV_ALIGN_TOP_MID;
+            break;
+        case LV_ALIGN_CENTER:
+            align = LV_ALIGN_CENTER;
+            break;
+        case LV_ALIGN_RIGHT_MID:
+            align = LV_ALIGN_BOTTOM_MID;
+            break;
+        case LV_ALIGN_BOTTOM_LEFT:
+            align = LV_ALIGN_TOP_LEFT;
+            break;
+        case LV_ALIGN_BOTTOM_MID:
+            align = LV_ALIGN_LEFT_MID;
+            break;
+        case LV_ALIGN_BOTTOM_RIGHT:
+            align = LV_ALIGN_BOTTOM_LEFT;
+            break;
 
         /* Outside aligns on TOP side -> RIGHT side */
-        case LV_ALIGN_OUT_TOP_LEFT:     align = LV_ALIGN_OUT_RIGHT_TOP; break;
-        case LV_ALIGN_OUT_TOP_MID:      align = LV_ALIGN_OUT_RIGHT_MID; break;
-        case LV_ALIGN_OUT_TOP_RIGHT:    align = LV_ALIGN_OUT_RIGHT_BOTTOM; break;
+        case LV_ALIGN_OUT_TOP_LEFT:
+            align = LV_ALIGN_OUT_RIGHT_TOP;
+            break;
+        case LV_ALIGN_OUT_TOP_MID:
+            align = LV_ALIGN_OUT_RIGHT_MID;
+            break;
+        case LV_ALIGN_OUT_TOP_RIGHT:
+            align = LV_ALIGN_OUT_RIGHT_BOTTOM;
+            break;
         /* Outside aligns on BOTTOM side -> LEFT side */
-        case LV_ALIGN_OUT_BOTTOM_LEFT:  align = LV_ALIGN_OUT_LEFT_TOP; break;
-        case LV_ALIGN_OUT_BOTTOM_MID:   align = LV_ALIGN_OUT_LEFT_MID; break;
-        case LV_ALIGN_OUT_BOTTOM_RIGHT: align = LV_ALIGN_OUT_LEFT_BOTTOM; break;
+        case LV_ALIGN_OUT_BOTTOM_LEFT:
+            align = LV_ALIGN_OUT_LEFT_TOP;
+            break;
+        case LV_ALIGN_OUT_BOTTOM_MID:
+            align = LV_ALIGN_OUT_LEFT_MID;
+            break;
+        case LV_ALIGN_OUT_BOTTOM_RIGHT:
+            align = LV_ALIGN_OUT_LEFT_BOTTOM;
+            break;
         /* Outside aligns on LEFT side -> TOP side */
-        case LV_ALIGN_OUT_LEFT_TOP:     align = LV_ALIGN_OUT_TOP_RIGHT; break;
-        case LV_ALIGN_OUT_LEFT_MID:     align = LV_ALIGN_OUT_TOP_MID; break;
-        case LV_ALIGN_OUT_LEFT_BOTTOM:  align = LV_ALIGN_OUT_TOP_LEFT; break;
+        case LV_ALIGN_OUT_LEFT_TOP:
+            align = LV_ALIGN_OUT_TOP_RIGHT;
+            break;
+        case LV_ALIGN_OUT_LEFT_MID:
+            align = LV_ALIGN_OUT_TOP_MID;
+            break;
+        case LV_ALIGN_OUT_LEFT_BOTTOM:
+            align = LV_ALIGN_OUT_TOP_LEFT;
+            break;
         /* Outside aligns on RIGHT side -> BOTTOM side */
-        case LV_ALIGN_OUT_RIGHT_TOP:    align = LV_ALIGN_OUT_BOTTOM_RIGHT; break;
-        case LV_ALIGN_OUT_RIGHT_MID:    align = LV_ALIGN_OUT_BOTTOM_MID; break;
-        case LV_ALIGN_OUT_RIGHT_BOTTOM: align = LV_ALIGN_OUT_BOTTOM_LEFT; break;
+        case LV_ALIGN_OUT_RIGHT_TOP:
+            align = LV_ALIGN_OUT_BOTTOM_RIGHT;
+            break;
+        case LV_ALIGN_OUT_RIGHT_MID:
+            align = LV_ALIGN_OUT_BOTTOM_MID;
+            break;
+        case LV_ALIGN_OUT_RIGHT_BOTTOM:
+            align = LV_ALIGN_OUT_BOTTOM_LEFT;
+            break;
         default:
             LOG_ERROR("The current object alignment is invalid");
             return;
@@ -262,56 +304,23 @@ static void g_obj_rot_90_swap_ofs(g_obj *gobj)
 
 static int32_t g_obj_rot_calc_align(g_obj *gobj)
 {
+    int8_t cur_rot;
     int8_t scr_rot;
     int8_t rot_cnt;
 
-    scr_rot = g_get_scr_rot_dir();
-    switch (gobj->pos.rot) {
-        case ROT_0:
-            switch (scr_rot) {
-                case ROT_0: rot_cnt = 0; break;
-                case ROT_90: rot_cnt = 1; break;
-                case ROT_180: rot_cnt = 2; break;
-                case ROT_270: rot_cnt = 3; break;
-                default:
-                    return -1;
-            }
-            break;
-        case ROT_90:
-            switch (scr_rot) {
-                case ROT_0: rot_cnt = 3; break;
-                case ROT_90: rot_cnt = 0; break;
-                case ROT_180: rot_cnt = 1; break;
-                case ROT_270: rot_cnt = 2; break;
-                default:
-                    return -1;
-            }
-            break;
-        case ROT_180:
-            switch (scr_rot) {
-                case ROT_0: rot_cnt = 2; break;
-                case ROT_90: rot_cnt = 3; break;
-                case ROT_180: rot_cnt = 0; break;
-                case ROT_270: rot_cnt = 1; break;
-                default:
-                    return -1;
-            }
-            break;
-        case ROT_270:
-            switch (scr_rot) {
-                case ROT_0: rot_cnt = 1; break;
-                case ROT_90: rot_cnt = 2; break;
-                case ROT_180: rot_cnt = 3; break;
-                case ROT_270: rot_cnt = 0; break;
-                default:
-                    return -1;
-            }
-            break;
-        default:
-            return -1;
-    }
+    if (!gobj)
+        return -EINVAL;
 
-    for (int8_t cnt = 0; cnt < rot_cnt; cnt++) {
+    cur_rot = gobj->pos.rot;
+    scr_rot = g_get_scr_rot_dir();
+
+    if (cur_rot < ROT_0 || cur_rot > ROT_270 ||
+        scr_rot < ROT_0 || scr_rot > ROT_270)
+        return -EINVAL;
+
+    rot_cnt = (scr_rot - cur_rot + 4) % 4;
+
+    for (int8_t i = 0; i < rot_cnt; i++) {
         g_obj_rot_90_set_aln(gobj);
         g_obj_rot_90_swap_ofs(gobj);
     }
