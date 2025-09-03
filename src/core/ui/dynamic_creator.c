@@ -212,23 +212,111 @@ static int32_t g_obj_rot_calc_size(g_obj *gobj)
     return 0;
 }
 
+static int32_t g_obj_rot_calc_align(g_obj *gobj)
+{
+    int32_t ret;
+    int8_t align;
+    int8_t obj_rot;
+    int8_t scr_rot;
+    int8_t new_align;
+    int32_t new_x_ofs;
+    int32_t new_y_ofs;
+
+    align = gobj->aln.align;
+    obj_rot = gobj->pos.rot;
+    scr_rot = g_get_scr_rot_dir();
+    new_align = LV_ALIGN_DEFAULT;
+    new_x_ofs = 0;
+    new_y_ofs = 0;
+
+    switch (align) {
+        case LV_ALIGN_TOP_LEFT:
+
+
+
+            break;
+        case LV_ALIGN_TOP_MID:
+            break;
+        case LV_ALIGN_TOP_RIGHT:
+            break;
+        case LV_ALIGN_BOTTOM_LEFT:
+            break;
+        case LV_ALIGN_BOTTOM_MID:
+            break;
+        case LV_ALIGN_BOTTOM_RIGHT:
+            break;
+        case LV_ALIGN_LEFT_MID:
+            break;
+        case LV_ALIGN_RIGHT_MID:
+            break;
+        case LV_ALIGN_CENTER:
+            break;
+        case LV_ALIGN_OUT_TOP_LEFT:
+            break;
+        case LV_ALIGN_OUT_TOP_MID:
+            break;
+        case LV_ALIGN_OUT_TOP_RIGHT:
+            break;
+        case LV_ALIGN_OUT_BOTTOM_LEFT:
+            break;
+        case LV_ALIGN_OUT_BOTTOM_MID:
+            break;
+        case LV_ALIGN_OUT_BOTTOM_RIGHT:
+            break;
+        case LV_ALIGN_OUT_LEFT_TOP:
+            break;
+        case LV_ALIGN_OUT_LEFT_MID:
+            break;
+        case LV_ALIGN_OUT_LEFT_BOTTOM:
+            break;
+        case LV_ALIGN_OUT_RIGHT_TOP:
+            break;
+        case LV_ALIGN_OUT_RIGHT_MID:
+            break;
+        case LV_ALIGN_OUT_RIGHT_BOTTOM:
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 static int32_t g_base_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
 
+    /*
+     * For each object, when rotation occurs, its size must be recalculated.
+     * Since the root coordinate does not change, the width and height
+     * will be adjusted according to the logical rotation.
+     */
     ret = g_obj_rot_calc_size(gobj);
     if (ret) {
         return -EINVAL;
     }
     lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
 
-    ret= g_obj_rot_calc_center(gobj);
-    if (ret) {
-        return -EINVAL;
+    /*
+     * For an object placed inside a parent, its new center point must be
+     * recalculated based on the logical rotation. Using this new center,
+     * the width and height can then be updated accordingly.
+     */
+    if (gobj->aln.align == LV_ALIGN_DEFAULT) {
+        ret= g_obj_rot_calc_center(gobj);
+        if (ret) {
+            return -EINVAL;
+        }
+        lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
+                       gobj->pos.y_mid - (gobj->pos.h / 2));
+    } else {
+        // TODO: Update object alignment according to logical rotation
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret) {
+            return -EINVAL;
+        }
+        lv_obj_align_to(gobj->obj, gobj->aln.base, gobj->aln.align, \
+                        gobj->aln.x, gobj->aln.y);
     }
-
-    lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
-                   gobj->pos.y_mid - (gobj->pos.h / 2));
 
     return 0;
 }

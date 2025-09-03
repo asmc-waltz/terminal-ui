@@ -105,10 +105,10 @@ typedef enum {
 
 /* forward declare */
 typedef struct {
-    int8_t align;
-    int8_t x;
-    int8_t y;
+    int32_t x;
+    int32_t y;
     lv_obj_t *base;
+    int8_t align;
 } g_align;
 
 typedef struct {
