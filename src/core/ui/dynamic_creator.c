@@ -61,89 +61,155 @@ static int32_t g_scr_rot_dir = ROT_0;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
-// Location must be calculate after new size is calculated
+/*
+ * Recalculate object's midpoint (x_mid, y_mid) when parent size
+ * or screen rotation changes.
+ *
+ * The function preserves the relative placement rules used in the
+ * original implementation: midpoint values are distances from the
+ * parent's left/top edges (not the child's left/top corner).
+ *
+ * This version:
+ *  - covers all old_rot -> scr_rot combinations (12 mappings),
+ *  - validates inputs,
+ *  - computes new midpoint using local variables,
+ *  - validates result before updating gobj state (atomic update),
+ *  - logs clearly.
+ *
+ * Returns:
+ *  0        -> success (gobj updated)
+ *  -EINVAL  -> bad input
+ *  -ERANGE  -> computed midpoint is out of new parent bounds
+ */
 static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
 {
-    int32_t new_x_mid = 0;
-    int32_t new_y_mid = 0;
-    int32_t scr_rot = g_get_scr_rot_dir();
+    int32_t new_x_mid = -1;
+    int32_t new_y_mid = -1;
+    int32_t scr_rot;
+    int32_t old_rot;
+    int32_t old_pw;
+    int32_t old_ph;
+    int32_t L; /* distance from old left edge to object's center */
+    int32_t T; /* distance from old top edge  to object's center */
+    int32_t R; /* distance from old right edge to object's center */
+    int32_t B; /* distance from old bottom edge to object's center */
 
     if (!gobj) {
-        LOG_ERROR("Invalid g object");
+        LOG_ERROR("g_obj_get_center: null gobj");
         return -EINVAL;
     }
 
-    if (scr_rot == gobj->pos.rot) {
+    scr_rot = g_get_scr_rot_dir();
+    old_rot = gobj->pos.rot;
+
+    /* nothing to do if rotation unchanged */
+    if (scr_rot == old_rot)
         return 0;
+
+    /* sanity check rotation values (expect 0..3 mapping to 0/90/180/270) */
+    if (old_rot < ROT_0 || old_rot > ROT_270 ||
+        scr_rot < ROT_0 || scr_rot > ROT_270) {
+        LOG_ERROR("g_obj_get_center: invalid rot old=%d new=%d",
+                  old_rot, scr_rot);
+        return -EINVAL;
     }
 
-    LOG_DEBUG("\tLastest: par_h: %d par_w: %d \n"
-              "\t\tCurrent: par_h:%d par_w:%d \n"
-              "\t\tCurrent: x_mid:%d y_mid:%d", \
-              par_h, par_w, \
-              gobj->pos.par_h, gobj->pos.par_w,
-              gobj->pos.x_mid, gobj->pos.y_mid);
+    /* cache old parent geometry and gaps */
+    old_pw = gobj->pos.par_w;
+    old_ph = gobj->pos.par_h;
+    L = gobj->pos.x_mid;
+    T = gobj->pos.y_mid;
+    R = old_pw - L;
+    B = old_ph - T;
 
-    if (gobj->pos.rot == ROT_0) {
+    LOG_DEBUG("g_obj_get_center: old_rot=%d -> scr_rot=%d, "
+              "old_pw=%d old_ph=%d, L=%d T=%d R=%d B=%d, "
+              "new_par=(%d,%d)",
+              old_rot, scr_rot, old_pw, old_ph, L, T, R, B, par_w, par_h);
+
+    /* === mapping table: old_rot -> scr_rot ===
+     * We keep the exact equations used originally (explicit 12 cases).
+     * Each expression computes new center coordinates relative to new parent.
+     */
+    switch (old_rot) {
+    case ROT_0:
         if (scr_rot == ROT_90) {
-            new_x_mid = par_w - gobj->pos.y_mid;
-            new_y_mid = gobj->pos.x_mid;
+            new_x_mid = par_w - T;
+            new_y_mid = L;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - gobj->pos.x_mid;
-            new_y_mid = par_h - gobj->pos.y_mid;
+            new_x_mid = par_w - L;
+            new_y_mid = par_h - T;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = gobj->pos.y_mid;
-            new_y_mid = par_h - gobj->pos.x_mid;
+            new_x_mid = T;
+            new_y_mid = par_h - L;
         }
-    } else if (gobj->pos.rot == ROT_90) {
+        break;
+    case ROT_90:
         if (scr_rot == ROT_0) {
-            new_x_mid = gobj->pos.y_mid;
-            new_y_mid = gobj->pos.par_w - gobj->pos.x_mid;
+            new_x_mid = T;
+            new_y_mid = old_pw - L; /* old_pw == parent's width before rotation */
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - gobj->pos.y_mid;
-            new_y_mid = par_h - (gobj->pos.par_w - gobj->pos.x_mid);
+            new_x_mid = par_w - T;
+            new_y_mid = par_h - (old_pw - L);
         } else if (scr_rot == ROT_270) {
-            new_x_mid = par_w - gobj->pos.x_mid;
-            new_y_mid = par_h - gobj->pos.y_mid;
+            new_x_mid = par_w - L;
+            new_y_mid = par_h - T;
         }
-    } else if (gobj->pos.rot == ROT_180) {
+        break;
+    case ROT_180:
         if (scr_rot == ROT_0) {
-            new_x_mid = par_w - gobj->pos.x_mid;
-            new_y_mid = par_h - gobj->pos.y_mid;
+            new_x_mid = par_w - L;
+            new_y_mid = par_h - T;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - (gobj->pos.par_h - gobj->pos.y_mid);
-            new_y_mid = gobj->pos.par_w - gobj->pos.x_mid;
+            new_x_mid = par_w - (old_ph - T);
+            new_y_mid = old_pw - L;
         } else if (scr_rot == ROT_270) {
-            new_x_mid = gobj->pos.par_h - gobj->pos.y_mid;
-            new_y_mid = par_h - (gobj->pos.par_w - gobj->pos.x_mid);
+            new_x_mid = old_ph - T;
+            new_y_mid = par_h - (old_pw - L);
         }
-    } else if (gobj->pos.rot == ROT_270) {
+        break;
+    case ROT_270:
         if (scr_rot == ROT_0) {
-            new_x_mid = gobj->pos.par_h - gobj->pos.y_mid;
-            new_y_mid = gobj->pos.x_mid;
+            new_x_mid = old_ph - T;
+            new_y_mid = L;
         } else if (scr_rot == ROT_90) {
-            new_x_mid = par_w - gobj->pos.x_mid;
-            new_y_mid = par_h - gobj->pos.y_mid;
+            new_x_mid = par_w - L;
+            new_y_mid = par_h - T;
         } else if (scr_rot == ROT_180) {
-            new_x_mid = par_w - (gobj->pos.par_h - gobj->pos.y_mid);
-            new_y_mid = par_h - gobj->pos.x_mid;
+            new_x_mid = par_w - (old_ph - T);
+            new_y_mid = par_h - L;
         }
+        break;
+    default:
+        /* unreachable due to earlier validation */
+        return -EINVAL;
     }
 
+    /* ensure mapping was computed */
+    if (new_x_mid < 0 || new_y_mid < 0) {
+        LOG_ERROR("g_obj_get_center: mapping not produced or negative: x=%d y=%d",
+                  new_x_mid, new_y_mid);
+        return -ERANGE;
+    }
+
+    /* bounds check against new parent size before mutating state */
+    if (new_x_mid < 0 || new_x_mid > par_w ||
+        new_y_mid < 0 || new_y_mid > par_h) {
+        LOG_WARN("g_obj_get_center: computed midpoint out of bounds: "
+                 "x=%d (0..%d) y=%d (0..%d)",
+                 new_x_mid, par_w, new_y_mid, par_h);
+        return -ERANGE;
+    }
+
+    /* Atomic update of gobj position state */
     gobj->pos.x_mid = new_x_mid;
-    gobj->pos.par_w = par_w;
-    if (new_x_mid < 0) {
-        LOG_WARN("Negative x_mid: %d", new_x_mid);
-    }
-
     gobj->pos.y_mid = new_y_mid;
+    gobj->pos.par_w = par_w;
     gobj->pos.par_h = par_h;
-    if (new_y_mid < 0) {
-        LOG_WARN("* Negative y_mid: %d", new_y_mid);
-        return -1;
-    }
-    LOG_TRACE("Relocation x_mid: %d  -  y_mid: %d", new_x_mid, new_y_mid);
+    gobj->pos.rot = scr_rot;
+
+    LOG_TRACE("g_obj_get_center: success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
+              new_x_mid, new_y_mid, par_w, par_h, scr_rot);
 
     return 0;
 }
