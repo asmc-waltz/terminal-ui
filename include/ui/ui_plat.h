@@ -101,7 +101,17 @@ typedef enum {
     OBJ_LABEL,
     OBJ_ICON,
     OBJ_SWITCH,
-} g_obj_type;
+} g_type;
+
+/* forward declare */
+struct g_obj;
+
+typedef struct {
+    int8_t align;
+    int8_t x;
+    int8_t y;
+    struct g_obj *ref_gobj;
+} g_align;
 
 typedef struct {
     int32_t x_mid;      // Latest center point X coordinate
@@ -111,17 +121,18 @@ typedef struct {
     int32_t w;
     int32_t h;
     int8_t rot;
-    g_obj_type type;
-} g_inf;
+} g_pos;
 
-typedef struct {
+typedef struct g_obj {
     struct list_head node;
     struct list_head child;
     g_id id;
     lv_obj_t *obj;
     char *name;
     bool visible;
-    g_inf inf;
+    g_type type;
+    g_pos pos;
+    g_align aln;
 } g_obj;
 
 typedef struct {
