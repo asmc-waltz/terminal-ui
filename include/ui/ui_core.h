@@ -77,6 +77,7 @@ typedef struct g_obj {
     g_type type;
     g_pos pos;
     g_align aln;
+    g_exp exp;
 } g_obj;
 
 typedef struct {
@@ -102,14 +103,50 @@ typedef struct {
  * Setter functions
  *====================*/
 
+void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                      int32_t x_ofs, int32_t y_ofs);
+
+void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
+
+int32_t g_set_scr_rot_dir(int32_t rot_dir);
+int32_t g_set_scr_size(int32_t width, int32_t hight);
+void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
+
+int32_t gf_gobj_exp_enable_x(g_obj *gobj);
+int32_t gf_gobj_exp_enable_y(g_obj *gobj);
+int32_t gf_gobj_exp_disable_x(g_obj *gobj);
+int32_t gf_gobj_exp_disable_y(g_obj *gobj);
+int32_t gf_gobj_exp_set_x_limit(g_obj *gobj, int32_t x_lim);
+int32_t gf_gobj_exp_set_y_limit(g_obj *gobj, int32_t y_lim);
+int32_t gf_gobj_exp_set_x_align(g_obj *gobj, int32_t x_ofs);
+int32_t gf_gobj_exp_set_y_align(g_obj *gobj, int32_t y_ofs);
+
 /*=====================
  * Getter functions
  *====================*/
+int32_t g_get_scr_rot_dir();
+int32_t g_get_scr_width(int32_t width, int32_t hight);
+int32_t g_get_scr_hight();
+void gf_gobj_get_size(lv_obj_t *lobj);
 
 /*=====================
  * Other functions
  *====================*/
 g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
+
+lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
+lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
+lv_obj_t * gf_create_text(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                             const char *txt_str);
+lv_obj_t * gf_create_sym(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+                         const lv_font_t *font, const char *index, \
+                         lv_color_t color);
+lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id);
+lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id);
+lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id);
+
+int32_t gf_rotate_obj_tree(g_obj *gobj);
+int32_t g_obj_rot_calc_size(g_obj *gobj);
 
 /**********************
  *      MACROS
