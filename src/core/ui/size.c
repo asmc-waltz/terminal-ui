@@ -12,6 +12,7 @@
 #endif
 #include <log.h>
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
 
@@ -61,6 +62,72 @@ static void g_swap_xy_size(g_obj *gobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+int32_t g_obj_scale(g_obj *gobj)
+{
+    lv_obj_t *lobj_par = NULL;
+    g_obj *gobj_par = NULL;
+    int32_t scale_w;
+    int32_t scale_h;
+
+    if (!gobj) {
+        LOG_ERROR("Invalid g object");
+        return -EINVAL;
+    }
+
+    lobj_par = lv_obj_get_parent(gobj->obj);
+    if (!lobj_par) {
+        LOG_ERROR("Invalid lvgl object");
+        return -EINVAL;
+    }
+
+    gobj_par = lobj_par->user_data;
+    if (!gobj_par) {
+        LOG_ERROR("Invalid g parent object");
+        return -EINVAL;
+    }
+
+    int abs_val_x = abs(gobj->aln.x);
+    int abs_val_y = abs(gobj->aln.y);
+
+    if (gobj->scale.ena_h || gobj->scale.ena_w) {
+        LOG_TRACE("Align x=%d y=%d", abs_val_x, abs_val_y);
+        LOG_TRACE("Parent w=%d h=%d", gobj_par->pos.w, gobj_par->pos.h);
+        LOG_TRACE("Pading w=%d h=%d", gobj->scale.aln_w, gobj->scale.aln_h);
+    }
+
+    int32_t scr_rot;
+    scr_rot = g_get_scr_rot_dir();  /* returns 0-3 */
+
+    scale_w = gobj->pos.w;
+    scale_h = gobj->pos.h;
+
+    if (gobj->scale.ena_h) {
+        LOG_TRACE("Expand Object H");
+        if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.aln_h;
+            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+        } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
+            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.aln_h;
+            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+        }
+    }
+
+    if (gobj->scale.ena_w) {
+        LOG_TRACE("Expand Object W");
+        if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.aln_w;
+            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+        } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
+            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.aln_w;
+            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+        }
+    }
+
+    gobj->scale.h = scale_h;
+    gobj->scale.w = scale_w;
+
+    return 0;
+}
 int32_t g_obj_rot_calc_size(g_obj *gobj)
 {
     int32_t scr_rot, cur_rot;
@@ -83,6 +150,7 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
     if (rot_cnt == 1 || rot_cnt == 3)
         g_swap_xy_size(gobj);
 
+    g_obj_scale(gobj);
     return 0;
 }
 
@@ -138,41 +206,31 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  */
 int32_t gf_gobj_exp_enable_w(g_obj *gobj)
 {
-    gobj->exp.ena_w = 1;
+    gobj->scale.ena_w = 1;
 }
 
 int32_t gf_gobj_exp_enable_h(g_obj *gobj)
 {
-    gobj->exp.ena_h = 1;
+    gobj->scale.ena_h = 1;
 }
 
 int32_t gf_gobj_exp_disable_w(g_obj *gobj)
 {
-    gobj->exp.ena_w = 0;
+    gobj->scale.ena_w = 0;
 }
 
 int32_t gf_gobj_exp_disable_h(g_obj *gobj)
 {
-    gobj->exp.ena_w = 0;
-}
-
-int32_t gf_gobj_exp_set_w_limit(g_obj *gobj, int32_t w_lim)
-{
-    gobj->exp.lim_w = w_lim;
-}
-
-int32_t gf_gobj_exp_set_h_limit(g_obj *gobj, int32_t h_lim)
-{
-    gobj->exp.lim_h = h_lim;
+    gobj->scale.ena_w = 0;
 }
 
 int32_t gf_gobj_exp_set_w_align(g_obj *gobj, int32_t w_ofs)
 {
-    gobj->exp.aln_w = w_ofs;
+    gobj->scale.aln_w = w_ofs;
 }
 
 int32_t gf_gobj_exp_set_h_align(g_obj *gobj, int32_t h_ofs)
 {
-    gobj->exp.aln_h = h_ofs;
+    gobj->scale.aln_h = h_ofs;
 }
 

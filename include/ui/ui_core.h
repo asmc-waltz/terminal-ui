@@ -42,13 +42,11 @@ typedef enum {
 typedef struct {
     int8_t ena_w;
     int8_t ena_h;
-    int8_t state_w;
-    int8_t state_h;
-    int32_t lim_w;
-    int32_t lim_h;
+    int32_t w;
+    int32_t h;
     int32_t aln_w;
     int32_t aln_h;
-} g_exp;
+} g_scale;
 
 typedef struct {
     int32_t x;
@@ -77,7 +75,7 @@ typedef struct g_obj {
     g_type type;
     g_pos pos;
     g_align aln;
-    g_exp exp;
+    g_scale scale;
 } g_obj;
 
 typedef struct {

@@ -91,6 +91,8 @@ static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
     gobj->type = type;
     gobj->pos.rot = ROTATION_0;
     gobj->aln.align = LV_ALIGN_DEFAULT;
+    gobj->scale.ena_w = 0;
+    gobj->scale.ena_h = 0;
 
     LV_ASSERT_NULL(gobj);
 
@@ -320,8 +322,13 @@ void create_dynamic_ui()
     // Child box as a menu bar
     ex_window = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_window, 400, 500);
-    gf_gobj_set_pos(ex_window, 32, 51);
+    // gf_gobj_set_pos(ex_window, 32, 51);
     lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
+    gf_gobj_exp_enable_h(ex_window->user_data);
+    gf_gobj_exp_set_h_align(ex_window->user_data, 50);
+
+    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 32, 51);
+
     //--------------------------------------------------------------------------
     // Container for all sub components
     ex_comp_cont = gf_create_container(ex_window, 0);

@@ -357,7 +357,13 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
     if (ret) {
         return -EINVAL;
     }
-    lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+
+    if (gobj->scale.ena_h || gobj->scale.ena_w) {
+        lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
+        LOG_INFO("SET W=%d H=%d", gobj->scale.w, gobj->scale.h);
+    } else {
+        lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+    }
 
     /*
      * For an object placed inside a parent, its new center point must be
