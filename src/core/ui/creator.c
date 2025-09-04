@@ -241,6 +241,8 @@ lv_obj_t *ex_sw_box = NULL;
 lv_obj_t *ex_sw1 = NULL;
 lv_obj_t *ex_sym_box1 = NULL;
 lv_obj_t *ex_sym1 = NULL;
+lv_obj_t *ex_sym_box2 = NULL;
+lv_obj_t *ex_sym2 = NULL;
 lv_obj_t *ex_btn1 = NULL;
 lv_obj_t *ex_slider1 = NULL;
 
@@ -310,6 +312,16 @@ void create_dynamic_ui()
     gf_gobj_exp_set_w_align(ex_top_bar->user_data, 10);
     gf_gobj_align_to(ex_top_bar, ex_scr, LV_ALIGN_TOP_MID, 0, 5);
     //--------------------------------------------------------------------------
+    ex_sym_box2 = gf_create_box(ex_top_bar, 0);
+    gf_gobj_set_size(ex_sym_box2, 40, 40);
+    // lv_obj_set_style_bg_color(ex_sym_box2, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_bg_opa(ex_sym_box2, LV_OPA_0, 0);
+    lv_obj_clear_flag(ex_sym_box2, LV_OBJ_FLAG_SCROLLABLE);
+    gf_gobj_align_to(ex_sym_box2, ex_sw_box, LV_ALIGN_RIGHT_MID, -20, 0);
+    //--------------------------------------------------------------------------
+    ex_sym2 = gf_create_sym(ex_sym_box2, 0, 5, 5, &terminal_icons_20, \
+                            ICON_SIGNAL_SOLID, lv_color_hex(0x000000));
+    //--------------------------------------------------------------------------
     ex_mid_box = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_mid_box, 80, 90);
     lv_obj_set_style_bg_color(ex_mid_box, lv_color_hex(0x0000FF), 0);
@@ -330,13 +342,13 @@ void create_dynamic_ui()
     //--------------------------------------------------------------------------
     // Child box as a menu bar
     ex_window = gf_create_box(ex_scr, 0);
-    gf_gobj_set_size(ex_window, 400, 500);
+    gf_gobj_set_size(ex_window, 400, 545);
     lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
     gf_gobj_exp_enable_h(ex_window->user_data);
-    gf_gobj_exp_set_h_align(ex_window->user_data, 20);
+    gf_gobj_exp_set_h_align(ex_window->user_data, 10);
     // gf_gobj_exp_enable_w(ex_window->user_data);
     // gf_gobj_exp_set_w_align(ex_window->user_data, 20);
-    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 20, 60);
+    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 5, 50);
 
     //--------------------------------------------------------------------------
     // Container for all sub components
@@ -370,7 +382,7 @@ void create_dynamic_ui()
     gf_gobj_align_to(ex_sym_box1, ex_sw_box, LV_ALIGN_OUT_BOTTOM_MID, 30, 25);
     //--------------------------------------------------------------------------
     ex_sym1 = gf_create_sym(ex_sym_box1, 0, 10, 10, &terminal_icons_32, \
-                            ICON_TOOLBOX_SOLID, lv_color_hex(0xFFFF00));
+                            ICON_TOOLBOX_SOLID, lv_color_hex(0x000000));
     //--------------------------------------------------------------------------
     ex_btn1 = gf_create_btn(ex_comp_cont, 0);
     gf_gobj_set_size(ex_btn1, 80, 50);
