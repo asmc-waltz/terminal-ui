@@ -18,7 +18,7 @@
 #include <lvgl.h>
 
 #include <list.h>
-#include <ui/ui_plat.h>
+#include <ui/ui_core.h>
 #include <ui/fonts.h>
 
 #define TEST 1
