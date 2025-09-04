@@ -228,6 +228,7 @@ void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
  */
 
 lv_obj_t *ex_scr = NULL;
+lv_obj_t *ex_top_bar = NULL;
 lv_obj_t *ex_window = NULL;
 lv_obj_t *ex_mid_box = NULL;
 lv_obj_t *ex_corner_box = NULL;
@@ -247,6 +248,7 @@ void sample_rot(int32_t angle)
 {
     g_set_scr_rot_dir(angle);
 
+    gf_rotate_obj_tree(ex_top_bar->user_data);
     gf_rotate_obj_tree(ex_window->user_data);
     gf_rotate_obj_tree(ex_mid_box->user_data);
     gf_rotate_obj_tree(ex_corner_box->user_data);
@@ -301,6 +303,13 @@ void create_dynamic_ui()
     gf_gobj_set_pos(ex_scr, 0, 0);
     lv_obj_set_style_bg_color(ex_scr, lv_color_hex(0x000000), 0);
     //--------------------------------------------------------------------------
+    ex_top_bar = gf_create_box(ex_scr, 0);
+    gf_gobj_set_size(ex_top_bar, 1014, 40);
+    lv_obj_set_style_bg_color(ex_top_bar, lv_color_hex(0xFF9913), 0);
+    gf_gobj_exp_enable_w(ex_top_bar->user_data);
+    gf_gobj_exp_set_w_align(ex_top_bar->user_data, 10);
+    gf_gobj_align_to(ex_top_bar, ex_scr, LV_ALIGN_TOP_MID, 0, 5);
+    //--------------------------------------------------------------------------
     ex_mid_box = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_mid_box, 80, 90);
     lv_obj_set_style_bg_color(ex_mid_box, lv_color_hex(0x0000FF), 0);
@@ -327,7 +336,7 @@ void create_dynamic_ui()
     gf_gobj_exp_set_h_align(ex_window->user_data, 20);
     // gf_gobj_exp_enable_w(ex_window->user_data);
     // gf_gobj_exp_set_w_align(ex_window->user_data, 20);
-    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 20, 20);
+    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 20, 60);
 
     //--------------------------------------------------------------------------
     // Container for all sub components

@@ -86,6 +86,11 @@ int32_t g_obj_scale(g_obj *gobj)
         return -EINVAL;
     }
 
+    /*
+     * TODO:
+     * This logic works when alignment is based on the parent,
+     * but it will fail if aligned to another object.
+     */
     int abs_val_x = abs(gobj->aln.x);
     int abs_val_y = abs(gobj->aln.y);
 
