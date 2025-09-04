@@ -27,6 +27,7 @@
 #include <ui/style.h>
 #include <ui/layers.h>
 #include <ui/ui_plat.h>
+#include <ui/ui_core.h>
 #include <ui/style.h>
 #include <ui/screens.h>
 #include <comm/cmd_payload.h>
@@ -225,14 +226,15 @@ int32_t main(void) {
     gf_config_top_layer();
 
     // Initialize component styles
-    gf_styles_init();
+    // gf_styles_init();
+    //
+    // // Create shared components commonly displayed on screens
+    // sf_create_common_components();
+    //
+    // // Display the home screen
+    // gf_create_home_screen();
 
-    // Create shared components commonly displayed on screens
-    sf_create_common_components();
-
-    // Display the home screen
-    gf_create_home_screen();
-
+    create_dynamic_ui();
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
     if (ret) {
