@@ -40,14 +40,14 @@ typedef enum {
 } g_type;
 
 typedef struct {
-    int8_t ena_x;
-    int8_t ena_y;
-    int8_t state_x;
-    int8_t state_y;
-    int32_t exp_x;
-    int32_t exp_y;
-    int32_t aln_x;
-    int32_t aln_y;
+    int8_t ena_w;
+    int8_t ena_h;
+    int8_t state_w;
+    int8_t state_h;
+    int32_t lim_w;
+    int32_t lim_h;
+    int32_t aln_w;
+    int32_t aln_h;
 } g_exp;
 
 typedef struct {
@@ -112,14 +112,14 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir);
 int32_t g_set_scr_size(int32_t width, int32_t hight);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_gobj_exp_enable_x(g_obj *gobj);
-int32_t gf_gobj_exp_enable_y(g_obj *gobj);
-int32_t gf_gobj_exp_disable_x(g_obj *gobj);
-int32_t gf_gobj_exp_disable_y(g_obj *gobj);
-int32_t gf_gobj_exp_set_x_limit(g_obj *gobj, int32_t x_lim);
-int32_t gf_gobj_exp_set_y_limit(g_obj *gobj, int32_t y_lim);
-int32_t gf_gobj_exp_set_x_align(g_obj *gobj, int32_t x_ofs);
-int32_t gf_gobj_exp_set_y_align(g_obj *gobj, int32_t y_ofs);
+int32_t gf_gobj_exp_enable_w(g_obj *gobj);
+int32_t gf_gobj_exp_enable_h(g_obj *gobj);
+int32_t gf_gobj_exp_disable_w(g_obj *gobj);
+int32_t gf_gobj_exp_disable_h(g_obj *gobj);
+int32_t gf_gobj_exp_set_w_limit(g_obj *gobj, int32_t w_lim);
+int32_t gf_gobj_exp_set_h_limit(g_obj *gobj, int32_t h_lim);
+int32_t gf_gobj_exp_set_w_align(g_obj *gobj, int32_t w_ofs);
+int32_t gf_gobj_exp_set_h_align(g_obj *gobj, int32_t h_ofs);
 
 /*=====================
  * Getter functions
