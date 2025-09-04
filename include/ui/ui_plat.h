@@ -13,6 +13,7 @@
 
 #include <lvgl.h>
 #include <list.h>
+#include <ui/ui_core.h>
 
 /*********************
  *      DEFINES
@@ -92,59 +93,6 @@ typedef enum {
     ID_SYSTEM_STATUS,
 } g_id;
 
-typedef enum {
-    OBJ_NONE = 0,
-    OBJ_BASE,
-    OBJ_CONTAINER,
-    OBJ_BTN,
-    OBJ_SLIDER,
-    OBJ_LABEL,
-    OBJ_ICON,
-    OBJ_SWITCH,
-} g_type;
-
-/* forward declare */
-typedef struct {
-    int32_t x;
-    int32_t y;
-    lv_obj_t *base;
-    int8_t align;
-} g_align;
-
-typedef struct {
-    int32_t x_mid;      // Latest center point X coordinate
-    int32_t y_mid;      // Latest center point Y coordinate
-    int32_t par_w;      // Parent width when x_mid was calculated
-    int32_t par_h;      // Parent height when y_mid was calculated
-    int32_t w;
-    int32_t h;
-    int8_t rot;
-} g_pos;
-
-typedef struct g_obj {
-    struct list_head node;
-    struct list_head child;
-    g_id id;
-    lv_obj_t *obj;
-    char *name;
-    bool visible;
-    g_type type;
-    g_pos pos;
-    g_align aln;
-} g_obj;
-
-typedef struct {
-    struct list_head node;
-    g_id id;
-    lv_obj_t *obj;
-    char *name;
-} g_handler;
-
-typedef struct {
-    struct list_head obj_list;
-    struct list_head handler_list;
-} g_app_data;
-
 /**********************
  *  GLOBAL VARIABLES
  **********************/
@@ -169,7 +117,6 @@ extern lv_obj_t *glob_kb;
  *====================*/
 g_handler * gf_register_handler(lv_obj_t *par, uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
 
-g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t * gf_get_g_obj(uint32_t req_id);
