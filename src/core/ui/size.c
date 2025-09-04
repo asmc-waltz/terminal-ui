@@ -131,3 +131,52 @@ void gf_gobj_get_size(lv_obj_t *lobj)
     gobj->pos.h = lv_obj_get_height(lobj);
 }
 
+/*
+ * For object expansion. Since gobject is based on lvgl object but supports
+ * logical rotation, we must recalculate position and size for each rotation.
+ * This depends on the parent size. Rotation causes layout changes as rescale.
+ * Scaling must align based on the bottom and right edges, while normal objects
+ * mostly align based on the top-left corner. This may affect objects aligned
+ * differently. Carefully verify any object not aligned by top-left corner, as
+ * they must still support size expansion.
+ */
+int32_t gf_gobj_exp_enable_x(g_obj *gobj)
+{
+    gobj->exp.ena_x = 1;
+}
+
+int32_t gf_gobj_exp_enable_y(g_obj *gobj)
+{
+    gobj->exp.ena_y = 1;
+}
+
+int32_t gf_gobj_exp_disable_x(g_obj *gobj)
+{
+    gobj->exp.ena_x = 0;
+}
+
+int32_t gf_gobj_exp_disable_y(g_obj *gobj)
+{
+    gobj->exp.ena_y = 0;
+}
+
+int32_t gf_gobj_exp_set_x_limit(g_obj *gobj, int32_t x_lim)
+{
+    gobj->exp.exp_x = x_lim;
+}
+
+int32_t gf_gobj_exp_set_y_limit(g_obj *gobj, int32_t y_lim)
+{
+    gobj->exp.exp_y = y_lim;
+}
+
+int32_t gf_gobj_exp_set_x_align(g_obj *gobj, int32_t x_ofs)
+{
+    gobj->exp.aln_x = x_ofs;
+}
+
+int32_t gf_gobj_exp_set_y_align(g_obj *gobj, int32_t y_ofs)
+{
+    gobj->exp.aln_y = y_ofs;
+}
+
