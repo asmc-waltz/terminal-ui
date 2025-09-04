@@ -348,6 +348,14 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
 
+    // The size and scale calculation depends on alignment values,
+    // so we must process these first.
+    if (gobj->aln.align != LV_ALIGN_DEFAULT) {
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret) {
+            return -EINVAL;
+        }
+    }
     /*
      * For each object, when rotation occurs, its size must be recalculated.
      * Since the root coordinate does not change, the width and height
@@ -378,11 +386,6 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
                        gobj->pos.y_mid - (gobj->pos.h / 2));
     } else {
-        // Update object alignment according to logical rotation
-        ret = g_obj_rot_calc_align(gobj);
-        if (ret) {
-            return -EINVAL;
-        }
         lv_obj_align_to(gobj->obj, gobj->aln.base, gobj->aln.align, \
                         gobj->aln.x, gobj->aln.y);
     }
