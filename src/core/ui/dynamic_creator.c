@@ -452,22 +452,22 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
         return -EINVAL;
     }
 
-    if (scr_rot == LV_DISPLAY_ROTATION_0) {
+    if (scr_rot == ROTATION_0) {
         rot_val = 0;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
                        gobj->pos.y_mid - (gobj->pos.h / 2));
-    } else if (scr_rot == LV_DISPLAY_ROTATION_90) {
+    } else if (scr_rot == ROTATION_90) {
         rot_val = 900;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid + (gobj->pos.w / 2), \
                        gobj->pos.y_mid - (gobj->pos.h / 2));
-    } else if (scr_rot == LV_DISPLAY_ROTATION_180) {
+    } else if (scr_rot == ROTATION_180) {
         rot_val = 1800;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid + (gobj->pos.w / 2), \
                        gobj->pos.y_mid + (gobj->pos.h / 2));
-    } else if (scr_rot == LV_DISPLAY_ROTATION_270) {
+    } else if (scr_rot == ROTATION_270) {
         rot_val = 2700;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
@@ -529,7 +529,7 @@ static int32_t g_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-int32_t gf_rotate_all(g_obj *gobj)
+static int32_t gf_rotate_all(g_obj *gobj)
 {
     g_obj *p_obj;
     int32_t ret;
@@ -546,21 +546,6 @@ int32_t gf_rotate_all(g_obj *gobj)
         if (ret < 0)
             return ret;
     }
-
-    return 0;
-}
-
-int32_t gf_rotate_obj_tree(g_obj *gobj)
-{
-    int32_t ret;
-
-    ret = g_obj_rotate(gobj);
-    if (ret < 0)
-        return ret;
-
-    ret = gf_rotate_all(gobj);
-    if (ret < 0)
-        return ret;
 
     return 0;
 }
@@ -778,6 +763,21 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id)
     return lobj;
 }
 
+int32_t gf_rotate_obj_tree(g_obj *gobj)
+{
+    int32_t ret;
+
+    ret = g_obj_rotate(gobj);
+    if (ret < 0)
+        return ret;
+
+    ret = gf_rotate_all(gobj);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
 int32_t g_relocation_all()
 {
     // Retrieve current screen dimensions.
@@ -795,22 +795,22 @@ int32_t g_rotate_event_handler()
     int32_t ret;
     int32_t rot_dir;
     // e.g. from dbus
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_0);
-    g_set_scr_rot_dir(LV_DISPLAY_ROTATION_90);
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_180);
-    // g_set_scr_rot_dir(LV_DISPLAY_ROTATION_270);
+    // g_set_scr_rot_dir(ROTATION_0);
+    g_set_scr_rot_dir(ROTATION_90);
+    // g_set_scr_rot_dir(ROTATION_180);
+    // g_set_scr_rot_dir(ROTATION_270);
 
     // Retrieve rotation state.
     rot_dir = g_get_scr_rot_dir();
 
     // Adjust screen size accordingly.
-    if (rot_dir == LV_DISPLAY_ROTATION_0) {
+    if (rot_dir == ROTATION_0) {
         g_set_scr_size(1024, 600);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_90) {
+    } else if (rot_dir == ROTATION_90) {
         g_set_scr_size(600, 1024);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_180) {
+    } else if (rot_dir == ROTATION_180) {
         g_set_scr_size(1024, 600);
-    } else if (rot_dir == LV_DISPLAY_ROTATION_270) {
+    } else if (rot_dir == ROTATION_270) {
         g_set_scr_size(600, 1024);
     }
 
