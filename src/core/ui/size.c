@@ -51,41 +51,37 @@ static int32_t g_scr_hight = HW_DISPLAY_HEIGHT;
  **********************/
 static void g_swap_xy_size(g_obj *gobj)
 {
-    int32_t tmp_width;
+    int32_t tmp_w;
 
-    tmp_width = gobj->pos.w;
+    tmp_w = gobj->pos.w;
     gobj->pos.w = gobj->pos.h;
-    gobj->pos.h = tmp_width;
+    gobj->pos.h = tmp_w;
 }
-
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
 int32_t g_obj_rot_calc_size(g_obj *gobj)
 {
-    int32_t scr_rot = g_get_scr_rot_dir();
+    int32_t scr_rot, cur_rot;
+    int32_t rot_cnt;
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
         return -EINVAL;
     }
 
-    // Must check: input rot is different from the current rotation inf
+    scr_rot = g_get_scr_rot_dir();  /* returns 0-3 */
+    cur_rot = gobj->pos.rot;        /* stored as 0-3 */
 
-    if (scr_rot == ROTATION_0) {
-        if (gobj->pos.rot == ROTATION_90 || gobj->pos.rot == ROTATION_270)
-            g_swap_xy_size(gobj);
-    } else if (scr_rot == ROTATION_90) {
-        if (gobj->pos.rot == ROTATION_0 || gobj->pos.rot == ROTATION_180)
-            g_swap_xy_size(gobj);
-    } else if (scr_rot == ROTATION_180) {
-        if (gobj->pos.rot == ROTATION_90 || gobj->pos.rot == ROTATION_270)
-            g_swap_xy_size(gobj);
-    } else if (scr_rot == ROTATION_270) {
-        if (gobj->pos.rot == ROTATION_0 || gobj->pos.rot == ROTATION_180)
-            g_swap_xy_size(gobj);
-    }
+    if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
+        scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
+        return -EINVAL;
+
+    rot_cnt = (scr_rot - cur_rot + 4) % 4;
+
+    if (rot_cnt == 1 || rot_cnt == 3)
+        g_swap_xy_size(gobj);
 
     return 0;
 }
@@ -140,43 +136,43 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  * differently. Carefully verify any object not aligned by top-left corner, as
  * they must still support size expansion.
  */
-int32_t gf_gobj_exp_enable_x(g_obj *gobj)
+int32_t gf_gobj_exp_enable_w(g_obj *gobj)
 {
-    gobj->exp.ena_x = 1;
+    gobj->exp.ena_w = 1;
 }
 
-int32_t gf_gobj_exp_enable_y(g_obj *gobj)
+int32_t gf_gobj_exp_enable_h(g_obj *gobj)
 {
-    gobj->exp.ena_y = 1;
+    gobj->exp.ena_h = 1;
 }
 
-int32_t gf_gobj_exp_disable_x(g_obj *gobj)
+int32_t gf_gobj_exp_disable_w(g_obj *gobj)
 {
-    gobj->exp.ena_x = 0;
+    gobj->exp.ena_w = 0;
 }
 
-int32_t gf_gobj_exp_disable_y(g_obj *gobj)
+int32_t gf_gobj_exp_disable_h(g_obj *gobj)
 {
-    gobj->exp.ena_y = 0;
+    gobj->exp.ena_w = 0;
 }
 
-int32_t gf_gobj_exp_set_x_limit(g_obj *gobj, int32_t x_lim)
+int32_t gf_gobj_exp_set_w_limit(g_obj *gobj, int32_t w_lim)
 {
-    gobj->exp.exp_x = x_lim;
+    gobj->exp.lim_w = w_lim;
 }
 
-int32_t gf_gobj_exp_set_y_limit(g_obj *gobj, int32_t y_lim)
+int32_t gf_gobj_exp_set_h_limit(g_obj *gobj, int32_t h_lim)
 {
-    gobj->exp.exp_y = y_lim;
+    gobj->exp.lim_h = h_lim;
 }
 
-int32_t gf_gobj_exp_set_x_align(g_obj *gobj, int32_t x_ofs)
+int32_t gf_gobj_exp_set_w_align(g_obj *gobj, int32_t w_ofs)
 {
-    gobj->exp.aln_x = x_ofs;
+    gobj->exp.aln_w = w_ofs;
 }
 
-int32_t gf_gobj_exp_set_y_align(g_obj *gobj, int32_t y_ofs)
+int32_t gf_gobj_exp_set_h_align(g_obj *gobj, int32_t h_ofs)
 {
-    gobj->exp.aln_y = y_ofs;
+    gobj->exp.aln_h = h_ofs;
 }
 
