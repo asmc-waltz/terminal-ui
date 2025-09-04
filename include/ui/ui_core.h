@@ -44,8 +44,8 @@ typedef struct {
     int8_t ena_h;
     int32_t w;
     int32_t h;
-    int32_t aln_w;
-    int32_t aln_h;
+    int32_t pad_w;
+    int32_t pad_h;
 } g_scale;
 
 typedef struct {
@@ -110,14 +110,12 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir);
 int32_t g_set_scr_size(int32_t width, int32_t hight);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_gobj_exp_enable_w(g_obj *gobj);
-int32_t gf_gobj_exp_enable_h(g_obj *gobj);
-int32_t gf_gobj_exp_disable_w(g_obj *gobj);
-int32_t gf_gobj_exp_disable_h(g_obj *gobj);
-int32_t gf_gobj_exp_set_w_limit(g_obj *gobj, int32_t w_lim);
-int32_t gf_gobj_exp_set_h_limit(g_obj *gobj, int32_t h_lim);
-int32_t gf_gobj_exp_set_w_align(g_obj *gobj, int32_t w_ofs);
-int32_t gf_gobj_exp_set_h_align(g_obj *gobj, int32_t h_ofs);
+int32_t gf_gobj_scale_enable_w(g_obj *gobj);
+int32_t gf_gobj_scale_enable_h(g_obj *gobj);
+int32_t gf_gobj_scale_disable_w(g_obj *gobj);
+int32_t gf_gobj_scale_disable_h(g_obj *gobj);
+int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w);
+int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h);
 
 /*=====================
  * Getter functions

@@ -308,8 +308,8 @@ void create_dynamic_ui()
     ex_top_bar = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_top_bar, 1014, 40);
     lv_obj_set_style_bg_color(ex_top_bar, lv_color_hex(0xFF9913), 0);
-    gf_gobj_exp_enable_w(ex_top_bar->user_data);
-    gf_gobj_exp_set_w_align(ex_top_bar->user_data, 10);
+    gf_gobj_scale_enable_w(ex_top_bar->user_data);
+    gf_gobj_scale_set_pad_w(ex_top_bar->user_data, 10);
     gf_gobj_align_to(ex_top_bar, ex_scr, LV_ALIGN_TOP_MID, 0, 5);
     //--------------------------------------------------------------------------
     ex_sym_box2 = gf_create_box(ex_top_bar, 0);
@@ -344,10 +344,10 @@ void create_dynamic_ui()
     ex_window = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_window, 400, 545);
     lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
-    gf_gobj_exp_enable_h(ex_window->user_data);
-    gf_gobj_exp_set_h_align(ex_window->user_data, 10);
-    // gf_gobj_exp_enable_w(ex_window->user_data);
-    // gf_gobj_exp_set_w_align(ex_window->user_data, 20);
+    gf_gobj_scale_enable_h(ex_window->user_data);
+    gf_gobj_scale_set_pad_h(ex_window->user_data, 10);
+    // gf_gobj_scale_enable_w(ex_window->user_data);
+    // gf_gobj_scale_set_pad_w(ex_window->user_data, 20);
     gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 5, 50);
 
     //--------------------------------------------------------------------------
@@ -387,7 +387,7 @@ void create_dynamic_ui()
     ex_btn1 = gf_create_btn(ex_comp_cont, 0);
     gf_gobj_set_size(ex_btn1, 80, 50);
     gf_gobj_align_to(ex_btn1, ex_sym_box1, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 25);
-    gf_register_handler(ex_btn1, 0, btn_handler, LV_EVENT_CLICKED);
+    lv_obj_add_event_cb(ex_btn1, btn_handler, LV_EVENT_CLICKED, ex_btn1->user_data);
     //--------------------------------------------------------------------------
     ex_slider1 = gf_create_slider(ex_comp_cont, 0);
     gf_gobj_set_size(ex_slider1, 100, 20);

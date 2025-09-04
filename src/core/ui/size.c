@@ -66,8 +66,9 @@ int32_t g_obj_scale(g_obj *gobj)
 {
     lv_obj_t *lobj_par = NULL;
     g_obj *gobj_par = NULL;
-    int32_t scale_w;
-    int32_t scale_h;
+    int32_t scale_w, scale_h;
+    int32_t abs_val_x, abs_val_y;
+    int8_t scr_rot;
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
@@ -91,45 +92,35 @@ int32_t g_obj_scale(g_obj *gobj)
      * This logic works when alignment is based on the parent,
      * but it will fail if aligned to another object.
      */
-    int abs_val_x = abs(gobj->aln.x);
-    int abs_val_y = abs(gobj->aln.y);
-
-    if (gobj->scale.ena_h || gobj->scale.ena_w) {
-        LOG_TRACE("Align x=%d y=%d", abs_val_x, abs_val_y);
-        LOG_TRACE("Parent w=%d h=%d", gobj_par->pos.w, gobj_par->pos.h);
-        LOG_TRACE("Pading w=%d h=%d", gobj->scale.aln_w, gobj->scale.aln_h);
-    }
-
-    int32_t scr_rot;
+    abs_val_x = abs(gobj->aln.x);
+    abs_val_y = abs(gobj->aln.y);
     scr_rot = g_get_scr_rot_dir();  /* returns 0-3 */
-
     scale_w = gobj->pos.w;
     scale_h = gobj->pos.h;
 
     if (gobj->scale.ena_h) {
-        LOG_TRACE("Expand Object H");
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.aln_h;
-            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.pad_h;
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.aln_h;
-            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.pad_h;
         }
     }
 
     if (gobj->scale.ena_w) {
-        LOG_TRACE("Expand Object W");
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.aln_w;
-            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.pad_w;
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.aln_w;
-            LOG_INFO("New: W=%d H=%d", scale_w, scale_h);
+            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.pad_w;
         }
     }
 
     gobj->scale.h = scale_h;
     gobj->scale.w = scale_w;
+
+    LOG_TRACE("Parent: w=%d h=%d - ABS align x=%d y=%d - Pading w=%d h=%d\n" \
+              "\tObj: scale: w->%d h->%d", \
+              gobj_par->pos.w, gobj_par->pos.h, abs_val_x, abs_val_y, \
+              gobj->scale.pad_w, gobj->scale.pad_h, gobj->scale.w, gobj->scale.h);
 
     return 0;
 }
@@ -155,7 +146,10 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
     if (rot_cnt == 1 || rot_cnt == 3)
         g_swap_xy_size(gobj);
 
-    g_obj_scale(gobj);
+    if (gobj->scale.ena_h || gobj->scale.ena_w) {
+        if (g_obj_scale(gobj))
+            return -EINVAL;
+    }
     return 0;
 }
 
@@ -209,33 +203,33 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  * differently. Carefully verify any object not aligned by top-left corner, as
  * they must still support size expansion.
  */
-int32_t gf_gobj_exp_enable_w(g_obj *gobj)
+int32_t gf_gobj_scale_enable_w(g_obj *gobj)
 {
     gobj->scale.ena_w = 1;
 }
 
-int32_t gf_gobj_exp_enable_h(g_obj *gobj)
+int32_t gf_gobj_scale_enable_h(g_obj *gobj)
 {
     gobj->scale.ena_h = 1;
 }
 
-int32_t gf_gobj_exp_disable_w(g_obj *gobj)
+int32_t gf_gobj_scale_disable_w(g_obj *gobj)
 {
     gobj->scale.ena_w = 0;
 }
 
-int32_t gf_gobj_exp_disable_h(g_obj *gobj)
+int32_t gf_gobj_scale_disable_h(g_obj *gobj)
 {
     gobj->scale.ena_w = 0;
 }
 
-int32_t gf_gobj_exp_set_w_align(g_obj *gobj, int32_t w_ofs)
+int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w)
 {
-    gobj->scale.aln_w = w_ofs;
+    gobj->scale.pad_w = pad_w;
 }
 
-int32_t gf_gobj_exp_set_h_align(g_obj *gobj, int32_t h_ofs)
+int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h)
 {
-    gobj->scale.aln_h = h_ofs;
+    gobj->scale.pad_h = pad_h;
 }
 
