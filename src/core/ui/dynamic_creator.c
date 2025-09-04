@@ -17,6 +17,8 @@
 
 #include <lvgl.h>
 
+#include <list.h>
+
 #include <ui/ui_plat.h>
 #include <ui/fonts.h>
 
@@ -95,7 +97,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     int32_t B; /* distance from old bottom edge to object's center */
 
     if (!gobj) {
-        LOG_ERROR("g_obj_get_center: null gobj");
+        LOG_ERROR("null gobj");
         return -EINVAL;
     }
 
@@ -109,7 +111,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     /* sanity check rotation values (expect 0..3 mapping to 0/90/180/270) */
     if (old_rot < ROTATION_0 || old_rot > ROTATION_270 ||
         scr_rot < ROTATION_0 || scr_rot > ROTATION_270) {
-        LOG_ERROR("g_obj_get_center: invalid rot old=%d new=%d",
+        LOG_ERROR("invalid rot old=%d new=%d",
                   old_rot, scr_rot);
         return -EINVAL;
     }
@@ -122,9 +124,9 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     R = old_pw - L;
     B = old_ph - T;
 
-    LOG_DEBUG("g_obj_get_center: old_rot=%d -> scr_rot=%d, "
+    LOG_TRACE("obj id=%d - old_rot=%d -> scr_rot=%d, "
               "old_pw=%d old_ph=%d, L=%d T=%d R=%d B=%d, "
-              "new_par=(%d,%d)",
+              "new_par=(%d,%d)", gobj->id,
               old_rot, scr_rot, old_pw, old_ph, L, T, R, B, par_w, par_h);
 
     /* === mapping table: old_rot -> scr_rot ===
@@ -187,7 +189,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
 
     /* ensure mapping was computed */
     if (new_x_mid < 0 || new_y_mid < 0) {
-        LOG_ERROR("g_obj_get_center: mapping not produced or negative: x=%d y=%d",
+        LOG_ERROR("mapping not produced or negative: x=%d y=%d",
                   new_x_mid, new_y_mid);
         return -ERANGE;
     }
@@ -195,7 +197,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     /* bounds check against new parent size before mutating state */
     if (new_x_mid < 0 || new_x_mid > par_w ||
         new_y_mid < 0 || new_y_mid > par_h) {
-        LOG_WARN("g_obj_get_center: computed midpoint out of bounds: "
+        LOG_WARN("computed midpoint out of bounds: "
                  "x=%d (0..%d) y=%d (0..%d)",
                  new_x_mid, par_w, new_y_mid, par_h);
         return -ERANGE;
@@ -208,7 +210,7 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     gobj->pos.par_h = par_h;
     gobj->pos.rot = scr_rot;
 
-    LOG_TRACE("g_obj_get_center: success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
+    LOG_TRACE("success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
               new_x_mid, new_y_mid, par_w, par_h, scr_rot);
 
     return 0;
@@ -527,6 +529,42 @@ static int32_t g_obj_rotate(g_obj *gobj)
     return 0;
 }
 
+int32_t gf_rotate_all(g_obj *gobj)
+{
+    g_obj *p_obj;
+    int32_t ret;
+    struct list_head *par_list;
+
+    par_list = &gobj->child;
+
+    list_for_each_entry(p_obj, par_list, node) {
+        ret = g_obj_rotate(p_obj);
+        if (ret < 0)
+            return ret;
+
+        ret = gf_rotate_all(p_obj);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+int32_t gf_rotate_obj_tree(g_obj *gobj)
+{
+    int32_t ret;
+
+    ret = g_obj_rotate(gobj);
+    if (ret < 0)
+        return ret;
+
+    ret = gf_rotate_all(gobj);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
 static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 {
     g_obj *gobj = NULL;
@@ -814,23 +852,11 @@ lv_obj_t *ex_slider1 = NULL;
 
 void sample_rot(int32_t angle)
 {
-    // TODO: implement recursive rotate from parent
     g_set_scr_rot_dir(angle);
-    g_obj_rotate(ex_window->user_data);
-    g_obj_rotate(ex_mid_box->user_data);
-    g_obj_rotate(ex_corner_box->user_data);
-    g_obj_rotate(ex_text_box2->user_data);
-    g_obj_rotate(ex_text_2->user_data);
-    g_obj_rotate(ex_comp_cont->user_data);
-    g_obj_rotate(ex_text_box1->user_data);
-    g_obj_rotate(ex_text1->user_data);
-    g_obj_rotate(ex_sw_box->user_data);
-    g_obj_rotate(ex_sw1->user_data);
-    g_obj_rotate(ex_sym_box1->user_data);
-    g_obj_rotate(ex_sym1->user_data);
-    g_obj_rotate(ex_btn1->user_data);
-    g_obj_rotate(ex_slider1->user_data);
 
+    gf_rotate_obj_tree(ex_window->user_data);
+    gf_rotate_obj_tree(ex_mid_box->user_data);
+    gf_rotate_obj_tree(ex_corner_box->user_data);
 
     int32_t w, h;
     lv_obj_update_layout(ex_comp_cont);
@@ -867,7 +893,7 @@ static void btn_handler(lv_event_t *event)
     // gf_refresh_all_layer();
 
     gobj = btn->user_data;
-    LOG_DEBUG("ID %d: Taskbar button clicked", gobj->id);
+    LOG_DEBUG("ID %d: Test button clicked", gobj->id);
     sample_rot(get_random_0_3());
 
 }
