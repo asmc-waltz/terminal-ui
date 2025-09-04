@@ -322,12 +322,12 @@ void create_dynamic_ui()
     // Child box as a menu bar
     ex_window = gf_create_box(ex_scr, 0);
     gf_gobj_set_size(ex_window, 400, 500);
-    // gf_gobj_set_pos(ex_window, 32, 51);
     lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
     gf_gobj_exp_enable_h(ex_window->user_data);
-    gf_gobj_exp_set_h_align(ex_window->user_data, 50);
-
-    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 32, 51);
+    gf_gobj_exp_set_h_align(ex_window->user_data, 20);
+    // gf_gobj_exp_enable_w(ex_window->user_data);
+    // gf_gobj_exp_set_w_align(ex_window->user_data, 20);
+    gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 20, 20);
 
     //--------------------------------------------------------------------------
     // Container for all sub components
