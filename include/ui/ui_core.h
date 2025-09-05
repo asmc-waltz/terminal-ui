@@ -122,21 +122,21 @@ void gf_gobj_get_size(lv_obj_t *lobj);
 /*=====================
  * Other functions
  *====================*/
-g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
+g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
 int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
 g_ctx *gf_create_app_ctx(void);
 void gf_destroy_app_ctx(g_ctx *ctx);
 
-lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
-lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
-lv_obj_t * gf_create_text(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
+lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
+lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
                              const char *txt_str);
-lv_obj_t * gf_create_sym(lv_obj_t *par, uint32_t id, int32_t x, int32_t y, \
+lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
                          const lv_font_t *font, const char *index, \
                          lv_color_t color);
-lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id);
-lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id);
-lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id);
+lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name);
+lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name);
+lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
 
 int32_t gf_rotate_obj_tree(g_obj *gobj);
 int32_t g_obj_rot_calc_size(g_obj *gobj);
