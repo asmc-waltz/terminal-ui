@@ -79,13 +79,6 @@ typedef struct g_obj_t {
 } g_obj_t;
 
 typedef struct {
-    struct list_head node;
-    int32_t id;
-    lv_obj_t *obj;
-    char *name;
-} g_handler;
-
-typedef struct {
     struct list_head objs;     /* List of registered UI objects */
 } g_ctx_t;
 
