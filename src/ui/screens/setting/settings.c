@@ -245,7 +245,7 @@ static void setting_handler(lv_event_t *e)
     uint32_t id = ID_NONE;
 
     if (code == LV_EVENT_CLICKED) {
-        id = ((g_obj *)(obj->user_data))->id;
+        id = ((g_obj_t *)(obj->user_data))->id;
         LOG_TRACE("ID %d: %s is clicked", id, lv_list_get_button_text(NULL, obj));
         sf_update_sub_setting_title(lv_list_get_button_text(NULL, obj));
 

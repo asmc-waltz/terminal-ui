@@ -53,7 +53,7 @@
  **********************/
 g_handler * gf_register_handler(lv_obj_t *obj, uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter)
 {
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
     g_handler *p_handler = NULL;
 
     LV_ASSERT_NULL(obj);
@@ -71,9 +71,9 @@ g_handler * gf_register_handler(lv_obj_t *obj, uint32_t id, lv_event_cb_t event_
     return p_handler;
 }
 
-g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
+g_obj_t * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
 {
-    g_obj *p_obj = NULL;
+    g_obj_t *p_obj = NULL;
     struct list_head *par_list;
 
     if (par == NULL) {
@@ -81,11 +81,11 @@ g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
         par_list = &global_data->obj_list;
     } else {
         LOG_TRACE("Normal object is detect -> add this one into parrent data as child");
-        par_list = &((g_obj *)par->user_data)->child;
+        par_list = &((g_obj_t *)par->user_data)->child;
     }
 
     LOG_TRACE("Register OBJ id %d", id);
-    p_obj = malloc(sizeof(g_obj));
+    p_obj = malloc(sizeof(g_obj_t));
     LV_ASSERT_NULL(p_obj);
     p_obj->id = id;
     p_obj->obj = obj;
@@ -99,7 +99,7 @@ g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
 
 lv_obj_t * gf_create_obj(lv_obj_t *par, uint32_t id)
 {
-    g_obj *p_obj = NULL;
+    g_obj_t *p_obj = NULL;
     lv_obj_t *obj = NULL;
 
     LV_ASSERT_NULL(par);
@@ -115,7 +115,7 @@ lv_obj_t * gf_create_obj(lv_obj_t *par, uint32_t id)
 
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst)
 {
-    g_obj *p_obj = NULL;
+    g_obj_t *p_obj = NULL;
     lv_obj_t *lv_obj = NULL;
     struct list_head *par_list;
 
@@ -136,7 +136,7 @@ lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst)
             LOG_TRACE("Scan inside obj id %d", p_obj->id);
             lv_obj = gf_get_obj(req_id, &p_obj->child);
             if (lv_obj != NULL) {
-                LOG_TRACE("OBJ id %d is the expeted one", ((g_obj *)(lv_obj->user_data))->id);
+                LOG_TRACE("OBJ id %d is the expeted one", ((g_obj_t *)(lv_obj->user_data))->id);
                 return lv_obj;
             } else {
                 LOG_TRACE("OBJ is NOT the expeted one");
@@ -154,8 +154,8 @@ lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst)
 bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     bool deleted = false;
-    g_obj *p_obj = NULL;
-    g_obj *p_obj_tmp = NULL;
+    g_obj_t *p_obj = NULL;
+    g_obj_t *p_obj_tmp = NULL;
     lv_obj_t *lv_obj = NULL;
     struct list_head *par_list = NULL;
 

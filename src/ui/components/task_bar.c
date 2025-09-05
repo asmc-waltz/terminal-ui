@@ -51,7 +51,7 @@ static void app_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
     lv_obj_t *par = lv_obj_get_parent(btn);
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     gf_refresh_all_layer();
 
@@ -130,7 +130,7 @@ lv_obj_t * gf_create_taskbar(lv_obj_t *parent)
 void gf_hide_taskbar(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_TASK_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);
@@ -143,7 +143,7 @@ void gf_hide_taskbar(void)
 void gf_show_taskbar(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_TASK_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);

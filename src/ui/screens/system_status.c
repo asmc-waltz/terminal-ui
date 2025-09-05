@@ -71,7 +71,7 @@ void gf_create_system_status(lv_obj_t *par)
 void gf_hide_system_status(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_SYSTEM_STATUS, NULL);
     LV_ASSERT_NULL(pl_obj);
@@ -84,7 +84,7 @@ void gf_hide_system_status(void)
 void gf_show_system_status(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_SYSTEM_STATUS, NULL);
     LV_ASSERT_NULL(pl_obj);

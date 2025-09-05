@@ -172,7 +172,7 @@ lv_obj_t * gf_create_status_bar(lv_obj_t *par) {
 void gf_hide_status_bar(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_STATUS_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);
@@ -185,7 +185,7 @@ void gf_hide_status_bar(void)
 void gf_show_status_bar(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_STATUS_BAR, NULL);
     LV_ASSERT_NULL(pl_obj);

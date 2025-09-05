@@ -79,7 +79,7 @@ void gf_create_control_center(lv_obj_t *par)
 void gf_hide_control_center(void)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_CONTROL_CENTER, NULL);
 
@@ -148,7 +148,7 @@ void scroll_down_anim(lv_obj_t *obj, lv_coord_t distance, uint32_t duration_ms)
 void gf_show_control_center(lv_coord_t cur_y)
 {
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_CONTROL_CENTER, NULL);
     LV_ASSERT_NULL(pl_obj);

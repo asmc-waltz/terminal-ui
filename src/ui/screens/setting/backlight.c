@@ -127,7 +127,7 @@ void gf_hide_brighness_setting()
 {
 
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
 
@@ -142,7 +142,7 @@ void gf_show_brighness_setting()
 {
 
     lv_obj_t *pl_obj = NULL;
-    g_obj *pg_obj = NULL;
+    g_obj_t *pg_obj = NULL;
 
     pl_obj = gf_get_obj(ID_SETTING_BRIGHTNESS_CTR, NULL);
 
