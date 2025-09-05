@@ -287,8 +287,6 @@ static void btn_handler(lv_event_t *event)
     lv_obj_t *par = lv_obj_get_parent(btn);
     g_obj_t *gobj = NULL;
 
-    // gf_refresh_all_layer();
-
     gobj = btn->user_data;
     LOG_DEBUG("ID %d: Test button clicked", gobj->id);
     sample_rot(get_random_0_3());

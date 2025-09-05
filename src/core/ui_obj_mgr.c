@@ -72,27 +72,3 @@ g_handler * gf_register_handler(lv_obj_t *obj, uint32_t id, lv_event_cb_t event_
     return p_handler;
 }
 
-lv_obj_t * gf_create_obj(lv_obj_t *par, uint32_t id)
-{
-    g_obj_t *p_obj = NULL;
-    lv_obj_t *obj = NULL;
-
-    LV_ASSERT_NULL(par);
-    LOG_TRACE("Create obj id %d", id);
-    obj = lv_obj_create(par);
-    LV_ASSERT_NULL(obj);
-
-    p_obj = gf_register_obj(par, obj, id);
-    LV_ASSERT_NULL(p_obj);
-
-    return p_obj->obj;
-}
-
-void gf_refresh_all_layer(void)
-{
-    lv_obj_invalidate(lv_layer_sys());
-    lv_obj_invalidate(lv_layer_top());
-    lv_obj_invalidate(lv_screen_active());
-    lv_obj_invalidate(lv_layer_bottom());
-}
-

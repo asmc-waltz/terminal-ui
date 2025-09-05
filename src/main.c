@@ -24,12 +24,8 @@
 #include <lvgl.h>
 #include <list.h>
 #include <ui/fonts.h>
-#include <ui/style.h>
-#include <ui/layers.h>
 #include <ui/ui_plat.h>
 #include <ui/ui_core.h>
-#include <ui/style.h>
-#include <ui/screens.h>
 #include <comm/cmd_payload.h>
 #include <comm/f_comm.h>
 #include <sched/workqueue.h>
@@ -137,19 +133,6 @@ static void gtimer_handler(lv_timer_t * timer)
     lv_tick_inc(UI_LVGL_TIMER_MS);
 }
 
-static void sf_create_common_components(void)
-{
-    gf_create_background(lv_layer_bottom(), 1024, 600);
-    gf_create_setting_menu(lv_screen_active());
-    gf_create_status_bar(lv_layer_sys());
-    gf_create_taskbar(lv_layer_top());
-    gf_create_home_indicator(lv_layer_sys());
-    // Initialize the default keyboard that will always be accessible on the top layer.
-    gf_keyboard_create();
-    gf_create_control_center(lv_layer_top());
-    gf_create_system_status(lv_layer_top());
-}
-
 static int32_t main_loop()
 {
     uint32_t cnt = 0;
@@ -218,19 +201,6 @@ int32_t main(void) {
     gf_register_obj(NULL, lv_screen_active(), ID_LAYER_ACT);
     gf_register_obj(NULL, lv_layer_bottom(), ID_LAYER_BOT);
 
-    // Apply the base configuration to the layers
-    gf_config_active_layer();
-    gf_config_top_layer();
-
-    // Initialize component styles
-    // gf_styles_init();
-    //
-    // // Create shared components commonly displayed on screens
-    // sf_create_common_components();
-    //
-    // // Display the home screen
-    // gf_create_home_screen();
-
     LOG_INFO("sizeof g: %d", sizeof(g_obj_t));
     create_dynamic_ui();
     // Terminal-UI's primary tasks are executed within a loop
@@ -241,7 +211,6 @@ int32_t main(void) {
 
     pthread_join(task_handler, NULL);
 
-    sf_delete_all_style_data();
     gf_destroy_app_ctx(gf_get_app_ctx());
     cleanup_event_file();
 

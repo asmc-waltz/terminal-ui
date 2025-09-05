@@ -96,10 +96,6 @@ typedef enum {
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern g_ctx_t *app_ctx;
-
-extern bool kb_visible;
-extern lv_obj_t *glob_kb;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -116,38 +112,6 @@ extern lv_obj_t *glob_kb;
  * Other functions
  *====================*/
 g_handler * gf_register_handler(lv_obj_t *par, uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
-
-lv_obj_t * gf_create_obj(lv_obj_t *parent, uint32_t id);
-lv_obj_t * gf_get_g_obj(uint32_t req_id);
-
-lv_obj_t * gf_create_frame(lv_obj_t *parent, uint32_t id, uint32_t w, uint32_t h);
-lv_obj_t * gf_create_background(lv_obj_t *parent, int32_t w, int32_t h);
-
-lv_obj_t * gf_create_btn_bg(lv_obj_t *par, uint32_t id, lv_style_t *bg_style, uint32_t bg_color);
-lv_obj_t * gf_create_icon_bg(lv_obj_t *par, lv_style_t *bg_style, uint32_t bg_color);
-lv_obj_t * gf_create_symbol(lv_obj_t *par, lv_style_t *symbol_style, \
-                            const char *index);
-
-void gf_refresh_all_layer(void);
-
-lv_obj_t * gf_create_status_bar(lv_obj_t *par);
-void gf_hide_status_bar(void);
-void gf_show_status_bar(void);
-void gf_delete_status_bar(void);
-
-lv_obj_t * gf_create_taskbar(lv_obj_t *parent);
-void gf_hide_taskbar();
-void gf_show_taskbar();
-void gf_delete_taskbar();
-
-lv_obj_t * gf_create_home_indicator(lv_obj_t *parent);
-void gf_hide_home_indicator(void);
-void gf_show_home_indicator(void);
-void gf_delete_home_indicator(void);
-
-void gf_keyboard_create();
-void gf_hide_keyboard();
-void gf_show_keyboard();
 
 /**********************
  *      MACROS
