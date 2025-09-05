@@ -39,7 +39,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static g_ctx_t *app_ctx = NULL;
+static g_ctx *app_ctx = NULL;
 
 /**********************
  *      MACROS
@@ -58,26 +58,26 @@ static g_ctx_t *app_ctx = NULL;
  * @obj: lv_obj_t to register
  * @id:  ID to assign for this object
  *
- * This function creates a wrapper (g_obj_t) for the given LVGL object and
+ * This function creates a wrapper (g_obj) for the given LVGL object and
  * links it into the hierarchy. If @par is NULL, the object is added at the
  * root level; otherwise, it is added as a child of @par. The user_data of
- * @obj is set to point to the created g_obj_t.
+ * @obj is set to point to the created g_obj.
  *
- * Return: Pointer to the created g_obj_t on success, NULL on failure.
+ * Return: Pointer to the created g_obj on success, NULL on failure.
  */
-g_obj_t *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
+g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
 {
     struct list_head *parent_list = NULL;
-    g_obj_t *new_obj = NULL;
-    g_ctx_t *ctx = gf_get_app_ctx();
+    g_obj *new_obj = NULL;
+    g_ctx *ctx = gf_get_app_ctx();
 
     if (!obj)
         return NULL;
 
     parent_list = (!par) ? (struct list_head *)&ctx->objs :
-        &((g_obj_t *)par->user_data)->child;
+        &((g_obj *)par->user_data)->child;
 
-    new_obj = malloc(sizeof(g_obj_t));
+    new_obj = malloc(sizeof(g_obj));
     if (!new_obj)
         return NULL;
 
@@ -105,9 +105,9 @@ g_obj_t *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id)
 lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
-    g_obj_t *obj = NULL;
+    g_obj *obj = NULL;
     lv_obj_t *found = NULL;
-    g_ctx_t *ctx = gf_get_app_ctx();
+    g_ctx *ctx = gf_get_app_ctx();
 
     if (!head_lst) {
         LOG_TRACE("Scan from root object");
@@ -144,12 +144,12 @@ lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
  *
  * Return: true if the object with req_id was found and deleted, false otherwise.
  */
-bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
+int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
-    g_obj_t *obj = NULL;
-    g_obj_t *tmp = NULL;
-    g_ctx_t *ctx = gf_get_app_ctx();
+    g_obj *obj = NULL;
+    g_obj *tmp = NULL;
+    g_ctx *ctx = gf_get_app_ctx();
 
     if (!head_lst) {
         LOG_TRACE("Scan from root object");
@@ -180,17 +180,17 @@ bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 
             if (req_id != ID_NOID) {
                 LOG_TRACE("ID %d: Object and children deleted", req_id);
-                return true;
+                return 0;
             }
 
             continue;
         }
 
         if (gf_remove_obj_and_child(req_id, &obj->child))
-            return true;
+            return 0;
     }
 
-    return false;
+    return -1;
 }
 
 /**
@@ -202,11 +202,11 @@ bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  *
  * Return: Pointer to g_ctx on success, NULL on failure.
  */
-g_ctx_t *gf_create_app_ctx(void)
+g_ctx *gf_create_app_ctx(void)
 {
-    g_ctx_t *ctx = NULL;
+    g_ctx *ctx = NULL;
 
-    ctx = calloc(1, sizeof(g_ctx_t));
+    ctx = calloc(1, sizeof(g_ctx));
     if (!ctx)
         return NULL;
 
@@ -223,7 +223,7 @@ g_ctx_t *gf_create_app_ctx(void)
  * context, then frees the context itself. Safe to call with NULL pointer.
  */
 
-void gf_destroy_app_ctx(g_ctx_t *ctx)
+void gf_destroy_app_ctx(g_ctx *ctx)
 {
     if (!ctx)
         return;
@@ -241,7 +241,7 @@ void gf_destroy_app_ctx(g_ctx_t *ctx)
  * Must be called after gf_create_app_ctx() and before any context-dependent
  * operations.
  */
-void gf_set_app_ctx(g_ctx_t *ctx)
+void gf_set_app_ctx(g_ctx *ctx)
 {
     app_ctx = ctx;
 }
@@ -251,7 +251,7 @@ void gf_set_app_ctx(g_ctx_t *ctx)
  *
  * Return: Pointer to the global application context, or NULL if not set.
  */
-g_ctx_t *gf_get_app_ctx(void)
+g_ctx *gf_get_app_ctx(void)
 {
     return app_ctx;
 }

@@ -9,7 +9,6 @@
  *      INCLUDES
  *********************/
 #include <stdint.h>
-#include <stdbool.h>
 
 #include <lvgl.h>
 #include <list.h>
@@ -65,22 +64,23 @@ typedef struct {
     int8_t rot;
 } g_pos;
 
-typedef struct g_obj_t {
+struct g_obj;
+typedef struct g_obj {
     struct list_head node;
     struct list_head child;
-    int32_t id;
+    uint32_t id;
     lv_obj_t *obj;
+    struct g_obj *par;
     char *name;
-    bool visible;
     g_type type;
     g_pos pos;
     g_align aln;
     g_scale scale;
-} g_obj_t;
+} g_obj;
 
 typedef struct {
     struct list_head objs;     /* List of registered UI objects */
-} g_ctx_t;
+} g_ctx;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -92,7 +92,7 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-void gf_set_app_ctx(g_ctx_t *ctx);
+void gf_set_app_ctx(g_ctx *ctx);
 void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
 
@@ -102,17 +102,17 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir);
 int32_t g_set_scr_size(int32_t width, int32_t hight);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_gobj_scale_enable_w(g_obj_t *gobj);
-int32_t gf_gobj_scale_enable_h(g_obj_t *gobj);
-int32_t gf_gobj_scale_disable_w(g_obj_t *gobj);
-int32_t gf_gobj_scale_disable_h(g_obj_t *gobj);
-int32_t gf_gobj_scale_set_pad_w(g_obj_t *gobj, int32_t pad_w);
-int32_t gf_gobj_scale_set_pad_h(g_obj_t *gobj, int32_t pad_h);
+int32_t gf_gobj_scale_enable_w(g_obj *gobj);
+int32_t gf_gobj_scale_enable_h(g_obj *gobj);
+int32_t gf_gobj_scale_disable_w(g_obj *gobj);
+int32_t gf_gobj_scale_disable_h(g_obj *gobj);
+int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w);
+int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h);
 
 /*=====================
  * Getter functions
  *====================*/
-g_ctx_t *gf_get_app_ctx(void);
+g_ctx *gf_get_app_ctx(void);
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 int32_t g_get_scr_rot_dir();
 int32_t g_get_scr_width(int32_t width, int32_t hight);
@@ -122,10 +122,10 @@ void gf_gobj_get_size(lv_obj_t *lobj);
 /*=====================
  * Other functions
  *====================*/
-g_obj_t *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
-bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
-g_ctx_t *gf_create_app_ctx(void);
-void gf_destroy_app_ctx(g_ctx_t *ctx);
+g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
+int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
+g_ctx *gf_create_app_ctx(void);
+void gf_destroy_app_ctx(g_ctx *ctx);
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
@@ -138,8 +138,8 @@ lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id);
 
-int32_t gf_rotate_obj_tree(g_obj_t *gobj);
-int32_t g_obj_rot_calc_size(g_obj_t *gobj);
+int32_t gf_rotate_obj_tree(g_obj *gobj);
+int32_t g_obj_rot_calc_size(g_obj *gobj);
 
 /**********************
  *      MACROS

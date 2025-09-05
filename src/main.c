@@ -158,7 +158,7 @@ int32_t main(void) {
     pthread_t task_handler;
     lv_timer_t *task_timer = NULL;
     int32_t ret = 0;
-    g_ctx_t *ctx = NULL;
+    g_ctx *ctx = NULL;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
     if (setup_signal_handler()) {
@@ -201,7 +201,7 @@ int32_t main(void) {
     gf_register_obj(NULL, lv_screen_active(), ID_LAYER_ACT);
     gf_register_obj(NULL, lv_layer_bottom(), ID_LAYER_BOT);
 
-    LOG_INFO("sizeof g: %d", sizeof(g_obj_t));
+    LOG_INFO("sizeof g: %d", sizeof(g_obj));
     create_dynamic_ui();
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();

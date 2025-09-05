@@ -55,7 +55,7 @@
  **********************/
 static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, uint32_t id)
 {
-    g_obj_t *gobj = NULL;
+    g_obj *gobj = NULL;
     lv_obj_t *lobj = NULL;
 
     LV_ASSERT_NULL(par);
@@ -184,7 +184,7 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id)
 /******************************************************************************/
 void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 {
-    g_obj_t *gobj = NULL;
+    g_obj *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
@@ -201,7 +201,7 @@ void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs)
 {
-    g_obj_t *gobj = NULL;
+    g_obj *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_align_to(lobj, base, align, x_ofs, y_ofs);
@@ -285,7 +285,7 @@ static void btn_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
     lv_obj_t *par = lv_obj_get_parent(btn);
-    g_obj_t *gobj = NULL;
+    g_obj *gobj = NULL;
 
     gobj = btn->user_data;
     LOG_DEBUG("ID %d: Test button clicked", gobj->id);
