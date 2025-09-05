@@ -50,7 +50,7 @@ static int32_t g_scr_hight = HW_DISPLAY_HEIGHT;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void g_swap_xy_size(g_obj *gobj)
+static void g_swap_xy_size(g_obj_t *gobj)
 {
     int32_t tmp_w;
 
@@ -62,10 +62,10 @@ static void g_swap_xy_size(g_obj *gobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t g_obj_scale(g_obj *gobj)
+int32_t g_obj_scale(g_obj_t *gobj)
 {
     lv_obj_t *lobj_par = NULL;
-    g_obj *gobj_par = NULL;
+    g_obj_t *gobj_par = NULL;
     int32_t scale_w, scale_h;
     int32_t abs_val_x, abs_val_y;
     int8_t scr_rot;
@@ -124,7 +124,7 @@ int32_t g_obj_scale(g_obj *gobj)
 
     return 0;
 }
-int32_t g_obj_rot_calc_size(g_obj *gobj)
+int32_t g_obj_rot_calc_size(g_obj_t *gobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
@@ -173,7 +173,7 @@ int32_t g_get_scr_hight()
 
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
 {
-    g_obj *gobj = NULL;
+    g_obj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     gobj = lobj->user_data;
@@ -185,7 +185,7 @@ void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
 
 void gf_gobj_get_size(lv_obj_t *lobj)
 {
-    g_obj *gobj = NULL;
+    g_obj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_update_layout(lobj);
@@ -203,32 +203,32 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  * differently. Carefully verify any object not aligned by top-left corner, as
  * they must still support size expansion.
  */
-int32_t gf_gobj_scale_enable_w(g_obj *gobj)
+int32_t gf_gobj_scale_enable_w(g_obj_t *gobj)
 {
     gobj->scale.ena_w = 1;
 }
 
-int32_t gf_gobj_scale_enable_h(g_obj *gobj)
+int32_t gf_gobj_scale_enable_h(g_obj_t *gobj)
 {
     gobj->scale.ena_h = 1;
 }
 
-int32_t gf_gobj_scale_disable_w(g_obj *gobj)
+int32_t gf_gobj_scale_disable_w(g_obj_t *gobj)
 {
     gobj->scale.ena_w = 0;
 }
 
-int32_t gf_gobj_scale_disable_h(g_obj *gobj)
+int32_t gf_gobj_scale_disable_h(g_obj_t *gobj)
 {
     gobj->scale.ena_w = 0;
 }
 
-int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w)
+int32_t gf_gobj_scale_set_pad_w(g_obj_t *gobj, int32_t pad_w)
 {
     gobj->scale.pad_w = pad_w;
 }
 
-int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h)
+int32_t gf_gobj_scale_set_pad_h(g_obj_t *gobj, int32_t pad_h)
 {
     gobj->scale.pad_h = pad_h;
 }

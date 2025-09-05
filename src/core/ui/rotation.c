@@ -68,7 +68,7 @@ static int32_t g_scr_rot_dir = ROTATION_0;
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
-static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
+static int32_t g_obj_get_center(g_obj_t *gobj, int32_t par_w, int32_t par_h)
 {
     int32_t new_x_mid = -1;
     int32_t new_y_mid = -1;
@@ -201,10 +201,10 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     return 0;
 }
 
-static int32_t g_obj_rot_calc_center(g_obj *gobj)
+static int32_t g_obj_rot_calc_center(g_obj_t *gobj)
 {
     lv_obj_t *lobj_par = NULL;
-    g_obj *gobj_par = NULL;
+    g_obj_t *gobj_par = NULL;
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
@@ -228,7 +228,7 @@ static int32_t g_obj_rot_calc_center(g_obj *gobj)
     return 0;
 }
 
-static void g_obj_rot_90_set_aln(g_obj *gobj)
+static void g_obj_rot_90_set_aln(g_obj_t *gobj)
 {
     int8_t align = LV_ALIGN_DEFAULT;
 
@@ -309,7 +309,7 @@ static void g_obj_rot_90_set_aln(g_obj *gobj)
     gobj->aln.align = align;
 }
 
-static void g_obj_rot_90_swap_ofs(g_obj *gobj)
+static void g_obj_rot_90_swap_ofs(g_obj_t *gobj)
 {
     int32_t swap;
 
@@ -318,7 +318,7 @@ static void g_obj_rot_90_swap_ofs(g_obj *gobj)
     gobj->aln.y = swap;
 }
 
-static int32_t g_obj_rot_calc_align(g_obj *gobj)
+static int32_t g_obj_rot_calc_align(g_obj_t *gobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
@@ -344,7 +344,7 @@ static int32_t g_obj_rot_calc_align(g_obj *gobj)
     return 0;
 }
 
-static int32_t g_base_obj_rotate(g_obj *gobj)
+static int32_t g_base_obj_rotate(g_obj_t *gobj)
 {
     int32_t ret;
 
@@ -393,7 +393,7 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t g_transform_obj_rotate(g_obj *gobj)
+static int32_t g_transform_obj_rotate(g_obj_t *gobj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
@@ -434,7 +434,7 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t g_obj_rotate(g_obj *gobj)
+static int32_t g_obj_rotate(g_obj_t *gobj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
@@ -486,9 +486,9 @@ static int32_t g_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t gf_rotate_all(g_obj *gobj)
+static int32_t gf_rotate_all(g_obj_t *gobj)
 {
-    g_obj *p_obj;
+    g_obj_t *p_obj;
     int32_t ret;
     struct list_head *par_list;
 
@@ -521,7 +521,7 @@ int32_t g_get_scr_rot_dir()
     return g_scr_rot_dir;
 }
 
-int32_t gf_rotate_obj_tree(g_obj *gobj)
+int32_t gf_rotate_obj_tree(g_obj_t *gobj)
 {
     int32_t ret;
 

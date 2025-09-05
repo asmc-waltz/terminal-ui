@@ -65,7 +65,7 @@ typedef struct {
     int8_t rot;
 } g_pos;
 
-typedef struct g_obj {
+typedef struct g_obj_t {
     struct list_head node;
     struct list_head child;
     int32_t id;
@@ -76,7 +76,7 @@ typedef struct g_obj {
     g_pos pos;
     g_align aln;
     g_scale scale;
-} g_obj;
+} g_obj_t;
 
 typedef struct {
     struct list_head node;
@@ -110,12 +110,12 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir);
 int32_t g_set_scr_size(int32_t width, int32_t hight);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_gobj_scale_enable_w(g_obj *gobj);
-int32_t gf_gobj_scale_enable_h(g_obj *gobj);
-int32_t gf_gobj_scale_disable_w(g_obj *gobj);
-int32_t gf_gobj_scale_disable_h(g_obj *gobj);
-int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w);
-int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h);
+int32_t gf_gobj_scale_enable_w(g_obj_t *gobj);
+int32_t gf_gobj_scale_enable_h(g_obj_t *gobj);
+int32_t gf_gobj_scale_disable_w(g_obj_t *gobj);
+int32_t gf_gobj_scale_disable_h(g_obj_t *gobj);
+int32_t gf_gobj_scale_set_pad_w(g_obj_t *gobj, int32_t pad_w);
+int32_t gf_gobj_scale_set_pad_h(g_obj_t *gobj, int32_t pad_h);
 
 /*=====================
  * Getter functions
@@ -128,7 +128,7 @@ void gf_gobj_get_size(lv_obj_t *lobj);
 /*=====================
  * Other functions
  *====================*/
-g_obj * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
+g_obj_t * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
@@ -141,8 +141,8 @@ lv_obj_t * gf_create_switch(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_btn(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_slider(lv_obj_t *par, uint32_t id);
 
-int32_t gf_rotate_obj_tree(g_obj *gobj);
-int32_t g_obj_rot_calc_size(g_obj *gobj);
+int32_t gf_rotate_obj_tree(g_obj_t *gobj);
+int32_t g_obj_rot_calc_size(g_obj_t *gobj);
 
 /**********************
  *      MACROS
