@@ -49,7 +49,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-g_app_data *global_data = NULL;
 extern int32_t event_fd;
 volatile sig_atomic_t g_run = 1;
 
@@ -176,6 +175,7 @@ int32_t main(void) {
     pthread_t task_handler;
     lv_timer_t *task_timer = NULL;
     int32_t ret = 0;
+    g_ctx_t *ctx = NULL;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
     if (setup_signal_handler()) {
@@ -197,11 +197,8 @@ int32_t main(void) {
 
     create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
 
-    // Global data used to manage all created objects and their associated handlers
-    global_data = calloc(sizeof(g_app_data), 1);
-    LV_ASSERT_NULL(global_data);
-    INIT_LIST_HEAD(&global_data->obj_list);
-    INIT_LIST_HEAD(&global_data->handler_list);
+    ctx = gf_create_app_ctx();
+    gf_set_app_ctx(ctx);
 
     // Initialize LVGL and the associated UI hardware
     lv_init();
@@ -220,7 +217,7 @@ int32_t main(void) {
     gf_register_obj(NULL, lv_layer_top(), ID_LAYER_TOP);
     gf_register_obj(NULL, lv_screen_active(), ID_LAYER_ACT);
     gf_register_obj(NULL, lv_layer_bottom(), ID_LAYER_BOT);
- 
+
     // Apply the base configuration to the layers
     gf_config_active_layer();
     gf_config_top_layer();
@@ -234,6 +231,7 @@ int32_t main(void) {
     // // Display the home screen
     // gf_create_home_screen();
 
+    LOG_INFO("sizeof g: %d", sizeof(g_obj_t));
     create_dynamic_ui();
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
@@ -244,7 +242,7 @@ int32_t main(void) {
     pthread_join(task_handler, NULL);
 
     sf_delete_all_style_data();
-    free(global_data);
+    gf_destroy_app_ctx(gf_get_app_ctx());
     cleanup_event_file();
 
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
