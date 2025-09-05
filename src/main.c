@@ -23,9 +23,9 @@
 
 #include <lvgl.h>
 #include <list.h>
-#include <ui/fonts.h>
-#include <ui/ui_plat.h>
 #include <ui/ui_core.h>
+#include <ui/fonts.h>
+#include <ui/ui.h>
 #include <comm/cmd_payload.h>
 #include <comm/f_comm.h>
 #include <sched/workqueue.h>

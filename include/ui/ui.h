@@ -1,10 +1,10 @@
 /**
- * @file ui_plat.h
+ * @file ui.h
  *
  */
 
-#ifndef G_UI_PLAT_H
-#define G_UI_PLAT_H
+#ifndef G_UI_H
+#define G_UI_H
 /*********************
  *      INCLUDES
  *********************/
@@ -116,4 +116,4 @@ typedef enum {
  *      MACROS
  **********************/
 
-#endif /* G_UI_PLAT_H */
+#endif /* G_UI_H */
