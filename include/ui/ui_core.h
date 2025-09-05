@@ -87,7 +87,6 @@ typedef struct {
 
 typedef struct {
     struct list_head objs;     /* List of registered UI objects */
-    struct list_head handlers; /* List of event handlers */
 } g_ctx_t;
 
 /**********************

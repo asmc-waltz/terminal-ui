@@ -211,7 +211,6 @@ g_ctx_t *gf_create_app_ctx(void)
         return NULL;
 
     INIT_LIST_HEAD(&ctx->objs);
-    INIT_LIST_HEAD(&ctx->handlers);
 
     return ctx;
 }
@@ -226,18 +225,10 @@ g_ctx_t *gf_create_app_ctx(void)
 
 void gf_destroy_app_ctx(g_ctx_t *ctx)
 {
-    g_handler *hnd = NULL;
-    g_handler *tmp = NULL;
-
     if (!ctx)
         return;
 
     gf_remove_obj_and_child(ID_NOID, &ctx->objs);
-
-    list_for_each_entry_safe(hnd, tmp, &ctx->handlers, node) {
-        list_del(&hnd->node);
-        free(hnd);
-    }
 
     free(ctx);
 }

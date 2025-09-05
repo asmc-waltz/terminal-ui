@@ -111,7 +111,6 @@ typedef enum {
 /*=====================
  * Other functions
  *====================*/
-g_handler * gf_register_handler(lv_obj_t *par, uint32_t id, lv_event_cb_t event_cb, lv_event_code_t filter);
 
 /**********************
  *      MACROS
