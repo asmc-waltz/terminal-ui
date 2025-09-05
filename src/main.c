@@ -196,10 +196,10 @@ int32_t main(void) {
     lv_timer_ready(task_timer);
 
     // Initialize LVGL layers as base components
-    gf_register_obj(NULL, lv_layer_sys(), ID_LAYER_SYS);
-    gf_register_obj(NULL, lv_layer_top(), ID_LAYER_TOP);
-    gf_register_obj(NULL, lv_screen_active(), ID_LAYER_ACT);
-    gf_register_obj(NULL, lv_layer_bottom(), ID_LAYER_BOT);
+    gf_register_obj(NULL, lv_layer_sys(), NULL);
+    gf_register_obj(NULL, lv_layer_top(), NULL);
+    gf_register_obj(NULL, lv_screen_active(), NULL);
+    gf_register_obj(NULL, lv_layer_bottom(), NULL);
 
     LOG_INFO("sizeof g: %d", sizeof(g_obj));
     create_dynamic_ui();
