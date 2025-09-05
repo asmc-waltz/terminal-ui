@@ -86,9 +86,9 @@ typedef struct {
 } g_handler;
 
 typedef struct {
-    struct list_head obj_list;
-    struct list_head handler_list;
-} g_app_data;
+    struct list_head objs;     /* List of registered UI objects */
+    struct list_head handlers; /* List of event handlers */
+} g_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -129,6 +129,8 @@ void gf_gobj_get_size(lv_obj_t *lobj);
  * Other functions
  *====================*/
 g_obj_t * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
+lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
+bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
