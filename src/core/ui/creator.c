@@ -388,7 +388,7 @@ void create_dynamic_ui()
     gf_gobj_align_to(ex_btn1, ex_sym_box1, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 25);
     lv_obj_add_event_cb(ex_btn1, btn_handler, LV_EVENT_CLICKED, ex_btn1->user_data);
     //--------------------------------------------------------------------------
-    ex_slider1 = gf_create_slider(ex_comp_cont, NULL);
+    ex_slider1 = gf_create_slider(ex_comp_cont, "Meo(^^)");
     gf_gobj_set_size(ex_slider1, 100, 20);
     gf_gobj_align_to(ex_slider1, ex_btn1, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
 }

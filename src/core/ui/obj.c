@@ -208,6 +208,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
                 lv_obj_delete(obj->obj);
             }
 
+            LOG_TRACE("DELETE obj ID %d - name %s", obj->id, obj->name);
             list_del(&obj->node);
             if (obj->name)
                 free(obj->name);
