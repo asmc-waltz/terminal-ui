@@ -100,7 +100,7 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-
+void gf_set_app_ctx(g_ctx_t *ctx);
 void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
 
@@ -120,6 +120,8 @@ int32_t gf_gobj_scale_set_pad_h(g_obj_t *gobj, int32_t pad_h);
 /*=====================
  * Getter functions
  *====================*/
+g_ctx_t *gf_get_app_ctx(void);
+lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 int32_t g_get_scr_rot_dir();
 int32_t g_get_scr_width(int32_t width, int32_t hight);
 int32_t g_get_scr_hight();
@@ -128,9 +130,10 @@ void gf_gobj_get_size(lv_obj_t *lobj);
 /*=====================
  * Other functions
  *====================*/
-g_obj_t * gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
-lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
+g_obj_t *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, uint32_t id);
 bool gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
+g_ctx_t *gf_create_app_ctx(void);
+void gf_destroy_app_ctx(g_ctx_t *ctx);
 
 lv_obj_t * gf_create_box(lv_obj_t *par, uint32_t id);
 lv_obj_t * gf_create_container(lv_obj_t *par, uint32_t id);
