@@ -64,7 +64,6 @@ static void g_swap_xy_size(g_obj *gobj)
  **********************/
 int32_t g_obj_scale(g_obj *gobj)
 {
-    lv_obj_t *lobj_par = NULL;
     g_obj *gobj_par = NULL;
     int32_t scale_w, scale_h;
     int32_t abs_val_x, abs_val_y;
@@ -75,13 +74,7 @@ int32_t g_obj_scale(g_obj *gobj)
         return -EINVAL;
     }
 
-    lobj_par = lv_obj_get_parent(gobj->obj);
-    if (!lobj_par) {
-        LOG_ERROR("Invalid lvgl object");
-        return -EINVAL;
-    }
-
-    gobj_par = lobj_par->user_data;
+    gobj_par = gobj->par;
     if (!gobj_par) {
         LOG_ERROR("Invalid g parent object");
         return -EINVAL;
