@@ -203,33 +203,81 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  * differently. Carefully verify any object not aligned by top-left corner, as
  * they must still support size expansion.
  */
-int32_t gf_gobj_scale_enable_w(g_obj *gobj)
+int32_t gf_obj_scale_enable_w(lv_obj_t *lobj)
 {
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
     gobj->scale.ena_w = 1;
+
+    return 0;
 }
 
-int32_t gf_gobj_scale_enable_h(g_obj *gobj)
+int32_t gf_obj_scale_enable_h(lv_obj_t *lobj)
 {
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
     gobj->scale.ena_h = 1;
+
+    return 0;
 }
 
-int32_t gf_gobj_scale_disable_w(g_obj *gobj)
+int32_t gf_obj_scale_disable_w(lv_obj_t *lobj)
 {
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
     gobj->scale.ena_w = 0;
+
+    return 0;
 }
 
-int32_t gf_gobj_scale_disable_h(g_obj *gobj)
+int32_t gf_obj_scale_disable_h(lv_obj_t *lobj)
 {
-    gobj->scale.ena_w = 0;
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
+    gobj->scale.ena_h = 0;
+
+    return 0;
 }
 
-int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w)
+int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w)
 {
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
     gobj->scale.pad_w = pad_w;
+
+    return 0;
 }
 
-int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h)
+int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h)
 {
+    g_obj *gobj;
+
+    if (!lobj->user_data)
+        return -1;
+
+    gobj = lobj->user_data;
     gobj->scale.pad_h = pad_h;
+
+    return 0;
 }
 

@@ -256,6 +256,10 @@ void sample_rot(int32_t angle)
     gf_rotate_obj_tree(ex_mid_box->user_data);
     gf_rotate_obj_tree(ex_corner_box->user_data);
 
+    lv_obj_t *keyboard = gf_get_obj_by_name("comps.keyboard", \
+                            &((g_obj *)(ex_scr->user_data))->child);
+    gf_rotate_obj_tree(keyboard->user_data);
+
     int32_t w, h;
     lv_obj_update_layout(ex_comp_cont);
     w = lv_obj_get_width(ex_comp_cont);
@@ -307,8 +311,8 @@ void create_dynamic_ui()
     ex_top_bar = gf_create_box(ex_scr, NULL);
     gf_gobj_set_size(ex_top_bar, 1014, 40);
     lv_obj_set_style_bg_color(ex_top_bar, lv_color_hex(0xFF9913), 0);
-    gf_gobj_scale_enable_w(ex_top_bar->user_data);
-    gf_gobj_scale_set_pad_w(ex_top_bar->user_data, 10);
+    gf_obj_scale_enable_w(ex_top_bar);
+    gf_obj_scale_set_pad_w(ex_top_bar, 10);
     gf_gobj_align_to(ex_top_bar, ex_scr, LV_ALIGN_TOP_MID, 0, 5);
     //--------------------------------------------------------------------------
     ex_sym_box2 = gf_create_box(ex_top_bar, NULL);
@@ -343,10 +347,10 @@ void create_dynamic_ui()
     ex_window = gf_create_box(ex_scr, NULL);
     gf_gobj_set_size(ex_window, 400, 545);
     lv_obj_set_style_bg_color(ex_window, lv_color_hex(0xFFFFFF), 0);
-    gf_gobj_scale_enable_h(ex_window->user_data);
-    gf_gobj_scale_set_pad_h(ex_window->user_data, 10);
-    // gf_gobj_scale_enable_w(ex_window->user_data);
-    // gf_gobj_scale_set_pad_w(ex_window->user_data, 20);
+    gf_obj_scale_enable_h(ex_window);
+    gf_obj_scale_set_pad_h(ex_window, 10);
+    // gf_obj_scale_enable_w(ex_window);
+    // gf_obj_scale_set_pad_w(ex_window, 20);
     gf_gobj_align_to(ex_window, ex_scr, LV_ALIGN_TOP_LEFT, 5, 50);
 
     //--------------------------------------------------------------------------
@@ -391,5 +395,8 @@ void create_dynamic_ui()
     ex_slider1 = gf_create_slider(ex_comp_cont, "Meo(^^)");
     gf_gobj_set_size(ex_slider1, 100, 20);
     gf_gobj_align_to(ex_slider1, ex_btn1, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
+
+
+    gf_keyboard_create(ex_scr, "comps.keyboard");
 }
 #endif

@@ -102,12 +102,12 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir);
 int32_t g_set_scr_size(int32_t width, int32_t hight);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_gobj_scale_enable_w(g_obj *gobj);
-int32_t gf_gobj_scale_enable_h(g_obj *gobj);
-int32_t gf_gobj_scale_disable_w(g_obj *gobj);
-int32_t gf_gobj_scale_disable_h(g_obj *gobj);
-int32_t gf_gobj_scale_set_pad_w(g_obj *gobj, int32_t pad_w);
-int32_t gf_gobj_scale_set_pad_h(g_obj *gobj, int32_t pad_h);
+int32_t gf_obj_scale_enable_w(lv_obj_t *lobj);
+int32_t gf_obj_scale_enable_h(lv_obj_t *lobj);
+int32_t gf_obj_scale_disable_w(lv_obj_t *lobj);
+int32_t gf_obj_scale_disable_h(lv_obj_t *lobj);
+int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w);
+int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h);
 
 /*=====================
  * Getter functions
