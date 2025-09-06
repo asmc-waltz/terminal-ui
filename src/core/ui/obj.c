@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <lvgl.h>
 #include <list.h>
@@ -92,6 +93,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
     new_obj->id = g_next_id++;
     new_obj->obj = obj;
     obj->user_data = new_obj;
+    new_obj->par = (!par) ? NULL : (g_obj *)par->user_data;
 
 
     INIT_LIST_HEAD(&new_obj->child);
