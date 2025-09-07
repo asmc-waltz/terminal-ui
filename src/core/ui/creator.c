@@ -108,6 +108,9 @@ lv_obj_t * gf_create_box(lv_obj_t *par, const char *name)
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BASE, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
+    lv_obj_set_style_border_width(lobj, 0, 0);
+    lv_obj_set_style_outline_width(lobj, 0, 0);
+    lv_obj_set_style_shadow_width(lobj, 0, 0);
     return lobj;
 }
 
@@ -172,6 +175,12 @@ lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BTN, name);
     LV_ASSERT_NULL(lobj);
+
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
+    // lv_obj_set_style_border_width(lobj, 0, 0);
+    lv_obj_set_style_outline_width(lobj, 0, 0);
+    // lv_obj_set_style_shadow_width(lobj, 0, 0);
     return lobj;
 }
 
@@ -256,16 +265,40 @@ void sample_rot(int32_t angle)
     gf_rotate_obj_tree(ex_mid_box->user_data);
     gf_rotate_obj_tree(ex_corner_box->user_data);
 
-    lv_obj_t *keyboard = gf_get_obj_by_name("comps.keyboard", \
+    int32_t rot_dir = g_get_scr_rot_dir();
+
+    lv_obj_t *keyboard;
+    if (rot_dir == ROTATION_0 || rot_dir == ROTATION_180) {
+        keyboard = gf_get_obj_by_name("comps.keyboard_v", \
                             &((g_obj *)(ex_scr->user_data))->child);
+        if (keyboard)
+            lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+
+        keyboard = gf_get_obj_by_name("comps.keyboard_h", \
+                            &((g_obj *)(ex_scr->user_data))->child);
+        if (keyboard)
+            lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+        else
+            keyboard = gf_create_keyboard(ex_scr, "comps.keyboard_h", 1004, 250);
+    } else if (rot_dir == ROTATION_90 || rot_dir == ROTATION_270) {
+        keyboard = gf_get_obj_by_name("comps.keyboard_h", \
+                            &((g_obj *)(ex_scr->user_data))->child);
+        if (keyboard)
+            lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+
+        keyboard = gf_get_obj_by_name("comps.keyboard_v", \
+                            &((g_obj *)(ex_scr->user_data))->child);
+        if (keyboard)
+            lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+        else
+            keyboard = gf_create_keyboard(ex_scr, "comps.keyboard_v", 580, 300);
+    }
     gf_rotate_obj_tree(keyboard->user_data);
 
     int32_t w, h;
     lv_obj_update_layout(ex_comp_cont);
     w = lv_obj_get_width(ex_comp_cont);
     h = lv_obj_get_height(ex_comp_cont);
-
-    int32_t rot_dir = g_get_scr_rot_dir();
 
     // Adjust screen scroll accordingly.
     if (rot_dir == ROTATION_0) {
@@ -335,13 +368,13 @@ void create_dynamic_ui()
     lv_obj_set_style_bg_color(ex_corner_box, lv_color_hex(0x00FF00), 0);
     gf_gobj_align_to(ex_corner_box, ex_scr, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
     //--------------------------------------------------------------------------
-    ex_text_box2 = gf_create_box(ex_corner_box, NULL);
+    ex_text_box2 = gf_create_box(ex_corner_box, "CORNOR TEXT BOX");
     gf_gobj_set_size(ex_text_box2, 150, 40);
     lv_obj_set_style_bg_color(ex_text_box2, lv_color_hex(0xFFFFFF), 0);
     lv_obj_clear_flag(ex_text_box2, LV_OBJ_FLAG_SCROLLABLE);
     gf_gobj_align_to(ex_text_box2, ex_corner_box, LV_ALIGN_CENTER, 10, 25);
     //--------------------------------------------------------------------------
-    ex_text_2 = gf_create_text(ex_text_box2, 0, 10, 10, "CORNER");
+    ex_text_2 = gf_create_text(ex_text_box2, "CORNOR TEXT", 10, 10, "-CORNER-");
     //--------------------------------------------------------------------------
     // Child box as a menu bar
     ex_window = gf_create_box(ex_scr, NULL);
@@ -395,8 +428,5 @@ void create_dynamic_ui()
     ex_slider1 = gf_create_slider(ex_comp_cont, "Meo(^^)");
     gf_gobj_set_size(ex_slider1, 100, 20);
     gf_gobj_align_to(ex_slider1, ex_btn1, LV_ALIGN_OUT_RIGHT_MID, 30, 0);
-
-
-    gf_keyboard_create(ex_scr, "comps.keyboard");
 }
 #endif

@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -68,7 +68,7 @@ static int32_t g_scr_rot_dir = ROTATION_0;
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
-static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
+static int32_t g_obj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
 {
     int32_t new_x_mid = -1;
     int32_t new_y_mid = -1;
@@ -109,9 +109,9 @@ static int32_t g_obj_get_center(g_obj *gobj, int32_t par_w, int32_t par_h)
     R = old_pw - L;
     B = old_ph - T;
 
-    LOG_TRACE("obj id=%d - old_rot=%d -> scr_rot=%d, "
+    LOG_TRACE("obj id=%d %s - old_rot=%d -> scr_rot=%d, "
               "old_pw=%d old_ph=%d, L=%d T=%d R=%d B=%d, "
-              "new_par=(%d,%d)", gobj->id,
+              "new_par=(%d,%d)", gobj->id, gobj->name,
               old_rot, scr_rot, old_pw, old_ph, L, T, R, B, par_w, par_h);
 
     /* === mapping table: old_rot -> scr_rot ===
@@ -216,7 +216,7 @@ static int32_t g_obj_rot_calc_center(g_obj *gobj)
         return -EINVAL;
     }
 
-    g_obj_get_center(gobj, gobj_par->pos.w, gobj_par->pos.h);
+    g_obj_get_center(gobj, (uint32_t)gobj_par->pos.w, (uint32_t)gobj_par->pos.h);
 
     return 0;
 }

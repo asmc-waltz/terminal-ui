@@ -41,7 +41,8 @@
 /*=====================
  * Other functions
  *====================*/
-
+lv_obj_t *gf_create_keyboard(lv_obj_t *par, const char *name, \
+                             int32_t keyboard_w, int32_t keyboard_h);
 /**********************
  *      MACROS
  **********************/
