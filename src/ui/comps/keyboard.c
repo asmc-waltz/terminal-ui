@@ -73,18 +73,34 @@ lv_obj_t * sf_create_keyboard_line(lv_obj_t *par, key_line *line, const char * c
     lv_obj_t *aln_btn = NULL;
     lv_obj_t *next_btn = NULL;
     lv_obj_t *lbl = NULL;
+    int8_t start_newline = 1;
+    
 
     aln_btn = par;
 
     for (int8_t i=0; i < line_size; i++) {
+        if (strcmp(keys[i], "\n1") == 0) {
+            line->x_ofs = (((g_obj *)par->user_data)->pos.w*7)/100;
+            line->y_ofs = (((g_obj *)par->user_data)->pos.h*28)/100;
+            start_newline = 1;
+            aln_btn = par;
+            continue;
+        } else if (strcmp(keys[i], "\n2") == 0) {
+            line->x_ofs = (((g_obj *)par->user_data)->pos.w*17)/100;
+            line->y_ofs = (((g_obj *)par->user_data)->pos.h*52)/100;
+            start_newline = 1;
+            aln_btn = par;
+            continue;
+        }
         next_btn = gf_create_btn(par, keys[i]);
 
         gf_gobj_set_size(next_btn, line->w, line->h);
         lv_obj_set_style_bg_color(next_btn, lv_color_hex(0xffffff), 0);
         lv_obj_clear_flag(next_btn, LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_add_event_cb(next_btn, keyboard_btn_handler, LV_EVENT_CLICKED, next_btn->user_data);
-        if (i == 0) {
+        if (start_newline) {
             gf_gobj_align_to(next_btn, aln_btn, LV_ALIGN_TOP_LEFT, line->x_ofs, line->y_ofs);
+            start_newline = 0;
         } else
             gf_gobj_align_to(next_btn, aln_btn, LV_ALIGN_OUT_RIGHT_MID, line->w_space, 0);
 
@@ -124,17 +140,11 @@ lv_obj_t *gf_create_keyboard(lv_obj_t *par, const char *name, \
         .y_ofs = (keyboard_h*4)/100,
     };
 
-    const char * const line_1[] = {"Q\n", "W\n", "E\n", "R\n", "T\n", "Y\n", "U\n", "I\n", "O\n", "P\n"};
-    const char * const line_2[] = {"A\n", "S\n", "D\n", "F\n", "G\n", "H\n", "J\n", "K\n", "L\n"};
-    const char * const line_3[] = {"Z\n", "X\n", "C\n", "V\n", "B\n", "N\n", "M\n"};
+    const char * const line_1[] = {"Q\n", "W\n", "E\n", "R\n", "T\n", "Y\n", "U\n", "I\n", "O\n", "P\n", "\n1", \
+                                   "A\n", "S\n", "D\n", "F\n", "G\n", "H\n", "J\n", "K\n", "L\n", "\n2", \
+                                    "Z\n", "X\n", "C\n", "V\n", "B\n", "N\n", "M\n"};
 
-    sf_create_keyboard_line(lobj, &line_first, line_1, 10);
-    line_first.x_ofs = (keyboard_w*7)/100;
-    line_first.y_ofs = (keyboard_h*28)/100;
-    sf_create_keyboard_line(lobj, &line_first, line_2, 9);
+    sf_create_keyboard_line(lobj, &line_first, line_1, 28);
 
-    line_first.x_ofs = (keyboard_w*17)/100;
-    line_first.y_ofs = (keyboard_h*52)/100;
-    sf_create_keyboard_line(lobj, &line_first, line_3, 7);
     return lobj;
 }
