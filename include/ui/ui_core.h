@@ -122,7 +122,10 @@ void gf_gobj_get_size(lv_obj_t *lobj);
  * Other functions
  *====================*/
 g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
+int32_t gf_remove_obj_and_child_by_name(const char *name, \
+                                        struct list_head *head_lst);
 int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
+int32_t gf_remove_children(g_obj *par);
 g_ctx *gf_create_app_ctx(void);
 void gf_destroy_app_ctx(g_ctx *ctx);
 

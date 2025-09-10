@@ -169,28 +169,79 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
     return NULL;
 }
 
+/*
+ * gf_remove_obj_and_child_by_name - Remove object (by name) and its children
+ * @name:    Name of the object to remove
+ * @head_lst: Pointer to the list to start scanning (NULL for root list)
+ *
+ * This function searches for an object with the given name in the hierarchy.
+ * If found, the object and all of its children are deleted recursively.
+ *
+ * Return:
+ *   0   → object found by name and deleted
+ *  -1   → not found or invalid args
+ */
+int32_t gf_remove_obj_and_child_by_name(const char *name, \
+                                        struct list_head *head_lst)
+{
+    g_ctx *ctx = gf_get_app_ctx();
+    struct list_head *scan_list;
+    g_obj *obj;
+
+    if (!ctx || !name)
+        return -1;
+
+    scan_list = head_lst ? head_lst : &ctx->objs;
+
+    list_for_each_entry(obj, scan_list, node) {
+        if (!obj->id)
+            continue;
+
+        if (obj->name && strcmp(obj->name, name) == 0) {
+            LOG_TRACE("Removing object by name: %s (ID %u)", name, obj->id);
+            return gf_remove_obj_and_child(obj->id, scan_list);
+        }
+
+        int32_t ret = gf_remove_obj_and_child_by_name(name, &obj->child);
+        if (ret == 0)   /* found and deleted by name */
+            return 0;
+    }
+
+    return -1;
+}
+
 #define ID_NOID                         0
 /*
- * gf_remove_obj_and_child - Remove object and its child objects
+ * gf_remove_obj_and_child - Remove an object and all its children
  * @req_id:   ID of the object to remove; use ID_NOID to remove all children
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
- * This function searches the given list (or the global root list if head_lst
- * is NULL) for an object with ID matching req_id. If found, the object and all
+ * This function searches for an object with the specified ID in the given list
+ * (or the global root list if head_lst is NULL). If found, the object and all
  * of its child objects are deleted recursively. When req_id is ID_NOID, all
  * child objects under head_lst are removed.
  *
- * Return: true if the object with req_id was found and deleted, false otherwise.
+ * Return:
+ *   - If req_id is a specific ID:
+ *       0   → object found and deleted
+ *      -1   → object not found
+ *
+ *   - If req_id == ID_NOID:
+ *       >=0 → number of objects deleted
+ *       -1  → error (invalid context)
  */
-
 int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
     g_obj *obj = NULL;
     g_obj *tmp = NULL;
     g_ctx *ctx = gf_get_app_ctx();
+    int32_t removed = 0;
 
-    scan_list = head_lst ? head_lst : (struct list_head *)&ctx->objs;
+    if (!ctx)
+        return -1;
+
+    scan_list = head_lst ? head_lst : &ctx->objs;
     LOG_TRACE("Removing object%s",
         head_lst ? " (scan from parent)" : " (scan from root)");
 
@@ -203,32 +254,63 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
                 LOG_TRACE("ID %u: found, deleting...", obj->id);
 
             /* Remove all children first */
-            gf_remove_obj_and_child(ID_NOID, &obj->child);
+            int32_t child_removed = gf_remove_obj_and_child(ID_NOID,
+                &obj->child);
+            if (child_removed > 0)
+                removed += child_removed;
 
             if (lv_obj_is_valid(obj->obj)) {
                 LOG_TRACE("ID %u: deleting LVGL object", obj->id);
                 lv_obj_delete(obj->obj);
             }
 
-            LOG_TRACE("DELETE obj ID %d - name %s", obj->id, obj->name);
+            LOG_TRACE("DELETE obj ID %d - name %s", obj->id,
+                obj->name ? obj->name : "(null)");
             list_del(&obj->node);
             if (obj->name)
                 free(obj->name);
             free(obj);
 
+            removed++;
+
             if (req_id != ID_NOID) {
                 LOG_TRACE("ID %u: object and children deleted", req_id);
-                return 0;
+                return 0;   /* Specific ID → report success */
             }
 
             continue;
         }
 
-        if (!gf_remove_obj_and_child(req_id, &obj->child))
-            return 0;
+        /* Recursive search in children */
+        int32_t ret = gf_remove_obj_and_child(req_id, &obj->child);
+        if (req_id != ID_NOID && ret == 0)
+            return 0;       /* Found and deleted by ID */
+        if (req_id == ID_NOID && ret > 0)
+            removed += ret;
     }
 
-    return -1;
+    if (req_id == ID_NOID)
+        return removed; /* Return total number of objects removed */
+    return -1;          /* Specific ID not found */
+}
+
+/*
+ * gf_remove_children - Remove all children of a given parent object
+ * @parent: Pointer to the parent g_obj
+ *
+ * This function removes all child objects of the given parent, including
+ * their descendants, but does not delete the parent itself.
+ *
+ * Return:
+ *   >=0 → number of objects deleted
+ *   -1  → error (invalid parent or context)
+ */
+int32_t gf_remove_children(g_obj *par)
+{
+    if (!par)
+        return -1;
+
+    return gf_remove_obj_and_child(ID_NOID, &par->child);
 }
 
 /**
