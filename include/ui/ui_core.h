@@ -114,8 +114,8 @@ g_ctx *gf_get_app_ctx(void);
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst);
 int32_t g_get_scr_rot_dir();
-int32_t g_get_scr_width(int32_t width, int32_t hight);
-int32_t g_get_scr_hight();
+int32_t g_get_scr_width(void);
+int32_t g_get_scr_hight(void);
 void gf_gobj_get_size(lv_obj_t *lobj);
 
 /*=====================

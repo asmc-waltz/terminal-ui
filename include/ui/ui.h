@@ -21,6 +21,9 @@
 #define DISP_WIDTH                      1024
 #define DISP_HEIGHT                     600
 
+#define DRM_CARD                        "/dev/dri/card0"
+#define DRM_CONNECTOR_ID                32
+
 /**********************
  *      TYPEDEFS
  **********************/

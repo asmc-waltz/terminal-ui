@@ -154,12 +154,12 @@ int32_t g_set_scr_size(int32_t width, int32_t hight)
     return 0;
 }
 
-int32_t g_get_scr_width(int32_t width, int32_t hight)
+int32_t g_get_scr_width(void)
 {
     return g_scr_width;
 }
 
-int32_t g_get_scr_hight()
+int32_t g_get_scr_hight(void)
 {
     return g_scr_hight;
 }

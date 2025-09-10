@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include <lvgl.h>
 #include <list.h>
@@ -63,7 +64,8 @@ static lv_indev_t *touch_scr = NULL;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void sig_handler(int32_t sig) {
+static void sig_handler(int32_t sig)
+{
     switch (sig) {
         case SIGINT:
             LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
@@ -104,23 +106,38 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
-static int32_t sf_init_drm_display() {
-    drm_disp = lv_linux_drm_create();
-    if (drm_disp == NULL) {
-        LOG_FATAL("Failed to initialize the display.\n");
-        return LV_RESULT_INVALID;
+static int32_t sf_init_drm_display(lv_display_t **disp, const char *file, \
+                                   int64_t connector_id)
+{
+    int32_t scr_width = 0;
+    int32_t scr_height = 0;
+
+    scr_width = g_get_scr_width();
+    scr_height = g_get_scr_hight();
+    if (scr_width <= 0 || scr_height <= 0) {
+        LOG_FATAL("Display width or height resolution not available");
+        return -EINVAL;
     }
-    lv_display_set_default(drm_disp);
-    lv_linux_drm_set_file(drm_disp, "/dev/dri/card0", 32);
-    lv_display_set_resolution(drm_disp, DISP_WIDTH, DISP_HEIGHT);
+
+    *disp = lv_linux_drm_create();
+    if (*disp == NULL) {
+        LOG_FATAL("Failed to initialize the display.\n");
+        return -EINVAL;
+    }
+
+    lv_display_set_default(*disp);
+    lv_linux_drm_set_file(*disp, file, connector_id);
+    lv_display_set_resolution(*disp, scr_width, scr_height);
+
     return 0;
 }
 
-static int32_t sf_init_touch_screen() {
+static int32_t sf_init_touch_screen()
+{
     touch_scr = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event1");
     if (touch_scr == NULL) {
         LOG_FATAL("Failed to initialize touch input device");
-        return LV_RESULT_INVALID;
+        return -EINVAL;
     }
     lv_indev_set_display(touch_scr, drm_disp);
     return 0;
@@ -152,7 +169,8 @@ static int32_t main_loop()
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t main(void) {
+int32_t main(void)
+{
     pthread_t task_handler;
     lv_timer_t *task_timer = NULL;
     int32_t ret = 0;
@@ -181,9 +199,11 @@ int32_t main(void) {
     ctx = gf_create_app_ctx();
     gf_set_app_ctx(ctx);
 
+    g_set_scr_size(DISP_WIDTH, DISP_HEIGHT);
+
     // Initialize LVGL and the associated UI hardware
     lv_init();
-    sf_init_drm_display();
+    sf_init_drm_display(&drm_disp, DRM_CARD, DRM_CONNECTOR_ID);
     sf_init_touch_screen();
 
     task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
