@@ -20,6 +20,7 @@
 #include <lvgl.h>
 #include <list.h>
 #include <ui/ui_core.h>
+#include <ui/comps.h>
 
 /*********************
  *      DEFINES

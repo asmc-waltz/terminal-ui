@@ -21,7 +21,7 @@
 #include <list.h>
 #include <ui/ui_core.h>
 #include <ui/fonts.h>
-#include <ui/ui.h>
+#include <ui/comps.h>
 
 #define TEST 1
 #if defined(TEST)
