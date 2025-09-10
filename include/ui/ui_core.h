@@ -16,9 +16,6 @@
 /*********************
  *      DEFINES
  *********************/
-#define HW_DISPLAY_WIDTH                1024
-#define HW_DISPLAY_HEIGHT               600
-
 #define ROTATION_0                      LV_DISPLAY_ROTATION_0
 #define ROTATION_90                     LV_DISPLAY_ROTATION_90
 #define ROTATION_180                    LV_DISPLAY_ROTATION_180

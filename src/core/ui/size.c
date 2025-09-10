@@ -40,8 +40,8 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static int32_t g_scr_width = HW_DISPLAY_WIDTH;
-static int32_t g_scr_hight = HW_DISPLAY_HEIGHT;
+static int32_t g_scr_width = 0;
+static int32_t g_scr_hight = 0;
 
 /**********************
  *      MACROS

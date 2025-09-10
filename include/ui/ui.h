@@ -18,6 +18,8 @@
 /*********************
  *      DEFINES
  *********************/
+#define DISP_WIDTH                      1024
+#define DISP_HEIGHT                     600
 
 /**********************
  *      TYPEDEFS

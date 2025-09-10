@@ -35,8 +35,6 @@
  *      DEFINES
  *********************/
 #define UI_LVGL_TIMER_MS                5
-#define UI_SCR_WIDTH                    1024
-#define UI_SCR_HEIGHT                   600
 
 /**********************
  *      TYPEDEFS
@@ -114,7 +112,7 @@ static int32_t sf_init_drm_display() {
     }
     lv_display_set_default(drm_disp);
     lv_linux_drm_set_file(drm_disp, "/dev/dri/card0", 32);
-    lv_display_set_resolution(drm_disp, UI_SCR_WIDTH, UI_SCR_HEIGHT);
+    lv_display_set_resolution(drm_disp, DISP_WIDTH, DISP_HEIGHT);
     return 0;
 }
 
