@@ -58,6 +58,7 @@ static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, \
 
     switch (type) {
         case OBJ_BASE:
+        case OBJ_BOX:
         case OBJ_CONTAINER:
             lobj = lv_obj_create(par);
             break;
@@ -98,9 +99,20 @@ static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, \
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t * gf_create_box(lv_obj_t *par, const char *name)
+lv_obj_t * gf_create_base(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BASE, name);
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
+    lv_obj_set_style_border_width(lobj, 0, 0);
+    lv_obj_set_style_outline_width(lobj, 0, 0);
+    lv_obj_set_style_shadow_width(lobj, 0, 0);
+    return lobj;
+}
+
+lv_obj_t * gf_create_box(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_BOX, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
     lv_obj_set_style_border_width(lobj, 0, 0);

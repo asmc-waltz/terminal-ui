@@ -31,6 +31,7 @@ typedef enum {
     OBJ_NONE = 0,
     OBJ_BASE,
     OBJ_CONTAINER,
+    OBJ_BOX,
     OBJ_BTN,
     OBJ_SLIDER,
     OBJ_LABEL,
@@ -128,6 +129,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
 g_ctx *gf_create_app_ctx(void);
 void gf_destroy_app_ctx(g_ctx *ctx);
 
+lv_obj_t * gf_create_base(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, int32_t y, \

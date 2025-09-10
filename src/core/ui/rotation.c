@@ -445,7 +445,7 @@ static int32_t g_obj_rotate(g_obj *gobj)
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
     switch (gobj->type) {
-        case OBJ_BASE:
+        case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
             ret = g_base_obj_rotate(gobj);
@@ -464,6 +464,13 @@ static int32_t g_obj_rotate(g_obj *gobj)
             ret = g_obj_rot_calc_size(gobj);
             if (!ret)
                 lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+            break;
+        case OBJ_BASE:
+            /*
+             * Base object does not change
+             * it remains solid and stays on screen as a physical part
+             */
+            ret = 0;
             break;
         default:
             LOG_WARN("Unknown G object type: %d", gobj->type);
@@ -489,12 +496,16 @@ static int32_t gf_rotate_all(g_obj *gobj)
 
     list_for_each_entry(p_obj, par_list, node) {
         ret = g_obj_rotate(p_obj);
-        if (ret < 0)
+        if (ret < 0) {
+            LOG_ERROR("Rotate obj ID %d failed", gobj->id);
             return ret;
+        }
 
         ret = gf_rotate_all(p_obj);
-        if (ret < 0)
+        if (ret < 0) {
+            LOG_ERROR("Rotate child obj ID %d failed", gobj->id);
             return ret;
+        }
     }
 
     return 0;
