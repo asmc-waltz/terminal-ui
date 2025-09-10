@@ -24,6 +24,8 @@
 #define DRM_CARD                        "/dev/dri/card0"
 #define DRM_CONNECTOR_ID                32
 
+#define TOUCH_EVENT_FILE                "/dev/input/event1"
+
 /**********************
  *      TYPEDEFS
  **********************/

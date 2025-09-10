@@ -55,7 +55,7 @@ volatile sig_atomic_t g_run = 1;
  *  STATIC VARIABLES
  **********************/
 static lv_display_t *drm_disp = NULL;
-static lv_indev_t *touch_scr = NULL;
+static lv_indev_t *touch_event = NULL;
 
 /**********************
  *      MACROS
@@ -132,15 +132,20 @@ static int32_t sf_init_drm_display(lv_display_t **disp, const char *file, \
     return 0;
 }
 
-static int32_t sf_init_touch_screen()
+static lv_indev_t *sf_init_touch_screen(const char *dev_path, \
+                                        lv_display_t *disp)
 {
-    touch_scr = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event1");
-    if (touch_scr == NULL) {
+    lv_indev_t *indev = NULL;
+
+    indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, dev_path);
+    if (!indev) {
         LOG_FATAL("Failed to initialize touch input device");
-        return -EINVAL;
+        return NULL;
     }
-    lv_indev_set_display(touch_scr, drm_disp);
-    return 0;
+
+    lv_indev_set_display(indev, disp);
+
+    return indev;
 }
 
 static void gtimer_handler(lv_timer_t * timer)
@@ -204,7 +209,7 @@ int32_t main(void)
     // Initialize LVGL and the associated UI hardware
     lv_init();
     sf_init_drm_display(&drm_disp, DRM_CARD, DRM_CONNECTOR_ID);
-    sf_init_touch_screen();
+    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, drm_disp);
 
     task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
     if (task_timer == NULL) {
