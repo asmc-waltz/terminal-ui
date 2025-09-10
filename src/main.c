@@ -106,9 +106,10 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
-static int32_t sf_init_drm_display(lv_display_t **disp, const char *file, \
-                                   int64_t connector_id)
+static lv_display_t *sf_init_drm_display(const char *file, \
+                                         int64_t connector_id)
 {
+    lv_display_t *disp = NULL;
     int32_t scr_width = 0;
     int32_t scr_height = 0;
 
@@ -116,20 +117,20 @@ static int32_t sf_init_drm_display(lv_display_t **disp, const char *file, \
     scr_height = g_get_scr_hight();
     if (scr_width <= 0 || scr_height <= 0) {
         LOG_FATAL("Display width or height resolution not available");
-        return -EINVAL;
+        return NULL;
     }
 
-    *disp = lv_linux_drm_create();
-    if (*disp == NULL) {
-        LOG_FATAL("Failed to initialize the display.\n");
-        return -EINVAL;
+    disp = lv_linux_drm_create();
+    if (disp == NULL) {
+        LOG_FATAL("Failed to initialize the display");
+        return NULL;
     }
 
-    lv_display_set_default(*disp);
-    lv_linux_drm_set_file(*disp, file, connector_id);
-    lv_display_set_resolution(*disp, scr_width, scr_height);
+    lv_display_set_default(disp);
+    lv_linux_drm_set_file(disp, file, connector_id);
+    lv_display_set_resolution(disp, scr_width, scr_height);
 
-    return 0;
+    return disp;
 }
 
 static lv_indev_t *sf_init_touch_screen(const char *dev_path, \
@@ -208,7 +209,7 @@ int32_t main(void)
 
     // Initialize LVGL and the associated UI hardware
     lv_init();
-    sf_init_drm_display(&drm_disp, DRM_CARD, DRM_CONNECTOR_ID);
+    drm_disp = sf_init_drm_display(DRM_CARD, DRM_CONNECTOR_ID);
     touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, drm_disp);
 
     task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
