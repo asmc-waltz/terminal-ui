@@ -18,6 +18,8 @@
 /*********************
  *      DEFINES
  *********************/
+#define UI_LVGL_TIMER_MS                5
+
 #define DISP_WIDTH                      1024
 #define DISP_HEIGHT                     600
 
@@ -48,8 +50,7 @@
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *gf_create_keyboard(lv_obj_t *par, const char *name, \
-                             int32_t keyboard_w, int32_t keyboard_h);
+
 /**********************
  *      MACROS
  **********************/
