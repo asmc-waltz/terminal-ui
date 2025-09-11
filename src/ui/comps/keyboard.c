@@ -27,6 +27,10 @@
  *********************/
 #define KEY_PADDING 10
 
+#define KEYBOARD_WIDTH                  98      // %
+#define KEYBOARD_HOR_HEIGHT             40      // %
+#define KEYBOARD_VER_HEIGHT             30      // %
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -170,7 +174,7 @@ static void keyboard_render(lv_obj_t *container, const key_def *map, int32_t map
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *gf_create_keyboard(lv_obj_t *par, const char *name, \
+lv_obj_t *create_keyboard_with_size(lv_obj_t *par, const char *name, \
                              int32_t keyboard_w, int32_t keyboard_h)
 {
     static const key_def key_map[] = {
@@ -201,4 +205,37 @@ lv_obj_t *gf_create_keyboard(lv_obj_t *par, const char *name, \
     keyboard_render(container, key_map, key_map_size, keyboard_w, keyboard_h);
 
     return container;
+}
+
+/*
+ * The keyboard is created based on the full screen size, so we assume
+ * that its parent will never change width or height. The default layout
+ * for vertical and horizontal keyboards is different from each other,
+ * so it must be recreated for any change not related to the rotation
+ * angle.
+ */
+lv_obj_t *create_keyboard(lv_obj_t *par)
+{
+    g_obj *gobj_par;
+    int32_t obj_w, obj_h, rot_dir;
+    const char *name;
+
+    if (!par)
+        return NULL;
+    gobj_par = par->user_data;
+
+    rot_dir = g_get_scr_rot_dir();
+    /* Calculate keyboard size as percentage of parent size */
+    if (rot_dir == ROTATION_0 || rot_dir == ROTATION_180) {
+        obj_w = (gobj_par->pos.w * KEYBOARD_WIDTH) / 100;
+        obj_h = (gobj_par->pos.h * KEYBOARD_HOR_HEIGHT) / 100;
+        name = "comps.keyboard_hor";
+    } else if (rot_dir == ROTATION_90 || rot_dir == ROTATION_270) {
+        // TODO
+        obj_w = (gobj_par->pos.h * KEYBOARD_WIDTH) / 100;
+        obj_h = (gobj_par->pos.w * KEYBOARD_VER_HEIGHT) / 100;
+        name = "comps.keyboard_ver";
+    }
+
+    return create_keyboard_with_size(par, name, obj_w, obj_h);
 }
