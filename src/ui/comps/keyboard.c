@@ -25,11 +25,6 @@
 /*********************
  *      DEFINES
  *********************/
-#define KEY_PADDING 10
-
-#define KEYBOARD_WIDTH                  98      // %
-#define KEYBOARD_HOR_HEIGHT             40      // %
-#define KEYBOARD_VER_HEIGHT             30      // %
 
 /**********************
  *      TYPEDEFS
