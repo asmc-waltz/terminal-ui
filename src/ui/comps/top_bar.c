@@ -26,6 +26,7 @@
 /*********************
  *      DEFINES
  *********************/
+#define TOP_BAR_BG_COLOR           0x636D7A
 
 /**********************
  *      TYPEDEFS
@@ -160,7 +161,7 @@ lv_obj_t *create_top_bar(lv_obj_t *par)
     gf_gobj_set_size(top_bar, obj_w, obj_h);
 
     /* Set background color and disable scroll */
-    lv_obj_set_style_bg_color(top_bar, lv_color_hex(0x3279a8), 0);
+    lv_obj_set_style_bg_color(top_bar, lv_color_hex(TOP_BAR_BG_COLOR), 0);
     lv_obj_clear_flag(top_bar, LV_OBJ_FLAG_SCROLLABLE);
 
     /* Enable horizontal scaling with padding */
