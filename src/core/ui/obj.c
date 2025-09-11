@@ -76,7 +76,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
     if (!obj)
         return NULL;
 
-    new_obj = malloc(sizeof(g_obj));
+    new_obj = calloc(1, sizeof(g_obj));
     if (!new_obj)
         return NULL;
 
