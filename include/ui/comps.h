@@ -17,6 +17,15 @@
 /*********************
  *      DEFINES
  *********************/
+#define TOP_BAR_WIDTH                   98      // %
+#define TOP_BAR_HEIGHT                  7       // %
+#define TOP_BAR_PAD_TOP                 1       // %
+#define TOP_BAR_PAD_BOT                 1       // %
+#define TOP_BAR_PAD_LEFT                1       // %
+#define TOP_BAR_PAD_RIGHT               1       // %
+#define TOP_BAR_SYM_ALN                 5       // pixel
+#define TOP_BAR_SYM_FONTS               &terminal_icons_32
+
 
 /**********************
  *      TYPEDEFS
