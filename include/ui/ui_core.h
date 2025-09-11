@@ -97,7 +97,7 @@ void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
 void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
 
 int32_t g_set_scr_rot_dir(int32_t rot_dir);
-int32_t g_set_scr_size(int32_t width, int32_t hight);
+int32_t g_set_scr_size(int32_t width, int32_t height);
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
 int32_t gf_obj_scale_enable_w(lv_obj_t *lobj);
@@ -117,7 +117,7 @@ g_obj *get_gobj(lv_obj_t *lobj);
 g_obj *get_par_gobj(lv_obj_t *lobj);
 int32_t g_get_scr_rot_dir();
 int32_t g_get_scr_width(void);
-int32_t g_get_scr_hight(void);
+int32_t g_get_scr_height(void);
 void gf_gobj_get_size(lv_obj_t *lobj);
 
 /*=====================

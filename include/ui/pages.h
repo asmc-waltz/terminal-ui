@@ -46,7 +46,8 @@
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_setting_page(lv_obj_t *par)
+lv_obj_t *create_scr_page(lv_obj_t *par, const char *name);
+lv_obj_t *create_setting_page(lv_obj_t *par);
 
 /**********************
  *      MACROS

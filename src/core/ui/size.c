@@ -41,7 +41,7 @@
  *  STATIC VARIABLES
  **********************/
 static int32_t g_scr_width = 0;
-static int32_t g_scr_hight = 0;
+static int32_t g_scr_height = 0;
 
 /**********************
  *      MACROS
@@ -146,10 +146,10 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
     return 0;
 }
 
-int32_t g_set_scr_size(int32_t width, int32_t hight)
+int32_t g_set_scr_size(int32_t width, int32_t height)
 {
     // TODO: lock
-    g_scr_hight = hight;
+    g_scr_height = height;
     g_scr_width = width;
     return 0;
 }
@@ -159,9 +159,9 @@ int32_t g_get_scr_width(void)
     return g_scr_width;
 }
 
-int32_t g_get_scr_hight(void)
+int32_t g_get_scr_height(void)
 {
-    return g_scr_hight;
+    return g_scr_height;
 }
 
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
