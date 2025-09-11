@@ -359,7 +359,10 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
         return -EINVAL;
     }
 
-    if (gobj->scale.ena_h || gobj->scale.ena_w) {
+
+    if (gobj->scale.rot_size_cb) {
+        gobj->scale.rot_size_cb(gobj->obj);
+    } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
         LOG_INFO("SET W=%d H=%d", gobj->scale.w, gobj->scale.h);
     } else {

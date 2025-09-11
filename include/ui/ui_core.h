@@ -43,6 +43,8 @@ typedef struct {
     int32_t h;
     int32_t pad_w;
     int32_t pad_h;
+    /* direct callback definition */
+    void (*rot_size_cb)(lv_obj_t *lobj);
 } g_scale;
 
 typedef struct {
@@ -154,6 +156,16 @@ static inline int32_t par_height(lv_obj_t *par)
 static inline int32_t par_width(lv_obj_t *par)
 {
     return ((g_obj *)par->user_data)->pos.w;
+}
+
+static inline int32_t par_scale_height(lv_obj_t *par)
+{
+    return ((g_obj *)par->user_data)->scale.h;
+}
+
+static inline int32_t par_scale_width(lv_obj_t *par)
+{
+    return ((g_obj *)par->user_data)->scale.w;
 }
 
 static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
