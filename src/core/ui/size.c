@@ -68,6 +68,7 @@ int32_t g_obj_scale(g_obj *gobj)
     int32_t scale_w, scale_h;
     int32_t abs_val_x, abs_val_y;
     int8_t scr_rot;
+    int32_t par_w, par_h;
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
@@ -78,6 +79,14 @@ int32_t g_obj_scale(g_obj *gobj)
     if (!gobj_par) {
         LOG_ERROR("Invalid g parent object");
         return -EINVAL;
+    }
+
+    if (gobj_par->scale.ena_w || gobj_par->scale.ena_h) {
+        par_w = gobj_par->scale.w;
+        par_h = gobj_par->scale.h;
+    } else {
+        par_w = gobj_par->pos.w;
+        par_h = gobj_par->pos.h;
     }
 
     /*
@@ -93,17 +102,17 @@ int32_t g_obj_scale(g_obj *gobj)
 
     if (gobj->scale.ena_h) {
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.pad_h;
+            scale_h = par_h - abs_val_y - gobj->scale.pad_h;
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.pad_h;
+            scale_w = par_w - abs_val_x - gobj->scale.pad_h;
         }
     }
 
     if (gobj->scale.ena_w) {
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_w = gobj_par->pos.w - abs_val_x - gobj->scale.pad_w;
+            scale_w = par_w - abs_val_x - gobj->scale.pad_w;
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_h = gobj_par->pos.h - abs_val_y - gobj->scale.pad_w;
+            scale_h = par_h - abs_val_y - gobj->scale.pad_w;
         }
     }
 
