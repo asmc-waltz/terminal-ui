@@ -375,3 +375,24 @@ g_ctx *gf_get_app_ctx(void)
 {
     return app_ctx;
 }
+
+g_obj *get_gobj(lv_obj_t *lobj)
+{
+    if (!lobj)
+        return NULL;
+    return lobj->user_data;
+}
+
+g_obj *get_par_gobj(lv_obj_t *lobj)
+{
+    g_obj *gobj;
+
+    if (!lobj)
+        return NULL;
+
+    gobj = lobj->user_data;
+    if (!gobj)
+        return NULL;
+
+    return gobj->par;
+}
