@@ -113,7 +113,7 @@ static lv_display_t *sf_init_drm_display(const char *file, \
     int32_t scr_height = 0;
 
     scr_width = g_get_scr_width();
-    scr_height = g_get_scr_hight();
+    scr_height = g_get_scr_height();
     if (scr_width <= 0 || scr_height <= 0) {
         LOG_FATAL("Display width or height resolution not available");
         return NULL;
@@ -224,8 +224,9 @@ int32_t main(void)
     gf_register_obj(NULL, lv_screen_active(), NULL);
     gf_register_obj(NULL, lv_layer_bottom(), NULL);
 
-    LOG_INFO("sizeof g: %d", sizeof(g_obj));
-    create_dynamic_ui();
+    LOG_INFO("size of g_obj: %d", sizeof(g_obj));
+    create_scr_page(lv_screen_active(), "screens.common");
+
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
     if (ret) {
