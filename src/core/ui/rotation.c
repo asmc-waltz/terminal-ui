@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -364,7 +364,6 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
         gobj->scale.rot_size_cb(gobj->obj);
     } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
-        LOG_INFO("SET W=%d H=%d", gobj->scale.w, gobj->scale.h);
     } else {
         lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
     }
