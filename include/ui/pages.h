@@ -17,6 +17,12 @@
 /*********************
  *      DEFINES
  *********************/
+#define SETTING_WIDTH                   98      // %
+#define SETTING_MENU_BAR_HOR_WIDTH      30      // %
+#define SETTING_PAD_TOP                 1       // %
+#define SETTING_PAD_BOT                 1       // %
+#define SETTING_PAD_LEFT                1       // %
+#define SETTING_PAD_RIGHT               1       // %
 
 /**********************
  *      TYPEDEFS
@@ -40,6 +46,7 @@
 /*=====================
  * Other functions
  *====================*/
+lv_obj_t *create_setting_page(lv_obj_t *par)
 
 /**********************
  *      MACROS
