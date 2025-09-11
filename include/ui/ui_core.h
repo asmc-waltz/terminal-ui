@@ -146,6 +146,25 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
 int32_t gf_rotate_obj_tree(g_obj *gobj);
 int32_t g_obj_rot_calc_size(g_obj *gobj);
 
+static inline int32_t par_height(lv_obj_t *par)
+{
+    return ((g_obj *)par->user_data)->pos.h;
+}
+
+static inline int32_t par_width(lv_obj_t *par)
+{
+    return ((g_obj *)par->user_data)->pos.w;
+}
+
+static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
+{
+    return (par_size * percent) / 100;
+}
+
+static inline int32_t calc_pixels_remaining(int32_t par_size, int32_t percent)
+{
+    return par_size - ((par_size * percent) / 100);
+}
 /**********************
  *      MACROS
  **********************/
