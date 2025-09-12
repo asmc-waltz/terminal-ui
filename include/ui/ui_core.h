@@ -8,6 +8,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <stdlib.h>
 #include <stdint.h>
 
 #include <lvgl.h>
@@ -148,22 +149,32 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
 int32_t refresh_obj_tree_layout(g_obj *gobj);
 int32_t g_obj_rot_calc_size(g_obj *gobj);
 
-static inline int32_t par_height(lv_obj_t *par)
+static inline int32_t obj_height(lv_obj_t *lobj)
 {
-    return ((g_obj *)par->user_data)->pos.h;
+    return ((g_obj *)lobj->user_data)->pos.h;
 }
 
-static inline int32_t par_width(lv_obj_t *par)
+static inline int32_t obj_width(lv_obj_t *lobj)
 {
-    return ((g_obj *)par->user_data)->pos.w;
+    return ((g_obj *)lobj->user_data)->pos.w;
 }
 
-static inline int32_t par_scale_height(lv_obj_t *par)
+static inline int32_t obj_aln_x(lv_obj_t *lobj)
+{
+    return abs(((g_obj *)lobj->user_data)->aln.x);
+}
+
+static inline int32_t obj_aln_y(lv_obj_t *lobj)
+{
+    return abs(((g_obj *)lobj->user_data)->aln.y);
+}
+
+static inline int32_t obj_scale_h(lv_obj_t *par)
 {
     return ((g_obj *)par->user_data)->scale.h;
 }
 
-static inline int32_t par_scale_width(lv_obj_t *par)
+static inline int32_t obj_scale_w(lv_obj_t *par)
 {
     return ((g_obj *)par->user_data)->scale.w;
 }
