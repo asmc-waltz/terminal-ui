@@ -28,13 +28,13 @@
 #define TOP_BAR_SYM_FONTS               &terminal_icons_32
 
 
-#define HOR_KEYBOAR_NAME                "comps.hor_keyboard"
-#define VER_KEYBOAR_NAME                "comps.ver_keyboard"
-#define KEY_PADDING 10
+#define KEYBOAR_NAME                    "comps.keyboard"
 #define KEYBOARD_WIDTH                  98      // %
 #define HOR_KEYBOARD_HEIGHT             40      // %
 #define VER_KEYBOARD_HEIGHT             30      // %
-#define KEYBOARD_PAD_BOT                2       // %
+#define KEYBOARD_BOT_PAD                2       // %
+#define KEYBOARD_PAD_LEFT               1       // %
+#define KEYBOARD_PAD_RIGHT              1       // %
 
 
 /**********************

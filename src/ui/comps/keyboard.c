@@ -20,10 +20,12 @@
 #include <lvgl.h>
 #include <list.h>
 #include <ui/ui_core.h>
+#include <ui/comps.h>
 
 /*********************
  *      DEFINES
  *********************/
+#define KEYBOARD_BG_COLOR               0xE6E6FF
 
 /**********************
  *      TYPEDEFS
@@ -37,6 +39,102 @@ typedef struct key_line {
     int32_t y_ofs;
 } key_line;
 
+typedef enum {
+    T_CHAR,
+    T_NUM,
+    T_SYM,
+    T_SHIFT,
+    T_DELETE,
+    T_MODE,
+    T_SPACE,
+    T_ENTER,
+    T_NEWLINE
+} k_type;
+
+typedef struct {
+    const char* label;
+    k_type type;
+} k_def;
+
+typedef struct {
+    const char* name;
+    const k_def *map;
+    int32_t size;
+} kb_def;
+/**********************
+ *  STATIC VARIABLES
+ **********************/
+static const k_def map_ABC[] = {
+    {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
+    {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"A", T_CHAR}, {"S", T_CHAR}, {"D", T_CHAR}, {"F", T_CHAR}, {"G", T_CHAR}, \
+    {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"Shift", T_SHIFT}, {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, \
+    {"V", T_CHAR}, {"B", T_CHAR}, {"N", T_CHAR}, {"M", T_CHAR}, \
+    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+
+    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+};
+
+static const k_def map_abc[] = {
+    {"q", T_CHAR}, {"w", T_CHAR}, {"e", T_CHAR}, {"r", T_CHAR}, {"t", T_CHAR}, \
+    {"y", T_CHAR}, {"u", T_CHAR}, {"i", T_CHAR}, {"o", T_CHAR}, {"p", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"a", T_CHAR}, {"s", T_CHAR}, {"d", T_CHAR}, {"f", T_CHAR}, {"g", T_CHAR}, \
+    {"h", T_CHAR}, {"j", T_CHAR}, {"k", T_CHAR}, {"l", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"Shift", T_SHIFT}, {"z", T_CHAR}, {"x", T_CHAR}, {"c", T_CHAR}, \
+    {"v", T_CHAR}, {"b", T_CHAR}, {"n", T_CHAR}, {"m", T_CHAR}, \
+    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+
+    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+};
+
+static const k_def map_number[] = {
+    {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
+    {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
+    {"\n", T_NEWLINE}, \
+
+    {"-", T_SYM}, {"/", T_SYM}, {":", T_SYM}, {";", T_SYM}, {"(", T_SYM}, \
+    {")", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, {"\"", T_SYM}, \
+    {"\n", T_NEWLINE}, \
+
+    {"+-=", T_SHIFT}, {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, \
+    {"!", T_SYM}, {"'", T_SYM},
+    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+
+    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+};
+
+static const k_def map_symbol[] = {
+    {"[", T_SYM}, {"]", T_SYM}, {"{", T_SYM}, {"}", T_SYM}, {"#", T_SYM}, \
+    {"%", T_SYM}, {"^", T_SYM}, {"*", T_SYM}, {"+", T_SYM}, {"=", T_SYM}, \
+    {"\n", T_NEWLINE}, \
+
+    {"_", T_SYM}, {"\\", T_SYM}, {"|", T_SYM}, {"~", T_SYM}, {"<", T_SYM}, \
+    {">", T_SYM}, {"$", T_SYM}, \
+    {"\n", T_NEWLINE}, \
+
+    {"123", T_SHIFT}, {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, \
+    {"!", T_SYM}, {"'", T_SYM},
+    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+
+    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+};
+
+
+static const kb_def kb_maps[] = {
+    {"ABC", map_ABC, sizeof(map_ABC) / sizeof(map_ABC[0])},
+    {"abc", map_abc, sizeof(map_abc) / sizeof(map_abc[0])},
+    {"123", map_number, sizeof(map_number) / sizeof(map_number[0])},
+    {"@*#", map_symbol, sizeof(map_symbol) / sizeof(map_symbol[0])},
+};
 /**********************
  *  GLOBAL VARIABLES
  **********************/
@@ -56,6 +154,54 @@ typedef struct key_line {
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static void dump_key_map(const kb_def *kb)
+{
+    int8_t cnt;
+    for (cnt = 0; cnt < kb->size; cnt++) {
+        LOG_INFO("Keyboard %s: index[%d] character[%s] type[%d]", \
+                 kb->name, cnt, kb->map[cnt].label, kb->map[cnt].type);
+    }
+}
+
+static void dump_all_maps(void)
+{
+    int8_t map_cnt, i;
+
+    map_cnt = sizeof(kb_maps) / sizeof(kb_def);
+    LOG_INFO("[%d] keyboard are available", map_cnt);
+    for (i = 0; i < map_cnt; i++) {
+        dump_key_map(&kb_maps[i]);
+    }
+}
+
+lv_obj_t *create_keyboard_containter(lv_obj_t *par)
+{
+    lv_obj_t *cont;
+    int32_t obj_w, obj_h;
+
+    if (!par)
+        return NULL;
+
+    /* Create container box for the keyboard and all button */
+    cont = gf_create_box(par, KEYBOAR_NAME);
+    if (!cont)
+        return NULL;
+
+    /* Calculate setting container size as percentage of parent size */
+    obj_w = calc_pixels(obj_width(par), KEYBOARD_WIDTH);
+    obj_h = calc_pixels(obj_height(par), HOR_KEYBOARD_HEIGHT);
+
+    gf_gobj_set_size(cont, obj_w, obj_h);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
+    gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0,\
+                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+
+    gf_obj_scale_enable_w(cont);
+    gf_obj_scale_set_pad_w(cont, calc_pixels(obj_width(par), \
+                           (KEYBOARD_PAD_RIGHT + KEYBOARD_PAD_LEFT)));
+    return cont;
+}
+
 static void keyboard_btn_handler(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
@@ -145,6 +291,8 @@ lv_obj_t *create_keyboard(lv_obj_t *par, const char *name, \
                                     "Z\n", "X\n", "C\n", "V\n", "B\n", "N\n", "M\n"};
 
     sf_create_keyboard_line(lobj, &line_first, line_1, 28);
+
+    dump_all_maps();
 
     return lobj;
 }
