@@ -85,7 +85,8 @@ static lv_obj_t *keyboard_create_container(lv_obj_t *par, const char *name, \
 
     gf_gobj_set_size(cont, keyboard_w, keyboard_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xe6e6FF), 0);
-    gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0, -10);
+    gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0, \
+                     -calc_pixels(par_height(par), KEYBOARD_PAD_BOT));
 
     return cont;
 }

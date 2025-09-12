@@ -20,7 +20,7 @@
 #define TOP_BAR_NAME                    "comps.top_bar"
 #define TOP_BAR_WIDTH                   98      // %
 #define TOP_BAR_HEIGHT                  7       // %
-#define TOP_BAR_PAD_TOP                 1       // %
+#define TOP_BAR_PAD_TOP                 2       // %
 #define TOP_BAR_PAD_BOT                 1       // %
 #define TOP_BAR_PAD_LEFT                1       // %
 #define TOP_BAR_PAD_RIGHT               1       // %
@@ -34,6 +34,7 @@
 #define KEYBOARD_WIDTH                  98      // %
 #define HOR_KEYBOARD_HEIGHT             40      // %
 #define VER_KEYBOARD_HEIGHT             30      // %
+#define KEYBOARD_PAD_BOT                2       // %
 
 
 /**********************
