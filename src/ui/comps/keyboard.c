@@ -26,6 +26,24 @@
  *      DEFINES
  *********************/
 #define KEYBOARD_BG_COLOR               0xE6E6FF
+#define KEYBOARD_LINE                   4
+#define KEYBOARD_LINE_PAD_TOP           2       // %
+#define KEYBOARD_LINE_PAD_BOT           2       // %
+#define KEYBOARD_LINE_HEIGHT            ((100 - (KEYBOARD_LINE * \
+                                         (KEYBOARD_LINE_PAD_TOP + \
+                                         KEYBOARD_LINE_PAD_BOT))) / \
+                                         KEYBOARD_LINE)     // %
+#define KEY_PAD_LEFT                    1       // %
+#define KEY_PAD_RIGHT                   1       // %
+#define KEY_FIRST_LINE                  10      // Number of the first line keys
+#define KEY_CHAR_WIDTH                  ((100 - (KEY_FIRST_LINE * \
+                                         (KEY_PAD_LEFT + KEY_PAD_RIGHT))) / \
+                                         KEY_FIRST_LINE)    // %
+#define KEY_SPACE_WIDTH                 ((5 * KEY_CHAR_WIDTH) + (4 * (KEY_PAD_LEFT + \
+                                         KEY_PAD_RIGHT)))
+#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 14) / 10)  // % (Magic)
+#define KEY_ENTER_WIDTH                 ((2 * KEY_MODE_WIDTH) + (1 * (KEY_PAD_LEFT + \
+                                         KEY_PAD_RIGHT)))
 
 /**********************
  *      TYPEDEFS
@@ -174,6 +192,120 @@ static void dump_all_maps(void)
     }
 }
 
+static void kb_btn_cb(lv_event_t *event)
+{
+    lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
+    lv_obj_t *par = lv_obj_get_parent(btn);
+    g_obj *gobj = NULL;
+
+    gobj = btn->user_data;
+    LOG_TRACE("ID %d: button clicked", gobj->id);
+    lv_obj_t * btn_label = lv_obj_get_child(btn, 0);
+    lv_label_set_text(btn_label, "X");
+
+}
+
+static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
+{
+    lv_obj_t *btn, *lbl;
+
+    btn = gf_create_btn(par, key->label);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffffff), 0);
+    lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(btn, kb_btn_cb, LV_EVENT_CLICKED, btn->user_data);
+
+    lbl = gf_create_text(btn, NULL, 10, 10, key->label);
+    lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
+
+    return btn;
+}
+
+int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
+{
+    int32_t key_h, key_w, key_mode_w, key_space_w, key_enter_w;
+    int32_t k_pad_top, k_pad_bot, k_pad_left, k_pad_right;
+    const k_def *k = &kb->map[1];
+    int8_t i;
+    lv_obj_t *btn_aln;
+    lv_obj_t *btn;
+    int8_t line_cnt = 0;
+    int8_t new_line = 0;
+
+    /* TESTING START ***************************************/
+    k_pad_top = calc_pixels(obj_height(par), KEYBOARD_LINE_PAD_TOP);
+    k_pad_bot = calc_pixels(obj_height(par), KEYBOARD_LINE_PAD_BOT);
+
+    k_pad_left = calc_pixels(obj_width(par), KEY_PAD_LEFT);
+    k_pad_right = calc_pixels(obj_width(par), KEY_PAD_RIGHT);
+
+    key_h = calc_pixels(obj_height(par), KEYBOARD_LINE_HEIGHT);
+    key_w = calc_pixels(obj_width(par), KEY_CHAR_WIDTH);
+    key_space_w = calc_pixels(obj_width(par), KEY_SPACE_WIDTH);
+    key_mode_w = calc_pixels(obj_width(par), KEY_MODE_WIDTH);
+    key_enter_w = calc_pixels(obj_width(par), KEY_ENTER_WIDTH);
+
+    LOG_INFO("Parent W %d - H %d", obj_width(par), obj_height(par));
+    LOG_INFO("Key: \tpad: top[%d] bot[%d] - left[%d] right[%d] -\n OBJ Size: w[%d] h[%d]",
+             k_pad_top, k_pad_bot, k_pad_left, k_pad_right, key_w, key_h);
+
+    int32_t line_size = k_pad_top + key_h + k_pad_bot;
+
+    for (i = 0; i < kb->size; i++) {
+        LOG_INFO("Keyboard %s: index[%d] character[%s] type[%d]", \
+                 kb->name, i, kb->map[i].label, kb->map[i].type);
+
+        //------------
+        if (kb->map[i].type == T_NEWLINE) {
+            LOG_INFO("LINE KEY NUMBER DETECTED %d", i);
+            line_cnt++;
+            new_line = 1;
+            continue;
+        }
+        //------------
+        btn = create_key(par, &kb->map[i]);
+        if (i == 0) {
+            // The top padding must x2 Due to now upper line for the first line
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, k_pad_left, k_pad_top * 2);
+        } else if (new_line == 1) {
+            new_line = 0;
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, \
+                             k_pad_left, \
+                             (k_pad_top*2 + (line_size * line_cnt)));
+        } else {
+
+            gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+                             (k_pad_left + k_pad_right), 0);
+        }
+        btn_aln = btn;
+
+        //------------
+        switch (kb->map[i].type) {
+        case T_CHAR:
+        case T_NUM:
+        case T_SYM:
+            gf_gobj_set_size(btn, key_w, key_h);
+            break;
+        case T_SPACE:
+            gf_gobj_set_size(btn, key_space_w, key_h);
+            break;
+        case T_ENTER:
+            gf_gobj_set_size(btn, key_enter_w, key_h);
+            break;
+        case T_SHIFT:
+        case T_DELETE:
+        case T_MODE:
+            gf_gobj_set_size(btn, key_mode_w, key_h);
+            break;
+        default:
+            break;
+
+        }
+    }
+
+    /* TESTING END ***************************************/
+}
+
 lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 {
     lv_obj_t *cont;
@@ -202,97 +334,19 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     return cont;
 }
 
-static void keyboard_btn_handler(lv_event_t *event)
-{
-    lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn);
-    g_obj *gobj = NULL;
-
-    gobj = btn->user_data;
-    LOG_TRACE("ID %d: button clicked", gobj->id);
-    lv_obj_t * btn_label = lv_obj_get_child(btn, 0);
-    lv_label_set_text(btn_label, "X");
-
-}
-lv_obj_t * sf_create_keyboard_line(lv_obj_t *par, key_line *line, const char * const *keys, int32_t line_size)
-{
-    lv_obj_t *aln_btn = NULL;
-    lv_obj_t *next_btn = NULL;
-    lv_obj_t *lbl = NULL;
-    int8_t start_newline = 1;
-    
-
-    aln_btn = par;
-
-    for (int8_t i=0; i < line_size; i++) {
-        if (strcmp(keys[i], "\n1") == 0) {
-            line->x_ofs = (((g_obj *)par->user_data)->pos.w*7)/100;
-            line->y_ofs = (((g_obj *)par->user_data)->pos.h*28)/100;
-            start_newline = 1;
-            aln_btn = par;
-            continue;
-        } else if (strcmp(keys[i], "\n2") == 0) {
-            line->x_ofs = (((g_obj *)par->user_data)->pos.w*17)/100;
-            line->y_ofs = (((g_obj *)par->user_data)->pos.h*52)/100;
-            start_newline = 1;
-            aln_btn = par;
-            continue;
-        }
-        next_btn = gf_create_btn(par, keys[i]);
-
-        gf_gobj_set_size(next_btn, line->w, line->h);
-        lv_obj_set_style_bg_color(next_btn, lv_color_hex(0xffffff), 0);
-        lv_obj_clear_flag(next_btn, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_add_event_cb(next_btn, keyboard_btn_handler, LV_EVENT_CLICKED, next_btn->user_data);
-        if (start_newline) {
-            gf_gobj_align_to(next_btn, aln_btn, LV_ALIGN_TOP_LEFT, line->x_ofs, line->y_ofs);
-            start_newline = 0;
-        } else
-            gf_gobj_align_to(next_btn, aln_btn, LV_ALIGN_OUT_RIGHT_MID, line->w_space, 0);
-
-        lbl = gf_create_text(next_btn, keys[i], 10, 15, keys[i]);
-        lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
-        lv_obj_set_style_text_font(lbl, &lv_font_montserrat_26, 0);
-        aln_btn = next_btn;
-    }
-}
-
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_keyboard(lv_obj_t *par, const char *name, \
-                          int32_t keyboard_w, int32_t keyboard_h)
+lv_obj_t *create_keyboard(lv_obj_t *par)
 {
-    lv_obj_t *lobj = NULL;
-    g_obj *gobj;
+    lv_obj_t *kb_cont;
 
-    lobj = gf_create_box(par, name);
-    if (!lobj) {
-        return NULL;
-    }
+    kb_cont = create_keyboard_containter(par);
 
-    gf_gobj_set_size(lobj, keyboard_w, keyboard_h);
-    lv_obj_set_style_bg_color(lobj, lv_color_hex(0xe6e6FF), 0);
-    gf_gobj_align_to(lobj, par, LV_ALIGN_BOTTOM_MID, 0, -10);
+    /* TESTING START ***************************************/
+    const kb_def *kb = &kb_maps[0];
+    create_key_layout(kb_cont, kb);
+    /* TESTING END ***************************************/
 
-    gobj = lobj->user_data;
-
-    key_line line_first = {
-        .w = (keyboard_w*8)/100,
-        .h = (keyboard_h*20)/100,
-        .w_space = (keyboard_w*2)/100,
-        .h_space = (keyboard_h*4)/100,
-        .x_ofs = (keyboard_w*2)/100,
-        .y_ofs = (keyboard_h*4)/100,
-    };
-
-    const char * const line_1[] = {"Q\n", "W\n", "E\n", "R\n", "T\n", "Y\n", "U\n", "I\n", "O\n", "P\n", "\n1", \
-                                   "A\n", "S\n", "D\n", "F\n", "G\n", "H\n", "J\n", "K\n", "L\n", "\n2", \
-                                    "Z\n", "X\n", "C\n", "V\n", "B\n", "N\n", "M\n"};
-
-    sf_create_keyboard_line(lobj, &line_first, line_1, 28);
-
-    dump_all_maps();
-
-    return lobj;
+    return kb_cont;
 }

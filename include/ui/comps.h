@@ -35,6 +35,7 @@
 #define KEYBOARD_BOT_PAD                2       // %
 #define KEYBOARD_PAD_LEFT               1       // %
 #define KEYBOARD_PAD_RIGHT              1       // %
+#define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_26
 
 
 /**********************
@@ -65,8 +66,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
  * Other functions
  *====================*/
 lv_obj_t *create_top_bar(lv_obj_t *par);
-lv_obj_t *create_keyboard(lv_obj_t *par, const char *name, \
-                          int32_t w, int32_t h);
+lv_obj_t *create_keyboard(lv_obj_t *par);
 
 /**********************
  *      MACROS
