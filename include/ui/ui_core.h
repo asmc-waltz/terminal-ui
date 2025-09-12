@@ -145,7 +145,7 @@ lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
 
-int32_t gf_rotate_obj_tree(g_obj *gobj);
+int32_t refresh_obj_tree_layout(g_obj *gobj);
 int32_t g_obj_rot_calc_size(g_obj *gobj);
 
 static inline int32_t par_height(lv_obj_t *par)

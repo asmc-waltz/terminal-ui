@@ -429,7 +429,7 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t g_obj_rotate(g_obj *gobj)
+static int32_t gobj_refresh(g_obj *gobj)
 {
     int32_t ret;
     int32_t scr_rot = g_get_scr_rot_dir();
@@ -439,9 +439,10 @@ static int32_t g_obj_rotate(g_obj *gobj)
         return -EINVAL;
     }
 
-    if (gobj->pos.rot == scr_rot) {
-        return 0;
-    }
+    // NOTE: Refresh now applies beyond rotation
+    // if (gobj->pos.rot == scr_rot) {
+    //     return 0;
+    // }
 
     // TODO: check obj type and update flex flow, scale...
     // Text, icon, switch will be rotate
@@ -488,7 +489,7 @@ static int32_t g_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t gf_rotate_all(g_obj *gobj)
+static int32_t gobj_refresh_child(g_obj *gobj)
 {
     g_obj *p_obj;
     int32_t ret;
@@ -497,13 +498,13 @@ static int32_t gf_rotate_all(g_obj *gobj)
     par_list = &gobj->child;
 
     list_for_each_entry(p_obj, par_list, node) {
-        ret = g_obj_rotate(p_obj);
+        ret = gobj_refresh(p_obj);
         if (ret < 0) {
             LOG_ERROR("Rotate obj ID %d failed", gobj->id);
             return ret;
         }
 
-        ret = gf_rotate_all(p_obj);
+        ret = gobj_refresh_child(p_obj);
         if (ret < 0) {
             LOG_ERROR("Rotate child obj ID %d failed", gobj->id);
             return ret;
@@ -527,68 +528,24 @@ int32_t g_get_scr_rot_dir()
     return g_scr_rot_dir;
 }
 
-int32_t gf_rotate_obj_tree(g_obj *gobj)
+/*
+ * This function handles object layout updates including rotation, scaling,
+ * and repositioning. Each object may define its own callbacks for move,
+ * scale, or rotate, which will be invoked during the rotation job.
+ * Although primarily used for rotation checks and updates, it may trigger
+ * broader layout adjustments.
+ */
+int32_t refresh_obj_tree_layout(g_obj *gobj)
 {
     int32_t ret;
 
-    ret = g_obj_rotate(gobj);
+    ret = gobj_refresh(gobj);
     if (ret < 0)
         return ret;
 
-    ret = gf_rotate_all(gobj);
+    ret = gobj_refresh_child(gobj);
     if (ret < 0)
         return ret;
 
     return 0;
-}
-
-int32_t g_relocation_all()
-{
-    // Retrieve current screen dimensions.
-    // Recalculate object size, position, and layout based on rotation.
-}
-
-int32_t g_scale_all()
-{
-    // Retrieve current screen dimensions.
-    // Recalculate object size, position, and layout based on rotation.
-}
-
-int32_t g_rotate_event_handler()
-{
-    int32_t ret;
-    int32_t rot_dir;
-    // e.g. from dbus
-    // g_set_scr_rot_dir(ROTATION_0);
-    g_set_scr_rot_dir(ROTATION_90);
-    // g_set_scr_rot_dir(ROTATION_180);
-    // g_set_scr_rot_dir(ROTATION_270);
-
-    // Retrieve rotation state.
-    rot_dir = g_get_scr_rot_dir();
-
-    // Adjust screen size accordingly.
-    if (rot_dir == ROTATION_0) {
-        g_set_scr_size(1024, 600);
-    } else if (rot_dir == ROTATION_90) {
-        g_set_scr_size(600, 1024);
-    } else if (rot_dir == ROTATION_180) {
-        g_set_scr_size(1024, 600);
-    } else if (rot_dir == ROTATION_270) {
-        g_set_scr_size(600, 1024);
-    }
-
-    // Invoke scale event handler.
-    ret = g_scale_all();
-    if (ret) {
-        LOG_ERROR("Scale screen size failed");
-    }
-
-    // Invoke relocation event handler.
-    ret = g_relocation_all();
-    if (ret) {
-        LOG_ERROR("Relocation object on screen failed");
-    }
-
-    // Invalidate layers to refresh UI.
 }
