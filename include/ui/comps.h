@@ -17,6 +17,10 @@
 /*********************
  *      DEFINES
  *********************/
+#define HOR_KEYBOAR_NAME                "comps.hor_keyboard"
+#define VER_KEYBOAR_NAME                "comps.ver_keyboard"
+
+
 #define TOP_BAR_WIDTH                   98      // %
 #define TOP_BAR_HEIGHT                  7       // %
 #define TOP_BAR_PAD_TOP                 1       // %
@@ -29,8 +33,8 @@
 
 #define KEY_PADDING 10
 #define KEYBOARD_WIDTH                  98      // %
-#define KEYBOARD_HOR_HEIGHT             40      // %
-#define KEYBOARD_VER_HEIGHT             30      // %
+#define HOR_KEYBOARD_HEIGHT             40      // %
+#define VER_KEYBOARD_HEIGHT             30      // %
 
 
 /**********************
@@ -60,8 +64,8 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_keyboard(lv_obj_t *par);
 lv_obj_t *create_top_bar(lv_obj_t *par);
+int32_t create_keyboards(lv_obj_t *par);
 
 /**********************
  *      MACROS

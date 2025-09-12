@@ -206,31 +206,34 @@ lv_obj_t *create_keyboard_with_size(lv_obj_t *par, const char *name, \
  * The keyboard is created based on the full screen size, so we assume
  * that its parent will never change width or height. The default layout
  * for vertical and horizontal keyboards is different from each other,
- * so it must be recreated for any change not related to the rotation
+ * so it must be replace for any change not related to the rotation
  * angle.
  */
-lv_obj_t *create_keyboard(lv_obj_t *par)
+int32_t create_keyboards(lv_obj_t *par)
 {
-    g_obj *gobj_par;
-    int32_t obj_w, obj_h, rot_dir;
-    const char *name;
+    lv_obj_t *keyboard;
+    int32_t obj_w, obj_h;
 
     if (!par)
-        return NULL;
-    gobj_par = par->user_data;
+        return -1;
 
-    rot_dir = g_get_scr_rot_dir();
-    /* Calculate keyboard size as percentage of parent size */
-    if (rot_dir == ROTATION_0 || rot_dir == ROTATION_180) {
-        obj_w = (gobj_par->pos.w * KEYBOARD_WIDTH) / 100;
-        obj_h = (gobj_par->pos.h * KEYBOARD_HOR_HEIGHT) / 100;
-        name = "comps.keyboard_hor";
-    } else if (rot_dir == ROTATION_90 || rot_dir == ROTATION_270) {
-        // TODO
-        obj_w = (gobj_par->pos.h * KEYBOARD_WIDTH) / 100;
-        obj_h = (gobj_par->pos.w * KEYBOARD_VER_HEIGHT) / 100;
-        name = "comps.keyboard_ver";
+    obj_w = (par_width(par) * KEYBOARD_WIDTH) / 100;
+    obj_h = (par_height(par) * HOR_KEYBOARD_HEIGHT) / 100;
+    keyboard = create_keyboard_with_size(par, HOR_KEYBOAR_NAME, obj_w, obj_h);
+    if (!keyboard) {
+        LOG_ERROR("Unable to create the horizontal keyboard");
+        return -1;
     }
+    lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
 
-    return create_keyboard_with_size(par, name, obj_w, obj_h);
+    obj_w = (par_height(par) * KEYBOARD_WIDTH) / 100;
+    obj_h = (par_width(par) * VER_KEYBOARD_HEIGHT) / 100;
+    keyboard = create_keyboard_with_size(par, VER_KEYBOAR_NAME, obj_w, obj_h);
+    if (!keyboard) {
+        LOG_ERROR("Unable to create the vertical keyboard");
+        return -1;
+    }
+    lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+
+    return 0;
 }
