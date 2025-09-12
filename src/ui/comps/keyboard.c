@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <errno.h>
 #include <string.h>
 
 #include <lvgl.h>
@@ -48,14 +48,17 @@
 /**********************
  *      TYPEDEFS
  **********************/
-typedef struct key_line {
-    int32_t w;
-    int32_t h;
-    int32_t w_space;
-    int32_t h_space;
-    int32_t x_ofs;
-    int32_t y_ofs;
-} key_line;
+typedef struct kb_ctx {
+    int32_t l_pad_top;
+    int32_t l_pad_bot;
+    int32_t k_pad_left;
+    int32_t k_pad_right;
+    int32_t key_com_h;
+    int32_t key_com_w;
+    int32_t key_space_w;
+    int32_t key_mode_w;
+    int32_t key_enter_w;
+} kb_size_ctx;
 
 typedef enum {
     T_CHAR,
@@ -221,35 +224,92 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     return btn;
 }
 
+void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
+{
+    switch (type) {
+    case T_CHAR:
+    case T_NUM:
+    case T_SYM:
+        gf_gobj_set_size(key, size->key_com_w, size->key_com_h);
+        break;
+    case T_SPACE:
+        gf_gobj_set_size(key, size->key_space_w, size->key_com_h);
+        break;
+    case T_ENTER:
+        gf_gobj_set_size(key, size->key_enter_w, size->key_com_h);
+        break;
+    case T_SHIFT:
+    case T_DELETE:
+    case T_MODE:
+        gf_gobj_set_size(key, size->key_mode_w, size->key_com_h);
+        break;
+    default:
+        break;
+    }
+}
+
+int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
+{
+    int32_t key_com_h, key_com_w, key_mode_w, key_space_w, key_enter_w;
+    int32_t l_pad_top, l_pad_bot, k_pad_left, k_pad_right;
+    int32_t par_h, par_w;
+
+    if (!par || !size)
+        return -EINVAL;
+
+    // TODO: Parent scale height and width ?
+    // e.g. par_h = 250;
+    //      par_w = 580;
+    par_h = obj_height(par);
+    par_w = obj_width(par);
+
+
+    l_pad_top = calc_pixels(par_h, KEYBOARD_LINE_PAD_TOP);
+    l_pad_bot = calc_pixels(par_h, KEYBOARD_LINE_PAD_BOT);
+
+    k_pad_left = calc_pixels(par_w, KEY_PAD_LEFT);
+    k_pad_right = calc_pixels(par_w, KEY_PAD_RIGHT);
+
+    key_com_h = calc_pixels(par_h, KEYBOARD_LINE_HEIGHT);
+    key_com_w = calc_pixels(par_w, KEY_CHAR_WIDTH);
+    key_space_w = calc_pixels(par_w, KEY_SPACE_WIDTH);
+    key_mode_w = calc_pixels(par_w, KEY_MODE_WIDTH);
+    key_enter_w = calc_pixels(par_w, KEY_ENTER_WIDTH);
+    
+    LOG_INFO("Parent W %d - H %d", par_w, par_h);
+    LOG_INFO("Key: \tpad: top[%d] bot[%d] - left[%d] right[%d] -\n" \
+             "OBJ Size: w[%d] h[%d]",
+             l_pad_top, l_pad_bot, k_pad_left, k_pad_right, \
+             key_com_w, key_com_h);
+     
+    size->l_pad_top = l_pad_top;
+    size->l_pad_bot = l_pad_bot;
+    size->k_pad_left = k_pad_left;
+    size->k_pad_right = k_pad_right;
+    size->key_com_h = key_com_h;
+    size->key_com_w = key_com_w;
+    size->key_space_w = key_space_w;
+    size->key_mode_w = key_mode_w;
+    size->key_enter_w = key_enter_w;
+
+    return 0;
+}
+
 int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
 {
-    int32_t key_h, key_w, key_mode_w, key_space_w, key_enter_w;
-    int32_t k_pad_top, k_pad_bot, k_pad_left, k_pad_right;
-    const k_def *k = &kb->map[1];
-    int8_t i;
-    lv_obj_t *btn_aln;
-    lv_obj_t *btn;
-    int8_t line_cnt = 0;
-    int8_t new_line = 0;
+    lv_obj_t *btn, *btn_aln;
+    int8_t line_cnt = 0, new_line = 0, i;
+    int32_t ret;
+    kb_size_ctx size;
 
     /* TESTING START ***************************************/
-    k_pad_top = calc_pixels(obj_height(par), KEYBOARD_LINE_PAD_TOP);
-    k_pad_bot = calc_pixels(obj_height(par), KEYBOARD_LINE_PAD_BOT);
+    ret = calc_kb_size_data(par, &size);
+    if (ret) {
+        LOG_ERROR("Unable to calculate the keyboard child size");
+        return -EINVAL;
+    }
 
-    k_pad_left = calc_pixels(obj_width(par), KEY_PAD_LEFT);
-    k_pad_right = calc_pixels(obj_width(par), KEY_PAD_RIGHT);
-
-    key_h = calc_pixels(obj_height(par), KEYBOARD_LINE_HEIGHT);
-    key_w = calc_pixels(obj_width(par), KEY_CHAR_WIDTH);
-    key_space_w = calc_pixels(obj_width(par), KEY_SPACE_WIDTH);
-    key_mode_w = calc_pixels(obj_width(par), KEY_MODE_WIDTH);
-    key_enter_w = calc_pixels(obj_width(par), KEY_ENTER_WIDTH);
-
-    LOG_INFO("Parent W %d - H %d", obj_width(par), obj_height(par));
-    LOG_INFO("Key: \tpad: top[%d] bot[%d] - left[%d] right[%d] -\n OBJ Size: w[%d] h[%d]",
-             k_pad_top, k_pad_bot, k_pad_left, k_pad_right, key_w, key_h);
-
-    int32_t line_size = k_pad_top + key_h + k_pad_bot;
+    int32_t line_size = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
     for (i = 0; i < kb->size; i++) {
         LOG_INFO("Keyboard %s: index[%d] character[%s] type[%d]", \
@@ -265,42 +325,23 @@ int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
         //------------
         btn = create_key(par, &kb->map[i]);
         if (i == 0) {
-            // The top padding must x2 Due to now upper line for the first line
-            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, k_pad_left, k_pad_top * 2);
+            // The top padding must x2 Due to no upper line for the first line
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+                             size.l_pad_top * 2);
         } else if (new_line == 1) {
             new_line = 0;
             gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, \
-                             k_pad_left, \
-                             (k_pad_top*2 + (line_size * line_cnt)));
+                             size.k_pad_left, \
+                             (size.l_pad_top*2 + (line_size * line_cnt)));
         } else {
 
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
-                             (k_pad_left + k_pad_right), 0);
+                             (size.k_pad_left + size.k_pad_right), 0);
         }
+
         btn_aln = btn;
-
         //------------
-        switch (kb->map[i].type) {
-        case T_CHAR:
-        case T_NUM:
-        case T_SYM:
-            gf_gobj_set_size(btn, key_w, key_h);
-            break;
-        case T_SPACE:
-            gf_gobj_set_size(btn, key_space_w, key_h);
-            break;
-        case T_ENTER:
-            gf_gobj_set_size(btn, key_enter_w, key_h);
-            break;
-        case T_SHIFT:
-        case T_DELETE:
-        case T_MODE:
-            gf_gobj_set_size(btn, key_mode_w, key_h);
-            break;
-        default:
-            break;
-
-        }
+        set_key_size(btn, kb->map[i].type, &size);
     }
 
     /* TESTING END ***************************************/
