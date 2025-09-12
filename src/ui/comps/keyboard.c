@@ -86,7 +86,7 @@ static lv_obj_t *keyboard_create_container(lv_obj_t *par, const char *name, \
     gf_gobj_set_size(cont, keyboard_w, keyboard_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xe6e6FF), 0);
     gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0, \
-                     -calc_pixels(par_height(par), KEYBOARD_PAD_BOT));
+                     -calc_pixels(obj_height(par), KEYBOARD_PAD_BOT));
 
     return cont;
 }
@@ -218,8 +218,8 @@ int32_t create_keyboards(lv_obj_t *par)
     if (!par)
         return -1;
 
-    obj_w = (par_width(par) * KEYBOARD_WIDTH) / 100;
-    obj_h = (par_height(par) * HOR_KEYBOARD_HEIGHT) / 100;
+    obj_w = (obj_width(par) * KEYBOARD_WIDTH) / 100;
+    obj_h = (obj_height(par) * HOR_KEYBOARD_HEIGHT) / 100;
     keyboard = create_keyboard_with_size(par, HOR_KEYBOAR_NAME, obj_w, obj_h);
     if (!keyboard) {
         LOG_ERROR("Unable to create the horizontal keyboard");
@@ -227,8 +227,8 @@ int32_t create_keyboards(lv_obj_t *par)
     }
     lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
 
-    obj_w = (par_height(par) * KEYBOARD_WIDTH) / 100;
-    obj_h = (par_width(par) * VER_KEYBOARD_HEIGHT) / 100;
+    obj_w = (obj_height(par) * KEYBOARD_WIDTH) / 100;
+    obj_h = (obj_width(par) * VER_KEYBOARD_HEIGHT) / 100;
     keyboard = create_keyboard_with_size(par, VER_KEYBOAR_NAME, obj_w, obj_h);
     if (!keyboard) {
         LOG_ERROR("Unable to create the vertical keyboard");

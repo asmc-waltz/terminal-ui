@@ -32,10 +32,10 @@
                                          TOP_BAR_PAD_BOT + SETTING_PAD_TOP + \
                                          SETTING_PAD_BOT) // %
 #define SETTING_CONTAINTER_ALIGN        (TOP_BAR_PAD_TOP + TOP_BAR_HEIGHT + \
-                                         TOP_BAR_PAD_BOT) // %
+                                         TOP_BAR_PAD_BOT + SETTING_PAD_TOP) // %
 
 #define SETTING_MENU_BAR_HOR_WIDTH      30 // %
-#define SETTING_MENU_BAR_ALIGN          (SETTING_PAD_TOP + SETTING_PAD_BOT) // %
+#define SETTING_MENU_BAR_ALIGN          2  // %
 #define SETTING_MENU_BAR_VER_WIDTH      (100 - SETTING_PAD_LEFT - \
                                          SETTING_PAD_RIGHT) // %
 
@@ -85,18 +85,18 @@ static void detail_setting_rotation_cb(lv_obj_t *lobj)
     scr_rot = g_get_scr_rot_dir();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels_remaining(par_scale_width(par),
+        obj_w = calc_pixels_remaining(obj_scale_w(par),
                                       SETTING_MENU_BAR_HOR_WIDTH +
                                       SETTING_PAD_LEFT +
                                       SETTING_PAD_RIGHT +
                                       SETTING_PAD_RIGHT);
-        obj_h = calc_pixels_remaining(par_scale_height(par),
+        obj_h = calc_pixels_remaining(obj_scale_h(par),
                                       SETTING_MENU_BAR_ALIGN);
         lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels(par_scale_width(par),
+        obj_w = calc_pixels(obj_scale_w(par),
                             SETTING_MENU_BAR_VER_WIDTH);
-        obj_h = calc_pixels_remaining(par_scale_height(par),
+        obj_h = calc_pixels_remaining(obj_scale_h(par),
                                       SETTING_MENU_BAR_ALIGN * 2);
         lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
     }
@@ -118,17 +118,17 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
         return NULL;
 
     /* Calculate menu bar size as percentage of parent size */
-    obj_w = calc_pixels_remaining(par_width(par), SETTING_MENU_BAR_HOR_WIDTH + \
+    obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH + \
                                   SETTING_PAD_LEFT + SETTING_PAD_RIGHT + \
                                   SETTING_PAD_RIGHT);
-    obj_h = calc_pixels_remaining(par_height(par), SETTING_MENU_BAR_ALIGN);
+    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
 
     gf_gobj_set_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
     gf_gobj_align_to(detail_box, par, LV_ALIGN_TOP_RIGHT, \
-                     -calc_pixels(par_width(par), SETTING_PAD_LEFT), \
-                     calc_pixels(par_height(par), SETTING_PAD_TOP));
+                     -calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
+                     calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
     g_obj *gobj = get_gobj(detail_box);
     gobj->scale.rot_size_cb = detail_setting_rotation_cb;
@@ -137,8 +137,8 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     /*------------------------------------------------------------------------*/
     lv_obj_t *child;
     child = gf_create_box(detail_box, "child_test");
-    gf_gobj_set_size(child, calc_pixels(par_width(detail_box), 80), \
-                     calc_pixels(par_height(detail_box), 10));
+    gf_gobj_set_size(child, calc_pixels(obj_width(detail_box), 80), \
+                     calc_pixels(obj_height(detail_box), 10));
     gf_gobj_align_to(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
     /*------------------------------------------------------------------------*/
 
@@ -161,12 +161,12 @@ static void menu_bar_rotation_cb(lv_obj_t *lobj)
     scr_rot = g_get_scr_rot_dir();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels(par_scale_width(par), SETTING_MENU_BAR_HOR_WIDTH);
-        obj_h = calc_pixels_remaining(par_scale_height(par),
+        obj_w = calc_pixels(obj_scale_w(par), SETTING_MENU_BAR_HOR_WIDTH);
+        obj_h = calc_pixels_remaining(obj_scale_h(par),
                                       SETTING_MENU_BAR_ALIGN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels(par_scale_width(par), SETTING_MENU_BAR_VER_WIDTH);
-        obj_h = calc_pixels_remaining(par_scale_height(par),
+        obj_w = calc_pixels(obj_scale_w(par), SETTING_MENU_BAR_VER_WIDTH);
+        obj_h = calc_pixels_remaining(obj_scale_h(par),
                                       SETTING_MENU_BAR_ALIGN * 2);
     }
 
@@ -192,14 +192,14 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
         return NULL;
 
     /* Calculate menu bar size as percentage of parent size */
-    obj_w = calc_pixels(par_width(par), SETTING_MENU_BAR_HOR_WIDTH);
-    obj_h = calc_pixels_remaining(par_height(par), SETTING_MENU_BAR_ALIGN);
+    obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
+    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
 
     gf_gobj_set_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
     gf_gobj_align_to(menu_bar, par, LV_ALIGN_TOP_LEFT, \
-                     calc_pixels(par_width(par), SETTING_PAD_LEFT), \
-                     calc_pixels(par_height(par), SETTING_PAD_TOP));
+                     calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
+                     calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
     /*
      * In case of the menu bar, the layout changes based on the rotation.
@@ -212,8 +212,8 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
     /*------------------------------------------------------------------------*/
     lv_obj_t *child;
     child = gf_create_box(menu_bar, "test_box");
-    gf_gobj_set_size(child, calc_pixels(par_width(menu_bar), 50), \
-                     calc_pixels(par_height(menu_bar), 10));
+    gf_gobj_set_size(child, calc_pixels(obj_width(menu_bar), 50), \
+                     calc_pixels(obj_height(menu_bar), 10));
     gf_gobj_align_to(child, menu_bar, LV_ALIGN_TOP_LEFT, 10, 10);
     /*------------------------------------------------------------------------*/
 
@@ -229,23 +229,23 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
         return NULL;
 
     /* Create container box for the setting menu bar and detail setting */
-    cont = gf_create_box(par, "pages.setting.container");
+    cont = gf_create_box(par, SETTING_PAGE_NAME);
     if (!cont)
         return NULL;
 
     /* Calculate setting container size as percentage of parent size */
-    obj_w = calc_pixels(par_width(par), SETTING_WIDTH);
-    obj_h = calc_pixels_remaining(par_height(par), SETTING_USED_HEIGHT);
+    obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
+    obj_h = calc_pixels_remaining(obj_height(par), SETTING_USED_HEIGHT);
 
     gf_gobj_set_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(SETTING_CONT_BG_COLOR), 0);
     gf_gobj_align_to(cont, par, LV_ALIGN_TOP_MID, 0,\
-                     calc_pixels(par_height(par), SETTING_CONTAINTER_ALIGN));
+                     calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
     gf_obj_scale_enable_w(cont);
-    gf_obj_scale_set_pad_w(cont, calc_pixels(par_width(par), (SETTING_PAD_RIGHT
+    gf_obj_scale_set_pad_w(cont, calc_pixels(obj_width(par), (SETTING_PAD_RIGHT
                                              + SETTING_PAD_LEFT)));
     gf_obj_scale_enable_h(cont);
-    gf_obj_scale_set_pad_h(cont, calc_pixels(par_height(par), SETTING_PAD_BOT));
+    gf_obj_scale_set_pad_h(cont, calc_pixels(obj_height(par), SETTING_PAD_BOT));
 
     return cont;
 }

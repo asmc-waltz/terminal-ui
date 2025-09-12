@@ -17,6 +17,7 @@
 /*********************
  *      DEFINES
  *********************/
+#define SETTING_PAGE_NAME               "pages.setting"
 #define SETTING_MENU_BAR_HOR_WIDTH      30      // %
 #define SETTING_PAD_TOP                 1       // %
 #define SETTING_PAD_BOT                 2       // %
