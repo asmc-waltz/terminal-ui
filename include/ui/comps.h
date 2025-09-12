@@ -17,10 +17,7 @@
 /*********************
  *      DEFINES
  *********************/
-#define HOR_KEYBOAR_NAME                "comps.hor_keyboard"
-#define VER_KEYBOAR_NAME                "comps.ver_keyboard"
-
-
+#define TOP_BAR_NAME                    "comps.top_bar"
 #define TOP_BAR_WIDTH                   98      // %
 #define TOP_BAR_HEIGHT                  7       // %
 #define TOP_BAR_PAD_TOP                 1       // %
@@ -31,6 +28,8 @@
 #define TOP_BAR_SYM_FONTS               &terminal_icons_32
 
 
+#define HOR_KEYBOAR_NAME                "comps.hor_keyboard"
+#define VER_KEYBOAR_NAME                "comps.ver_keyboard"
 #define KEY_PADDING 10
 #define KEYBOARD_WIDTH                  98      // %
 #define HOR_KEYBOARD_HEIGHT             40      // %

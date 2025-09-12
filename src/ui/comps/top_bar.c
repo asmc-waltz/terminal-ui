@@ -118,24 +118,24 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
  * to each other, and later replace a symbol by name.
  *
  * Add first symbol: signal icon
- *      lv_obj_t *sym = add_top_bar_symbol(top_bar, "comps.top_bar.signal_enable",
+ *      lv_obj_t *sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".signal",
  *                                         ICON_SIGNAL_SOLID);
  *      gf_gobj_align_to(sym, top_bar, LV_ALIGN_TOP_LEFT,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add second symbol: WiFi icon, aligned to the right of signal icon
- *      lv_obj_t *sub = add_top_bar_symbol(top_bar, "comps.top_bar.wifi_enable",
+ *      lv_obj_t *sub = add_top_bar_symbol(top_bar, TOP_BAR_NAME".wifi",
  *                                         ICON_WIFI_SOLID);
  *      gf_gobj_align_to(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add third symbol: alert (bell) icon, centered on top bar
- *      sym = add_top_bar_symbol(top_bar, "comps.top_bar.alert_enable",
+ *      sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
  *                               ICON_BELL_SOLID);
  *      gf_gobj_align_to(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
 
  * Replace alert symbol with "bell slash" version
- *      replace_top_bar_symbol(top_bar, "comps.top_bar.alert_enable",
+ *      replace_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
  *                             ICON_BELL_SLASH_SOLID);
  */
 
@@ -149,7 +149,7 @@ lv_obj_t *create_top_bar(lv_obj_t *par)
         return NULL;
 
     /* Create container box for top bar */
-    top_bar = gf_create_box(par, "comps.top_bar");
+    top_bar = gf_create_box(par, TOP_BAR_NAME);
     if (!top_bar)
         return NULL;
 
