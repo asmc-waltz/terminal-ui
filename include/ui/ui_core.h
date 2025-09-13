@@ -46,7 +46,11 @@ typedef struct {
     int32_t pad_h;
     /* direct callback definition */
     int32_t (*rot_redraw_cb)(lv_obj_t *lobj);
-    void (*rot_size_cb)(lv_obj_t *lobj);
+    /*
+     * Resize callback will be called to overwrite the calculated size data
+     * To keep the previous size for the original object is some situation.
+     */
+    void (*post_rot_resize_adjust_cb)(lv_obj_t *lobj);
 } g_scale;
 
 typedef struct {

@@ -369,8 +369,8 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
     }
 
 
-    if (gobj->scale.rot_size_cb) {
-        gobj->scale.rot_size_cb(gobj->obj);
+    if (gobj->scale.post_rot_resize_adjust_cb) {
+        gobj->scale.post_rot_resize_adjust_cb(gobj->obj);
     } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
     } else {

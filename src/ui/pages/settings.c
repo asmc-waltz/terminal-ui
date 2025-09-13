@@ -69,7 +69,7 @@
  * The setting detail menu is available only when the screen is in landscape
  * mode.
  */
-static void detail_setting_rotation_cb(lv_obj_t *lobj)
+static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
 {
     lv_obj_t *par;
     int32_t obj_w = 0, obj_h = 0;
@@ -131,7 +131,8 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
                      calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
     g_obj *gobj = get_gobj(detail_box);
-    gobj->scale.rot_size_cb = detail_setting_rotation_cb;
+    gobj->scale.post_rot_resize_adjust_cb = \
+        detail_setting_post_rot_resize_adjust_cb;
 
 
     /*------------------------------------------------------------------------*/
@@ -145,7 +146,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     return detail_box;
 }
 
-static void menu_bar_rotation_cb(lv_obj_t *lobj)
+static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
 {
     lv_obj_t *par;
     int32_t obj_w = 0, obj_h = 0;
@@ -207,7 +208,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
      * change according to the callback when the object is rotated.
      */
     g_obj *gobj = get_gobj(menu_bar);
-    gobj->scale.rot_size_cb = menu_bar_rotation_cb;
+    gobj->scale.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     /*------------------------------------------------------------------------*/
     lv_obj_t *child;
