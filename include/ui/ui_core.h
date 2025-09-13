@@ -44,8 +44,12 @@ typedef struct {
     int32_t h;
     int32_t pad_w;
     int32_t pad_h;
-    /* direct callback definition */
-    int32_t (*rot_redraw_cb)(lv_obj_t *lobj);
+    /*
+     * For some objects like the keyboard, the size and ratio are different
+     * between horizontal and vertical modes. Therefore, we must redraw the
+     * object to a compatible ratio before performing the component rotation.
+     */
+    int32_t (*pre_rot_redraw_cb)(lv_obj_t *lobj);
     /*
      * Resize callback will be called to overwrite the calculated size data
      * To keep the previous size for the original object is some situation.

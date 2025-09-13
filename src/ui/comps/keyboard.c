@@ -409,7 +409,7 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
     return 0;
 }
 
-int32_t redraw_keyboard_layout(lv_obj_t *kb)
+int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
 {
     lv_obj_t *par;
     int32_t scr_rot;
@@ -465,7 +465,8 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0,\
                      -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
 
-    get_gobj(cont)->scale.rot_redraw_cb = redraw_keyboard_layout;
+    get_gobj(cont)->scale.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
+
     return cont;
 }
 

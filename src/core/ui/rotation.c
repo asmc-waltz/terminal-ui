@@ -346,8 +346,8 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    if (gobj->scale.rot_redraw_cb) {
-        gobj->scale.rot_redraw_cb(gobj->obj);
+    if (gobj->scale.pre_rot_redraw_cb) {
+        gobj->scale.pre_rot_redraw_cb(gobj->obj);
     }
 
     // The size and scale calculation depends on alignment values,
