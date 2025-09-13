@@ -82,6 +82,15 @@ typedef struct {
     const k_def *map;
     int32_t size;
 } kb_def;
+
+/**********************
+ *  GLOBAL VARIABLES
+ **********************/
+
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+
 /**********************
  *  STATIC VARIABLES
  **********************/
@@ -156,17 +165,6 @@ static const kb_def kb_maps[] = {
     {"123", map_number, sizeof(map_number) / sizeof(map_number[0])},
     {"@*#", map_symbol, sizeof(map_symbol) / sizeof(map_symbol[0])},
 };
-/**********************
- *  GLOBAL VARIABLES
- **********************/
-
-/**********************
- *  STATIC PROTOTYPES
- **********************/
-
-/**********************
- *  STATIC VARIABLES
- **********************/
 
 /**********************
  *      MACROS
@@ -248,6 +246,15 @@ void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
     }
 }
 
+/*
+ * The keyboard contains multiple keys inside. Each key will be generated
+ * with a specific size and alignment based on the parent size and line
+ * padding. In addition, some special keys may have different sizes, and
+ * all of them will be calculated in this function.
+ *
+ * The output data will be shared for both key layout and resize, whenever
+ * the parent size is changed.
+ */
 int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
 {
     int32_t key_com_h, key_com_w, key_mode_w, key_space_w, key_enter_w;
@@ -295,7 +302,7 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     return 0;
 }
 
-int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
+int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
 {
     lv_obj_t *btn, *btn_aln;
     int8_t line_cnt = 0, new_line = 0, i;
@@ -305,46 +312,45 @@ int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
     /* TESTING START ***************************************/
     ret = calc_kb_size_data(par, &size);
     if (ret) {
-        LOG_ERROR("Unable to calculate the keyboard child size");
+        LOG_ERROR("Unable to calculate keyboard child size");
         return -EINVAL;
     }
 
     int32_t line_size = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
-    for (i = 0; i < kb->size; i++) {
-        LOG_INFO("Keyboard %s: index[%d] character[%s] type[%d]", \
-                 kb->name, i, kb->map[i].label, kb->map[i].type);
+    for (i = 0; i < layout->size; i++) {
+        LOG_TRACE("Keyboard %s: index[%d] character[%s] type[%d]", \
+                   layout->name, i, layout->map[i].label, layout->map[i].type);
 
-        //------------
-        if (kb->map[i].type == T_NEWLINE) {
-            LOG_INFO("LINE KEY NUMBER DETECTED %d", i);
+        if (layout->map[i].type == T_NEWLINE) {
             line_cnt++;
             new_line = 1;
             continue;
         }
-        //------------
-        btn = create_key(par, &kb->map[i]);
+
+        btn = create_key(par, &layout->map[i]);
         if (i == 0) {
-            // The top padding must x2 Due to no upper line for the first line
+            /*
+             * The top padding must be doubled because there is no upper line
+             * for the first line
+             */
             gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
                              size.l_pad_top * 2);
         } else if (new_line == 1) {
             new_line = 0;
-            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, \
-                             size.k_pad_left, \
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
                              (size.l_pad_top*2 + (line_size * line_cnt)));
         } else {
-
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
         }
 
+        // The previous button is used to align the next one
         btn_aln = btn;
-        //------------
-        set_key_size(btn, kb->map[i].type, &size);
+        set_key_size(btn, layout->map[i].type, &size);
     }
 
-    /* TESTING END ***************************************/
+    return 0;
 }
 
 int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
@@ -481,7 +487,7 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
 
     /* TESTING START ***************************************/
     const kb_def *kb = &kb_maps[0];
-    create_key_layout(kb_cont, kb);
+    create_keys_layout(kb_cont, kb);
     /* TESTING END ***************************************/
 
     return kb_cont;
