@@ -347,6 +347,102 @@ int32_t create_key_layout(lv_obj_t *par, const kb_def *kb)
     /* TESTING END ***************************************/
 }
 
+int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
+{
+    lv_obj_t *btn, *btn_aln;
+    int8_t line_cnt = 0, new_line = 0, i;
+    int32_t ret;
+    int32_t line_size;
+    kb_size_ctx size;
+
+    ret = calc_kb_size_data(par, &size);
+    if (ret) {
+        LOG_ERROR("Unable to calculate keyboard child size");
+        return -EINVAL;
+    }
+
+    line_size = size.l_pad_top + size.key_com_h + size.l_pad_bot;
+
+    for (i = 0; i < layout->size; i++) {
+        LOG_TRACE("Keyboard %s: index[%d] character[%s] type[%d]", \
+                 layout->name, i, layout->map[i].label, layout->map[i].type);
+
+        /*
+         * The T_NEWLINE is used to create a new line instead of a key button.
+         * It cannot be found from the parent, only used for alignment purpose.
+         */
+        if (layout->map[i].type == T_NEWLINE) {
+            line_cnt++;
+            new_line = 1;
+            continue;
+        }
+
+        btn = gf_get_obj_by_name(layout->map[i].label, & get_gobj(par)->child);
+        if (!btn) {
+            LOG_ERROR("Key [%s] not found", layout->map[i].label);
+            continue;
+        }
+
+        if (i == 0) {
+            /*
+             * The top padding must be doubled because there is no upper line
+             * for the first line
+             */
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+                             size.l_pad_top * 2);
+        } else if (new_line == 1) {
+            new_line = 0;
+            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+                             (size.l_pad_top*2 + (line_size * line_cnt)));
+        } else {
+            gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+                             (size.k_pad_left + size.k_pad_right), 0);
+        }
+
+        // The previous button is used to align the next one
+        btn_aln = btn;
+        set_key_size(btn, layout->map[i].type, &size);
+        // Reset key configurations to the horizontal layout.
+        get_gobj(btn)->pos.rot = ROTATION_0;
+    }
+
+    return 0;
+}
+
+int32_t redraw_keyboard_layout(lv_obj_t *kb)
+{
+    lv_obj_t *par;
+    int32_t scr_rot;
+    int32_t obj_w = 0, obj_h = 0;
+
+    par = lv_obj_get_parent(kb);
+    if (!par)
+        return -EINVAL;
+
+    // Keyboard size is based on rotation is ROTATION_0
+    scr_rot = g_get_scr_rot_dir();
+    if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+        obj_w = calc_pixels(obj_width(par), KEYBOARD_WIDTH);
+        obj_h = calc_pixels(obj_height(par), HOR_KEYBOARD_HEIGHT);
+    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        obj_w = calc_pixels(obj_height(par), KEYBOARD_WIDTH);
+        obj_h = calc_pixels(obj_width(par), VER_KEYBOARD_HEIGHT);
+    }
+
+    // Reset all keyboard configurations to the horizontal layout.
+    gf_gobj_set_size(kb, obj_w, obj_h);
+    get_gobj(kb)->pos.rot = ROTATION_0;
+    gf_gobj_align_to(kb, par, LV_ALIGN_BOTTOM_MID, 0,\
+                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+
+    // TODO: map?
+    const kb_def *layout = &kb_maps[0];
+    update_keys_layout(kb, layout);
+
+    return 0;
+}
+
+    // Resize parent
 lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 {
     lv_obj_t *cont;
@@ -369,9 +465,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0,\
                      -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
 
-    gf_obj_scale_enable_w(cont);
-    gf_obj_scale_set_pad_w(cont, calc_pixels(obj_width(par), \
-                           (KEYBOARD_PAD_RIGHT + KEYBOARD_PAD_LEFT)));
+    get_gobj(cont)->scale.rot_redraw_cb = redraw_keyboard_layout;
     return cont;
 }
 
