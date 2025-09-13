@@ -341,6 +341,15 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
 
+    /*
+     * For some objects like the keyboard, the size and ratio are different
+     * between horizontal and vertical modes. Therefore, we must redraw the
+     * object to a compatible ratio before performing the component rotation.
+     */
+    if (gobj->scale.rot_redraw_cb) {
+        gobj->scale.rot_redraw_cb(gobj->obj);
+    }
+
     // The size and scale calculation depends on alignment values,
     // so we must process these first.
     if (gobj->aln.align != LV_ALIGN_DEFAULT) {

@@ -45,6 +45,7 @@ typedef struct {
     int32_t pad_w;
     int32_t pad_h;
     /* direct callback definition */
+    int32_t (*rot_redraw_cb)(lv_obj_t *lobj);
     void (*rot_size_cb)(lv_obj_t *lobj);
 } g_scale;
 
