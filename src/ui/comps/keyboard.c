@@ -481,14 +481,25 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
  **********************/
 lv_obj_t *create_keyboard(lv_obj_t *par)
 {
-    lv_obj_t *kb_cont;
+    lv_obj_t *kb;
+    const kb_def *layout = &kb_maps[0];
+    int32_t ret;
 
-    kb_cont = create_keyboard_containter(par);
+    kb = create_keyboard_containter(par);
+    if (!kb)
+        return NULL;
 
-    /* TESTING START ***************************************/
-    const kb_def *kb = &kb_maps[0];
-    create_keys_layout(kb_cont, kb);
-    /* TESTING END ***************************************/
+    ret = create_keys_layout(kb, layout);
+    if (ret) {
+        LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \
+                   gf_remove_obj_and_child_by_name(KEYBOAR_NAME, \
+                                            &get_gobj(par)->child));
+        return NULL;
+    }
 
-    return kb_cont;
+    if (g_get_scr_rot_dir() != ROTATION_0) {
+        refresh_obj_tree_layout(kb->user_data);
+    }
+
+    return kb;
 }
