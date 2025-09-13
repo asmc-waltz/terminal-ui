@@ -224,26 +224,30 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
 
 void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
 {
+    int32_t key_w = 0;
+
     switch (type) {
     case T_CHAR:
     case T_NUM:
     case T_SYM:
-        gf_gobj_set_size(key, size->key_com_w, size->key_com_h);
+        key_w = size->key_com_w;
         break;
     case T_SPACE:
-        gf_gobj_set_size(key, size->key_space_w, size->key_com_h);
+        key_w = size->key_space_w;
         break;
     case T_ENTER:
-        gf_gobj_set_size(key, size->key_enter_w, size->key_com_h);
+        key_w = size->key_enter_w;
         break;
     case T_SHIFT:
     case T_DELETE:
     case T_MODE:
-        gf_gobj_set_size(key, size->key_mode_w, size->key_com_h);
+        key_w = size->key_mode_w;
         break;
     default:
         break;
     }
+
+    gf_gobj_set_size(key, key_w, size->key_com_h);
 }
 
 /*
