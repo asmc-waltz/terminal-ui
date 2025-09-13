@@ -69,7 +69,8 @@ typedef enum {
     T_MODE,
     T_SPACE,
     T_ENTER,
-    T_NEWLINE
+    T_NEWLINE,
+    T_END
 } k_type;
 
 typedef struct {
@@ -107,7 +108,7 @@ static const k_def map_ABC[] = {
     {"V", T_CHAR}, {"B", T_CHAR}, {"N", T_CHAR}, {"M", T_CHAR}, \
     {"Delete", T_DELETE}, {"\n", T_NEWLINE},
 
-    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
 };
 
 static const k_def map_abc[] = {
@@ -123,7 +124,7 @@ static const k_def map_abc[] = {
     {"v", T_CHAR}, {"b", T_CHAR}, {"n", T_CHAR}, {"m", T_CHAR}, \
     {"Delete", T_DELETE}, {"\n", T_NEWLINE},
 
-    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
 };
 
 static const k_def map_number[] = {
@@ -139,7 +140,7 @@ static const k_def map_number[] = {
     {"!", T_SYM}, {"'", T_SYM},
     {"Delete", T_DELETE}, {"\n", T_NEWLINE},
 
-    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
 };
 
 static const k_def map_symbol[] = {
@@ -155,7 +156,7 @@ static const k_def map_symbol[] = {
     {"!", T_SYM}, {"'", T_SYM},
     {"Delete", T_DELETE}, {"\n", T_NEWLINE},
 
-    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}
+    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
 };
 
 
@@ -213,6 +214,8 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     btn = gf_create_btn(par, key->label);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xffffff), 0);
     lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_all(btn, 0, 0);
+    lv_obj_set_style_pad_gap(btn, 0, 0);
     lv_obj_add_event_cb(btn, kb_btn_cb, LV_EVENT_CLICKED, btn->user_data);
 
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
@@ -306,44 +309,100 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     return 0;
 }
 
+lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size)
+{
+    int32_t obj_w = 0, obj_h = 0;
+    lv_obj_t *line_box;
+
+    line_box = gf_create_box(par, KEYBOAR_NAME".linebox");
+    if (!line_box)
+        return NULL;
+
+
+    obj_w = obj_width(par);
+    obj_h = size->l_pad_top + size->key_com_h + size->l_pad_bot;
+
+    gf_gobj_set_size(line_box, LV_SIZE_CONTENT, obj_h);
+    lv_obj_set_style_bg_color(line_box, lv_color_hex(0xBDBDBD), 0);
+
+    return line_box;
+
+}
+
 int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
 {
     lv_obj_t *btn, *btn_aln;
     int8_t line_cnt = 0, new_line = 0, i;
     int32_t ret;
+    int32_t line_h, line_w;
     kb_size_ctx size;
+    lv_obj_t *line_box;
 
-    /* TESTING START ***************************************/
     ret = calc_kb_size_data(par, &size);
     if (ret) {
         LOG_ERROR("Unable to calculate keyboard child size");
         return -EINVAL;
     }
 
-    int32_t line_size = size.l_pad_top + size.key_com_h + size.l_pad_bot;
+    // First line box
+    line_box = create_line_box(par, &size);
+    if (!line_box)
+        return -EINVAL;
+    gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    line_h = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
     for (i = 0; i < layout->size; i++) {
         LOG_TRACE("Keyboard %s: index[%d] character[%s] type[%d]", \
                    layout->name, i, layout->map[i].label, layout->map[i].type);
 
         if (layout->map[i].type == T_NEWLINE) {
+
+            //-----------------
+            int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
+            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, first_key_x_ofs, \
+                             (size.l_pad_top + (line_h * line_cnt)));
+            line_w = 0;
+            //-----------------
+
             line_cnt++;
             new_line = 1;
+
+            //-----------------
+            // Create new line box
+            line_box = create_line_box(par, &size);
+            if (!line_box)
+                return -EINVAL;
+            // Preset for the new line - Last line got trouble
+            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, 0, \
+                             (size.l_pad_top + (line_h * (line_cnt))));
+            //-----------------
+            continue;
+        } else if (layout->map[i].type == T_END) {
+            int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
+            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, first_key_x_ofs, \
+                             (size.l_pad_top + (line_h * line_cnt)));
+            line_w = 0;
             continue;
         }
 
-        btn = create_key(par, &layout->map[i]);
+        // btn = create_key(par, &layout->map[i]);
+        btn = create_key(line_box, &layout->map[i]);
         if (i == 0) {
             /*
              * The top padding must be doubled because there is no upper line
              * for the first line
              */
-            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             size.l_pad_top * 2);
+            // gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+            //                  size.l_pad_top * 2);
+            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+                             size.l_pad_top);
         } else if (new_line == 1) {
             new_line = 0;
-            gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             (size.l_pad_top*2 + (line_size * line_cnt)));
+            // gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+            //                  (size.l_pad_top*2 + (line_h * line_cnt)));
+            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
+                             size.l_pad_top);
         } else {
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
@@ -352,6 +411,7 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
         // The previous button is used to align the next one
         btn_aln = btn;
         set_key_size(btn, layout->map[i].type, &size);
+        line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
 
     return 0;
@@ -362,7 +422,7 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
     lv_obj_t *btn, *btn_aln;
     int8_t line_cnt = 0, new_line = 0, i;
     int32_t ret;
-    int32_t line_size;
+    int32_t line_h;
     kb_size_ctx size;
 
     ret = calc_kb_size_data(par, &size);
@@ -371,7 +431,7 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
         return -EINVAL;
     }
 
-    line_size = size.l_pad_top + size.key_com_h + size.l_pad_bot;
+    line_h = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
     for (i = 0; i < layout->size; i++) {
         LOG_TRACE("Keyboard %s: index[%d] character[%s] type[%d]", \
@@ -403,7 +463,7 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
         } else if (new_line == 1) {
             new_line = 0;
             gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             (size.l_pad_top*2 + (line_size * line_cnt)));
+                             (size.l_pad_top*2 + (line_h * line_cnt)));
         } else {
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
