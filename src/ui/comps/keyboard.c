@@ -207,16 +207,12 @@ static void dump_all_maps(void)
     }
 }
 
-static void kb_btn_cb(lv_event_t *event)
+static void kb_key_cb(lv_event_t *event)
 {
-    lv_obj_t *btn = lv_event_get_target(event);  // Get the button object
-    lv_obj_t *par = lv_obj_get_parent(btn);
-    g_obj *gobj = NULL;
-
-    gobj = btn->user_data;
-    LOG_TRACE("ID %d: button clicked", gobj->id);
-    lv_obj_t * btn_label = lv_obj_get_child(btn, 0);
-    lv_label_set_text(btn_label, "X");
+    lv_obj_t *btn = lv_event_get_target(event);
+    lv_obj_t * label = lv_obj_get_child(btn, 0);
+    char *label_text = lv_label_get_text(label);
+    LOG_TRACE("KB: key ID[%d] is pressed, text: (%s)", get_gobj(btn)->id, label_text);
 
 }
 
@@ -229,7 +225,7 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_set_style_pad_gap(btn, 0, 0);
-    lv_obj_add_event_cb(btn, kb_btn_cb, LV_EVENT_CLICKED, btn->user_data);
+    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
 
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
     lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
