@@ -41,8 +41,8 @@
                                          KEY_FIRST_LINE)    // %
 #define KEY_SPACE_WIDTH                 ((5 * KEY_CHAR_WIDTH) + (4 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
-#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 14) / 10)  // % (Magic)
-#define KEY_ENTER_WIDTH                 ((2 * KEY_MODE_WIDTH) + (1 * (KEY_PAD_LEFT + \
+#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 17) / 10)  // % (Magic)
+#define KEY_ENTER_WIDTH                 ((2 * KEY_CHAR_WIDTH) + (1 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
 
 /**********************
@@ -104,11 +104,14 @@ static const k_def map_ABC[] = {
     {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
-    {"Shift", T_SHIFT}, {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, \
-    {"V", T_CHAR}, {"B", T_CHAR}, {"N", T_CHAR}, {"M", T_CHAR}, \
-    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+    {"Shift", T_SHIFT}, \
+    {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, {"V", T_CHAR}, {"B", T_CHAR}, \
+    {"N", T_CHAR}, {"M", T_CHAR}, \
+    {"Del", T_DELETE}, \
+    {"\n", T_NEWLINE},
 
-    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
+    {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"End", T_END}
 };
 
 static const k_def map_abc[] = {
@@ -120,11 +123,14 @@ static const k_def map_abc[] = {
     {"h", T_CHAR}, {"j", T_CHAR}, {"k", T_CHAR}, {"l", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
-    {"Shift", T_SHIFT}, {"z", T_CHAR}, {"x", T_CHAR}, {"c", T_CHAR}, \
-    {"v", T_CHAR}, {"b", T_CHAR}, {"n", T_CHAR}, {"m", T_CHAR}, \
-    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+    {"Shift", T_SHIFT}, \
+    {"z", T_CHAR}, {"x", T_CHAR}, {"c", T_CHAR}, {"v", T_CHAR}, {"b", T_CHAR}, \
+    {"n", T_CHAR}, {"m", T_CHAR}, \
+    {"Del", T_DELETE}, \
+    {"\n", T_NEWLINE},
 
-    {"123", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
+    {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"End", T_END}
 };
 
 static const k_def map_number[] = {
@@ -133,30 +139,36 @@ static const k_def map_number[] = {
     {"\n", T_NEWLINE}, \
 
     {"-", T_SYM}, {"/", T_SYM}, {":", T_SYM}, {";", T_SYM}, {"(", T_SYM}, \
-    {")", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, {"\"", T_SYM}, \
+    {")", T_SYM}, {"...", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, \
     {"\n", T_NEWLINE}, \
 
-    {"+-=", T_SHIFT}, {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, \
-    {"!", T_SYM}, {"'", T_SYM},
-    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
+    {"#+=", T_SHIFT}, \
+    {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, {"!", T_SYM}, {"\"", T_SYM}, \
+    {"'", T_SYM}, {"*", T_SYM}, \
+    {"Del", T_DELETE}, \
+    {"\n", T_NEWLINE},
 
-    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
+    {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"End", T_END}
 };
 
 static const k_def map_symbol[] = {
-    {"[", T_SYM}, {"]", T_SYM}, {"{", T_SYM}, {"}", T_SYM}, {"#", T_SYM}, \
-    {"%", T_SYM}, {"^", T_SYM}, {"*", T_SYM}, {"+", T_SYM}, {"=", T_SYM}, \
+    {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
+    {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
     {"\n", T_NEWLINE}, \
 
+    {"[", T_SYM}, {"]", T_SYM}, {"\{", T_SYM}, {"\}", T_SYM}, {"#", T_SYM},\
+    {"%", T_SYM}, {"^", T_SYM}, {"+", T_SYM}, {"=", T_SYM},  \
+    {"\n", T_NEWLINE}, \
+
+    {"123", T_SHIFT}, \
     {"_", T_SYM}, {"\\", T_SYM}, {"|", T_SYM}, {"~", T_SYM}, {"<", T_SYM}, \
     {">", T_SYM}, {"$", T_SYM}, \
-    {"\n", T_NEWLINE}, \
+    {"Del", T_DELETE}, \
+    {"\n", T_NEWLINE},
 
-    {"123", T_SHIFT}, {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, \
-    {"!", T_SYM}, {"'", T_SYM},
-    {"Delete", T_DELETE}, {"\n", T_NEWLINE},
-
-    {"ABC", T_MODE}, {"_____", T_SPACE}, {"Enter", T_ENTER}, {"End", T_END}
+    {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"End", T_END}
 };
 
 
@@ -221,6 +233,7 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
     lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
+    gf_gobj_set_size(lbl, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
     return btn;
 }
@@ -323,7 +336,8 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size)
     obj_h = size->l_pad_top + size->key_com_h + size->l_pad_bot;
 
     gf_gobj_set_size(line_box, LV_SIZE_CONTENT, obj_h);
-    lv_obj_set_style_bg_color(line_box, lv_color_hex(0xBDBDBD), 0);
+    lv_obj_set_style_bg_opa(line_box, LV_OPA_0, 0);
+    // lv_obj_set_style_bg_color(line_box, lv_color_hex(0xBDBDBD), 0);
 
     return line_box;
 

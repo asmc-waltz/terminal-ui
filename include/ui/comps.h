@@ -35,7 +35,7 @@
 #define KEYBOARD_BOT_PAD                2       // %
 #define KEYBOARD_PAD_LEFT               1       // %
 #define KEYBOARD_PAD_RIGHT              1       // %
-#define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_26
+#define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_24
 
 
 /**********************
