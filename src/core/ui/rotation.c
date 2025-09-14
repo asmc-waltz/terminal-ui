@@ -465,6 +465,7 @@ static int32_t gobj_refresh(g_obj *gobj)
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
+        case OBJ_TEXTAREA:
             ret = g_transform_obj_rotate(gobj);
             break;
 

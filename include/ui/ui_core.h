@@ -35,6 +35,7 @@ typedef enum {
     OBJ_LABEL,
     OBJ_ICON,
     OBJ_SWITCH,
+    OBJ_TEXTAREA,
 } g_type;
 
 typedef struct {

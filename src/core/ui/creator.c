@@ -75,6 +75,9 @@ static lv_obj_t *gf_create_gobj_type(lv_obj_t *par, int32_t type, \
         case OBJ_SWITCH:
             lobj = lv_switch_create(par);
             break;
+        case OBJ_TEXTAREA:
+            lobj = lv_textarea_create(par);
+            break;
         default:
             LOG_ERROR("G Object type %d - name %s invalid", type, name);
             lobj = NULL;
@@ -183,6 +186,12 @@ lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name)
     return lobj;
 }
 
+lv_obj_t * gf_create_textarea(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_TEXTAREA, name);
+    LV_ASSERT_NULL(lobj);
+    return lobj;
+}
 
 lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name)
 {
