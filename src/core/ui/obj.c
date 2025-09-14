@@ -155,15 +155,26 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
     scan_list = head_lst ? head_lst : &ctx->objs;
 
     list_for_each_entry(obj, scan_list, node) {
-        if (!obj->id)
+        LOG_TRACE("Finding name %s: checking %d %s", name, obj->id, obj->name);
+        if (!obj->id) {
+            LOG_TRACE("Finding name %s: check %d %s: CONTINUE", \
+                      name, obj->id, obj->name);
             continue;
+        }
 
-        if (obj->name && strcmp(obj->name, name) == 0)
+        if (obj->name && strcmp(obj->name, name) == 0) {
+
+            LOG_TRACE("Finding name %s: check %d %s: OBJ FOUND", \
+                      name, obj->id, obj->name);
             return obj->obj;
+        }
 
         found = gf_get_obj_by_name(name, &obj->child);
-        if (found)
+        if (found) {
+            LOG_TRACE("Finding name %s: check list %d %s: OBJ FROM DEEPER LEVEL", \
+                      name, get_gobj(found)->id, get_gobj(found)->name);
             return found;
+        }
     }
 
     return NULL;
