@@ -304,11 +304,10 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     key_mode_w = calc_pixels(par_w, KEY_MODE_WIDTH);
     key_enter_w = calc_pixels(par_w, KEY_ENTER_WIDTH);
     
-    LOG_INFO("Parent W %d - H %d", par_w, par_h);
-    LOG_INFO("Key: \tpad: top[%d] bot[%d] - left[%d] right[%d] -\n" \
-             "OBJ Size: w[%d] h[%d]",
-             l_pad_top, l_pad_bot, k_pad_left, k_pad_right, \
-             key_com_w, key_com_h);
+    LOG_TRACE("KB: Parent: \tw[%d] - h[%d]", par_w, par_h);
+    LOG_TRACE("KB: Key: \tPadding: top[%d] bot[%d] - left[%d] right[%d]", \
+              l_pad_top, l_pad_bot, k_pad_left, k_pad_right);
+    LOG_TRACE("KB: Key: \tSize: w[%d] h[%d]", key_com_w, key_com_h);
      
     size->l_pad_top = l_pad_top;
     size->l_pad_bot = l_pad_bot;
@@ -349,7 +348,7 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
     lv_obj_t *btn, *btn_aln;
     lv_obj_t *line_box;
     int8_t line_cnt = 0, i;
-    int32_t line_h, line_w;
+    int32_t line_h, line_w = 0;
     kb_size_ctx size;
     bool new_line = true;
 
@@ -365,30 +364,27 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
     line_h = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
     for (i = 0; i < layout->size; i++) {
-        LOG_TRACE("Keyboard %s: index[%d] character[%s] type[%d]", \
+        LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
                    layout->name, i, layout->map[i].label, layout->map[i].type);
 
-        if (layout->map[i].type == T_NEWLINE) {
-            int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
+        if (layout->map[i].type == T_NEWLINE || layout->map[i].type == T_END) {
+            int32_t line_x_ofs = (obj_width(par) - line_w) / 2;
+            int32_t line_y_ofs = (size.l_pad_top + (line_h * line_cnt));
             line_w = 0;
             // Align the current line box before create the next one
-            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, first_key_x_ofs, \
-                             (size.l_pad_top + (line_h * line_cnt)));
+            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, \
+                             line_x_ofs, line_y_ofs);
+            LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
+                      line_x_ofs, line_y_ofs);
 
-            line_cnt++;
-            new_line = true;
+            if (layout->map[i].type == T_NEWLINE) {
+                line_cnt++;
+                new_line = true;
+                line_box = create_line_box(par, &size);
+                if (!line_box)
+                    return -EINVAL;
+            }
 
-            // Create new line box
-            line_box = create_line_box(par, &size);
-            if (!line_box)
-                return -EINVAL;
-
-            continue;
-        } else if (layout->map[i].type == T_END) {
-            int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
-            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, first_key_x_ofs, \
-                             (size.l_pad_top + (line_h * line_cnt)));
-            line_w = 0;
             continue;
         }
 
