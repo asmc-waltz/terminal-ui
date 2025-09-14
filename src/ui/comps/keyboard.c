@@ -99,10 +99,15 @@ typedef struct {
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static const kb_def *find_layout_next(const char *label);
+static int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
+                             const kb_def *next_layout);
 
 /**********************
  *  STATIC VARIABLES
  **********************/
+static const kb_def *act_layout;
+
 static const k_def map_ABC[] = {
     {"line_01", T_HOLDER}, \
     {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
@@ -157,7 +162,7 @@ static const k_def map_number[] = {
 
     {"line_02", T_HOLDER}, \
     {"-", T_SYM}, {"/", T_SYM}, {":", T_SYM}, {";", T_SYM}, {"(", T_SYM}, \
-    {")", T_SYM}, {"...", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, \
+    {")", T_SYM}, {"`", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, \
     {"\n", T_NEWLINE}, \
 
     {"line_03", T_HOLDER}, \
@@ -184,7 +189,7 @@ static const k_def map_symbol[] = {
     {"\n", T_NEWLINE}, \
 
     {"line 03", T_HOLDER}, \
-    {"123", T_SHIFT}, \
+    {"#+=", T_SHIFT}, \
     {"_", T_SYM}, {"\\", T_SYM}, {"|", T_SYM}, {"~", T_SYM}, {"<", T_SYM}, \
     {">", T_SYM}, {"$", T_SYM}, \
     {"Del", T_DELETE}, \
@@ -195,10 +200,9 @@ static const k_def map_symbol[] = {
     {"End", T_END}
 };
 
-
 static const kb_def kb_maps[] = {
-    {"ABC", map_ABC, sizeof(map_ABC) / sizeof(map_ABC[0])},
     {"abc", map_abc, sizeof(map_abc) / sizeof(map_abc[0])},
+    {"ABC", map_ABC, sizeof(map_ABC) / sizeof(map_ABC[0])},
     {"123", map_number, sizeof(map_number) / sizeof(map_number[0])},
     {"@*#", map_symbol, sizeof(map_symbol) / sizeof(map_symbol[0])},
 };
@@ -235,7 +239,31 @@ static void kb_key_cb(lv_event_t *event)
     lv_obj_t *btn = lv_event_get_target(event);
     lv_obj_t * label = lv_obj_get_child(btn, 0);
     char *label_text = lv_label_get_text(label);
-    LOG_TRACE("KB: key ID[%d] is pressed, text: (%s)", get_gobj(btn)->id, label_text);
+    int32_t ret;
+
+    LOG_TRACE("KB: key ID[%d] is pressed, text: (%s)", \
+              get_gobj(btn)->id, label_text);
+
+    // TODO:
+    if (!strcmp(label_text, "123") || \
+        !strcmp(label_text, "#+=") || \
+        !strcmp(label_text, "ABC") || \
+        !strcmp(label_text, "Shift")) {
+
+        lv_obj_t *comm_page;
+        comm_page = gf_get_obj_by_name(KEYBOAR_NAME, \
+                                       &get_gobj(lv_screen_active())->child);
+        if (!comm_page) {
+            LOG_ERROR("Keyboard [%s] not found", "screens.common");
+            return;
+        }
+        ret = switch_layout(comm_page, \
+                            &kb_maps[0], \
+                            find_layout_next(label_text));
+        if (ret) {
+            LOG_ERROR("Unable to switch keyboard layout");
+        }
+    }
 
 }
 
@@ -517,6 +545,91 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
     return 0;
 }
 
+static const kb_def *find_layout_next(const char *label)
+{
+    const char *active_layout;
+    const kb_def *next_layout = NULL;
+
+    active_layout = act_layout->name;
+
+    // TODO:
+    if (strcmp(active_layout, "abc") == 0) {
+        if (strcmp(label, "Shift") == 0) {
+            next_layout = &kb_maps[1];
+        } else if (strcmp(label, "123") == 0) {
+            next_layout = &kb_maps[2];
+        }
+    } else if (strcmp(active_layout, "ABC") == 0) {
+        if (strcmp(label, "Shift") == 0) {
+            next_layout = &kb_maps[0];
+        } else if (strcmp(label, "123") == 0) {
+            next_layout = &kb_maps[2];
+        }
+    } else if (strcmp(active_layout, "123") == 0) {
+        if (strcmp(label, "#+=") == 0) {
+            next_layout = &kb_maps[3];
+        } else if (strcmp(label, "ABC") == 0) {
+            next_layout = &kb_maps[0];
+        }
+    } else if (strcmp(active_layout, "@*#") == 0) {
+        if (strcmp(label, "#+=") == 0) {
+            next_layout = &kb_maps[2];
+        } else if (strcmp(label, "ABC") == 0) {
+            next_layout = &kb_maps[0];
+        }
+    } else {
+        LOG_ERROR("The activated layout name is invalid");
+        next_layout = &kb_maps[0];
+    }
+
+    LOG_INFO("Activated layout %s -> %s", active_layout, next_layout->name);
+    return next_layout;
+}
+
+int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
+                      const kb_def *next_layout)
+{
+    lv_obj_t *btn;
+    lv_obj_t *line_box = NULL;
+    int8_t i;
+
+    if (!layout || !next_layout)
+        return -EINVAL;
+
+    for (i = 0; i < layout->size; i++) {
+        LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
+                   layout->name, i, layout->map[i].label, layout->map[i].type);
+
+        if (layout->map[i].type == T_NEWLINE || layout->map[i].type == T_END) {
+            continue;
+        } else if (layout->map[i].type == T_HOLDER) {
+            line_box = gf_get_obj_by_name(layout->map[i].label, \
+                                          &get_gobj(par)->child);
+            // TODO:
+            /************** SOMETHING WRONG AT THE END OF THIS ***************/
+            // if (!line_box)
+            //     LOG_ERROR("line box [%s] not found", layout->map[i].label);
+            //     return -EINVAL;
+            /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
+            continue;
+        }
+
+        btn = gf_get_obj_by_name(layout->map[i].label, \
+                                 &get_gobj(line_box)->child);
+        if (!btn) {
+            LOG_ERROR("Key [%s] not found", layout->map[i].label);
+            continue;
+        }
+
+        lv_obj_t * label = lv_obj_get_child(btn, 0);
+        lv_label_set_text_fmt(label, "%s", next_layout->map[i].label);
+    }
+
+    act_layout = next_layout;
+
+    return 0;
+}
+
 int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
 {
     lv_obj_t *par;
@@ -587,6 +700,11 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     const kb_def *layout = &kb_maps[0];
     int32_t ret;
 
+    if (act_layout) {
+        LOG_WARN("Keyboard already active, please recall the previous one");
+
+    }
+
     kb = create_keyboard_containter(par);
     if (!kb)
         return NULL;
@@ -598,6 +716,8 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
                                             &get_gobj(par)->child));
         return NULL;
     }
+
+    act_layout = layout;
 
     if (g_get_scr_rot_dir() != ROTATION_0) {
         refresh_obj_tree_layout(kb->user_data);
