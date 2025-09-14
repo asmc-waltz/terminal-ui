@@ -62,6 +62,8 @@ typedef struct kb_ctx {
 } kb_size_ctx;
 
 typedef enum {
+    // Key types
+    T_KEY_TYPE,
     T_CHAR,
     T_NUM,
     T_SYM,
@@ -70,6 +72,9 @@ typedef enum {
     T_MODE,
     T_SPACE,
     T_ENTER,
+    // Key layout flags
+    T_KEY_LAYOUT_FLAG,
+    T_HOLDER,
     T_NEWLINE,
     T_END
 } k_type;
@@ -97,77 +102,93 @@ typedef struct {
  *  STATIC VARIABLES
  **********************/
 static const k_def map_ABC[] = {
+    {"line_01", T_HOLDER}, \
     {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
     {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_02", T_HOLDER}, \
     {"A", T_CHAR}, {"S", T_CHAR}, {"D", T_CHAR}, {"F", T_CHAR}, {"G", T_CHAR}, \
     {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_03", T_HOLDER}, \
     {"Shift", T_SHIFT}, \
     {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, {"V", T_CHAR}, {"B", T_CHAR}, \
     {"N", T_CHAR}, {"M", T_CHAR}, \
     {"Del", T_DELETE}, \
     {"\n", T_NEWLINE},
 
+    {"line_04", T_HOLDER}, \
     {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
     {"End", T_END}
 };
 
 static const k_def map_abc[] = {
+    {"line_01", T_HOLDER}, \
     {"q", T_CHAR}, {"w", T_CHAR}, {"e", T_CHAR}, {"r", T_CHAR}, {"t", T_CHAR}, \
     {"y", T_CHAR}, {"u", T_CHAR}, {"i", T_CHAR}, {"o", T_CHAR}, {"p", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_02", T_HOLDER}, \
     {"a", T_CHAR}, {"s", T_CHAR}, {"d", T_CHAR}, {"f", T_CHAR}, {"g", T_CHAR}, \
     {"h", T_CHAR}, {"j", T_CHAR}, {"k", T_CHAR}, {"l", T_CHAR}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_03", T_HOLDER}, \
     {"Shift", T_SHIFT}, \
     {"z", T_CHAR}, {"x", T_CHAR}, {"c", T_CHAR}, {"v", T_CHAR}, {"b", T_CHAR}, \
     {"n", T_CHAR}, {"m", T_CHAR}, \
     {"Del", T_DELETE}, \
     {"\n", T_NEWLINE},
 
+    {"line_04", T_HOLDER}, \
     {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
     {"End", T_END}
 };
 
 static const k_def map_number[] = {
+    {"line_01", T_HOLDER}, \
     {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
     {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_02", T_HOLDER}, \
     {"-", T_SYM}, {"/", T_SYM}, {":", T_SYM}, {";", T_SYM}, {"(", T_SYM}, \
     {")", T_SYM}, {"...", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, \
     {"\n", T_NEWLINE}, \
 
+    {"line_03", T_HOLDER}, \
     {"#+=", T_SHIFT}, \
     {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, {"!", T_SYM}, {"\"", T_SYM}, \
     {"'", T_SYM}, {"*", T_SYM}, \
     {"Del", T_DELETE}, \
     {"\n", T_NEWLINE},
 
+    {"line_04", T_HOLDER}, \
     {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
     {"End", T_END}
 };
 
 static const k_def map_symbol[] = {
+    {"line 01", T_HOLDER}, \
     {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
     {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
     {"\n", T_NEWLINE}, \
 
+    {"line 02", T_HOLDER}, \
     {"[", T_SYM}, {"]", T_SYM}, {"\{", T_SYM}, {"\}", T_SYM}, {"#", T_SYM},\
     {"%", T_SYM}, {"^", T_SYM}, {"+", T_SYM}, {"=", T_SYM},  \
     {"\n", T_NEWLINE}, \
 
+    {"line 03", T_HOLDER}, \
     {"123", T_SHIFT}, \
     {"_", T_SYM}, {"\\", T_SYM}, {"|", T_SYM}, {"~", T_SYM}, {"<", T_SYM}, \
     {">", T_SYM}, {"$", T_SYM}, \
     {"Del", T_DELETE}, \
     {"\n", T_NEWLINE},
 
+    {"line 04", T_HOLDER}, \
     {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
     {"End", T_END}
 };
@@ -220,7 +241,14 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
 {
     lv_obj_t *btn, *lbl;
 
+    if (key->type <= T_KEY_TYPE || key->type >= T_KEY_LAYOUT_FLAG) {
+        LOG_ERROR("KB: unable to create key, invalid type %d", key->type);
+        return NULL;
+    }
+
     btn = gf_create_btn(par, key->label);
+    if (!btn)
+        return NULL;
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xffffff), 0);
     lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_pad_all(btn, 0, 0);
@@ -228,6 +256,8 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
 
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
+    if (!lbl)
+        return NULL;
     lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
     gf_gobj_set_size(lbl, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
@@ -353,10 +383,6 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
         return -EINVAL;
     }
 
-    line_box = create_line_box(par, &size);
-    if (!line_box)
-        return -EINVAL;
-
     line_h = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
     for (i = 0; i < layout->size; i++) {
@@ -376,10 +402,13 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
             if (layout->map[i].type == T_NEWLINE) {
                 line_cnt++;
                 new_line = true;
-                line_box = create_line_box(par, &size);
-                if (!line_box)
-                    return -EINVAL;
             }
+
+            continue;
+        } else if (layout->map[i].type == T_HOLDER) {
+            line_box = create_line_box(par, &size);
+            if (!line_box)
+                return -EINVAL;
 
             continue;
         }
