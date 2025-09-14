@@ -42,10 +42,12 @@
 #define KEY_CHAR_WIDTH                  ((100 - (KEY_FIRST_LINE * \
                                          (KEY_PAD_LEFT + KEY_PAD_RIGHT))) / \
                                          KEY_FIRST_LINE)    // %
-#define KEY_SPACE_WIDTH                 ((5 * KEY_CHAR_WIDTH) + (4 * (KEY_PAD_LEFT + \
+#define KEY_SPACE_WIDTH                 ((5 * KEY_CHAR_WIDTH) + \
+                                         (4 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
-#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 17) / 10)  // % (Magic)
-#define KEY_ENTER_WIDTH                 ((2 * KEY_CHAR_WIDTH) + (1 * (KEY_PAD_LEFT + \
+#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 17) / 10) // %(Magic)
+#define KEY_ENTER_WIDTH                 ((2 * KEY_CHAR_WIDTH) + \
+                                         (1 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
 
 /**********************
@@ -451,8 +453,8 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
         btn = create_key(line_box, &layout->map[i]);
         if (new_line) {
             new_line = false;
-            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             size.l_pad_top);
+            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
+                             size.k_pad_left, size.l_pad_top);
         } else {
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
@@ -507,19 +509,21 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
 
             continue;
         } else if (layout->map[i].type == T_HOLDER) {
-            line_box = gf_get_obj_by_name(layout->map[i].label, &(((g_obj *)get_gobj(par))->child));
+            line_box = gf_get_obj_by_name(layout->map[i].label, \
+                                          &get_gobj(par)->child);
             // TODO:
-            /********************** SOMETHING WRONG AT THE END OF THIS ********************/
+            /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
-            //     LOG_ERROR("KB: line box [%s] not found", layout->map[i].label);
+            //     LOG_ERROR("line box [%s] not found", layout->map[i].label);
             //     return -EINVAL;
-            /********************** SOMETHING WRONG AT THE ABOVE OF THIS ********************/
+            /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
             get_gobj(line_box)->pos.rot = ROTATION_0;
 
             continue;
         }
 
-        btn = gf_get_obj_by_name(layout->map[i].label, & get_gobj(line_box)->child);
+        btn = gf_get_obj_by_name(layout->map[i].label, \
+                                 &get_gobj(line_box)->child);
         if (!btn) {
             LOG_ERROR("Key [%s] not found", layout->map[i].label);
             continue;
@@ -527,8 +531,8 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
 
         if (new_line) {
             new_line = false;
-            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             size.l_pad_top);
+            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
+                             size.k_pad_left, size.l_pad_top);
         } else {
             gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
