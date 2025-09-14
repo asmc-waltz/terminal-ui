@@ -26,7 +26,9 @@
 /*********************
  *      DEFINES
  *********************/
-#define KEYBOARD_BG_COLOR               0xE6E6FF
+#define KEYBOARD_BG_COLOR               0xADBACC
+#define KEYBOARD_KEY_COLOR              0xFFFFFF
+#define KEYBOARD_KEY_TEXT_COLOR         0x000000
 #define KEYBOARD_LINE                   4
 #define KEYBOARD_LINE_PAD_TOP           2       // %
 #define KEYBOARD_LINE_PAD_BOT           2       // %
@@ -249,16 +251,17 @@ static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
     btn = gf_create_btn(par, key->label);
     if (!btn)
         return NULL;
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffffff), 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(KEYBOARD_KEY_COLOR), 0);
     lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_set_style_pad_gap(btn, 0, 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
     lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
 
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
     if (!lbl)
         return NULL;
-    lv_obj_set_style_text_color(lbl, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_color(lbl, lv_color_hex(KEYBOARD_KEY_TEXT_COLOR), 0);
     lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
 
     return btn;
