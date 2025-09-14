@@ -139,6 +139,12 @@ lv_obj_t * gf_create_container(lv_obj_t *par, const char *name)
  * to create a textbox container with scrolling disabled. Inside this box, we
  * manually align the text or symbol, while the container itself can align to
  * another object as normal.
+ *
+ * WARNING: Transform rotation objects are aligned and moved using pixel data
+ * from g_obj. Therefore, LV_SIZE_CONTENT must not be stored as pixel values
+ * in data. Doing so may cause unexpected rotation behavior.
+ * Always use explicit pixel values for such objects when applying rotation.
+ *
  */
 lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, \
                           int32_t y, const char *txt_str)
