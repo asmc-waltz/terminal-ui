@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <lvgl.h>
 #include <list.h>
@@ -346,23 +347,20 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size)
 int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
 {
     lv_obj_t *btn, *btn_aln;
-    int8_t line_cnt = 0, new_line = 0, i;
-    int32_t ret;
+    lv_obj_t *line_box;
+    int8_t line_cnt = 0, i;
     int32_t line_h, line_w;
     kb_size_ctx size;
-    lv_obj_t *line_box;
+    bool new_line = true;
 
-    ret = calc_kb_size_data(par, &size);
-    if (ret) {
+    if (calc_kb_size_data(par, &size)) {
         LOG_ERROR("Unable to calculate keyboard child size");
         return -EINVAL;
     }
 
-    // First line box
     line_box = create_line_box(par, &size);
     if (!line_box)
         return -EINVAL;
-    gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, 0, 0);
 
     line_h = size.l_pad_top + size.key_com_h + size.l_pad_bot;
 
@@ -371,26 +369,20 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
                    layout->name, i, layout->map[i].label, layout->map[i].type);
 
         if (layout->map[i].type == T_NEWLINE) {
-
-            //-----------------
             int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
+            line_w = 0;
+            // Align the current line box before create the next one
             gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, first_key_x_ofs, \
                              (size.l_pad_top + (line_h * line_cnt)));
-            line_w = 0;
-            //-----------------
 
             line_cnt++;
-            new_line = 1;
+            new_line = true;
 
-            //-----------------
             // Create new line box
             line_box = create_line_box(par, &size);
             if (!line_box)
                 return -EINVAL;
-            // Preset for the new line - Last line got trouble
-            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, 0, \
-                             (size.l_pad_top + (line_h * (line_cnt))));
-            //-----------------
+
             continue;
         } else if (layout->map[i].type == T_END) {
             int32_t first_key_x_ofs = (obj_width(par) - line_w) / 2;
@@ -400,21 +392,9 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
             continue;
         }
 
-        // btn = create_key(par, &layout->map[i]);
         btn = create_key(line_box, &layout->map[i]);
-        if (i == 0) {
-            /*
-             * The top padding must be doubled because there is no upper line
-             * for the first line
-             */
-            // gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-            //                  size.l_pad_top * 2);
-            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-                             size.l_pad_top);
-        } else if (new_line == 1) {
-            new_line = 0;
-            // gf_gobj_align_to(btn, par, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
-            //                  (size.l_pad_top*2 + (line_h * line_cnt)));
+        if (new_line) {
+            new_line = false;
             gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, size.k_pad_left, \
                              size.l_pad_top);
         } else {
