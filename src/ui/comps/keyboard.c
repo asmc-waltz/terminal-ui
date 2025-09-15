@@ -45,10 +45,12 @@
 #define KEY_SPACE_WIDTH                 ((5 * KEY_CHAR_WIDTH) + \
                                          (4 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
-#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 17) / 10) // %(Magic)
-#define KEY_ENTER_WIDTH                 ((2 * KEY_CHAR_WIDTH) + \
+#define KEY_FN_WIDTH                    ((KEY_CHAR_WIDTH * 17) / 10) // %
+#define KEY_ENTER_WIDTH                 ((KEY_CHAR_WIDTH * 200) / 100 + \
                                          (1 * (KEY_PAD_LEFT + \
                                          KEY_PAD_RIGHT)))
+#define KEY_MODE_WIDTH                  ((KEY_CHAR_WIDTH * 127) / 100) // %
+#define KEY_ARROW_WIDTH                 ((KEY_CHAR_WIDTH * 90) / 100) // %
 
 /**********************
  *      TYPEDEFS
@@ -63,6 +65,8 @@ typedef struct kb_ctx {
     int32_t key_space_w;
     int32_t key_mode_w;
     int32_t key_enter_w;
+    int32_t key_arrow_w;
+    int32_t key_fn_w;
 } kb_size_ctx;
 
 typedef enum {
@@ -76,6 +80,7 @@ typedef enum {
     T_MODE,
     T_SPACE,
     T_ENTER,
+    T_ARROW,
     // Key layout flags
     T_KEY_LAYOUT_FLAG,
     T_HOLDER,
@@ -110,29 +115,6 @@ static int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
  **********************/
 static const kb_def *act_layout;
 
-static const k_def map_ABC[] = {
-    {"line_01", T_HOLDER}, \
-    {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
-    {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
-
-    {"line_02", T_HOLDER}, \
-    {"A", T_CHAR}, {"S", T_CHAR}, {"D", T_CHAR}, {"F", T_CHAR}, {"G", T_CHAR}, \
-    {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
-
-    {"line_03", T_HOLDER}, \
-    {"Shift", T_SHIFT}, \
-    {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, {"V", T_CHAR}, {"B", T_CHAR}, \
-    {"N", T_CHAR}, {"M", T_CHAR}, \
-    {"Del", T_DELETE}, \
-    {"\n", T_NEWLINE},
-
-    {"line_04", T_HOLDER}, \
-    {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
-    {"End", T_END}
-};
-
 static const k_def map_abc[] = {
     {"line_01", T_HOLDER}, \
     {"q", T_CHAR}, {"w", T_CHAR}, {"e", T_CHAR}, {"r", T_CHAR}, {"t", T_CHAR}, \
@@ -152,7 +134,32 @@ static const k_def map_abc[] = {
     {"\n", T_NEWLINE},
 
     {"line_04", T_HOLDER}, \
-    {"123", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"123", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
+    {"Enter", T_ENTER},
+    {"End", T_END}
+};
+
+static const k_def map_ABC[] = {
+    {"line_01", T_HOLDER}, \
+    {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
+    {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"line_02", T_HOLDER}, \
+    {"A", T_CHAR}, {"S", T_CHAR}, {"D", T_CHAR}, {"F", T_CHAR}, {"G", T_CHAR}, \
+    {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
+    {"\n", T_NEWLINE}, \
+
+    {"line_03", T_HOLDER}, \
+    {"Shift", T_SHIFT}, \
+    {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, {"V", T_CHAR}, {"B", T_CHAR}, \
+    {"N", T_CHAR}, {"M", T_CHAR}, \
+    {"Del", T_DELETE}, \
+    {"\n", T_NEWLINE},
+
+    {"line_04", T_HOLDER}, \
+    {"123", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
+    {"Enter", T_ENTER},
     {"End", T_END}
 };
 
@@ -175,7 +182,8 @@ static const k_def map_number[] = {
     {"\n", T_NEWLINE},
 
     {"line_04", T_HOLDER}, \
-    {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"ABC", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
+    {"Enter", T_ENTER},
     {"End", T_END}
 };
 
@@ -198,7 +206,8 @@ static const k_def map_symbol[] = {
     {"\n", T_NEWLINE},
 
     {"line 04", T_HOLDER}, \
-    {"ABC", T_MODE}, {"KB", T_MODE}, {" ", T_SPACE}, {"Enter", T_ENTER}, 
+    {"ABC", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
+    {"Enter", T_ENTER},
     {"End", T_END}
 };
 
@@ -315,8 +324,13 @@ void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
         break;
     case T_SHIFT:
     case T_DELETE:
+        key_w = size->key_fn_w;
+        break;
     case T_MODE:
         key_w = size->key_mode_w;
+        break;
+    case T_ARROW:
+        key_w = size->key_arrow_w;
         break;
     default:
         break;
@@ -337,6 +351,7 @@ void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
 int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
 {
     int32_t key_com_h, key_com_w, key_mode_w, key_space_w, key_enter_w;
+    int32_t key_arrow_w, key_fn_w;
     int32_t l_pad_top, l_pad_bot, k_pad_left, k_pad_right;
     int32_t par_h, par_w;
 
@@ -361,6 +376,8 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     key_space_w = calc_pixels(par_w, KEY_SPACE_WIDTH);
     key_mode_w = calc_pixels(par_w, KEY_MODE_WIDTH);
     key_enter_w = calc_pixels(par_w, KEY_ENTER_WIDTH);
+    key_arrow_w = calc_pixels(par_w, KEY_ARROW_WIDTH);
+    key_fn_w = calc_pixels(par_w, KEY_FN_WIDTH);
     
     LOG_TRACE("KB: Parent: \tw[%d] - h[%d]", par_w, par_h);
     LOG_TRACE("KB: Key: \tPadding: top[%d] bot[%d] - left[%d] right[%d]", \
@@ -376,6 +393,8 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     size->key_space_w = key_space_w;
     size->key_mode_w = key_mode_w;
     size->key_enter_w = key_enter_w;
+    size->key_arrow_w = key_arrow_w;
+    size->key_fn_w = key_fn_w;
 
     return 0;
 }
@@ -586,7 +605,12 @@ static const kb_def *find_layout_next(const char *label)
         next_layout = &kb_maps[0];
     }
 
-    LOG_INFO("Activated layout %s -> %s", active_layout, next_layout->name);
+    if (next_layout) {
+        LOG_INFO("Current layout %s -> %s", active_layout, next_layout->name);
+    } else {
+        LOG_ERROR("New layout is not found. Please check key maps");
+    }
+
     return next_layout;
 }
 
