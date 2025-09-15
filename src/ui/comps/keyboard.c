@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -346,6 +346,8 @@ static void kb_key_cb(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);
     const key_def *key_data;
+    int32_t ret;
+    bool haptic_req;
 
     key_data = (const key_def *)get_gobj_data(btn);
     if (!key_data) {
@@ -356,7 +358,7 @@ static void kb_key_cb(lv_event_t *event)
     LOG_TRACE("KB: key ID[%d] is pressed, text data: (%s)", \
               get_gobj(btn)->id, key_data->label);
 
-
+    // TODO: Push local work
     switch (key_data->type) {
     case T_CHAR:
     case T_NUM:
@@ -365,22 +367,32 @@ static void kb_key_cb(lv_event_t *event)
     case T_SPACE:
         break;
     case T_ENTER:
-        haptic_feedback(key_data->hap_l, key_data->hap_r);
+        haptic_req = true;
         break;
     case T_DELETE:
-        haptic_feedback(key_data->hap_l, key_data->hap_r);
+        haptic_req = true;
         break;
     case T_MODE:
     case T_SHIFT:
-        haptic_feedback(key_data->hap_l, key_data->hap_r);
+        haptic_req = true;
         set_keyboard_mode(key_data);
         break;
     case T_ARROW:
-        haptic_feedback(key_data->hap_l, key_data->hap_r);
+        haptic_req = true;
         break;
     default:
         break;
     }
+
+    if (haptic_req) {
+        ret = haptic_feedback(key_data->hap_l, key_data->hap_r);
+        if (ret)
+            LOG_WARN("Haptic feedback request failed");
+    }
+
+    ret = audio_feedback(key_data->hap_l, key_data->hap_r);
+    if (ret)
+        LOG_WARN("Audio feedback request failed");
 }
 
 static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
