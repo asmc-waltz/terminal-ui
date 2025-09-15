@@ -22,6 +22,7 @@
 #include <list.h>
 #include <ui/ui_core.h>
 #include <ui/comps.h>
+#include <ux/ux.h>
 
 /*********************
  *      DEFINES
@@ -364,14 +365,18 @@ static void kb_key_cb(lv_event_t *event)
     case T_SPACE:
         break;
     case T_ENTER:
+        haptic_feedback(key_data->hap_l, key_data->hap_r);
         break;
     case T_DELETE:
+        haptic_feedback(key_data->hap_l, key_data->hap_r);
         break;
     case T_MODE:
     case T_SHIFT:
+        haptic_feedback(key_data->hap_l, key_data->hap_r);
         set_keyboard_mode(key_data);
         break;
     case T_ARROW:
+        haptic_feedback(key_data->hap_l, key_data->hap_r);
         break;
     default:
         break;
