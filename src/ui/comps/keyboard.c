@@ -634,7 +634,8 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
 
     for (i = 0; i < map->size; i++) {
         LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
-                   map->name, i, map->key[i].label, map->key[i].type);
+                   next_map->name, i, next_map->key[i].label, \
+                   next_map->key[i].type);
 
         if (map->key[i].type == T_NEWLINE || map->key[i].type == T_END) {
             continue;
