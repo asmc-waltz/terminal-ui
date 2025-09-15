@@ -407,3 +407,31 @@ g_obj *get_par_gobj(lv_obj_t *lobj)
 
     return gobj->par;
 }
+
+void set_gobj_data(lv_obj_t *lobj, void *data)
+{
+    g_obj *gobj;
+
+    if (!lobj)
+        return NULL;
+
+    gobj = lobj->user_data;
+    if (!gobj)
+        return NULL;
+
+    gobj->obj_data = data;
+}
+
+void *get_gobj_data(lv_obj_t *lobj)
+{
+    g_obj *gobj;
+
+    if (!lobj)
+        return NULL;
+
+    gobj = lobj->user_data;
+    if (!gobj)
+        return NULL;
+
+    return gobj->obj_data;
+}

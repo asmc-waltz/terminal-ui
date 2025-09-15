@@ -83,6 +83,7 @@ typedef struct g_obj {
     lv_obj_t *obj;
     struct g_obj *par;
     char *name;
+    void *obj_data;
     g_type type;
     g_pos pos;
     g_align aln;
@@ -119,6 +120,7 @@ int32_t gf_obj_scale_disable_w(lv_obj_t *lobj);
 int32_t gf_obj_scale_disable_h(lv_obj_t *lobj);
 int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w);
 int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h);
+void set_gobj_data(lv_obj_t *lobj, void *data);
 
 /*=====================
  * Getter functions
@@ -132,6 +134,7 @@ int32_t g_get_scr_rot_dir();
 int32_t g_get_scr_width(void);
 int32_t g_get_scr_height(void);
 void gf_gobj_get_size(lv_obj_t *lobj);
+void *get_gobj_data(lv_obj_t *lobj);
 
 /*=====================
  * Other functions
