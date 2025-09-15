@@ -38,6 +38,7 @@
  * Other functions
  *====================*/
 int32_t haptic_feedback(bool en_left, bool en_right);
+int32_t audio_feedback(bool en_left, bool en_right);
 
 /**********************
  *      MACROS
