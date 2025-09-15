@@ -347,7 +347,7 @@ static void kb_key_cb(lv_event_t *event)
     lv_obj_t *btn = lv_event_get_target(event);
     const key_def *key_data;
     int32_t ret;
-    bool haptic_req;
+    bool haptic_req = false;
 
     key_data = (const key_def *)get_gobj_data(btn);
     if (!key_data) {
