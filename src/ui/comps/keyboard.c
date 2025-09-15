@@ -91,13 +91,13 @@ typedef enum {
 typedef struct {
     const char* label;
     k_type type;
-} k_def;
+} key_def;
 
 typedef struct {
     const char* name;
-    const k_def *map;
+    const key_def *key;
     int32_t size;
-} kb_def;
+} keyboard_def;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -106,16 +106,16 @@ typedef struct {
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static const kb_def *find_layout_next(const char *label);
-static int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
-                             const kb_def *next_layout);
+static const keyboard_def *find_layout_next(const char *label);
+static int32_t switch_layout(lv_obj_t *par, const keyboard_def *layout, \
+                             const keyboard_def *next_layout);
 
 /**********************
  *  STATIC VARIABLES
  **********************/
-static const kb_def *act_layout;
+static const keyboard_def *act_layout;
 
-static const k_def map_abc[] = {
+static const key_def key_abc[] = {
     {"line_01", T_HOLDER}, \
     {"q", T_CHAR}, {"w", T_CHAR}, {"e", T_CHAR}, {"r", T_CHAR}, {"t", T_CHAR}, \
     {"y", T_CHAR}, {"u", T_CHAR}, {"i", T_CHAR}, {"o", T_CHAR}, {"p", T_CHAR}, \
@@ -139,7 +139,7 @@ static const k_def map_abc[] = {
     {"End", T_END}
 };
 
-static const k_def map_ABC[] = {
+static const key_def key_ABC[] = {
     {"line_01", T_HOLDER}, \
     {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
     {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
@@ -163,7 +163,7 @@ static const k_def map_ABC[] = {
     {"End", T_END}
 };
 
-static const k_def map_number[] = {
+static const key_def key_number[] = {
     {"line_01", T_HOLDER}, \
     {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
     {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
@@ -187,7 +187,7 @@ static const k_def map_number[] = {
     {"End", T_END}
 };
 
-static const k_def map_symbol[] = {
+static const key_def key_symbol[] = {
     {"line 01", T_HOLDER}, \
     {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
     {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
@@ -211,11 +211,11 @@ static const k_def map_symbol[] = {
     {"End", T_END}
 };
 
-static const kb_def kb_maps[] = {
-    {"abc", map_abc, sizeof(map_abc) / sizeof(map_abc[0])},
-    {"ABC", map_ABC, sizeof(map_ABC) / sizeof(map_ABC[0])},
-    {"123", map_number, sizeof(map_number) / sizeof(map_number[0])},
-    {"@*#", map_symbol, sizeof(map_symbol) / sizeof(map_symbol[0])},
+static const keyboard_def kb_maps[] = {
+    {"abc", key_abc, sizeof(key_abc) / sizeof(key_abc[0])},
+    {"ABC", key_ABC, sizeof(key_ABC) / sizeof(key_ABC[0])},
+    {"123", key_number, sizeof(key_number) / sizeof(key_number[0])},
+    {"@*#", key_symbol, sizeof(key_symbol) / sizeof(key_symbol[0])},
 };
 
 /**********************
@@ -225,12 +225,12 @@ static const kb_def kb_maps[] = {
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void dump_key_map(const kb_def *kb)
+static void dump_key_map(const keyboard_def *kb)
 {
     int8_t cnt;
     for (cnt = 0; cnt < kb->size; cnt++) {
         LOG_INFO("Keyboard %s: index[%d] character[%s] type[%d]", \
-                 kb->name, cnt, kb->map[cnt].label, kb->map[cnt].type);
+                 kb->name, cnt, kb->key[cnt].label, kb->key[cnt].type);
     }
 }
 
@@ -238,7 +238,7 @@ static void dump_all_maps(void)
 {
     int8_t map_cnt, i;
 
-    map_cnt = sizeof(kb_maps) / sizeof(kb_def);
+    map_cnt = sizeof(kb_maps) / sizeof(keyboard_def);
     LOG_INFO("[%d] keyboard are available", map_cnt);
     for (i = 0; i < map_cnt; i++) {
         dump_key_map(&kb_maps[i]);
@@ -278,7 +278,7 @@ static void kb_key_cb(lv_event_t *event)
 
 }
 
-static lv_obj_t *create_key(lv_obj_t *par, const k_def *key)
+static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
 {
     lv_obj_t *btn, *lbl;
 
@@ -409,7 +409,7 @@ void set_line_box_size(lv_obj_t *par, lv_obj_t *line_box, kb_size_ctx *size, \
 }
 
 lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
-                          const k_def *box_info)
+                          const key_def *box_info)
 {
     lv_obj_t *line_box;
 
@@ -423,7 +423,7 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
     return line_box;
 }
 
-int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
+int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *layout)
 {
     lv_obj_t *btn, *btn_aln;
     lv_obj_t *line_box;
@@ -441,9 +441,9 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
 
     for (i = 0; i < layout->size; i++) {
         LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
-                   layout->name, i, layout->map[i].label, layout->map[i].type);
+                   layout->name, i, layout->key[i].label, layout->key[i].type);
 
-        if (layout->map[i].type == T_NEWLINE || layout->map[i].type == T_END) {
+        if (layout->key[i].type == T_NEWLINE || layout->key[i].type == T_END) {
             int32_t line_x_ofs = (obj_width(par) - line_w) / 2;
             int32_t line_y_ofs = (size.l_pad_top + (line_h * line_cnt));
 
@@ -455,21 +455,21 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
                       line_x_ofs, line_y_ofs);
 
-            if (layout->map[i].type == T_NEWLINE) {
+            if (layout->key[i].type == T_NEWLINE) {
                 line_cnt++;
                 new_line = true;
             }
 
             continue;
-        } else if (layout->map[i].type == T_HOLDER) {
-            line_box = create_line_box(par, &size, &layout->map[i]);
+        } else if (layout->key[i].type == T_HOLDER) {
+            line_box = create_line_box(par, &size, &layout->key[i]);
             if (!line_box)
                 return -EINVAL;
 
             continue;
         }
 
-        btn = create_key(line_box, &layout->map[i]);
+        btn = create_key(line_box, &layout->key[i]);
         if (new_line) {
             new_line = false;
             gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
@@ -481,14 +481,14 @@ int32_t create_keys_layout(lv_obj_t *par, const kb_def *layout)
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, layout->map[i].type, &size);
+        set_key_size(btn, layout->key[i].type, &size);
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
 
     return 0;
 }
 
-int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
+int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *layout)
 {
     lv_obj_t *btn, *btn_aln;
     lv_obj_t *line_box = NULL;
@@ -506,9 +506,9 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
 
     for (i = 0; i < layout->size; i++) {
         LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
-                   layout->name, i, layout->map[i].label, layout->map[i].type);
+                   layout->name, i, layout->key[i].label, layout->key[i].type);
 
-        if (layout->map[i].type == T_NEWLINE || layout->map[i].type == T_END) {
+        if (layout->key[i].type == T_NEWLINE || layout->key[i].type == T_END) {
             int32_t line_x_ofs = (obj_width(par) - line_w) / 2;
             int32_t line_y_ofs = (size.l_pad_top + (line_h * line_cnt));
 
@@ -521,19 +521,19 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
                       line_x_ofs, line_y_ofs);
 
-            if (layout->map[i].type == T_NEWLINE) {
+            if (layout->key[i].type == T_NEWLINE) {
                 line_cnt++;
                 new_line = true;
             }
 
             continue;
-        } else if (layout->map[i].type == T_HOLDER) {
-            line_box = gf_get_obj_by_name(layout->map[i].label, \
+        } else if (layout->key[i].type == T_HOLDER) {
+            line_box = gf_get_obj_by_name(layout->key[i].label, \
                                           &get_gobj(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
-            //     LOG_ERROR("line box [%s] not found", layout->map[i].label);
+            //     LOG_ERROR("line box [%s] not found", layout->key[i].label);
             //     return -EINVAL;
             /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
             get_gobj(line_box)->pos.rot = ROTATION_0;
@@ -541,10 +541,10 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
             continue;
         }
 
-        btn = gf_get_obj_by_name(layout->map[i].label, \
+        btn = gf_get_obj_by_name(layout->key[i].label, \
                                  &get_gobj(line_box)->child);
         if (!btn) {
-            LOG_ERROR("Key [%s] not found", layout->map[i].label);
+            LOG_ERROR("Key [%s] not found", layout->key[i].label);
             continue;
         }
 
@@ -559,7 +559,7 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, layout->map[i].type, &size);
+        set_key_size(btn, layout->key[i].type, &size);
         // Reset key configurations to the horizontal layout.
         get_gobj(btn)->pos.rot = ROTATION_0;
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
@@ -568,10 +568,10 @@ int32_t update_keys_layout(lv_obj_t *par, const kb_def *layout)
     return 0;
 }
 
-static const kb_def *find_layout_next(const char *label)
+static const keyboard_def *find_layout_next(const char *label)
 {
     const char *active_layout;
-    const kb_def *next_layout = NULL;
+    const keyboard_def *next_layout = NULL;
 
     active_layout = act_layout->name;
 
@@ -614,8 +614,8 @@ static const kb_def *find_layout_next(const char *label)
     return next_layout;
 }
 
-int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
-                      const kb_def *next_layout)
+int32_t switch_layout(lv_obj_t *par, const keyboard_def *layout, \
+                      const keyboard_def *next_layout)
 {
     lv_obj_t *btn;
     lv_obj_t *line_box = NULL;
@@ -626,31 +626,31 @@ int32_t switch_layout(lv_obj_t *par, const kb_def *layout, \
 
     for (i = 0; i < layout->size; i++) {
         LOG_TRACE("KB name [%s]: index[%d] character[%s] type[%d]", \
-                   layout->name, i, layout->map[i].label, layout->map[i].type);
+                   layout->name, i, layout->key[i].label, layout->key[i].type);
 
-        if (layout->map[i].type == T_NEWLINE || layout->map[i].type == T_END) {
+        if (layout->key[i].type == T_NEWLINE || layout->key[i].type == T_END) {
             continue;
-        } else if (layout->map[i].type == T_HOLDER) {
-            line_box = gf_get_obj_by_name(layout->map[i].label, \
+        } else if (layout->key[i].type == T_HOLDER) {
+            line_box = gf_get_obj_by_name(layout->key[i].label, \
                                           &get_gobj(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
-            //     LOG_ERROR("line box [%s] not found", layout->map[i].label);
+            //     LOG_ERROR("line box [%s] not found", layout->key[i].label);
             //     return -EINVAL;
             /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
             continue;
         }
 
-        btn = gf_get_obj_by_name(layout->map[i].label, \
+        btn = gf_get_obj_by_name(layout->key[i].label, \
                                  &get_gobj(line_box)->child);
         if (!btn) {
-            LOG_ERROR("Key [%s] not found", layout->map[i].label);
+            LOG_ERROR("Key [%s] not found", layout->key[i].label);
             continue;
         }
 
         lv_obj_t * label = lv_obj_get_child(btn, 0);
-        lv_label_set_text_fmt(label, "%s", next_layout->map[i].label);
+        lv_label_set_text_fmt(label, "%s", next_layout->key[i].label);
     }
 
     act_layout = next_layout;
@@ -685,7 +685,7 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
                      -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
 
     // TODO: map?
-    const kb_def *layout = &kb_maps[0];
+    const keyboard_def *layout = &kb_maps[0];
     update_keys_layout(kb, layout);
 
     return 0;
@@ -725,7 +725,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 lv_obj_t *create_keyboard(lv_obj_t *par)
 {
     lv_obj_t *kb;
-    const kb_def *layout = &kb_maps[0];
+    const keyboard_def *layout = &kb_maps[0];
     int32_t ret;
 
     if (act_layout) {
