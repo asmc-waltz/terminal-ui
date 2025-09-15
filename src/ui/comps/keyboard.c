@@ -29,6 +29,11 @@
 #define KEYBOARD_BG_COLOR               0xADBACC
 #define KEYBOARD_KEY_COLOR              0xFFFFFF
 #define KEYBOARD_KEY_TEXT_COLOR         0x000000
+
+#define NORM_K_COLOR                    0xFFFFFF
+#define FUNC_K_COLOR                    0xCCD6E3
+#define NORM_K_TEXT_COLOR               0x000000
+
 #define KEYBOARD_LINE                   4
 #define KEYBOARD_LINE_PAD_TOP           2       // %
 #define KEYBOARD_LINE_PAD_BOT           2       // %
@@ -91,6 +96,10 @@ typedef enum {
 typedef struct {
     const char* label;
     k_type type;
+    int32_t key_color;
+    int32_t text_color;
+    int8_t hap_l;
+    int8_t hap_r;
 } key_def;
 
 typedef struct {
@@ -114,99 +123,191 @@ static int32_t set_keyboard_mode(const key_def *key);
 static const keyboard_def *act_map;
 
 static const key_def key_abc[] = {
-    {"line_01", T_HOLDER}, \
-    {"q", T_CHAR}, {"w", T_CHAR}, {"e", T_CHAR}, {"r", T_CHAR}, {"t", T_CHAR}, \
-    {"y", T_CHAR}, {"u", T_CHAR}, {"i", T_CHAR}, {"o", T_CHAR}, {"p", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
+    {"line_01", T_HOLDER, 0, 0, 0, 0}, \
+    {"q", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"w", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"e", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"r", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"t", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"y", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"u", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"i", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"o", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"p", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_02", T_HOLDER}, \
-    {"a", T_CHAR}, {"s", T_CHAR}, {"d", T_CHAR}, {"f", T_CHAR}, {"g", T_CHAR}, \
-    {"h", T_CHAR}, {"j", T_CHAR}, {"k", T_CHAR}, {"l", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
+    {"line_02", T_HOLDER, 0, 0, 0, 0}, \
+    {"a", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"s", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"d", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"f", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"g", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"h", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"j", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"k", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"l", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_03", T_HOLDER}, \
-    {"Shift", T_SHIFT}, \
-    {"z", T_CHAR}, {"x", T_CHAR}, {"c", T_CHAR}, {"v", T_CHAR}, {"b", T_CHAR}, \
-    {"n", T_CHAR}, {"m", T_CHAR}, \
-    {"Del", T_DELETE}, \
-    {"\n", T_NEWLINE},
+    {"line_03", T_HOLDER, 0, 0, 0, 0}, \
+    {"Shift", T_SHIFT, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"z", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"x", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"c", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"v", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"b", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"n", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"m", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"Del", T_DELETE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_04", T_HOLDER}, \
-    {"123", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
-    {"Enter", T_ENTER},
-    {"End", T_END}
+    {"line_04", T_HOLDER, 0, 0, 0, 0}, \
+    {"123", T_MODE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"<", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {">", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {" ", T_SPACE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"Enter", T_ENTER, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"End", T_END, 0, 0, 0, 0}
 };
 
 static const key_def key_ABC[] = {
-    {"line_01", T_HOLDER}, \
-    {"Q", T_CHAR}, {"W", T_CHAR}, {"E", T_CHAR}, {"R", T_CHAR}, {"T", T_CHAR}, \
-    {"Y", T_CHAR}, {"U", T_CHAR}, {"I", T_CHAR}, {"O", T_CHAR}, {"P", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
+    {"line_01", T_HOLDER, 0, 0, 0, 0}, \
+    {"Q", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"W", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"E", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"R", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"T", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"Y", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"U", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"I", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"O", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"P", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_02", T_HOLDER}, \
-    {"A", T_CHAR}, {"S", T_CHAR}, {"D", T_CHAR}, {"F", T_CHAR}, {"G", T_CHAR}, \
-    {"H", T_CHAR}, {"J", T_CHAR}, {"K", T_CHAR}, {"L", T_CHAR}, \
-    {"\n", T_NEWLINE}, \
+    {"line_02", T_HOLDER, 0, 0, 0, 0}, \
+    {"A", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"S", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"D", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"F", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"G", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"H", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"J", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"K", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"L", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_03", T_HOLDER}, \
-    {"Shift", T_SHIFT}, \
-    {"Z", T_CHAR}, {"X", T_CHAR}, {"C", T_CHAR}, {"V", T_CHAR}, {"B", T_CHAR}, \
-    {"N", T_CHAR}, {"M", T_CHAR}, \
-    {"Del", T_DELETE}, \
-    {"\n", T_NEWLINE},
+    {"line_03", T_HOLDER, 0, 0, 0, 0}, \
+    {"Shift", T_SHIFT, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"Z", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"X", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"C", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"V", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"B", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"N", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"M", T_CHAR, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"Del", T_DELETE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_04", T_HOLDER}, \
-    {"123", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
-    {"Enter", T_ENTER},
-    {"End", T_END}
+    {"line_04", T_HOLDER, 0, 0, 0, 0}, \
+    {"123", T_MODE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"<", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {">", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {" ", T_SPACE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"Enter", T_ENTER, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"End", T_END, 0, 0, 0, 0}
 };
 
 static const key_def key_number[] = {
-    {"line_01", T_HOLDER}, \
-    {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
-    {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
-    {"\n", T_NEWLINE}, \
+    {"line_01", T_HOLDER, 0, 0, 0, 0}, \
+    {"1", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"2", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"3", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"4", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"5", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"6", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"7", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"8", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"9", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"0", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_02", T_HOLDER}, \
-    {"-", T_SYM}, {"/", T_SYM}, {":", T_SYM}, {";", T_SYM}, {"(", T_SYM}, \
-    {")", T_SYM}, {"`", T_SYM}, {"&", T_SYM}, {"@", T_SYM}, \
-    {"\n", T_NEWLINE}, \
+    {"line_02", T_HOLDER, 0, 0, 0, 0}, \
+    {"-", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"/", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {":", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {";", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"(", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {")", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"`", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"&", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"@", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_03", T_HOLDER}, \
-    {"#+=", T_SHIFT}, \
-    {".", T_SYM}, {",", T_SYM}, {"?", T_SYM}, {"!", T_SYM}, {"\"", T_SYM}, \
-    {"'", T_SYM}, {"*", T_SYM}, \
-    {"Del", T_DELETE}, \
-    {"\n", T_NEWLINE},
+    {"line_03", T_HOLDER, 0, 0, 0, 0}, \
+    {"#+=", T_SHIFT, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {".", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {",", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"?", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"!", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"\"", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"'", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"*", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"Del", T_DELETE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line_04", T_HOLDER}, \
-    {"ABC", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
-    {"Enter", T_ENTER},
-    {"End", T_END}
+    {"line_04", T_HOLDER, 0, 0, 0, 0}, \
+    {"ABC", T_MODE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"<", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {">", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {" ", T_SPACE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"Enter", T_ENTER, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"End", T_END, 0, 0, 0, 0}
 };
 
 static const key_def key_symbol[] = {
-    {"line 01", T_HOLDER}, \
-    {"1", T_NUM}, {"2", T_NUM}, {"3", T_NUM}, {"4", T_NUM}, {"5", T_NUM}, \
-    {"6", T_NUM}, {"7", T_NUM}, {"8", T_NUM}, {"9", T_NUM}, {"0", T_NUM}, \
-    {"\n", T_NEWLINE}, \
+    {"line 01", T_HOLDER, 0, 0, 0, 0}, \
+    {"1", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"2", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"3", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"4", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"5", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"6", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"7", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"8", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"9", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"0", T_NUM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line 02", T_HOLDER}, \
-    {"[", T_SYM}, {"]", T_SYM}, {"\{", T_SYM}, {"\}", T_SYM}, {"#", T_SYM},\
-    {"%", T_SYM}, {"^", T_SYM}, {"+", T_SYM}, {"=", T_SYM},  \
-    {"\n", T_NEWLINE}, \
+    {"line 02", T_HOLDER, 0, 0, 0, 0}, \
+    {"[", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"]", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"{", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"}", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"#", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"%", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"^", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"+", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"=", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line 03", T_HOLDER}, \
-    {"#+=", T_SHIFT}, \
-    {"_", T_SYM}, {"\\", T_SYM}, {"|", T_SYM}, {"~", T_SYM}, {"<", T_SYM}, \
-    {">", T_SYM}, {"$", T_SYM}, \
-    {"Del", T_DELETE}, \
-    {"\n", T_NEWLINE},
+    {"line 03", T_HOLDER, 0, 0, 0, 0}, \
+    {"#+=", T_SHIFT, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"_", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"\\", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"|", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"~", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"<", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {">", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"$", T_SYM, NORM_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"Del", T_DELETE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"\n", T_NEWLINE, 0, 0, 0, 0}, \
 
-    {"line 04", T_HOLDER}, \
-    {"ABC", T_MODE}, {"<", T_ARROW}, {">", T_ARROW}, {" ", T_SPACE}, \
-    {"Enter", T_ENTER},
-    {"End", T_END}
+    {"line 04", T_HOLDER, 0, 0, 0, 0}, \
+    {"ABC", T_MODE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {"<", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {">", T_ARROW, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 0}, \
+    {" ", T_SPACE, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 1, 1}, \
+    {"Enter", T_ENTER, FUNC_K_COLOR, NORM_K_TEXT_COLOR, 0, 1}, \
+    {"End", T_END, 0, 0, 0, 0}
 };
 
 static const keyboard_def kb_maps[] = {
