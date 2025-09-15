@@ -14,6 +14,7 @@
  *      DEFINES
  *********************/
 #define COMP_NAME                       "TERMINAL-UI"
+#define COMP_ID                         01
 #define MAX_ENTRIES                     32
 
 /**********************
