@@ -27,9 +27,6 @@
  *      DEFINES
  *********************/
 #define KEYBOARD_BG_COLOR               0xADBACC
-#define KEYBOARD_KEY_COLOR              0xFFFFFF
-#define KEYBOARD_KEY_TEXT_COLOR         0x000000
-
 #define NORM_K_COLOR                    0xFFFFFF
 #define FUNC_K_COLOR                    0xCCD6E3
 #define NORM_K_TEXT_COLOR               0x000000
@@ -393,7 +390,6 @@ static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
     btn = gf_create_btn(par, key->label);
     if (!btn)
         return NULL;
-    lv_obj_set_style_bg_color(btn, lv_color_hex(KEYBOARD_KEY_COLOR), 0);
     lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_set_style_pad_gap(btn, 0, 0);
@@ -403,17 +399,19 @@ static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
     lbl = gf_create_text(btn, NULL, 10, 10, key->label);
     if (!lbl)
         return NULL;
-    lv_obj_set_style_text_color(lbl, lv_color_hex(KEYBOARD_KEY_TEXT_COLOR), 0);
     lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
 
     return btn;
 }
 
-void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
+static void set_key_size(lv_obj_t *lobj, const key_def *key, kb_size_ctx *size)
 {
     int32_t key_w = 0;
 
-    switch (type) {
+    if (!key || !size)
+        return;
+
+    switch (key->type) {
     case T_CHAR:
     case T_NUM:
     case T_SYM:
@@ -439,7 +437,21 @@ void set_key_size(lv_obj_t *key, int8_t type, kb_size_ctx *size)
         break;
     }
 
-    gf_gobj_set_size(key, key_w, size->key_com_h);
+    gf_gobj_set_size(lobj, key_w, size->key_com_h);
+}
+
+static void set_key_color(lv_obj_t *lobj, const key_def *key)
+{
+    lv_obj_t *lbl;
+    if (!lobj || !key)
+        return;
+
+    lv_obj_set_style_bg_color(lobj, lv_color_hex(key->key_color), 0);
+
+    lbl = lv_obj_get_child(lobj, 0);
+    if (!lbl)
+        return;
+    lv_obj_set_style_text_color(lbl, lv_color_hex(key->text_color), 0);
 }
 
 /*
@@ -587,7 +599,8 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, map->key[i].type, &size);
+        set_key_size(btn, &map->key[i], &size);
+        set_key_color(btn, &map->key[i]);
         set_gobj_data(btn, &map->key[i]);
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
@@ -666,7 +679,8 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, map->key[i].type, &size);
+        set_key_size(btn, &map->key[i], &size);
+        set_key_color(btn, &map->key[i]);
         // Reset key configurations to the horizontal map.
         get_gobj(btn)->pos.rot = ROTATION_0;
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
@@ -759,6 +773,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
             continue;
         }
 
+        set_key_color(btn, &next_map->key[i]);
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         lv_label_set_text_fmt(label, "%s", next_map->key[i].label);
         set_gobj_data(btn, &next_map->key[i]);
