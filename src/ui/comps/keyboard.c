@@ -882,7 +882,7 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
 
     if (act_map) {
         LOG_WARN("Keyboard already active, please recall the previous one");
-
+        return NULL;
     }
 
     kb = create_keyboard_containter(par);
