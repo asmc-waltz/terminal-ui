@@ -106,9 +106,7 @@ typedef struct {
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static const keyboard_def *find_layout_next(const char *label);
-static int32_t switch_layout(lv_obj_t *par, const keyboard_def *layout, \
-                             const keyboard_def *next_layout);
+static int32_t set_keyboard_mode(const key_def *key);
 
 /**********************
  *  STATIC VARIABLES
@@ -248,34 +246,38 @@ static void dump_all_maps(void)
 static void kb_key_cb(lv_event_t *event)
 {
     lv_obj_t *btn = lv_event_get_target(event);
-    lv_obj_t * label = lv_obj_get_child(btn, 0);
-    char *label_text = lv_label_get_text(label);
-    int32_t ret;
+    const key_def *key_data;
 
-    LOG_TRACE("KB: key ID[%d] is pressed, text: (%s)", \
-              get_gobj(btn)->id, label_text);
-
-    // TODO:
-    if (!strcmp(label_text, "123") || \
-        !strcmp(label_text, "#+=") || \
-        !strcmp(label_text, "ABC") || \
-        !strcmp(label_text, "Shift")) {
-
-        lv_obj_t *comm_page;
-        comm_page = gf_get_obj_by_name(KEYBOAR_NAME, \
-                                       &get_gobj(lv_screen_active())->child);
-        if (!comm_page) {
-            LOG_ERROR("Keyboard [%s] not found", "screens.common");
-            return;
-        }
-        ret = switch_layout(comm_page, \
-                            &kb_maps[0], \
-                            find_layout_next(label_text));
-        if (ret) {
-            LOG_ERROR("Unable to switch keyboard layout");
-        }
+    key_data = (const key_def *)get_gobj_data(btn);
+    if (!key_data) {
+        LOG_ERROR("Unable to get key internal data");
+        return;
     }
 
+    LOG_TRACE("KB: key ID[%d] is pressed, text data: (%s)", \
+              get_gobj(btn)->id, key_data->label);
+
+
+    switch (key_data->type) {
+    case T_CHAR:
+    case T_NUM:
+    case T_SYM:
+        break;
+    case T_SPACE:
+        break;
+    case T_ENTER:
+        break;
+    case T_DELETE:
+        break;
+    case T_MODE:
+    case T_SHIFT:
+        set_keyboard_mode(key_data);
+        break;
+    case T_ARROW:
+        break;
+    default:
+        break;
+    }
 }
 
 static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
@@ -470,6 +472,9 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *layout)
         }
 
         btn = create_key(line_box, &layout->key[i]);
+        if (!btn)
+            return -EINVAL;
+
         if (new_line) {
             new_line = false;
             gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
@@ -482,6 +487,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *layout)
         // The previous button is used to align the next one
         btn_aln = btn;
         set_key_size(btn, layout->key[i].type, &size);
+        set_gobj_data(btn, &layout->key[i]);
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
 
@@ -568,36 +574,38 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *layout)
     return 0;
 }
 
-static const keyboard_def *find_layout_next(const char *label)
+static const keyboard_def *find_layout_next(const key_def *key)
 {
     const char *active_layout;
     const keyboard_def *next_layout = NULL;
 
+    if (!key)
+        return NULL;
+
     active_layout = act_layout->name;
 
-    // TODO:
     if (strcmp(active_layout, "abc") == 0) {
-        if (strcmp(label, "Shift") == 0) {
+        if (key->type == T_SHIFT) {
             next_layout = &kb_maps[1];
-        } else if (strcmp(label, "123") == 0) {
+        } else if (key->type == T_MODE) {
             next_layout = &kb_maps[2];
         }
     } else if (strcmp(active_layout, "ABC") == 0) {
-        if (strcmp(label, "Shift") == 0) {
+        if (key->type == T_SHIFT) {
             next_layout = &kb_maps[0];
-        } else if (strcmp(label, "123") == 0) {
+        } else if (key->type == T_MODE) {
             next_layout = &kb_maps[2];
         }
     } else if (strcmp(active_layout, "123") == 0) {
-        if (strcmp(label, "#+=") == 0) {
+        if (key->type == T_SHIFT) {
             next_layout = &kb_maps[3];
-        } else if (strcmp(label, "ABC") == 0) {
+        } else if (key->type == T_MODE) {
             next_layout = &kb_maps[0];
         }
     } else if (strcmp(active_layout, "@*#") == 0) {
-        if (strcmp(label, "#+=") == 0) {
+        if (key->type == T_SHIFT) {
             next_layout = &kb_maps[2];
-        } else if (strcmp(label, "ABC") == 0) {
+        } else if (key->type == T_MODE) {
             next_layout = &kb_maps[0];
         }
     } else {
@@ -606,7 +614,7 @@ static const keyboard_def *find_layout_next(const char *label)
     }
 
     if (next_layout) {
-        LOG_INFO("Current layout %s -> %s", active_layout, next_layout->name);
+        LOG_TRACE("Current layout %s -> %s", active_layout, next_layout->name);
     } else {
         LOG_ERROR("New layout is not found. Please check key maps");
     }
@@ -614,7 +622,7 @@ static const keyboard_def *find_layout_next(const char *label)
     return next_layout;
 }
 
-int32_t switch_layout(lv_obj_t *par, const keyboard_def *layout, \
+static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *layout, \
                       const keyboard_def *next_layout)
 {
     lv_obj_t *btn;
@@ -651,11 +659,38 @@ int32_t switch_layout(lv_obj_t *par, const keyboard_def *layout, \
 
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         lv_label_set_text_fmt(label, "%s", next_layout->key[i].label);
+        set_gobj_data(btn, &next_layout->key[i]);
     }
 
     act_layout = next_layout;
 
     return 0;
+}
+
+static int32_t set_keyboard_mode(const key_def *key)
+{
+    lv_obj_t *kb;
+    const keyboard_def *layout;
+    int32_t ret;
+
+    kb = gf_get_obj_by_name(KEYBOAR_NAME, \
+                                   &get_gobj(lv_screen_active())->child);
+    if (!kb) {
+        LOG_ERROR("Keyboard [%s] not found", "screens.common");
+        return -EINVAL;
+    }
+
+    layout = find_layout_next(key);
+    if (!layout)
+        return -EINVAL;
+
+
+    ret = change_keyboard_mode(kb, &kb_maps[0], layout);
+    if (ret) {
+        LOG_ERROR("Unable to switch keyboard layout, ret %d", ret);
+    }
+
+    return ret;
 }
 
 int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
