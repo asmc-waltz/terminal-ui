@@ -22,12 +22,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
-#include <ui/fonts.h>
 #include <ui/ui.h>
-#include <ui/pages.h>
 #include <comm/cmd_payload.h>
 #include <comm/f_comm.h>
 #include <sched/workqueue.h>
@@ -54,8 +49,6 @@ volatile sig_atomic_t g_run = 1;
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_display_t *drm_disp = NULL;
-static lv_indev_t *touch_event = NULL;
 
 /**********************
  *      MACROS
@@ -69,6 +62,9 @@ static void sig_handler(int32_t sig)
     switch (sig) {
         case SIGINT:
             LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
+
+            create_remote_simple_task(NON_BLOCK, LONG, OP_BACKLIGHT_OFF);
+            usleep(1000000);
             g_run = 0;
             event_set(event_fd, SIGINT);
             workqueue_stop();
@@ -106,61 +102,12 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
-static lv_display_t *sf_init_drm_display(const char *file, \
-                                         int64_t connector_id)
-{
-    lv_display_t *disp = NULL;
-    int32_t scr_width = 0;
-    int32_t scr_height = 0;
-
-    scr_width = g_get_scr_width();
-    scr_height = g_get_scr_height();
-    if (scr_width <= 0 || scr_height <= 0) {
-        LOG_FATAL("Display width or height resolution not available");
-        return NULL;
-    }
-
-    disp = lv_linux_drm_create();
-    if (disp == NULL) {
-        LOG_FATAL("Failed to initialize the display");
-        return NULL;
-    }
-
-    lv_display_set_default(disp);
-    lv_linux_drm_set_file(disp, file, connector_id);
-    lv_display_set_resolution(disp, scr_width, scr_height);
-
-    return disp;
-}
-
-static lv_indev_t *sf_init_touch_screen(const char *dev_path, \
-                                        lv_display_t *disp)
-{
-    lv_indev_t *indev = NULL;
-
-    indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, dev_path);
-    if (!indev) {
-        LOG_FATAL("Failed to initialize touch input device");
-        return NULL;
-    }
-
-    lv_indev_set_display(indev, disp);
-
-    return indev;
-}
-
-static void gtimer_handler(lv_timer_t * timer)
-{
-    lv_tick_inc(UI_LVGL_TIMER_MS);
-}
-
 static int32_t main_loop()
 {
     uint32_t cnt = 0;
 
     LOG_INFO("Terminal UI service is running...");
     while (g_run) {
-        lv_task_handler();
         usleep(5000);
         if (++cnt == 20) {
             cnt = 0;
@@ -178,9 +125,7 @@ static int32_t main_loop()
 int32_t main(void)
 {
     pthread_t task_handler;
-    lv_timer_t *task_timer = NULL;
     int32_t ret = 0;
-    g_ctx *ctx = NULL;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
     if (setup_signal_handler()) {
@@ -196,37 +141,24 @@ int32_t main(void)
     // Prepare eventfd to notify epoll when communicating with a thread
     ret = init_event_file();
     if (ret) {
-        LOG_FATAL("Failed to initialize eventfd");
+        LOG_FATAL("Failed to initialize eventfd, ret %d", ret);
         goto exit_workqueue;
     }
 
     create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
 
-    ctx = gf_create_app_ctx();
-    gf_set_app_ctx(ctx);
+    create_local_simple_task(BLOCK, SHORT, OP_UI_INIT);
 
-    g_set_scr_size(DISP_WIDTH, DISP_HEIGHT);
+    /*
+     * This non-blocking task runs in background but still waits for
+     * previous tasks to complete.
+     * This behavior is expected in the current context, but note that
+     * with multiple task handlers, a remote task might need to be
+     * processed while a long-running local task is still executing.
+     */
+    create_local_simple_task(NON_BLOCK, ENDLESS, OP_UI_START);
 
-    // Initialize LVGL and the associated UI hardware
-    lv_init();
-    drm_disp = sf_init_drm_display(DRM_CARD, DRM_CONNECTOR_ID);
-    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, drm_disp);
-
-    task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
-    if (task_timer == NULL) {
-        LOG_FATAL("Failed to create timer for LVGL task handler");
-        goto exit_listener;
-    }
-    lv_timer_ready(task_timer);
-
-    // Initialize LVGL layers as base components
-    gf_register_obj(NULL, lv_layer_sys(), NULL);
-    gf_register_obj(NULL, lv_layer_top(), NULL);
-    gf_register_obj(NULL, lv_screen_active(), NULL);
-    gf_register_obj(NULL, lv_layer_bottom(), NULL);
-
-    LOG_INFO("size of g_obj: %d", sizeof(g_obj));
-    create_scr_page(lv_screen_active(), "screens.common");
+    create_remote_simple_task(BLOCK, SHORT, OP_BACKLIGHT_ON);
 
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
@@ -235,8 +167,6 @@ int32_t main(void)
     }
 
     pthread_join(task_handler, NULL);
-
-    gf_destroy_app_ctx(gf_get_app_ctx());
     cleanup_event_file();
 
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
