@@ -618,7 +618,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
         btn_aln = btn;
         set_key_size(btn, &map->key[i], &size);
         set_key_color(btn, &map->key[i]);
-        set_gobj_data(btn, &map->key[i]);
+        set_gobj_data(btn, (void *)&map->key[i]);
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
 
@@ -793,7 +793,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
         set_key_color(btn, &next_map->key[i]);
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         lv_label_set_text_fmt(label, "%s", next_map->key[i].label);
-        set_gobj_data(btn, &next_map->key[i]);
+        set_gobj_data(btn, (void *)&next_map->key[i]);
     }
 
     act_map = next_map;

@@ -412,12 +412,16 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
 {
     g_obj *gobj;
 
-    if (!lobj)
-        return NULL;
+    if (!lobj) {
+        LOG_ERROR("lv_obj_t object invalid");
+        return;
+    }
 
     gobj = lobj->user_data;
-    if (!gobj)
-        return NULL;
+    if (!gobj) {
+        LOG_ERROR("g_obj object invalid");
+        return;
+    }
 
     gobj->obj_data = data;
 }

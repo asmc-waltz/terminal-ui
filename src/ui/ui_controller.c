@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <errno.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include <lvgl.h>
 #include <list.h>
