@@ -68,6 +68,11 @@ typedef enum {
     OP_WIFI_GET_AP_LIST,
     OP_WIFI_GET_AP_INFO,
     OP_WIFI_CONN_AP,
+
+    /* UI */
+    OP_UI_INIT,
+    OP_UI_START,
+    OP_UI_STOP,
 } opcode_t;
 
 
