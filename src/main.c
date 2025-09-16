@@ -102,6 +102,64 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
+static int32_t service_startup_flow(void)
+{
+    int32_t ret;
+
+    ret = create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
+    if (ret) {
+        LOG_WARN("Failed to create local task: start DBus service");
+        // TODO: Show popup or alert to notify user about this issue
+    }
+
+    ret = create_local_simple_task(BLOCK, SHORT, OP_UI_INIT);
+    if (ret) {
+        LOG_FATAL("Failed to create local task: UI init");
+        return -EIO;
+    }
+
+    /*
+     * This non-blocking task runs in the background but still waits for
+     * previous tasks to complete. This is expected in the current context.
+     * However, with multiple task handlers, a remote task might need to run
+     * while a long-running local task is still in progress.
+     */
+    ret = create_local_simple_task(NON_BLOCK, ENDLESS, OP_UI_START);
+    if (ret) {
+        LOG_FATAL("Failed to create local task: UI refresh");
+        return -EIO;
+    }
+
+    ret = create_remote_simple_task(BLOCK, SHORT, OP_BACKLIGHT_ON);
+    if (ret) {
+        LOG_ERROR("Failed to create remote task: backlight on");
+        return -EIO;
+    }
+
+    return 0;
+}
+
+static int32_t service_shutdown_flow()
+{
+    int32_t ret;
+
+    ret = create_remote_simple_task(NON_BLOCK, LONG, OP_BACKLIGHT_OFF);
+    if (ret) {
+        LOG_ERROR("Failed to create remote task: backlight off");
+        return -EIO;
+    }
+
+    usleep(1000000);
+
+    // Common announcement
+    g_run = 0;
+
+    // Announcement to DBus
+    event_set(event_fd, SIGINT);
+
+    workqueue_stop();
+}
+
 static int32_t main_loop()
 {
     uint32_t cnt = 0;
@@ -145,20 +203,11 @@ int32_t main(void)
         goto exit_workqueue;
     }
 
-    create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
-
-    create_local_simple_task(BLOCK, SHORT, OP_UI_INIT);
-
-    /*
-     * This non-blocking task runs in background but still waits for
-     * previous tasks to complete.
-     * This behavior is expected in the current context, but note that
-     * with multiple task handlers, a remote task might need to be
-     * processed while a long-running local task is still executing.
-     */
-    create_local_simple_task(NON_BLOCK, ENDLESS, OP_UI_START);
-
-    create_remote_simple_task(BLOCK, SHORT, OP_BACKLIGHT_ON);
+    ret = service_startup_flow();
+    if (ret) {
+        LOG_FATAL("Failed to initialize eventfd, ret %d", ret);
+        goto exit_listener;
+    }
 
     // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
