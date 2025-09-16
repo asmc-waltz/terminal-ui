@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -45,6 +45,7 @@ volatile sig_atomic_t g_run = 1;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static void service_shutdown_flow();
 
 /**********************
  *  STATIC VARIABLES
@@ -62,12 +63,7 @@ static void sig_handler(int32_t sig)
     switch (sig) {
         case SIGINT:
             LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
-
-            create_remote_simple_task(NON_BLOCK, LONG, OP_BACKLIGHT_OFF);
-            usleep(1000000);
-            g_run = 0;
-            event_set(event_fd, SIGINT);
-            workqueue_stop();
+            service_shutdown_flow();
             break;
         case SIGTERM:
             LOG_WARN("[+] Received SIGTERM. Shutdown...");
@@ -139,25 +135,46 @@ static int32_t service_startup_flow(void)
     return 0;
 }
 
-static int32_t service_shutdown_flow()
+/**
+ * Gracefully shutdown the system services
+ *
+ * This function ensures all normal tasks are finished, then stops
+ * endless tasks and notifies system and DBus about shutdown.
+ */
+static void service_shutdown_flow(void)
 {
     int32_t ret;
+    int32_t cnt;
 
-    ret = create_remote_simple_task(NON_BLOCK, LONG, OP_BACKLIGHT_OFF);
+    /* Step 1: Turn off backlight via remote task */
+    ret = create_remote_simple_task(BLOCK, LONG, OP_BACKLIGHT_OFF);
     if (ret) {
         LOG_ERROR("Failed to create remote task: backlight off");
-        return -EIO;
+        return;
     }
 
-    usleep(1000000);
+    /* Step 2: Wait for all normal tasks to complete */
+    cnt = normal_task_cnt_get();
+    while (cnt) {
+        LOG_TRACE("Waiting for normal works, remaining work %d", cnt);
+        usleep(100000);
+        cnt = normal_task_cnt_get();
+    }
 
-    // Common announcement
-    g_run = 0;
+    /* Step 3: Stop endless tasks and notify shutdown */
+    g_run = 0;                      /* Signal threads to stop */
+    workqueue_handler_wakeup();     /* Wake up any waiting workqueue threads */
+    event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
 
-    // Announcement to DBus
-    event_set(event_fd, SIGINT);
+    /* Step 4: Wait until workqueue is fully drained */
+    cnt = workqueue_active_count();
+    while (cnt) {
+        LOG_TRACE("Waiting for workqueue to be free, remaining work %d", cnt);
+        usleep(100000);
+        cnt = workqueue_active_count();
+    }
 
-    workqueue_stop();
+    LOG_INFO("Service shutdown flow completed");
 }
 
 static int32_t main_loop()
@@ -205,7 +222,7 @@ int32_t main(void)
 
     ret = service_startup_flow();
     if (ret) {
-        LOG_FATAL("Failed to initialize eventfd, ret %d", ret);
+        LOG_FATAL("UI system init flow failed, ret=%d", ret);
         goto exit_listener;
     }
 
@@ -225,7 +242,7 @@ exit_listener:
     event_set(event_fd, SIGUSR1);
 
 exit_workqueue:
-    workqueue_stop();
+    workqueue_handler_wakeup();
     pthread_join(task_handler, NULL);
     cleanup_event_file();
 
