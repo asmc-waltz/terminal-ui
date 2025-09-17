@@ -202,15 +202,14 @@ static void service_shutdown_flow(void)
 
     /* Stop background threads and notify shutdown */
     g_run = 0;                      /* Signal threads to stop */
-    workqueue_handler_wakeup();     /* Wake up any waiting workqueue threads */
     event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
-
-    ui_main_deinit();
+    workqueue_handler_wakeup();     /* Wake up any waiting workqueue threads */
 
     // TODO:
     pthread_join(task_pool_0, NULL);
     pthread_join(task_pool_1, NULL);
     cleanup_event_file();
+    ui_main_deinit();
 
     LOG_INFO("Service shutdown flow completed");
 }
