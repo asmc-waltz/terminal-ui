@@ -179,7 +179,7 @@ int32_t create_remote_task(uint8_t priority, void *data)
     work_t *work;
 
     work = create_work(WORK_TYPE_REMOTE, priority, WORK_DURATION_SHORT, \
-                       OP_DBUS_SENT_CMD_DATA, data);
+                       OP_DBUS_SENT_CMD, data);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
         return -EINVAL;

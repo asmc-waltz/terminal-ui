@@ -40,9 +40,7 @@ typedef enum {
     /* Common API */
     OP_PING,
     /* DBUS API*/
-    OP_START_DBUS,
     OP_DBUS_SENT_CMD,
-    OP_DBUS_SENT_CMD_DATA,
 
     /* HARDWARE */
     OP_START_HW_MON,
