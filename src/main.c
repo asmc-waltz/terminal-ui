@@ -82,57 +82,85 @@ static int32_t setup_signal_handler()
 {
     if (signal(SIGINT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGINT handler");
-        return -1;
+        return -EIO;
     }
 
     if (signal(SIGTERM, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGTERM handler");
-        return -1;
+        return -EIO;
     }
 
     if (signal(SIGABRT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGABRT handler");
-        return -1;
+        return -EIO;
     }
 
     return 0;
 }
 
+// TODO: create thread pool
+    pthread_t task_handler;
+
 static int32_t service_startup_flow(void)
 {
     int32_t ret;
+    pthread_t dbus_handler;
 
-    ret = create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
+    /* Initialize UI */
+    ret = ui_main_init();
     if (ret) {
-        LOG_WARN("Failed to create local task: start DBus service");
-        // TODO: Show popup or alert to notify user about this issue
+        LOG_FATAL("Failed to initialize UI, ret=%d", ret);
+        return ret;
     }
 
-    ret = create_local_simple_task(BLOCK, SHORT, OP_UI_INIT);
+    /* Prepare eventfd to notify epoll when communicating with threads */
+    ret = init_event_file();
     if (ret) {
-        LOG_FATAL("Failed to create local task: UI init");
-        return -EIO;
+        LOG_FATAL("Failed to initialize eventfd, ret=%d", ret);
+        goto exit_ui;
     }
 
-    /*
-     * This non-blocking task runs in the background but still waits for
-     * previous tasks to complete. This is expected in the current context.
-     * However, with multiple task handlers, a remote task might need to run
-     * while a long-running local task is still in progress.
-     */
-    ret = create_local_simple_task(NON_BLOCK, ENDLESS, OP_UI_START);
+    /* Create main task handler thread */
+    ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
     if (ret) {
-        LOG_FATAL("Failed to create local task: UI refresh");
-        return -EIO;
+        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
+        goto exit_event;
     }
 
+    /* Create DBus listener thread */
+    ret = pthread_create(&dbus_handler, NULL, dbus_fn_thread_handler, NULL);
+    if (ret) {
+        LOG_FATAL("Failed to create DBus listener thread: %s", strerror(ret));
+        goto exit_workqueue;
+    }
+
+    /* Optional delay before sending remote task */
+    usleep(200000);
+
+    /* Turn on backlight via remote task */
     ret = create_remote_simple_task(BLOCK, SHORT, OP_BACKLIGHT_ON);
     if (ret) {
         LOG_ERROR("Failed to create remote task: backlight on");
-        return -EIO;
+        goto exit_dbus;
     }
 
+    LOG_INFO("Terminal UI initialization completed");
     return 0;
+
+/* Cleanup sequence in case of failure */
+exit_dbus:
+    event_set(event_fd, SIGUSR1);
+
+exit_workqueue:
+    workqueue_handler_wakeup();
+    pthread_join(task_handler, NULL);
+
+exit_event:
+    cleanup_event_file();
+
+exit_ui:
+    ui_main_deinit();
+    return ret;
 }
 
 /**
@@ -174,6 +202,11 @@ static void service_shutdown_flow(void)
         cnt = workqueue_active_count();
     }
 
+    ui_main_deinit();
+
+    pthread_join(task_handler, NULL);
+    cleanup_event_file();
+
     LOG_INFO("Service shutdown flow completed");
 }
 
@@ -183,6 +216,7 @@ static int32_t main_loop()
 
     LOG_INFO("Terminal UI service is running...");
     while (g_run) {
+        lv_task_handler();
         usleep(5000);
         if (++cnt == 20) {
             cnt = 0;
@@ -199,53 +233,25 @@ static int32_t main_loop()
  **********************/
 int32_t main(void)
 {
-    pthread_t task_handler;
     int32_t ret = 0;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
-    if (setup_signal_handler()) {
-        goto exit_error;
-    }
-
-    ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
+    ret = setup_signal_handler();
     if (ret) {
-        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
-        goto exit_error;
-    }
-
-    // Prepare eventfd to notify epoll when communicating with a thread
-    ret = init_event_file();
-    if (ret) {
-        LOG_FATAL("Failed to initialize eventfd, ret %d", ret);
-        goto exit_workqueue;
+        return ret;
     }
 
     ret = service_startup_flow();
     if (ret) {
         LOG_FATAL("UI system init flow failed, ret=%d", ret);
-        goto exit_listener;
+        return ret;
     }
 
-    // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
     if (ret) {
-        goto exit_listener;
+        return ret;
     }
-
-    pthread_join(task_handler, NULL);
-    cleanup_event_file();
 
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
     return 0;
-
-exit_listener:
-    event_set(event_fd, SIGUSR1);
-
-exit_workqueue:
-    workqueue_handler_wakeup();
-    pthread_join(task_handler, NULL);
-    cleanup_event_file();
-
-exit_error:
-    return -1;
 }
