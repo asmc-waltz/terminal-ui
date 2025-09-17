@@ -155,7 +155,8 @@ int32_t remote_cmd_add_int(remote_cmd_t *cmd, const char *key, int32_t value)
 int32_t create_local_simple_task(uint8_t priority, uint8_t duration, \
                                  uint32_t opcode)
 {
-    work_t *work = create_work(LOCAL, priority, duration, opcode, NULL);
+    work_t *work = create_work(WORK_TYPE_LOCAL, \
+                               priority, duration, opcode, NULL);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
         return -EINVAL;
@@ -177,7 +178,8 @@ int32_t create_remote_task(uint8_t priority, void *data)
 {
     work_t *work;
 
-    work = create_work(REMOTE, priority, SHORT, OP_DBUS_SENT_CMD_DATA, data);
+    work = create_work(WORK_TYPE_REMOTE, priority, WORK_DURATION_SHORT, \
+                       OP_DBUS_SENT_CMD_DATA, data);
     if (!work) {
         LOG_ERROR("Failed to create work from cmd");
         return -EINVAL;

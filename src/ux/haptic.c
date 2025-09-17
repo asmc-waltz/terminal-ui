@@ -66,12 +66,12 @@ int32_t haptic_feedback(bool en_left, bool en_right)
 
     if (en_left) {
         remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_LEFT_VIBRATOR, \
-                        WORK_PRIO_NORMAL, SHORT);
+                        WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
     }
 
     if (en_right) {
         remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_RIGHT_VIBRATOR, \
-                        WORK_PRIO_NORMAL, SHORT);
+                        WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
     }
 
     // NOTE: Command data will be released after the work completes

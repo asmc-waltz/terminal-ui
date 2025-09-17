@@ -18,8 +18,8 @@
  *      DEFINES
  *********************/
 typedef enum {
-    LOCAL = 0,
-    REMOTE,
+    WORK_TYPE_LOCAL = 0,
+    WORK_TYPE_REMOTE,
 } work_type_t;
 
 typedef enum {
@@ -30,8 +30,8 @@ typedef enum {
 } work_priority_t;
 
 typedef enum {
-    SHORT = 0,
-    LONG,
+    WORK_DURATION_SHORT = 0,
+    WORK_DURATION_LONG,
 } work_duration_t;
 
 /**********************

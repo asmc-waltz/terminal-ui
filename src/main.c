@@ -146,7 +146,8 @@ static int32_t service_startup_flow(void)
     usleep(200000);
 
     /* Turn on backlight via remote task */
-    ret = create_remote_simple_task(WORK_PRIO_NORMAL, SHORT, OP_BACKLIGHT_ON);
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                    OP_BACKLIGHT_ON);
     if (ret) {
         LOG_ERROR("Failed to create remote task: backlight on");
         goto exit_dbus;
@@ -184,7 +185,8 @@ static void service_shutdown_flow(void)
     int32_t cnt;
 
     /* Turn off backlight via remote task */
-    ret = create_remote_simple_task(WORK_PRIO_NORMAL, LONG, OP_BACKLIGHT_OFF);
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_LONG, \
+                                    OP_BACKLIGHT_OFF);
     if (ret) {
         LOG_ERROR("Failed to create remote task: backlight off");
         return;
