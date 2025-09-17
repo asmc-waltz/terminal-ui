@@ -121,7 +121,7 @@ static int32_t service_startup_flow(void)
     }
 
     /* Create main task handler thread */
-    ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
+    ret = pthread_create(&task_handler, NULL, task_handler, NULL);
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         goto exit_event;
@@ -174,27 +174,14 @@ static void service_shutdown_flow(void)
     int32_t ret;
     int32_t cnt;
 
-    /* Step 1: Turn off backlight via remote task */
+    /* Turn off backlight via remote task */
     ret = create_remote_simple_task(BLOCK, LONG, OP_BACKLIGHT_OFF);
     if (ret) {
         LOG_ERROR("Failed to create remote task: backlight off");
         return;
     }
 
-    /* Step 2: Wait for all normal tasks to complete */
-    cnt = normal_task_cnt_get();
-    while (cnt) {
-        LOG_TRACE("Waiting for normal works, remaining work %d", cnt);
-        usleep(100000);
-        cnt = normal_task_cnt_get();
-    }
-
-    /* Step 3: Stop endless tasks and notify shutdown */
-    g_run = 0;                      /* Signal threads to stop */
-    workqueue_handler_wakeup();     /* Wake up any waiting workqueue threads */
-    event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
-
-    /* Step 4: Wait until workqueue is fully drained */
+    /* Wait until workqueue is fully drained */
     cnt = workqueue_active_count();
     while (cnt) {
         LOG_TRACE("Waiting for workqueue to be free, remaining work %d", cnt);
@@ -202,8 +189,14 @@ static void service_shutdown_flow(void)
         cnt = workqueue_active_count();
     }
 
+    /* Stop background threads and notify shutdown */
+    g_run = 0;                      /* Signal threads to stop */
+    workqueue_handler_wakeup();     /* Wake up any waiting workqueue threads */
+    event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
+
     ui_main_deinit();
 
+    // TODO:
     pthread_join(task_handler, NULL);
     cleanup_event_file();
 
@@ -212,16 +205,10 @@ static void service_shutdown_flow(void)
 
 static int32_t main_loop()
 {
-    uint32_t cnt = 0;
-
     LOG_INFO("Terminal UI service is running...");
     while (g_run) {
         lv_task_handler();
         usleep(5000);
-        if (++cnt == 20) {
-            cnt = 0;
-            is_task_handler_idle();
-        }
     };
 
     LOG_INFO("Terminal UI service is exiting...");

@@ -44,8 +44,6 @@ extern volatile sig_atomic_t g_run;
 /**********************
  *  STATIC VARIABLES
  **********************/
-static atomic_int g_endless_task_cnt;
-static atomic_int g_normal_task_cnt;
 
 /**********************
  *      MACROS
@@ -68,13 +66,7 @@ static void *non_blocking_task_thread(void *arg)
     LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
               w->type, w->flow, w->duration, w->opcode);
 
-    if (w->duration == ENDLESS) {
-        endless_task_cnt_inc();
-        ret = process_opcode_endless(w->opcode, NULL);
-    } else {
-        normal_task_cnt_inc();
-        ret = process_opcode(w->opcode, w->data);
-    }
+    ret = process_opcode(w->opcode, w->data);
 
     // Check ret...
     // TODO: Handle work done notification
@@ -82,11 +74,6 @@ static void *non_blocking_task_thread(void *arg)
               w->type, w->flow, w->duration, w->opcode, ret);
 
     // Free working data structures for non-blocking tasks.
-    if (w->duration == ENDLESS) {
-        endless_task_cnt_dec();
-    } else {
-        normal_task_cnt_dec();
-    }
     delete_work(w);
 }
 
@@ -113,7 +100,6 @@ static int32_t create_blocking_task(work_t *w)
     LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
               w->type, w->flow, w->duration, w->opcode);
 
-    normal_task_cnt_inc();
     ret = process_opcode(w->opcode, w->data);
 
     // TODO: Handle work done notification
@@ -122,7 +108,6 @@ static int32_t create_blocking_task(work_t *w)
 
     // The working data structures for normal tasks need to be freed
     delete_work(w);
-    normal_task_cnt_dec();
 
     return ret;
 }
@@ -130,85 +115,10 @@ static int32_t create_blocking_task(work_t *w)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-/* Normal task counter */
-void normal_task_cnt_reset(void)
-{
-    atomic_store(&g_normal_task_cnt, 0);
-}
-
-void normal_task_cnt_inc(void)
-{
-    atomic_fetch_add(&g_normal_task_cnt, 1);
-}
-
-void normal_task_cnt_dec(void)
-{
-    atomic_fetch_sub(&g_normal_task_cnt, 1);
-}
-
-int32_t normal_task_cnt_get(void)
-{
-    int32_t val;
-
-    val = atomic_load(&g_normal_task_cnt);
-    return val;
-}
-
-/* Endless task counter */
-void endless_task_cnt_reset(void)
-{
-    atomic_store(&g_endless_task_cnt, 0);
-}
-
-void endless_task_cnt_inc(void)
-{
-    atomic_fetch_add(&g_endless_task_cnt, 1);
-}
-
-void endless_task_cnt_dec(void)
-{
-    atomic_fetch_sub(&g_endless_task_cnt, 1);
-}
-
-int32_t endless_task_cnt_get(void)
-{
-    int32_t val;
-
-    val = atomic_load(&g_endless_task_cnt);
-    return val;
-}
-
-bool is_task_handler_idle()
-{
-    static int32_t pre_nrml_cnt, pre_endl_cnt;
-    int32_t nrml_cnt, endl_cnt;
-
-    nrml_cnt = normal_task_cnt_get();
-    endl_cnt = endless_task_cnt_get();
-    if (nrml_cnt || endl_cnt ) {
-        if (pre_nrml_cnt != nrml_cnt || pre_endl_cnt != endl_cnt) {
-            LOG_INFO("Current tasks: Normal: %d - Endless %d", \
-                     nrml_cnt, endl_cnt);
-            pre_nrml_cnt = nrml_cnt;
-            pre_endl_cnt = endl_cnt;
-        }
-        return false;
-    // TODO:
-    // } else {
-    //     LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
-    //              nrml_cnt, endl_cnt);
-    }
-
-    return true;
-}
-
-void *main_task_handler(void* arg)
+void *task_handler(void* arg)
 {
     work_t *w = NULL;
     int32_t ret = 0;
-
-    normal_task_cnt_reset();
-    endless_task_cnt_reset();
 
     LOG_INFO("Task handler is running...");
     while (g_run) {
@@ -237,7 +147,7 @@ void *main_task_handler(void* arg)
         LOG_TRACE("Task type: [%d] - flow [%d] - opcode [%d]", w->type, \
                   w->flow, w->opcode);
 
-        if (w->flow == BLOCK && w->duration != ENDLESS) {
+        if (w->flow == BLOCK) {
             // run blocking task; return after it completes
             // other tasks in queue wait until it's done
             ret = create_blocking_task(w);
@@ -254,12 +164,6 @@ void *main_task_handler(void* arg)
     };
 
     LOG_INFO("Task handler thread exiting...");
-
-    while (1) {
-        if (is_task_handler_idle())
-            break;
-        usleep(5000);
-    }
 
     return NULL;
 }

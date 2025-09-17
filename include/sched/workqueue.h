@@ -30,7 +30,6 @@ typedef enum {
 typedef enum {
     SHORT = 0,
     LONG,
-    ENDLESS,
 } work_duration_t;
 
 /**********************
