@@ -51,7 +51,7 @@
  * Other functions
  *====================*/
 int32_t ui_main_init(void);
-int32_t ui_refresh_thread(void);
+void ui_main_deinit(void);
 
 /**********************
  *      MACROS

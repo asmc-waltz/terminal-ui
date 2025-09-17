@@ -150,16 +150,7 @@ int32_t ui_main_init(void)
     return 0;
 }
 
-int32_t ui_refresh_thread(void)
+void ui_main_deinit(void)
 {
-    LOG_INFO("UI refresh running...");
-    while (g_run) {
-        lv_task_handler();
-        usleep(5000);
-    };
-
     gf_destroy_app_ctx(gf_get_app_ctx());
-
-    LOG_INFO("UI refresh stopping...");
-    return 0;
 }
