@@ -52,21 +52,6 @@ extern volatile sig_atomic_t g_run;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static int32_t create_blocking_task(work_t *w)
-{
-    int32_t ret = 0;
-
-    LOG_TRACE("TASK: [%d:%d:%d:%d] is started", \
-              w->type, w->flow, w->duration, w->opcode);
-
-    ret = process_opcode(w->opcode, w->data);
-
-    // TODO: Handle work done notification
-    LOG_TRACE("TASK: [%d:%d:%d:%d] is completed - return %d", \
-              w->type, w->flow, w->duration, w->opcode, ret);
-
-    return ret;
-}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -102,30 +87,31 @@ void *workqueue_handler(void* arg)
             break;
         }
 
-        LOG_TRACE("Handler ID [%lu] type: [%d] - flow [%d] - opcode [%d]", \
-                  (unsigned long)tid, w->type, w->flow, w->opcode);
+        LOG_TRACE("Handler ID [%lu] type: [%d] - priority [%d] - opcode [%d]", \
+                  (unsigned long)tid, w->type, w->prio , w->opcode);
 
-        if (w->flow == BLOCK) {
+        if (w->opcode <= OP_NONE || w->opcode >= OP_ID_END) {
+            LOG_WARN("Invalid task specification:\n" \
+                     "\tOpcode [%d]\n" \
+                     "\tPriority [%d]\n" \
+                     "\tDuration [%d] -> DELETE", \
+                     w->opcode, w->prio , w->duration);
+
+            delete_work(w);
+        } else {
             /*
              * Run blocking task; return after it completes other tasks in
              * queue wait until it's done. or will be handled by another handler
              */
-            ret = create_blocking_task(w);
+
+            ret = process_opcode(w->opcode, w->data);
             if (ret) {
-                LOG_ERROR("Handler ID [%lu] task failed with ret=%d",
-                          (unsigned long)tid, ret);
+                LOG_ERROR("Handler ID [%lu] task failed with ret=%d\n" \
+                          "\tType: [%d] - priority [%d] - opcode [%d]", \
+                          (unsigned long)tid, ret, w->type, w->prio, w->opcode);
             }
             // The working data structures for any tasks need to be freed
             delete_work(w);
-        } else if (w->flow == NON_BLOCK) {
-            LOG_WARN("Non-blocking task not supported");
-            delete_work(w);
-        } else {
-            LOG_WARN("Invalid task specification:\n" \
-                     "\tOpcode [%d]\n" \
-                     "\tFlow [%d]\n" \
-                     "\tDuration [%d]", \
-                     w->opcode, w->flow, w->duration);
         }
     };
 

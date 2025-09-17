@@ -67,11 +67,11 @@ int32_t audio_feedback(bool en_left, bool en_right)
     // Stereo audio not supported at the moment
     if (en_left | en_right) {
         remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_SOUND_PLAY, \
-                        NON_BLOCK, SHORT);
+                        WORK_PRIO_NORMAL, SHORT);
     }
 
     // NOTE: Command data will be released after the work completes
-    ret = create_remote_task(BLOCK, cmd);
+    ret = create_remote_task(WORK_PRIO_HIGH, cmd);
     return ret;
 
 out:

@@ -23,9 +23,11 @@ typedef enum {
 } work_type_t;
 
 typedef enum {
-    BLOCK = 0,
-    NON_BLOCK,
-} work_flow_t;
+    WORK_PRIO_LOW = 0,
+    WORK_PRIO_NORMAL,
+    WORK_PRIO_HIGH,
+    WORK_PRIO_URGENT,
+} work_priority_t;
 
 typedef enum {
     SHORT = 0,
@@ -36,9 +38,9 @@ typedef enum {
  *      TYPEDEFS
  **********************/
 typedef struct work {
-    uint8_t type;
-    uint8_t flow;
-    uint8_t duration;
+    work_type_t type;
+    work_priority_t prio;
+    work_duration_t duration;
     uint32_t opcode;
     void *data;
     struct work *next;
@@ -82,7 +84,7 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-work_t *create_work(uint8_t type, uint8_t flow, uint8_t duration, \
+work_t *create_work(uint8_t type, uint8_t priority, uint8_t duration, \
                     uint32_t opcode, void *data);
 void delete_work(work_t *work);
 void push_work(work_t *work);
