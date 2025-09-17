@@ -57,12 +57,6 @@ int32_t process_opcode_endless(uint32_t opcode, void *data)
     int32_t ret = 0;
 
     switch (opcode) {
-    case OP_START_DBUS:
-        ret = dbus_fn_thread_handler();
-        break;
-    case OP_UI_START:
-        ret = ui_refresh_thread();
-        break;
     case OP_START_IMU:
         break;
     default:
@@ -78,21 +72,8 @@ int32_t process_opcode(uint32_t opcode, void *data)
     int32_t ret = 0;
 
     switch (opcode) {
-    case OP_UI_INIT:
-        ret = ui_main_init();
-        break;
-    case OP_UI_STOP:
-        break;
     case OP_DBUS_SENT_CMD_DATA:
         ret = dbus_method_call_with_data((remote_cmd_t *)data);
-        break;
-    case OP_LEFT_VIBRATOR:
-        break;
-    case OP_RIGHT_VIBRATOR:
-        break;
-    case OP_STOP_IMU:
-        break;
-    case OP_READ_IMU:
         break;
     default:
         LOG_ERROR("Opcode [%d] is invalid", opcode);

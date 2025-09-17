@@ -193,9 +193,10 @@ bool is_task_handler_idle()
             pre_endl_cnt = endl_cnt;
         }
         return false;
-    } else {
-        LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
-                 nrml_cnt, endl_cnt);
+    // TODO:
+    // } else {
+    //     LOG_INFO("All subtasks are exited: Normal %d - Endless %d", \
+    //              nrml_cnt, endl_cnt);
     }
 
     return true;
