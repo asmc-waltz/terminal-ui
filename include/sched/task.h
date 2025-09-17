@@ -30,8 +30,7 @@
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
-void * task_handler(void* arg);
-
+void * workqueue_handler(void* arg);
 int32_t process_opcode(uint32_t opcode, void *data);
 
 /**********************

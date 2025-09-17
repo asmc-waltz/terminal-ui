@@ -99,7 +99,8 @@ static int32_t setup_signal_handler()
 }
 
 // TODO: create thread pool
-    pthread_t task_handler;
+    pthread_t task_pool_0;
+    pthread_t task_pool_1;
 
 static int32_t service_startup_flow(void)
 {
@@ -121,7 +122,14 @@ static int32_t service_startup_flow(void)
     }
 
     /* Create main task handler thread */
-    ret = pthread_create(&task_handler, NULL, task_handler, NULL);
+    ret = pthread_create(&task_pool_0, NULL, workqueue_handler, NULL);
+    if (ret) {
+        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
+        goto exit_event;
+    }
+
+    /* Create main task handler thread */
+    ret = pthread_create(&task_pool_1, NULL, workqueue_handler, NULL);
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         goto exit_event;
@@ -153,7 +161,8 @@ exit_dbus:
 
 exit_workqueue:
     workqueue_handler_wakeup();
-    pthread_join(task_handler, NULL);
+    pthread_join(task_pool_0, NULL);
+    pthread_join(task_pool_1, NULL);
 
 exit_event:
     cleanup_event_file();
@@ -197,7 +206,8 @@ static void service_shutdown_flow(void)
     ui_main_deinit();
 
     // TODO:
-    pthread_join(task_handler, NULL);
+    pthread_join(task_pool_0, NULL);
+    pthread_join(task_pool_1, NULL);
     cleanup_event_file();
 
     LOG_INFO("Service shutdown flow completed");

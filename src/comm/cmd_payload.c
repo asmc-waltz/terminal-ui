@@ -222,5 +222,5 @@ int32_t create_remote_simple_task(uint8_t flow, uint8_t duration, uint32_t opcod
         return -EINVAL;
     }
 
-    return create_remote_task(NON_BLOCK, (void *)cmd);
+    return create_remote_task(BLOCK, (void *)cmd);
 }
