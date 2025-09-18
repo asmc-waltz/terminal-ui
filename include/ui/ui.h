@@ -12,8 +12,8 @@
 #include <stdbool.h>
 
 #include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
+#include "list.h"
+#include "ui/ui_core.h"
 
 /*********************
  *      DEFINES

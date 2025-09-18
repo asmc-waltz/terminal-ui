@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 #include <lvgl.h>
-#include <list.h>
+#include "list.h"
 
 /*********************
  *      DEFINES

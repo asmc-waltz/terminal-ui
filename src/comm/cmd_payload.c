@@ -10,7 +10,7 @@
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +18,10 @@
 #include <string.h>
 #include <errno.h>
 
-#include <comm/dbus_comm.h>
-#include <comm/cmd_payload.h>
-#include <sched/workqueue.h>
-#include <sched/task.h>
+#include "comm/dbus_comm.h"
+#include "comm/cmd_payload.h"
+#include "sched/workqueue.h"
+#include "sched/task.h"
 
 /*********************
  *      DEFINES

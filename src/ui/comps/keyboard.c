@@ -10,7 +10,7 @@
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,10 +19,10 @@
 #include <stdbool.h>
 
 #include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
-#include <ui/comps.h>
-#include <ux/ux.h>
+#include "list.h"
+#include "ui/ui_core.h"
+#include "ui/comps.h"
+#include "ux/ux.h"
 
 /*********************
  *      DEFINES

@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
-#include <list.h>
+#include "list.h"
 
 /*********************
  *      DEFINES

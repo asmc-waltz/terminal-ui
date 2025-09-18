@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <sched/workqueue.h>
+#include "sched/workqueue.h"
 
 /*********************
  *      DEFINES
