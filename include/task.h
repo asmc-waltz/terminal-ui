@@ -16,7 +16,10 @@
 /*********************
  *      DEFINES
  *********************/
+#define NR_WORKQUEUE                    1
+#define WORKERS_PER_QUEUE               2
 
+#define UI_WQ                           0
 /**********************
  *      TYPEDEFS
  **********************/
@@ -32,8 +35,6 @@
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
-workqueue_t *get_ui_wq(void);
-void set_ui_wq(workqueue_t *wq);
 int32_t process_opcode(uint32_t opcode, void *data);
 
 /**********************

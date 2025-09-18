@@ -238,7 +238,7 @@ static int32_t dispatch_cmd_from_message(DBusMessage *msg)
         return -ENOMEM;
     }
 
-    push_work(get_ui_wq(), work);
+    push_work(get_wq(UI_WQ), work);
     return 0;
 }
 

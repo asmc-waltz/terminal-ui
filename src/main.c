@@ -107,7 +107,6 @@ static int32_t service_startup_flow(void)
 {
     int32_t ret;
     pthread_t dbus_handler;
-    workqueue_t *wq = NULL;
 
     /* Initialize UI */
     ret = ui_main_init();
@@ -123,23 +122,21 @@ static int32_t service_startup_flow(void)
         goto exit_ui;
     }
 
-    wq = workqueue_create();
-    if (!wq) {
-        LOG_FATAL("Unable to create workqueue");
-        return -ENOMEM;
+    ret = workqueue_init();
+    if (ret) {
+        LOG_FATAL("Failed to initialize workqueues, ret=%d", ret);
+        goto exit_ui;
     }
 
-    set_ui_wq(wq);
-
     /* Create main task handler thread */
-    ret = pthread_create(&task_pool_0, NULL, workqueue_handler, get_ui_wq());
+    ret = pthread_create(&task_pool_0, NULL, workqueue_handler, get_wq(UI_WQ));
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         goto exit_event;
     }
 
     /* Create main task handler thread */
-    ret = pthread_create(&task_pool_1, NULL, workqueue_handler, get_ui_wq());
+    ret = pthread_create(&task_pool_1, NULL, workqueue_handler, get_wq(UI_WQ));
     if (ret) {
         LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         goto exit_event;
@@ -171,9 +168,10 @@ exit_dbus:
     event_set(event_fd, SIGUSR1);
 
 exit_workqueue:
-    workqueue_handler_wakeup(get_ui_wq());
+    workqueue_handler_wakeup(get_wq(UI_WQ));
     pthread_join(task_pool_0, NULL);
     pthread_join(task_pool_1, NULL);
+    workqueue_deinit();
 
 exit_event:
     cleanup_event_file();
@@ -203,23 +201,23 @@ static void service_shutdown_flow(void)
     }
 
     /* Wait until workqueue is fully drained */
-    cnt = workqueue_active_count(get_ui_wq());
+    cnt = workqueue_active_count(get_wq(UI_WQ));
     while (cnt) {
         LOG_TRACE("Waiting for workqueue to be free, remaining work %d", cnt);
         usleep(100000);
-        cnt = workqueue_active_count(get_ui_wq());
+        cnt = workqueue_active_count(get_wq(UI_WQ));
     }
 
     /* Stop background threads and notify shutdown */
     g_run = 0;                      /* Signal threads to stop */
     event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
-    workqueue_handler_wakeup(get_ui_wq());     /* Wake up any waiting workqueue threads */
+    workqueue_handler_wakeup(get_wq(UI_WQ));     /* Wake up any waiting workqueue threads */
 
     // TODO:
     pthread_join(task_pool_0, NULL);
     pthread_join(task_pool_1, NULL);
 
-    workqueue_destroy(get_ui_wq());
+    workqueue_deinit();
 
     cleanup_event_file();
     ui_main_deinit();

@@ -95,8 +95,11 @@ int32_t workqueue_active_count(workqueue_t *wq);
 
 void *workqueue_handler(void* arg);
 
-// workqueue_t *get_ui_wq(void);
-// void set_ui_wq(workqueue_t *wq);
+workqueue_t *get_wq(int32_t index);
+void set_wq(workqueue_t *wq, int32_t index);
+
+int32_t workqueue_init();
+int32_t workqueue_deinit();
 /**********************
  *   STATIC FUNCTIONS
  **********************/

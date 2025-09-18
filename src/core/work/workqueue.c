@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdatomic.h>
+#include <errno.h>
 
 #include "comm/dbus_comm.h"
 #include "sched/workqueue.h"
@@ -42,6 +43,7 @@ extern volatile sig_atomic_t g_run;
 /**********************
  *  STATIC VARIABLES
  **********************/
+static workqueue_t *workqueue_lst[NR_WORKQUEUE];
 
 /**********************
  *      MACROS
@@ -166,4 +168,50 @@ void workqueue_handler_wakeup(workqueue_t *wq)
     pthread_mutex_lock(&wq->mutex);
     pthread_cond_broadcast(&wq->cond);
     pthread_mutex_unlock(&wq->mutex);
+}
+
+workqueue_t *get_wq(int32_t index)
+{
+    return workqueue_lst[index];
+}
+
+void set_wq(workqueue_t *wq, int32_t index)
+{
+    workqueue_lst[index] = wq;
+}
+
+int32_t workqueue_init()
+{
+    int32_t wq_cnt;
+    int32_t worker_cnt;
+    workqueue_t *wq = NULL;
+
+    LOG_INFO("Init %d workers per workqueue, total %d workqueues", \
+             WORKERS_PER_QUEUE, NR_WORKQUEUE);
+
+    for (wq_cnt = 0; wq_cnt < NR_WORKQUEUE; wq_cnt++) {
+
+        wq = workqueue_create();
+        if (!wq) {
+            LOG_FATAL("Unable to create workqueue, index %d", wq_cnt);
+            return -ENOMEM;
+        }
+
+        set_wq(wq, wq_cnt);
+        LOG_DEBUG("Workqueue %d is created", wq_cnt);
+    }
+
+    return 0;
+}
+
+int32_t workqueue_deinit()
+{
+    int32_t i;
+    workqueue_t *wq = NULL;
+
+    for (i = 0; i < NR_WORKQUEUE; i++) {
+        workqueue_destroy(get_wq(i));
+    }
+
+    return 0;
 }

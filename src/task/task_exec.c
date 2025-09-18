@@ -40,7 +40,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static workqueue_t *ui_wq = NULL;
 
 /**********************
  *      MACROS
@@ -53,16 +52,6 @@ static workqueue_t *ui_wq = NULL;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-workqueue_t *get_ui_wq(void)
-{
-    return ui_wq;
-}
-
-void set_ui_wq(workqueue_t *wq)
-{
-    ui_wq = wq;
-}
-
 int32_t process_opcode(uint32_t opcode, void *data)
 {
     int32_t ret = 0;

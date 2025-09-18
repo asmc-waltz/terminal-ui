@@ -164,7 +164,7 @@ int32_t create_local_simple_task(uint8_t priority, uint8_t duration, \
         return -EINVAL;
     }
 
-    push_work(get_ui_wq(), work);
+    push_work(get_wq(UI_WQ), work);
 
     return 0;
 }
@@ -187,7 +187,7 @@ int32_t create_remote_task(uint8_t priority, void *data)
         return -EINVAL;
     }
 
-    push_work(get_ui_wq(), work);
+    push_work(get_wq(UI_WQ), work);
 
     return 0;
 }
