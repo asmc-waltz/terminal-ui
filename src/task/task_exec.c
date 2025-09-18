@@ -19,7 +19,7 @@
 #include "comm/dbus_comm.h"
 #include "comm/cmd_payload.h"
 #include "sched/workqueue.h"
-#include "sched/task.h"
+#include "task.h"
 
 /*********************
  *      DEFINES

@@ -20,7 +20,7 @@
 #include "ux/ux.h"
 #include "comm/dbus_comm.h"
 #include "comm/cmd_payload.h"
-#include "sched/task.h"
+#include "task.h"
 
 
 /*********************
