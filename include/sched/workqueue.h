@@ -17,6 +17,15 @@
 /*********************
  *      DEFINES
  *********************/
+/*
+ * Depends on application to modify these values
+ */
+#define NR_WORKQUEUE                    1
+#define WORKERS_PER_QUEUE               2
+
+/**********************
+ *      TYPEDEFS
+ **********************/
 typedef enum {
     WORK_TYPE_LOCAL = 0,
     WORK_TYPE_REMOTE,
@@ -34,9 +43,6 @@ typedef enum {
     WORK_DURATION_LONG,
 } work_duration_t;
 
-/**********************
- *      TYPEDEFS
- **********************/
 typedef struct work {
     struct list_head node;
     work_type_t type;
@@ -52,6 +58,12 @@ typedef struct workqueue {
     pthread_cond_t cond;
     atomic_int active_cnt;
 } workqueue_t;
+
+typedef struct wq_ctx {
+    workqueue_t *wq;
+    pthread_t workers[WORKERS_PER_QUEUE];
+    int32_t nr_workers;  /* number of successfully created workers */
+} wq_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -83,23 +95,21 @@ typedef struct workqueue {
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-workqueue_t *workqueue_create(void);
-void workqueue_destroy(workqueue_t *wq);
 work_t *create_work(uint8_t type, uint8_t priority, uint8_t duration, \
                     uint32_t opcode, void *data);
 void workqueue_complete_work(workqueue_t *wq, work_t *w);
 void push_work(workqueue_t *wq, work_t *w);
 work_t *pop_work_wait_safe(workqueue_t *wq);
 void workqueue_handler_wakeup(workqueue_t *wq);
+int32_t workqueue_handler_wakeup_all(void);
 int32_t workqueue_active_count(workqueue_t *wq);
 
 void *workqueue_handler(void* arg);
 
 workqueue_t *get_wq(int32_t index);
-void set_wq(workqueue_t *wq, int32_t index);
 
 int32_t workqueue_init();
-int32_t workqueue_deinit();
+void workqueue_deinit();
 /**********************
  *   STATIC FUNCTIONS
  **********************/

@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -43,7 +43,7 @@ extern volatile sig_atomic_t g_run;
 /**********************
  *  STATIC VARIABLES
  **********************/
-static workqueue_t *workqueue_lst[NR_WORKQUEUE];
+static wq_ctx_t *wq_ctxs = NULL;
 
 /**********************
  *      MACROS
@@ -52,11 +52,7 @@ static workqueue_t *workqueue_lst[NR_WORKQUEUE];
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-workqueue_t *workqueue_create(void)
+static workqueue_t *workqueue_create(void)
 {
     workqueue_t *wq;
 
@@ -72,12 +68,14 @@ workqueue_t *workqueue_create(void)
     return wq;
 }
 
-void workqueue_destroy(workqueue_t *wq)
+static void workqueue_destroy(workqueue_t *wq)
 {
     work_t *pos, *n;
 
-    if (!wq)
+    if (wq == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
         return;
+    } 
 
     pthread_mutex_lock(&wq->mutex);
     list_for_each_entry_safe(pos, n, &wq->list, node) {
@@ -92,6 +90,44 @@ void workqueue_destroy(workqueue_t *wq)
     free(wq);
 }
 
+static int32_t create_workers(wq_ctx_t *ctx)
+{
+    int32_t i, ret;
+
+    ctx->nr_workers = 0;
+
+    for (i = 0; i < WORKERS_PER_QUEUE; i++) {
+        ret = pthread_create(&ctx->workers[i], NULL,
+                             workqueue_handler, ctx->wq);
+        if (ret) {
+            LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
+            return -ENOMEM;
+        }
+
+        ctx->nr_workers++;
+        LOG_TRACE("Worker %d created", i);
+    }
+
+    return 0;
+}
+
+static void rollback_workqueues(int32_t upto)
+{
+    int32_t i, w;
+
+    for (i = 0; i < upto; i++) {
+        for (w = 0; w < wq_ctxs[i].nr_workers; w++)
+            pthread_join(wq_ctxs[i].workers[w], NULL);
+
+        workqueue_destroy(wq_ctxs[i].wq);
+    }
+
+    free(wq_ctxs);
+    wq_ctxs = NULL;
+}
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
 work_t *create_work(uint8_t type, uint8_t priority, uint8_t duration, \
                     uint32_t opcode, void *data)
 {
@@ -114,6 +150,11 @@ work_t *create_work(uint8_t type, uint8_t priority, uint8_t duration, \
 
 void push_work(workqueue_t *wq, work_t *w)
 {
+    if (wq == NULL || w == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
+        return;
+    } 
+
     pthread_mutex_lock(&wq->mutex);
     list_add_tail(&w->node, &wq->list);
     atomic_fetch_add(&wq->active_cnt, 1);
@@ -124,6 +165,11 @@ void push_work(workqueue_t *wq, work_t *w)
 work_t *pop_work_wait_safe(workqueue_t *wq)
 {
     work_t *w = NULL;
+
+    if (wq == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
+        return NULL;
+    } 
 
     pthread_mutex_lock(&wq->mutex);
     while (list_empty(&wq->list) && g_run)
@@ -143,8 +189,10 @@ work_t *pop_work_wait_safe(workqueue_t *wq)
 
 void workqueue_complete_work(workqueue_t *wq, work_t *w)
 {
-    if (!w)
+    if (wq == NULL || w == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
         return;
+    } 
 
     if (w->data)
         free(w->data);
@@ -158,60 +206,123 @@ void workqueue_complete_work(workqueue_t *wq, work_t *w)
     }
 }
 
-int32_t workqueue_active_count(workqueue_t *wq)
-{
-    return atomic_load(&wq->active_cnt);
-}
-
 void workqueue_handler_wakeup(workqueue_t *wq)
 {
+    if (wq == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
+        return;
+    } 
+
     pthread_mutex_lock(&wq->mutex);
     pthread_cond_broadcast(&wq->cond);
     pthread_mutex_unlock(&wq->mutex);
 }
 
+int32_t workqueue_handler_wakeup_all(void)
+{
+    int32_t i;
+
+    for (i = 0; i < NR_WORKQUEUE; i++) {
+        workqueue_handler_wakeup(get_wq(i));
+        LOG_TRACE("WQ %d wakeup all handler", i);
+    }
+
+    return 0;
+}
+
+int32_t workqueue_active_count(workqueue_t *wq)
+{
+    if (wq == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
+        return;
+    } 
+    return atomic_load(&wq->active_cnt);
+}
+
 workqueue_t *get_wq(int32_t index)
 {
-    return workqueue_lst[index];
+    if (index > NR_WORKQUEUE) {
+        LOG_ERROR("Workqueue data is invalid");
+        return NULL;
+    }
+        
+    return wq_ctxs[index].wq;
 }
 
-void set_wq(workqueue_t *wq, int32_t index)
+static inline void set_wq(workqueue_t *wq, int32_t index)
 {
-    workqueue_lst[index] = wq;
+    if (wq == NULL) {
+        LOG_ERROR("Workqueue data is invalid");
+        return;
+    } 
+
+    wq_ctxs[index].wq = wq;
 }
 
-int32_t workqueue_init()
+int32_t workqueue_init(void)
 {
-    int32_t wq_cnt;
-    int32_t worker_cnt;
+    int32_t i, ret;
     workqueue_t *wq = NULL;
+    wq_ctx_t *ctx = NULL;
 
-    LOG_INFO("Init %d workers per workqueue, total %d workqueues", \
+    ctx = calloc(NR_WORKQUEUE, sizeof(*ctx));
+    if (!ctx) {
+        LOG_FATAL("Unable to allocate %d workqueue contexts", NR_WORKQUEUE);
+        return -ENOMEM;
+    }
+
+    LOG_INFO("Init %d workers per workqueue, total %d workqueues",
              WORKERS_PER_QUEUE, NR_WORKQUEUE);
 
-    for (wq_cnt = 0; wq_cnt < NR_WORKQUEUE; wq_cnt++) {
+    wq_ctxs = ctx;
 
+    for (i = 0; i < NR_WORKQUEUE; i++) {
         wq = workqueue_create();
         if (!wq) {
-            LOG_FATAL("Unable to create workqueue, index %d", wq_cnt);
+            LOG_FATAL("Unable to create workqueue, index %d", i);
+            rollback_workqueues(i);
             return -ENOMEM;
         }
 
-        set_wq(wq, wq_cnt);
-        LOG_DEBUG("Workqueue %d is created", wq_cnt);
+        ctx[i].wq = wq;
+        LOG_TRACE("Workqueue %d created", i);
+
+        ret = create_workers(&ctx[i]);
+        if (ret) {
+            if (NR_WORKQUEUE > 1)
+                LOG_ERROR("Failed to create %d workers for queue %d",
+                          WORKERS_PER_QUEUE, i);
+            else
+                LOG_FATAL("Failed to create %d workers for queue %d",
+                          WORKERS_PER_QUEUE, i);
+
+            rollback_workqueues(i + 1);
+            return -ENOMEM;
+        }
+
+        LOG_TRACE("Created %d workers for queue %d",
+                  WORKERS_PER_QUEUE, i);
     }
 
     return 0;
 }
 
-int32_t workqueue_deinit()
+void workqueue_deinit(void)
 {
-    int32_t i;
-    workqueue_t *wq = NULL;
+    int32_t i, w;
+
+    workqueue_handler_wakeup_all();
 
     for (i = 0; i < NR_WORKQUEUE; i++) {
+        for (w = 0; w < wq_ctxs[i].nr_workers; w++) {
+            pthread_join(wq_ctxs[i].workers[w], NULL);
+            LOG_TRACE("WQ %d - Worker %d: Exited", i, w);
+        }
+
         workqueue_destroy(get_wq(i));
+        LOG_TRACE("WQ %d destroyed", i);
     }
 
-    return 0;
+    free(wq_ctxs);
+    wq_ctxs = NULL;
 }
