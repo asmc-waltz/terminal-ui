@@ -18,10 +18,9 @@
 #include <stdbool.h>
 
 #include "ux/ux.h"
+#include "sched/workqueue.h"
 #include "comm/dbus_comm.h"
 #include "comm/cmd_payload.h"
-#include "task.h"
-
 
 /*********************
  *      DEFINES

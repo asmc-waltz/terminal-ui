@@ -27,7 +27,6 @@
 #include "comm/f_comm.h"
 #include "comm/dbus_comm.h"
 #include "sched/workqueue.h"
-#include "task.h"
 
 /*********************
  *      DEFINES
@@ -99,10 +98,6 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
-// TODO: create thread pool
-    pthread_t task_pool_0;
-    pthread_t task_pool_1;
-
 static int32_t service_startup_flow(void)
 {
     int32_t ret;
@@ -125,20 +120,6 @@ static int32_t service_startup_flow(void)
     ret = workqueue_init();
     if (ret) {
         LOG_FATAL("Failed to initialize workqueues, ret=%d", ret);
-        goto exit_ui;
-    }
-
-    /* Create main task handler thread */
-    ret = pthread_create(&task_pool_0, NULL, workqueue_handler, get_wq(UI_WQ));
-    if (ret) {
-        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
-        goto exit_event;
-    }
-
-    /* Create main task handler thread */
-    ret = pthread_create(&task_pool_1, NULL, workqueue_handler, get_wq(UI_WQ));
-    if (ret) {
-        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
         goto exit_event;
     }
 
@@ -168,9 +149,6 @@ exit_dbus:
     event_set(event_fd, SIGUSR1);
 
 exit_workqueue:
-    workqueue_handler_wakeup(get_wq(UI_WQ));
-    pthread_join(task_pool_0, NULL);
-    pthread_join(task_pool_1, NULL);
     workqueue_deinit();
 
 exit_event:
@@ -211,15 +189,11 @@ static void service_shutdown_flow(void)
     /* Stop background threads and notify shutdown */
     g_run = 0;                      /* Signal threads to stop */
     event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
-    workqueue_handler_wakeup(get_wq(UI_WQ));     /* Wake up any waiting workqueue threads */
-
-    // TODO:
-    pthread_join(task_pool_0, NULL);
-    pthread_join(task_pool_1, NULL);
 
     workqueue_deinit();
 
     cleanup_event_file();
+
     ui_main_deinit();
 
     LOG_INFO("Service shutdown flow completed");
