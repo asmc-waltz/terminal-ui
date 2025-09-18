@@ -20,6 +20,8 @@
 
 #include <comm/dbus_comm.h>
 #include <comm/cmd_payload.h>
+#include <sched/workqueue.h>
+#include <sched/task.h>
 
 /*********************
  *      DEFINES
@@ -162,7 +164,7 @@ int32_t create_local_simple_task(uint8_t priority, uint8_t duration, \
         return -EINVAL;
     }
 
-    push_work(work);
+    push_work(get_ui_wq(), work);
 
     return 0;
 }
@@ -185,7 +187,7 @@ int32_t create_remote_task(uint8_t priority, void *data)
         return -EINVAL;
     }
 
-    push_work(work);
+    push_work(get_ui_wq(), work);
 
     return 0;
 }

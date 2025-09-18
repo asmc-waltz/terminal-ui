@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <sched/workqueue.h>
+
 /*********************
  *      DEFINES
  *********************/
@@ -30,7 +32,8 @@
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
-void * workqueue_handler(void* arg);
+workqueue_t *get_ui_wq(void);
+void set_ui_wq(workqueue_t *wq);
 int32_t process_opcode(uint32_t opcode, void *data);
 
 /**********************
