@@ -120,8 +120,8 @@ lv_obj_t *create_scr_page(lv_obj_t *par, const char *name)
     gf_gobj_set_size(btn, 54, 54);
     gf_gobj_align_to(btn, lv_layer_top(), LV_ALIGN_CENTER, -50, 0);
 
-    lv_obj_t *icon = gf_create_sym(btn, NULL, 10, 10, \
-                         TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID, lv_color_hex(0xFFFFFF));
+    lv_obj_t *icon = gf_create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
+    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 
 
     btn = gf_create_btn(lv_layer_top(), "create keyboard");
@@ -129,8 +129,8 @@ lv_obj_t *create_scr_page(lv_obj_t *par, const char *name)
     gf_gobj_align_to(btn, lv_layer_top(), LV_ALIGN_CENTER, 50, 0);
     lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, btn->user_data);
 
-    icon = gf_create_sym(btn, NULL, 10, 10, \
-                         TOP_BAR_SYM_FONTS, ICON_KEYBOARD, lv_color_hex(0xFFFFFF));
+    icon = gf_create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
+    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 #endif
 
     return page;

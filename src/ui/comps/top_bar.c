@@ -75,13 +75,13 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
         return -1;
     }
 
-    icon = gf_create_sym(box, NULL, 0, TOP_BAR_SYM_ALN, \
-                         TOP_BAR_SYM_FONTS, index, lv_color_hex(0xFFFFFF));
+    icon = gf_create_sym(box, NULL, TOP_BAR_SYM_FONTS, index);
     if (!icon) {
         LOG_ERROR("Unable to add symbol %s", name);
         gf_remove_obj_and_child_by_name(name, &gobj_par->child);
         return -1;
     }
+    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 
     return 0;
 }
@@ -101,12 +101,13 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
     gobj_par = par->user_data;
     gf_gobj_set_size(box, gobj_par->pos.h, gobj_par->pos.h);
 
-    icon = gf_create_sym(box, NULL, 0, TOP_BAR_SYM_ALN, \
-                         TOP_BAR_SYM_FONTS, index, lv_color_hex(0xFFFFFF));
+    icon = gf_create_sym(box, NULL, TOP_BAR_SYM_FONTS, index);
     if (!icon) {
+        LOG_ERROR("Unable to add symbol %s", name);
         gf_remove_obj_and_child_by_name(name, &gobj_par->child);
-        return NULL;
+        return -1;
     }
+    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 
     return box;
 }
