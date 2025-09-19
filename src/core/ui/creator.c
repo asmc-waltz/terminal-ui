@@ -166,22 +166,24 @@ lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
     gf_gobj_set_size(lobj, w, h);
-    // gf_gobj_set_pos(lobj, (obj_width(par) - w) / 2, (obj_height(par) - h) / 2);
     gf_gobj_set_pos_mid(lobj);
     return lobj;
 }
 
-lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, int32_t x, \
-                         int32_t y, const lv_font_t *font, const char *index, \
-                         lv_color_t color)
+lv_obj_t *gf_create_sym(lv_obj_t *par, const char *name, \
+                        const lv_font_t *font, const char *index)
 {
+
+    int32_t w, h;
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_ICON, name);
     LV_ASSERT_NULL(lobj);
     lv_obj_set_style_text_font(lobj, font, 0);
-    lv_obj_set_style_text_color(lobj, color, 0);
     lv_label_set_text(lobj, index);
-    gf_gobj_get_size(lobj);
-    gf_gobj_set_pos(lobj, x, y);
+    lv_obj_update_layout(lobj);
+    w = lv_obj_get_width(lobj);
+    h = lv_obj_get_height(lobj);
+    gf_gobj_set_size(lobj, w, h);
+    gf_gobj_set_pos_mid(lobj);
     return lobj;
 }
 
