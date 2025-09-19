@@ -148,19 +148,25 @@ lv_obj_t * gf_create_container(lv_obj_t *par, const char *name)
  * Always use explicit pixel values for such objects when applying rotation.
  *
  */
-lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, \
-                          int32_t y, const char *txt_str)
+
+/*
+ * Text object is automatically sized based on font.
+ * Offset is always aligned to the center of the parent object.
+ * Ensure parent object size is set before creating a text object.
+ */
+lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *txt_str)
 {
     int32_t w, h;
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_LABEL, name);
     LV_ASSERT_NULL(lobj);
-    lv_obj_set_style_text_font(lobj, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(lobj, font, 0);
     lv_label_set_text_fmt(lobj, "%s", txt_str);
     lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
     gf_gobj_set_size(lobj, w, h);
-    gf_gobj_set_pos(lobj, x, y);
+    gf_gobj_set_pos(lobj, (obj_width(par) - w) / 2, (obj_height(par) - h) / 2);
     return lobj;
 }
 

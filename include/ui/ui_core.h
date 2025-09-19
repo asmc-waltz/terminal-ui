@@ -150,8 +150,9 @@ void gf_destroy_app_ctx(g_ctx *ctx);
 lv_obj_t * gf_create_base(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
-                             const char *txt_str);
+lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *txt_str);
+//
 lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
                          const lv_font_t *font, const char *index, \
                          lv_color_t color);
