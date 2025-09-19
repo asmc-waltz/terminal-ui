@@ -395,32 +395,6 @@ static void kb_key_cb(lv_event_t *event)
         LOG_WARN("Audio feedback request failed");
 }
 
-static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
-{
-    lv_obj_t *btn, *lbl;
-
-    if (key->type <= T_KEY_TYPE || key->type >= T_KEY_LAYOUT_FLAG) {
-        LOG_ERROR("KB: unable to create key, invalid type %d", key->type);
-        return NULL;
-    }
-
-    btn = gf_create_btn(par, key->label);
-    if (!btn)
-        return NULL;
-    lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_pad_all(btn, 0, 0);
-    lv_obj_set_style_pad_gap(btn, 0, 0);
-    lv_obj_set_style_shadow_width(btn, 0, 0);
-    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
-
-    lbl = gf_create_text(btn, NULL, 10, 10, key->label);
-    if (!lbl)
-        return NULL;
-    lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
-
-    return btn;
-}
-
 static void set_key_size(lv_obj_t *lobj, const key_def *key, kb_size_ctx *size)
 {
     int32_t key_w = 0;
@@ -555,6 +529,34 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
     return line_box;
 }
 
+static lv_obj_t *create_key(lv_obj_t *par, const key_def *key, kb_size_ctx *size)
+{
+    lv_obj_t *btn, *lbl;
+
+    if (key->type <= T_KEY_TYPE || key->type >= T_KEY_LAYOUT_FLAG) {
+        LOG_ERROR("KB: unable to create key, invalid type %d", key->type);
+        return NULL;
+    }
+
+    btn = gf_create_btn(par, key->label);
+    if (!btn)
+        return NULL;
+    lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_all(btn, 0, 0);
+    lv_obj_set_style_pad_gap(btn, 0, 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
+    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
+    set_key_size(btn, key, size);
+
+    lbl = gf_create_text(btn, NULL, KEYBOARD_CHAR_FONTS, key->label);
+    if (!lbl) {
+        gf_remove_obj_and_child_by_name(key->label, &(get_par_gobj(par))->child);
+        return NULL;
+    }
+
+    return btn;
+}
+
 int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 {
     lv_obj_t *btn, *btn_aln;
@@ -601,7 +603,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
             continue;
         }
 
-        btn = create_key(line_box, &map->key[i]);
+        btn = create_key(line_box, &map->key[i], &size);
         if (!btn)
             return -EINVAL;
 
@@ -616,7 +618,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, &map->key[i], &size);
+        /* set_key_size(btn, &map->key[i], &size); */
         set_key_color(btn, &map->key[i]);
         set_gobj_data(btn, (void *)&map->key[i]);
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
@@ -627,7 +629,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
 int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 {
-    lv_obj_t *btn, *btn_aln;
+    lv_obj_t *btn, *btn_aln, *btn_lbl;
     lv_obj_t *line_box = NULL;
     int8_t line_cnt = 0, i;
     int32_t line_h, line_w = 0;
@@ -696,10 +698,19 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         // The previous button is used to align the next one
         btn_aln = btn;
+
+        // Update button configurations to the horizontal map.
         set_key_size(btn, &map->key[i], &size);
         set_key_color(btn, &map->key[i]);
+
+        // Update button label configurations to the horizontal map.
+        btn_lbl = lv_obj_get_child(btn, 0);
+        gf_gobj_set_pos_mid(btn_lbl);
+
         // Reset key configurations to the horizontal map.
         get_gobj(btn)->pos.rot = ROTATION_0;
+        get_gobj(btn_lbl)->pos.rot = ROTATION_0;
+
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
 
