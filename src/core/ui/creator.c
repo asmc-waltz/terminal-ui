@@ -166,7 +166,8 @@ lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
     gf_gobj_set_size(lobj, w, h);
-    gf_gobj_set_pos(lobj, (obj_width(par) - w) / 2, (obj_height(par) - h) / 2);
+    // gf_gobj_set_pos(lobj, (obj_width(par) - w) / 2, (obj_height(par) - h) / 2);
+    gf_gobj_set_pos_mid(lobj);
     return lobj;
 }
 
@@ -227,6 +228,30 @@ void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
     gobj = lobj->user_data;
+    if (!gobj->pos.w)
+        LOG_WARN("Cannot calculate the center x");
+    if (!gobj->pos.h)
+        LOG_WARN("Cannot calculate the center y");
+    gobj->pos.x_mid = x_ofs + (gobj->pos.w / 2);
+    gobj->pos.y_mid = y_ofs + (gobj->pos.h / 2);
+}
+
+void gf_gobj_set_pos_mid(lv_obj_t *lobj)
+{
+    g_obj *gobj = NULL;
+    lv_obj_t *par;
+    int32_t x_ofs, y_ofs;
+
+    LV_ASSERT_NULL(lobj);
+
+    // lv_obj_set_pos(lobj, x_ofs, y_ofs);
+    par = lv_obj_get_parent(lobj);
+    x_ofs = (obj_width(par) - lv_obj_get_width(lobj)) / 2;
+    y_ofs = (obj_height(par) - lv_obj_get_height(lobj)) / 2;
+
+    gf_gobj_set_pos(lobj, x_ofs, y_ofs);
+
+    gobj = get_gobj(lobj);
     if (!gobj->pos.w)
         LOG_WARN("Cannot calculate the center x");
     if (!gobj->pos.h)
