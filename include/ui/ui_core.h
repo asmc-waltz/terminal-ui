@@ -153,12 +153,18 @@ lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str);
-
+lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *str);
 lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, \
         const lv_font_t *font, const char *index);
+lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
+                            const lv_font_t *font, const char *index);
+
 lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
+
+lv_obj_t *get_obj_box(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(g_obj *gobj);
 int32_t g_obj_rot_calc_size(g_obj *gobj);

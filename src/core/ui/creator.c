@@ -170,6 +170,35 @@ lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
     return lobj;
 }
 
+lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *str)
+{
+    lv_obj_t *box, *text;
+
+    box = gf_create_box(par, name);
+    if (!box) {
+        return NULL;
+    }
+
+    lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(box, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);
+    // lv_obj_set_style_bg_color(box, \
+    //                           lv_color_hex(0x00AA00), 0);
+
+    text = gf_create_text(box, NULL, font, str);
+    if (!text) {
+        gf_remove_obj_and_child_by_name(name, &(get_par_gobj(par))->child);
+        return NULL;
+    }
+
+    gf_gobj_set_size(box, obj_width(text), obj_height(text));
+    gf_gobj_set_pos_mid(text);
+    lv_obj_add_flag(text, LV_OBJ_FLAG_EVENT_BUBBLE);
+
+    return box;
+}
+
 lv_obj_t *gf_create_sym(lv_obj_t *par, const char *name, \
                         const lv_font_t *font, const char *index)
 {
@@ -185,6 +214,37 @@ lv_obj_t *gf_create_sym(lv_obj_t *par, const char *name, \
     gf_gobj_set_size(lobj, w, h);
     gf_gobj_set_pos_mid(lobj);
     return lobj;
+}
+
+lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
+                            const lv_font_t *font, const char *index)
+{
+    lv_obj_t *box, *icon;
+
+    box = gf_create_box(par, name);
+    if (!box) {
+        return NULL;
+    }
+
+    lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);
+    // lv_obj_set_style_bg_color(box, \
+    //                           lv_color_hex(0x00AA00), 0);
+    lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(box, LV_OBJ_FLAG_EVENT_BUBBLE);
+    gf_gobj_set_size(box, calc_pixels(obj_height(par), 80), \
+                     calc_pixels(obj_height(par), 80));
+
+    icon = gf_create_sym(box, NULL, font, index);
+    if (!icon) {
+        gf_remove_obj_and_child_by_name(name, &(get_par_gobj(par))->child);
+        return NULL;
+    }
+
+    gf_gobj_set_size(box, obj_width(icon), obj_height(icon));
+    gf_gobj_set_pos_mid(icon);
+    lv_obj_add_flag(icon, LV_OBJ_FLAG_EVENT_BUBBLE);
+
+    return box;
 }
 
 lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name)
@@ -219,6 +279,15 @@ lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name)
     lv_obj_t *lobj = gf_create_gobj_type(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
     return lobj;
+}
+
+lv_obj_t *get_obj_box(lv_obj_t *lobj)
+{
+    lv_obj_t *child = lv_obj_get_child(lobj, 0);
+    if (child)
+        return child;
+    else
+        return NULL;
 }
 
 /******************************************************************************/
