@@ -41,6 +41,8 @@
 
 #define SETTING_CONT_BG_COLOR           0x636D7A
 #define SETTING_MENU_BG_COLOR           0x8F9DB0
+#define SETTING_MENU_BTN_BG_COLOR       0xADBACC
+
 #define SETTING_DETAIL_BG_COLOR         SETTING_MENU_BG_COLOR
 /**********************
  *      TYPEDEFS
@@ -174,6 +176,54 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     gf_gobj_set_size(lobj, obj_w, obj_h);
 }
 
+static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
+                                     const char *name, const char* index, \
+                                     const char* str)
+{
+    lv_obj_t *btn_box, *sym_box, *text_box;
+
+    btn_box = gf_create_btn(par, name);
+    if (btn_box == NULL) {
+        return NULL;
+    }
+
+    sym_box = create_symbol_box(btn_box, NULL, SETTING_SYM_FONTS, index);
+    if (sym_box == NULL) {
+        gf_remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        return NULL;
+    }
+
+    text_box = create_text_box(btn_box, NULL, &lv_font_montserrat_24, str);
+    if (text_box == NULL) {
+        gf_remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        return NULL;
+    }
+
+    gf_gobj_set_size(btn_box, calc_pixels(obj_width(par), 96), \
+                     calc_pixels(obj_height(sym_box), 200));
+    gf_obj_scale_enable_w(btn_box);
+    gf_obj_scale_set_pad_w(btn_box, calc_pixels(obj_width(par), 4));
+
+    lv_obj_set_style_bg_color(btn_box, \
+                              lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
+
+    if (par == ref) {
+        gf_gobj_align_to(btn_box, par, LV_ALIGN_TOP_MID, 0, \
+                         calc_pixels(obj_width(par), 2));
+    } else {
+        gf_gobj_align_to(btn_box, ref, LV_ALIGN_OUT_BOTTOM_MID, 0, \
+                         calc_pixels(obj_width(par), 2));
+    }
+
+    gf_gobj_align_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
+                     calc_pixels(obj_height(btn_box), 50), \
+                     (obj_height(btn_box) - lv_obj_get_height(sym_box)) / 2);
+    gf_gobj_align_to(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
+                     calc_pixels(obj_height(btn_box), 50), 0);
+
+    return btn_box;
+}
+
 
 /*
  * The setting menu bar is placed on the left side of the screen by default.
@@ -211,11 +261,63 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
     gobj->scale.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     /*------------------------------------------------------------------------*/
-    lv_obj_t *child;
-    child = gf_create_box(menu_bar, "test_box");
-    gf_gobj_set_size(child, calc_pixels(obj_width(menu_bar), 50), \
-                     calc_pixels(obj_height(menu_bar), 10));
-    gf_gobj_align_to(child, menu_bar, LV_ALIGN_TOP_LEFT, 10, 10);
+    lv_obj_t *setting_btn;
+
+    setting_btn = create_menu_bar_btn(menu_bar, menu_bar, \
+                                      "pages.setting.menu_bar.airplane", \
+                                      ICON_PLANE_SOLID, \
+                                      "Airplane");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.wifi", \
+                                      ICON_WIFI_SOLID, \
+                                      "Wi-Fi");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.bluetooth", \
+                                      ICON_SHIELD_SOLID, \
+                                      "Bluetooth");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.cellular", \
+                                      ICON_TOWER_CELL_SOLID, \
+                                      "Cellular");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.ethernet", \
+                                      ICON_ETHERNET_SOLID, \
+                                      "Ethernet");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.network", \
+                                      ICON_NETWORK_WIRED_SOLID, \
+                                      "Network");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.hostspot", \
+                                      ICON_SHARE_NODES_SOLID, \
+                                      "Hostspot");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.brightness", \
+                                      ICON_CIRCLE_HALF_STROKE_SOLID, \
+                                      "Brightness");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.rotation", \
+                                      ICON_ROTATE_SOLID, \
+                                      "Rotation");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.alert", \
+                                      ICON_BELL_SOLID, \
+                                      "Alert");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.keyboard", \
+                                      ICON_KEYBOARD, \
+                                      "Keyboard");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.gnss", \
+                                      ICON_SATELLITE_DISH_SOLID, \
+                                      "GNSS");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.power", \
+                                      ICON_PLUG_SOLID, \
+                                      "Power");
+
     /*------------------------------------------------------------------------*/
 
     return menu_bar;
