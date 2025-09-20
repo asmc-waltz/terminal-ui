@@ -821,7 +821,7 @@ static int32_t set_keyboard_mode(const key_def *key)
     kb = gf_get_obj_by_name(KEYBOAR_NAME, \
                                    &get_gobj(lv_screen_active())->child);
     if (!kb) {
-        LOG_ERROR("Keyboard [%s] not found", "screens.common");
+        LOG_ERROR("Keyboard [%s] not found", KEYBOAR_NAME);
         return -EINVAL;
     }
 
@@ -932,4 +932,22 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     }
 
     return kb;
+}
+
+void remove_keyboard(lv_obj_t *par)
+{
+    lv_obj_t *kb;
+    int32_t ret;
+
+    if (act_map) {
+        act_map = NULL;
+    }
+
+    ret = gf_remove_obj_and_child_by_name(KEYBOAR_NAME, &get_gobj(par)->child);
+    if (ret)
+        LOG_WARN("Keyboard object not found");
+
+    ret = refresh_obj_tree_layout(par->user_data);
+    if (ret)
+        LOG_WARN("Unable to refresh after remove keyboard");
 }
