@@ -143,21 +143,22 @@ int32_t remove_children(gobj_t *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
-lv_obj_t * create_base(lv_obj_t *par, const char *name);
-lv_obj_t * create_box(lv_obj_t *par, const char *name);
-lv_obj_t * create_container(lv_obj_t *par, const char *name);
-lv_obj_t * create_text(lv_obj_t *par, const char *name, \
+lv_obj_t *create_base(lv_obj_t *par, const char *name);
+lv_obj_t *create_box(lv_obj_t *par, const char *name);
+lv_obj_t *create_container(lv_obj_t *par, const char *name);
+lv_obj_t *create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str);
 lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *str);
-lv_obj_t * create_sym(lv_obj_t *par, const char *name, \
+lv_obj_t *create_sym(lv_obj_t *par, const char *name, \
         const lv_font_t *font, const char *index);
 lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
                             const lv_font_t *font, const char *index);
 
-lv_obj_t * create_switch(lv_obj_t *par, const char *name);
-lv_obj_t * create_btn(lv_obj_t *par, const char *name);
-lv_obj_t * create_slider(lv_obj_t *par, const char *name);
+lv_obj_t *create_switch(lv_obj_t *par, const char *name);
+lv_obj_t *create_textarea(lv_obj_t *par, const char *name);
+lv_obj_t *create_btn(lv_obj_t *par, const char *name);
+lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 

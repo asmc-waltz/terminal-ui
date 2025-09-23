@@ -101,7 +101,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t * create_base(lv_obj_t *par, const char *name)
+lv_obj_t *create_base(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_BASE, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
@@ -112,7 +112,7 @@ lv_obj_t * create_base(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-lv_obj_t * create_box(lv_obj_t *par, const char *name)
+lv_obj_t *create_box(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_BOX, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
@@ -123,7 +123,7 @@ lv_obj_t * create_box(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-lv_obj_t * create_container(lv_obj_t *par, const char *name)
+lv_obj_t *create_container(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_CONTAINER, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
@@ -154,7 +154,7 @@ lv_obj_t * create_container(lv_obj_t *par, const char *name)
  * Offset is always aligned to the center of the parent object.
  * Ensure parent object size is set before creating a text object.
  */
-lv_obj_t * create_text(lv_obj_t *par, const char *name, \
+lv_obj_t *create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str)
 {
     int32_t w, h;
@@ -247,21 +247,21 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
     return box;
 }
 
-lv_obj_t * create_switch(lv_obj_t *par, const char *name)
+lv_obj_t *create_switch(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_SWITCH, name);
     LV_ASSERT_NULL(lobj);
     return lobj;
 }
 
-lv_obj_t * create_textarea(lv_obj_t *par, const char *name)
+lv_obj_t *create_textarea(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_TEXTAREA, name);
     LV_ASSERT_NULL(lobj);
     return lobj;
 }
 
-lv_obj_t * create_btn(lv_obj_t *par, const char *name)
+lv_obj_t *create_btn(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_BTN, name);
     LV_ASSERT_NULL(lobj);
@@ -274,7 +274,7 @@ lv_obj_t * create_btn(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-lv_obj_t * create_slider(lv_obj_t *par, const char *name)
+lv_obj_t *create_slider(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
