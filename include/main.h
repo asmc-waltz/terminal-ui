@@ -44,7 +44,7 @@ typedef struct op_handler {
 
 typedef struct comm_handler {
     DBusConnection *dbus_conn;
-    int32_t event_fd;
+    int32_t event;
 } comm_t;
 
 typedef struct conf_data {

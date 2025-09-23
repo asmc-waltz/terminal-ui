@@ -42,7 +42,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern int32_t event_fd;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -421,8 +420,8 @@ static int32_t dbus_listener_loop(DBusConnection *conn)
     }
 
     // Add Event file desc
-    ev.data.fd = event_fd;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event_fd, &ev) == -1) {
+    ev.data.fd = get_ctx()->comm.event;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, get_ctx()->comm.event, &ev) == -1) {
         LOG_ERROR("Failed to add event fd to epoll: %s", strerror(errno));
         close(epoll_fd);
         return -errno;
@@ -446,9 +445,9 @@ static int32_t dbus_listener_loop(DBusConnection *conn)
             ready_fd = events_detected[cnt].data.fd;
             if (ready_fd == dbus_fd) {
                 dbus_connection_event_handler(conn);
-            } else if (ready_fd == event_fd) {
+            } else if (ready_fd == get_ctx()->comm.event) {
                 uint64_t event_id = 0;
-                if (!event_get(event_fd, &event_id)) {
+                if (!event_get(get_ctx()->comm.event, &event_id)) {
                     LOG_INFO("Received event ID [%" PRIu64 "], stopping DBus listener...", \
                              event_id);
                 }

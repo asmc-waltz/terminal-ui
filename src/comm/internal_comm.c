@@ -21,6 +21,7 @@
 #include <sys/eventfd.h>
 
 #include "comm/f_comm.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -33,7 +34,6 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-int32_t event_fd = -1;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -100,7 +100,7 @@ int32_t init_event_file(void)
         return -errno;
     }
 
-    event_fd = fd;
+    get_ctx()->comm.event = fd;
     return 0;
 }
 
@@ -108,16 +108,16 @@ int32_t cleanup_event_file(void)
 {
     int32_t ret;
 
-    if (event_fd == -1)
+    if (get_ctx()->comm.event == -1)
         return 0;
 
-    ret = close(event_fd);
+    ret = close(get_ctx()->comm.event);
     if (ret == -1) {
         LOG_TRACE("cleanup_event_file failed: fd=%d, err=%d(%s)", \
-                  event_fd, errno, strerror(errno));
+                  get_ctx()->comm.event, errno, strerror(errno));
         return -errno;
     }
 
-    event_fd = -1;
+    get_ctx()->comm.event = -1;
     return 0;
 }
