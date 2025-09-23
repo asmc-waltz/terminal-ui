@@ -67,7 +67,7 @@
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
-static int32_t g_obj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
+static int32_t gobj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
 {
     int32_t new_x_mid = -1;
     int32_t new_y_mid = -1;
@@ -196,26 +196,6 @@ static int32_t g_obj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
 
     LOG_TRACE("success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
               new_x_mid, new_y_mid, par_w, par_h, scr_rot);
-
-    return 0;
-}
-
-static int32_t g_obj_rot_calc_center(g_obj *gobj)
-{
-    g_obj *gobj_par = NULL;
-
-    if (!gobj) {
-        LOG_ERROR("Invalid g object");
-        return -EINVAL;
-    }
-
-    gobj_par = gobj->par;
-    if (!gobj_par) {
-        LOG_ERROR("Invalid g parent object");
-        return -EINVAL;
-    }
-
-    g_obj_get_center(gobj, (uint32_t)gobj_par->pos.w, (uint32_t)gobj_par->pos.h);
 
     return 0;
 }
@@ -382,7 +362,9 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
      * the width and height can then be updated accordingly.
      */
     if (gobj->aln.align == LV_ALIGN_DEFAULT) {
-        ret= g_obj_rot_calc_center(gobj);
+
+        ret = gobj_get_center(gobj, obj_width((gobj->par)->obj), \
+                              obj_height((gobj->par)->obj));
         if (ret) {
             return -EINVAL;
         }
@@ -407,7 +389,8 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
         return -EINVAL;
     }
 
-    ret= g_obj_rot_calc_center(gobj);
+    ret = gobj_get_center(gobj, obj_width((gobj->par)->obj), \
+                          obj_height((gobj->par)->obj));
     if (ret) {
         return -EINVAL;
     }
