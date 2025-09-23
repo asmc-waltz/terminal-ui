@@ -50,7 +50,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static DBusConnection *dbus_conn = NULL;
 
 /**********************
  *      MACROS
@@ -466,16 +465,24 @@ static int32_t dbus_listener_loop(DBusConnection *conn)
  **********************/
 DBusConnection *get_dbus_connection()
 {
-    return dbus_conn;
+    ctx_t *ctx = get_ctx();
+
+    if (!ctx || !ctx->comm.dbus_conn) {
+        return NULL;
+    }
+
+    return ctx->comm.dbus_conn;
 }
 
 int32_t set_dbus_connection(DBusConnection *conn)
 {
+    ctx_t *ctx = get_ctx();
+
     if (!conn) {
         return -1;
     }
 
-    dbus_conn = conn;
+    ctx->comm.dbus_conn = conn;
     return 0;
 }
 
