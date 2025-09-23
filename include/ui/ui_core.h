@@ -162,7 +162,7 @@ lv_obj_t * create_slider(lv_obj_t *par, const char *name);
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(g_obj *gobj);
-int32_t gobj_rot_calc_size(g_obj *gobj);
+int32_t calc_gobj_rotated_size(g_obj *gobj);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
 {

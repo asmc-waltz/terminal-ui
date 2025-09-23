@@ -232,8 +232,6 @@ static void service_shutdown_flow(void)
 
     ui_main_deinit(ctx);
 
-    destroy_ctx();
-
     LOG_INFO("Service shutdown flow completed");
 }
 
@@ -244,6 +242,8 @@ static int32_t main_loop()
         lv_task_handler();
         usleep(5000);
     };
+
+    destroy_ctx();
 
     LOG_INFO("Terminal UI service is exiting...");
     return 0;

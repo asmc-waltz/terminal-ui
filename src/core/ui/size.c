@@ -48,7 +48,7 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void g_swap_xy_size(g_obj *gobj)
+static void swap_w_h_size(g_obj *gobj)
 {
     int32_t tmp_w;
 
@@ -60,7 +60,7 @@ static void g_swap_xy_size(g_obj *gobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t g_obj_scale(g_obj *gobj)
+int32_t scale_gobj(g_obj *gobj)
 {
     g_obj *gobj_par = NULL;
     int32_t scale_w, scale_h;
@@ -124,7 +124,7 @@ int32_t g_obj_scale(g_obj *gobj)
 
     return 0;
 }
-int32_t gobj_rot_calc_size(g_obj *gobj)
+int32_t calc_gobj_rotated_size(g_obj *gobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
@@ -144,10 +144,10 @@ int32_t gobj_rot_calc_size(g_obj *gobj)
     rot_cnt = (scr_rot - cur_rot + 4) % 4;
 
     if (rot_cnt == 1 || rot_cnt == 3)
-        g_swap_xy_size(gobj);
+        swap_w_h_size(gobj);
 
     if (gobj->scale.ena_h || gobj->scale.ena_w) {
-        if (g_obj_scale(gobj))
+        if (scale_gobj(gobj))
             return -EINVAL;
     }
     return 0;

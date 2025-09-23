@@ -200,7 +200,7 @@ static int32_t gobj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
     return 0;
 }
 
-static void g_obj_rot_90_set_aln(g_obj *gobj)
+static void gobj_update_alignment_rot90(g_obj *gobj)
 {
     int8_t align = LV_ALIGN_DEFAULT;
 
@@ -281,7 +281,7 @@ static void g_obj_rot_90_set_aln(g_obj *gobj)
     gobj->aln.align = align;
 }
 
-static void g_obj_rot_90_swap_ofs(g_obj *gobj)
+static void gobj_swap_offset_rot90(g_obj *gobj)
 {
     int32_t swap;
 
@@ -309,14 +309,14 @@ static int32_t g_obj_rot_calc_align(g_obj *gobj)
     rot_cnt = (scr_rot - cur_rot + 4) % 4;
 
     for (int8_t i = 0; i < rot_cnt; i++) {
-        g_obj_rot_90_set_aln(gobj);
-        g_obj_rot_90_swap_ofs(gobj);
+        gobj_update_alignment_rot90(gobj);
+        gobj_swap_offset_rot90(gobj);
     }
 
     return 0;
 }
 
-static int32_t g_base_obj_rotate(g_obj *gobj)
+static int32_t rotate_base_gobj(g_obj *gobj)
 {
     int32_t ret;
 
@@ -342,7 +342,7 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
      * Since the root coordinate does not change, the width and height
      * will be adjusted according to the logical rotation.
      */
-    ret = gobj_rot_calc_size(gobj);
+    ret = calc_gobj_rotated_size(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -378,13 +378,13 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
     return 0;
 }
 
-static int32_t g_transform_obj_rotate(g_obj *gobj)
+static int32_t rotate_transform_gobj(g_obj *gobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
     int32_t rot_val = 0;
 
-    ret = gobj_rot_calc_size(gobj);
+    ret = calc_gobj_rotated_size(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -442,13 +442,13 @@ static int32_t gobj_refresh(g_obj *gobj)
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            ret = g_base_obj_rotate(gobj);
+            ret = rotate_base_gobj(gobj);
             break;
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
         case OBJ_TEXTAREA:
-            ret = g_transform_obj_rotate(gobj);
+            ret = rotate_transform_gobj(gobj);
             break;
 
         case OBJ_CONTAINER:
@@ -456,7 +456,7 @@ static int32_t gobj_refresh(g_obj *gobj)
              * The container maintains its original offset (0,0)
              * for scrolling purposes.
              */
-            ret = gobj_rot_calc_size(gobj);
+            ret = calc_gobj_rotated_size(gobj);
             if (!ret)
                 lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
             break;
