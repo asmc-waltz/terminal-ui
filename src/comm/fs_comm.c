@@ -90,17 +90,17 @@ static int32_t __sf_fs_write_internal(const char *path,  const char *data, \
     return 0;
 }
 
-int32_t gf_fs_write_file(const char *path, const char *data, size_t len)
+int32_t fs_write_file(const char *path, const char *data, size_t len)
 {
     return __sf_fs_write_internal(path, data, len, 0);
 }
 
-int32_t gf_fs_append_file(const char *path, const char *data, size_t len)
+int32_t fs_append_file(const char *path, const char *data, size_t len)
 {
     return __sf_fs_write_internal(path, data, len, 1);
 }
 
-char *gf_fs_read_file(const char *path, size_t *out_len)
+char *fs_read_file(const char *path, size_t *out_len)
 {
     int32_t fd, ret;
     char *buf;
@@ -150,7 +150,7 @@ char *gf_fs_read_file(const char *path, size_t *out_len)
     return buf;
 }
 
-int32_t gf_fs_file_exists(const char *path)
+int32_t fs_file_exists(const char *path)
 {
     struct stat st;
 
