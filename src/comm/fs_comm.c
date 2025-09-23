@@ -54,15 +54,14 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
-static int32_t __sf_fs_write_internal(const char *path,  const char *data, \
+static int32_t __fs_write_internal(const char *path,  const char *data, \
                                   size_t len, int32_t append)
 {
     int32_t fd, ret, flags;
 
     if (!path || !data || len == 0) {
         LOG_ERROR("invalid argument");
-        return -1;
+        return -EINVAL;
     }
 
     flags = O_WRONLY | O_CREAT;
@@ -75,14 +74,14 @@ static int32_t __sf_fs_write_internal(const char *path,  const char *data, \
     fd = open(path, flags, 0644);
     if (fd < 0) {
         LOG_ERROR("open failed: %s", strerror(errno));
-        return -1;
+        return -EIO;
     }
 
     ret = write(fd, data, len);
     if (ret < 0) {
         LOG_ERROR("write failed: %s", strerror(errno));
         close(fd);
-        return -1;
+        return ret;
     }
 
     close(fd);
@@ -92,62 +91,39 @@ static int32_t __sf_fs_write_internal(const char *path,  const char *data, \
 
 int32_t fs_write_file(const char *path, const char *data, size_t len)
 {
-    return __sf_fs_write_internal(path, data, len, 0);
+    return __fs_write_internal(path, data, len, 0);
 }
 
 int32_t fs_append_file(const char *path, const char *data, size_t len)
 {
-    return __sf_fs_write_internal(path, data, len, 1);
+    return __fs_write_internal(path, data, len, 1);
 }
 
-char *fs_read_file(const char *path, size_t *out_len)
+int32_t fs_read_file(const char *path, char *buf, size_t buf_len, \
+                     size_t *out_len)
 {
-    int32_t fd, ret;
-    char *buf;
-    off_t size;
+    int fd, ret;
+    ssize_t size;
 
-    if (!path || !out_len) {
-        LOG_ERROR("invalid argument");
-        return NULL;
-    }
+    if (!path || !buf || buf_len == 0 || !out_len)
+        return -EINVAL;
 
     fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        LOG_ERROR("open failed: %s", strerror(errno));
-        return NULL;
-    }
+    if (fd < 0)
+        return -errno;
 
-    size = lseek(fd, 0, SEEK_END);
+    size = read(fd, buf, buf_len - 1);
     if (size < 0) {
-        LOG_ERROR("lseek failed: %s", strerror(errno));
+        ret = -errno;
         close(fd);
-        return NULL;
-    }
-    lseek(fd, 0, SEEK_SET);
-
-    buf = malloc(size + 1);
-    if (!buf) {
-        LOG_ERROR("malloc failed");
-        close(fd);
-        return NULL;
-    }
-
-    ret = read(fd, buf, size);
-    if (ret < 0) {
-        LOG_ERROR("read failed: %s", strerror(errno));
-        free(buf);
-        close(fd);
-        return NULL;
+        return ret;
     }
 
     buf[size] = '\0';
     *out_len = size;
 
-    LOG_INFO("read from %s, len=%lld", path, (long long)size);
-    LOG_DEBUG("content:\n%.*s", (int)size, buf);
-
     close(fd);
-    return buf;
+    return 0;
 }
 
 int32_t fs_file_exists(const char *path)
@@ -156,7 +132,7 @@ int32_t fs_file_exists(const char *path)
 
     if (!path) {
         LOG_ERROR("invalid argument");
-        return 0;
+        return -EINVAL;
     }
 
     if (stat(path, &st) == 0) {
@@ -165,5 +141,5 @@ int32_t fs_file_exists(const char *path)
     }
 
     LOG_DEBUG("file not found: %s", path);
-    return 0;
+    return -ENOENT;
 }

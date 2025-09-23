@@ -42,7 +42,8 @@ int32_t cleanup_event_file(ctx_t *ctx);
 // fs_comm
 int32_t fs_write_file(const char *path, const char *data, size_t len);
 int32_t fs_append_file(const char *path, const char *data, size_t len);
-char *fs_read_file(const char *path, size_t *out_len);
+int32_t fs_read_file(const char *path, char *buf, size_t buf_len, \
+                     size_t *out_len);
 int32_t fs_file_exists(const char *path);
 
 // proc_comm
