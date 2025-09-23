@@ -45,7 +45,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_display_t *drm_disp = NULL;
 static lv_indev_t *touch_event = NULL;
 
 /**********************
@@ -123,12 +122,12 @@ int32_t ui_main_init(ctx_t *ctx)
 
     // Initialize LVGL and the associated UI hardware
     lv_init();
-    drm_disp = sf_init_drm_display(DRM_CARD, DRM_CONNECTOR_ID);
-    if (drm_disp == NULL) {
+    ctx->scr.drm_disp = sf_init_drm_display(DRM_CARD, DRM_CONNECTOR_ID);
+    if (ctx->scr.drm_disp == NULL) {
         return -EIO;
     }
 
-    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, drm_disp);
+    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, ctx->scr.drm_disp);
     if (touch_event == NULL) {
         return -EIO;
     }
