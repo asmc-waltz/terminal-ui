@@ -84,7 +84,7 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     if (!par)
         return;
 
-    scr_rot = g_get_scr_rot_dir();
+    scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels_remaining(obj_scale_w(par),
@@ -103,7 +103,7 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
         lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
     }
 
-    gf_gobj_set_size(lobj, obj_w, obj_h);
+    set_gobj_size(lobj, obj_w, obj_h);
 }
 
 static lv_obj_t *create_setting_detail(lv_obj_t *par)
@@ -115,7 +115,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
         return NULL;
 
     /* Create container box for menu bar */
-    detail_box = gf_create_box(par, "pages.setting.detail_box");
+    detail_box = create_box(par, "pages.setting.detail_box");
     if (!detail_box)
         return NULL;
 
@@ -125,10 +125,10 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
                                   SETTING_PAD_RIGHT);
     obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
 
-    gf_gobj_set_size(detail_box, obj_w, obj_h);
+    set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
-    gf_gobj_align_to(detail_box, par, LV_ALIGN_TOP_RIGHT, \
+    align_gobj_to(detail_box, par, LV_ALIGN_TOP_RIGHT, \
                      -calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
                      calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
@@ -139,10 +139,10 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
 
     /*------------------------------------------------------------------------*/
     lv_obj_t *child;
-    child = gf_create_box(detail_box, "child_test");
-    gf_gobj_set_size(child, calc_pixels(obj_width(detail_box), 80), \
+    child = create_box(detail_box, "child_test");
+    set_gobj_size(child, calc_pixels(obj_width(detail_box), 80), \
                      calc_pixels(obj_height(detail_box), 10));
-    gf_gobj_align_to(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
+    align_gobj_to(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
     /*------------------------------------------------------------------------*/
 
     return detail_box;
@@ -161,7 +161,7 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     if (!par)
         return;
 
-    scr_rot = g_get_scr_rot_dir();
+    scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels(obj_scale_w(par), SETTING_MENU_BAR_HOR_WIDTH);
@@ -173,7 +173,7 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
                                       SETTING_MENU_BAR_ALIGN * 2);
     }
 
-    gf_gobj_set_size(lobj, obj_w, obj_h);
+    set_gobj_size(lobj, obj_w, obj_h);
 }
 
 static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
@@ -182,43 +182,43 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
 {
     lv_obj_t *btn_box, *sym_box, *text_box;
 
-    btn_box = gf_create_btn(par, name);
+    btn_box = create_btn(par, name);
     if (btn_box == NULL) {
         return NULL;
     }
 
     sym_box = create_symbol_box(btn_box, NULL, SETTING_SYM_FONTS, index);
     if (sym_box == NULL) {
-        gf_remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
         return NULL;
     }
 
     text_box = create_text_box(btn_box, NULL, &lv_font_montserrat_24, str);
     if (text_box == NULL) {
-        gf_remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
         return NULL;
     }
 
-    gf_gobj_set_size(btn_box, calc_pixels(obj_width(par), 96), \
+    set_gobj_size(btn_box, calc_pixels(obj_width(par), 96), \
                      calc_pixels(obj_height(sym_box), 200));
-    gf_obj_scale_enable_w(btn_box);
-    gf_obj_scale_set_pad_w(btn_box, calc_pixels(obj_width(par), 4));
+    enable_scale_w(btn_box);
+    set_obj_scale_pad_w(btn_box, calc_pixels(obj_width(par), 4));
 
     lv_obj_set_style_bg_color(btn_box, \
                               lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
 
     if (par == ref) {
-        gf_gobj_align_to(btn_box, par, LV_ALIGN_TOP_MID, 0, \
+        align_gobj_to(btn_box, par, LV_ALIGN_TOP_MID, 0, \
                          calc_pixels(obj_width(par), 2));
     } else {
-        gf_gobj_align_to(btn_box, ref, LV_ALIGN_OUT_BOTTOM_MID, 0, \
+        align_gobj_to(btn_box, ref, LV_ALIGN_OUT_BOTTOM_MID, 0, \
                          calc_pixels(obj_width(par), 2));
     }
 
-    gf_gobj_align_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
+    align_gobj_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_height(btn_box), 50), \
                      (obj_height(btn_box) - lv_obj_get_height(sym_box)) / 2);
-    gf_gobj_align_to(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
+    align_gobj_to(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
                      calc_pixels(obj_height(btn_box), 50), 0);
 
     return btn_box;
@@ -238,7 +238,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
         return NULL;
 
     /* Create container box for menu bar */
-    menu_bar = gf_create_box(par, "pages.setting.menu_bar");
+    menu_bar = create_box(par, "pages.setting.menu_bar");
     if (!menu_bar)
         return NULL;
 
@@ -246,9 +246,9 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
     obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
     obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
 
-    gf_gobj_set_size(menu_bar, obj_w, obj_h);
+    set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
-    gf_gobj_align_to(menu_bar, par, LV_ALIGN_TOP_LEFT, \
+    align_gobj_to(menu_bar, par, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
                      calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
@@ -332,7 +332,7 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
         return NULL;
 
     /* Create container box for the setting menu bar and detail setting */
-    cont = gf_create_box(par, SETTING_PAGE_NAME);
+    cont = create_box(par, SETTING_PAGE_NAME);
     if (!cont)
         return NULL;
 
@@ -340,15 +340,15 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
     obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
     obj_h = calc_pixels_remaining(obj_height(par), SETTING_USED_HEIGHT);
 
-    gf_gobj_set_size(cont, obj_w, obj_h);
+    set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(SETTING_CONT_BG_COLOR), 0);
-    gf_gobj_align_to(cont, par, LV_ALIGN_TOP_MID, 0,\
+    align_gobj_to(cont, par, LV_ALIGN_TOP_MID, 0,\
                      calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
-    gf_obj_scale_enable_w(cont);
-    gf_obj_scale_set_pad_w(cont, calc_pixels(obj_width(par), (SETTING_PAD_RIGHT
+    enable_scale_w(cont);
+    set_obj_scale_pad_w(cont, calc_pixels(obj_width(par), (SETTING_PAD_RIGHT
                                              + SETTING_PAD_LEFT)));
-    gf_obj_scale_enable_h(cont);
-    gf_obj_scale_set_pad_h(cont, calc_pixels(obj_height(par), SETTING_PAD_BOT));
+    enable_scale_h(cont);
+    set_obj_scale_pad_h(cont, calc_pixels(obj_height(par), SETTING_PAD_BOT));
 
     return cont;
 }

@@ -94,7 +94,7 @@ int32_t g_obj_scale(g_obj *gobj)
      */
     abs_val_x = abs(gobj->aln.x);
     abs_val_y = abs(gobj->aln.y);
-    scr_rot = g_get_scr_rot_dir();  /* returns 0-3 */
+    scr_rot = get_scr_rotation();  /* returns 0-3 */
     scale_w = gobj->pos.w;
     scale_h = gobj->pos.h;
 
@@ -124,7 +124,7 @@ int32_t g_obj_scale(g_obj *gobj)
 
     return 0;
 }
-int32_t g_obj_rot_calc_size(g_obj *gobj)
+int32_t gobj_rot_calc_size(g_obj *gobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
@@ -134,7 +134,7 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
         return -EINVAL;
     }
 
-    scr_rot = g_get_scr_rot_dir();  /* returns 0-3 */
+    scr_rot = get_scr_rotation();  /* returns 0-3 */
     cur_rot = gobj->pos.rot;        /* stored as 0-3 */
 
     if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
@@ -153,7 +153,7 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
     return 0;
 }
 
-int32_t g_set_scr_size(int32_t width, int32_t height)
+int32_t set_scr_size(int32_t width, int32_t height)
 {
     ctx_t *ctx = get_ctx();
     if (ctx == NULL)
@@ -165,7 +165,7 @@ int32_t g_set_scr_size(int32_t width, int32_t height)
     return 0;
 }
 
-int32_t g_get_scr_width(void)
+int32_t get_scr_width(void)
 {
     ctx_t *ctx = get_ctx();
     if (ctx == NULL)
@@ -174,7 +174,7 @@ int32_t g_get_scr_width(void)
     return ctx->scr.width;
 }
 
-int32_t g_get_scr_height(void)
+int32_t get_scr_height(void)
 {
     ctx_t *ctx = get_ctx();
     if (ctx == NULL)
@@ -183,7 +183,7 @@ int32_t g_get_scr_height(void)
     return ctx->scr.height;
 }
 
-void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
+void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
 {
     g_obj *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -195,7 +195,7 @@ void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
     lv_obj_set_size(lobj, gobj->pos.w, gobj->pos.h);
 }
 
-void gf_gobj_get_size(lv_obj_t *lobj)
+void gobj_get_size(lv_obj_t *lobj)
 {
     g_obj *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -215,7 +215,7 @@ void gf_gobj_get_size(lv_obj_t *lobj)
  * differently. Carefully verify any object not aligned by top-left corner, as
  * they must still support size expansion.
  */
-int32_t gf_obj_scale_enable_w(lv_obj_t *lobj)
+int32_t enable_scale_w(lv_obj_t *lobj)
 {
     g_obj *gobj;
 
@@ -228,7 +228,7 @@ int32_t gf_obj_scale_enable_w(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t gf_obj_scale_enable_h(lv_obj_t *lobj)
+int32_t enable_scale_h(lv_obj_t *lobj)
 {
     g_obj *gobj;
 
@@ -241,7 +241,7 @@ int32_t gf_obj_scale_enable_h(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t gf_obj_scale_disable_w(lv_obj_t *lobj)
+int32_t disable_scale_w(lv_obj_t *lobj)
 {
     g_obj *gobj;
 
@@ -254,7 +254,7 @@ int32_t gf_obj_scale_disable_w(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t gf_obj_scale_disable_h(lv_obj_t *lobj)
+int32_t disable_scale_h(lv_obj_t *lobj)
 {
     g_obj *gobj;
 
@@ -267,7 +267,7 @@ int32_t gf_obj_scale_disable_h(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w)
+int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w)
 {
     g_obj *gobj;
 
@@ -280,7 +280,7 @@ int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w)
     return 0;
 }
 
-int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h)
+int32_t set_obj_scale_pad_h(lv_obj_t *lobj, int32_t pad_h)
 {
     g_obj *gobj;
 

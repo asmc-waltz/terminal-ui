@@ -85,7 +85,7 @@ static int32_t g_obj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
         return -EINVAL;
     }
 
-    scr_rot = g_get_scr_rot_dir();
+    scr_rot = get_scr_rotation();
     old_rot = gobj->pos.rot;
 
     /* nothing to do if rotation unchanged */
@@ -320,7 +320,7 @@ static int32_t g_obj_rot_calc_align(g_obj *gobj)
         return -EINVAL;
 
     cur_rot = gobj->pos.rot;
-    scr_rot = g_get_scr_rot_dir();
+    scr_rot = get_scr_rotation();
 
     if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
         scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
@@ -362,7 +362,7 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
      * Since the root coordinate does not change, the width and height
      * will be adjusted according to the logical rotation.
      */
-    ret = g_obj_rot_calc_size(gobj);
+    ret = gobj_rot_calc_size(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -399,10 +399,10 @@ static int32_t g_base_obj_rotate(g_obj *gobj)
 static int32_t g_transform_obj_rotate(g_obj *gobj)
 {
     int32_t ret;
-    int32_t scr_rot = g_get_scr_rot_dir();
+    int32_t scr_rot = get_scr_rotation();
     int32_t rot_val = 0;
 
-    ret = g_obj_rot_calc_size(gobj);
+    ret = gobj_rot_calc_size(gobj);
     if (ret) {
         return -EINVAL;
     }
@@ -440,7 +440,7 @@ static int32_t g_transform_obj_rotate(g_obj *gobj)
 static int32_t gobj_refresh(g_obj *gobj)
 {
     int32_t ret;
-    int32_t scr_rot = g_get_scr_rot_dir();
+    int32_t scr_rot = get_scr_rotation();
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
@@ -473,7 +473,7 @@ static int32_t gobj_refresh(g_obj *gobj)
              * The container maintains its original offset (0,0)
              * for scrolling purposes.
              */
-            ret = g_obj_rot_calc_size(gobj);
+            ret = gobj_rot_calc_size(gobj);
             if (!ret)
                 lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
             break;
@@ -526,7 +526,7 @@ static int32_t gobj_refresh_child(g_obj *gobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t g_set_scr_rot_dir(int32_t rot_dir)
+int32_t set_scr_rotation(int32_t rot_dir)
 {
     ctx_t *ctx = get_ctx();
     if (ctx == NULL)
@@ -537,7 +537,7 @@ int32_t g_set_scr_rot_dir(int32_t rot_dir)
     return 0;
 }
 
-int32_t g_get_scr_rot_dir()
+int32_t get_scr_rotation()
 {
     ctx_t *ctx = get_ctx();
     if (ctx == NULL)

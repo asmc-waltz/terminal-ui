@@ -60,8 +60,8 @@ static lv_display_t *sf_init_drm_display(const char *file, \
     int32_t scr_width = 0;
     int32_t scr_height = 0;
 
-    scr_width = g_get_scr_width();
-    scr_height = g_get_scr_height();
+    scr_width = get_scr_width();
+    scr_height = get_scr_height();
     if (scr_width <= 0 || scr_height <= 0) {
         LOG_FATAL("Display width or height resolution not available");
         return NULL;
@@ -117,7 +117,7 @@ int32_t ui_main_init(ctx_t *ctx)
 
     ctx->objs.next_id = 1;
 
-    g_set_scr_size(DISP_WIDTH, DISP_HEIGHT);
+    set_scr_size(DISP_WIDTH, DISP_HEIGHT);
 
     // Initialize LVGL and the associated UI hardware
     lv_init();
@@ -142,10 +142,10 @@ int32_t ui_main_init(ctx_t *ctx)
     lv_timer_ready(task_timer);
 
     // Initialize LVGL layers as base components
-    gf_register_obj(NULL, lv_layer_sys(), NULL);
-    gf_register_obj(NULL, lv_layer_top(), NULL);
-    gf_register_obj(NULL, lv_screen_active(), NULL);
-    gf_register_obj(NULL, lv_layer_bottom(), NULL);
+    register_obj(NULL, lv_layer_sys(), NULL);
+    register_obj(NULL, lv_layer_top(), NULL);
+    register_obj(NULL, lv_screen_active(), NULL);
+    register_obj(NULL, lv_layer_bottom(), NULL);
 
     create_scr_page(lv_screen_active(), "screens.common");
     LOG_DEBUG("size of g_obj: %d", sizeof(g_obj));

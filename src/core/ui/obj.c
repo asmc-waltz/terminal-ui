@@ -55,7 +55,7 @@
  *   GLOBAL FUNCTIONS
  **********************/
 /*
- * gf_register_obj - Register a new object into the hierarchy
+ * register_obj - Register a new object into the hierarchy
  * @par: Parent lv_obj_t (NULL for root object)
  * @obj: lv_obj_t to register
  * @name: name to assign for this object
@@ -67,7 +67,7 @@
  *
  * Return: Pointer to the created g_obj on success, NULL on failure.
  */
-g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
+g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 {
     struct list_head *parent_list;
     g_obj *new_obj;
@@ -107,7 +107,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 }
 
 /*
- * gf_get_obj - Find LVGL object by its ID
+ * get_obj_by_id - Find LVGL object by its ID
  * @req_id:   ID of the object to find
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -117,7 +117,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
  *
  * Return: Pointer to lv_obj_t if found, NULL otherwise.
  */
-lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
+lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list;
     g_obj *obj;
@@ -137,7 +137,7 @@ lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
         if (obj->id == req_id)
             return obj->obj;
 
-        found = gf_get_obj(req_id, &obj->child);
+        found = get_obj_by_id(req_id, &obj->child);
         if (found)
             return found;
     }
@@ -146,7 +146,7 @@ lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
 }
 
 /* Find object by name */
-lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
+lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
 {
     struct list_head *scan_list;
     g_obj *obj;
@@ -177,7 +177,7 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
             return obj->obj;
         }
 
-        found = gf_get_obj_by_name(name, &obj->child);
+        found = get_obj_by_name(name, &obj->child);
         if (found) {
             LOG_TRACE("Finding name %s: check list %d %s: OBJ FROM DEEPER LEVEL", \
                       name, get_gobj(found)->id, get_gobj(found)->name);
@@ -189,7 +189,7 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
 }
 
 /*
- * gf_remove_obj_and_child_by_name - Remove object (by name) and its children
+ * remove_obj_and_child_by_name - Remove object (by name) and its children
  * @name:    Name of the object to remove
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -200,7 +200,7 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
  *   0   → object found by name and deleted
  *  -1   → not found or invalid args
  */
-int32_t gf_remove_obj_and_child_by_name(const char *name, \
+int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst)
 {
     struct list_head *scan_list;
@@ -222,10 +222,10 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
 
         if (obj->name && strcmp(obj->name, name) == 0) {
             LOG_TRACE("Removing object by name: %s (ID %u)", name, obj->id);
-            return gf_remove_obj_and_child(obj->id, scan_list);
+            return remove_obj_and_child(obj->id, scan_list);
         }
 
-        int32_t ret = gf_remove_obj_and_child_by_name(name, &obj->child);
+        int32_t ret = remove_obj_and_child_by_name(name, &obj->child);
         if (ret == 0)   /* found and deleted by name */
             return 0;
     }
@@ -235,7 +235,7 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
 
 #define ID_NOID                         0
 /*
- * gf_remove_obj_and_child - Remove an object and all its children
+ * remove_obj_and_child - Remove an object and all its children
  * @req_id:   ID of the object to remove; use ID_NOID to remove all children
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -253,7 +253,7 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
  *       >=0 → number of objects deleted
  *       -1  → error (invalid context)
  */
-int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
+int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
     g_obj *obj = NULL;
@@ -279,7 +279,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
                 LOG_TRACE("ID %u: found, deleting...", obj->id);
 
             /* Remove all children first */
-            int32_t child_removed = gf_remove_obj_and_child(ID_NOID,
+            int32_t child_removed = remove_obj_and_child(ID_NOID,
                 &obj->child);
             if (child_removed > 0)
                 removed += child_removed;
@@ -307,7 +307,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
         }
 
         /* Recursive search in children */
-        int32_t ret = gf_remove_obj_and_child(req_id, &obj->child);
+        int32_t ret = remove_obj_and_child(req_id, &obj->child);
         if (req_id != ID_NOID && ret == 0)
             return 0;       /* Found and deleted by ID */
         if (req_id == ID_NOID && ret > 0)
@@ -320,7 +320,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 }
 
 /*
- * gf_remove_children - Remove all children of a given parent object
+ * remove_children - Remove all children of a given parent object
  * @parent: Pointer to the parent g_obj
  *
  * This function removes all child objects of the given parent, including
@@ -330,12 +330,12 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  *   >=0 → number of objects deleted
  *   -1  → error (invalid parent or context)
  */
-int32_t gf_remove_children(g_obj *par)
+int32_t remove_children(g_obj *par)
 {
     if (!par)
         return -1;
 
-    return gf_remove_obj_and_child(ID_NOID, &par->child);
+    return remove_obj_and_child(ID_NOID, &par->child);
 }
 
 /**
@@ -363,7 +363,7 @@ void destroy_ui_object_ctx(ctx_t *ctx)
     if (!ctx)
         return;
 
-    gf_remove_obj_and_child(ID_NOID, &ctx->objs.list);
+    remove_obj_and_child(ID_NOID, &ctx->objs.list);
     ctx->objs.next_id = 1;
 }
 
@@ -374,7 +374,7 @@ g_obj *get_gobj(lv_obj_t *lobj)
     return lobj->user_data;
 }
 
-g_obj *get_par_gobj(lv_obj_t *lobj)
+g_obj *get_gobj_parent(lv_obj_t *lobj)
 {
     g_obj *gobj;
 

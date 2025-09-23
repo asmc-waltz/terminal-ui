@@ -101,68 +101,68 @@ typedef struct g_obj {
 /*=====================
  * Setter functions
  *====================*/
-void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void align_gobj_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
 
-void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
-void gf_gobj_set_pos_mid(lv_obj_t *lobj);
+void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
+void set_gobj_pos_center(lv_obj_t *lobj);
 
-int32_t g_set_scr_rot_dir(int32_t rot_dir);
-int32_t g_set_scr_size(int32_t width, int32_t height);
-void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
+int32_t set_scr_rotation(int32_t rot_dir);
+int32_t set_scr_size(int32_t width, int32_t height);
+void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h);
 
-int32_t gf_obj_scale_enable_w(lv_obj_t *lobj);
-int32_t gf_obj_scale_enable_h(lv_obj_t *lobj);
-int32_t gf_obj_scale_disable_w(lv_obj_t *lobj);
-int32_t gf_obj_scale_disable_h(lv_obj_t *lobj);
-int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w);
-int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h);
+int32_t enable_scale_w(lv_obj_t *lobj);
+int32_t enable_scale_h(lv_obj_t *lobj);
+int32_t disable_scale_w(lv_obj_t *lobj);
+int32_t disable_scale_h(lv_obj_t *lobj);
+int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w);
+int32_t set_obj_scale_pad_h(lv_obj_t *lobj, int32_t pad_h);
 void set_gobj_data(lv_obj_t *lobj, void *data);
 
 /*=====================
  * Getter functions
  *====================*/
-lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
-lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst);
+lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst);
+lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
 g_obj *get_gobj(lv_obj_t *lobj);
-g_obj *get_par_gobj(lv_obj_t *lobj);
-int32_t g_get_scr_rot_dir();
-int32_t g_get_scr_width(void);
-int32_t g_get_scr_height(void);
-void gf_gobj_get_size(lv_obj_t *lobj);
+g_obj *get_gobj_parent(lv_obj_t *lobj);
+int32_t get_scr_rotation();
+int32_t get_scr_width(void);
+int32_t get_scr_height(void);
+void gobj_get_size(lv_obj_t *lobj);
 void *get_gobj_data(lv_obj_t *lobj);
 
 /*=====================
  * Other functions
  *====================*/
-g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
-int32_t gf_remove_obj_and_child_by_name(const char *name, \
+g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
+int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
-int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
-int32_t gf_remove_children(g_obj *par);
+int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
+int32_t remove_children(g_obj *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
-lv_obj_t * gf_create_base(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, \
+lv_obj_t * create_base(lv_obj_t *par, const char *name);
+lv_obj_t * create_box(lv_obj_t *par, const char *name);
+lv_obj_t * create_container(lv_obj_t *par, const char *name);
+lv_obj_t * create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str);
 lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *str);
-lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, \
+lv_obj_t * create_sym(lv_obj_t *par, const char *name, \
         const lv_font_t *font, const char *index);
 lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
                             const lv_font_t *font, const char *index);
 
-lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
+lv_obj_t * create_switch(lv_obj_t *par, const char *name);
+lv_obj_t * create_btn(lv_obj_t *par, const char *name);
+lv_obj_t * create_slider(lv_obj_t *par, const char *name);
 
-lv_obj_t *get_obj_box(lv_obj_t *lobj);
+lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(g_obj *gobj);
-int32_t g_obj_rot_calc_size(g_obj *gobj);
+int32_t gobj_rot_calc_size(g_obj *gobj);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
 {
