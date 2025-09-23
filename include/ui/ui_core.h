@@ -37,7 +37,7 @@ typedef enum {
     OBJ_ICON,
     OBJ_SWITCH,
     OBJ_TEXTAREA,
-} g_type;
+} type_t;
 
 typedef struct {
     int8_t ena_w;
@@ -57,14 +57,14 @@ typedef struct {
      * To keep the previous size for the original object is some situation.
      */
     void (*post_rot_resize_adjust_cb)(lv_obj_t *lobj);
-} g_scale;
+} scale_t;
 
 typedef struct {
     int32_t x;
     int32_t y;
     lv_obj_t *base;
     int8_t align;
-} g_align;
+} align_t;
 
 typedef struct {
     int32_t x_mid;      // Latest center point X coordinate
@@ -74,22 +74,22 @@ typedef struct {
     int32_t w;
     int32_t h;
     int8_t rot;
-} g_pos;
+} pos_t;
 
-struct g_obj;
-typedef struct g_obj {
+struct gobj_t;
+typedef struct gobj_t {
     struct list_head node;
     struct list_head child;
     uint32_t id;
     lv_obj_t *obj;
-    struct g_obj *par;
+    struct gobj_t *par;
     char *name;
     void *obj_data;
-    g_type type;
-    g_pos pos;
-    g_align aln;
-    g_scale scale;
-} g_obj;
+    type_t type;
+    pos_t pos;
+    align_t aln;
+    scale_t scale;
+} gobj_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -124,8 +124,8 @@ void set_gobj_data(lv_obj_t *lobj, void *data);
  *====================*/
 lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
-g_obj *get_gobj(lv_obj_t *lobj);
-g_obj *get_gobj_parent(lv_obj_t *lobj);
+gobj_t *get_gobj(lv_obj_t *lobj);
+gobj_t *get_gobj_parent(lv_obj_t *lobj);
 int32_t get_scr_rotation();
 int32_t get_scr_width(void);
 int32_t get_scr_height(void);
@@ -135,11 +135,11 @@ void *get_gobj_data(lv_obj_t *lobj);
 /*=====================
  * Other functions
  *====================*/
-g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
+gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
 int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
 int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
-int32_t remove_children(g_obj *par);
+int32_t remove_children(gobj_t *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
@@ -161,37 +161,37 @@ lv_obj_t * create_slider(lv_obj_t *par, const char *name);
 
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
-int32_t refresh_obj_tree_layout(g_obj *gobj);
-int32_t calc_gobj_rotated_size(g_obj *gobj);
+int32_t refresh_obj_tree_layout(gobj_t *gobj);
+int32_t calc_gobj_rotated_size(gobj_t *gobj);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
 {
-    return ((g_obj *)lobj->user_data)->pos.h;
+    return ((gobj_t *)lobj->user_data)->pos.h;
 }
 
 static inline int32_t obj_width(lv_obj_t *lobj)
 {
-    return ((g_obj *)lobj->user_data)->pos.w;
+    return ((gobj_t *)lobj->user_data)->pos.w;
 }
 
 static inline int32_t obj_aln_x(lv_obj_t *lobj)
 {
-    return abs(((g_obj *)lobj->user_data)->aln.x);
+    return abs(((gobj_t *)lobj->user_data)->aln.x);
 }
 
 static inline int32_t obj_aln_y(lv_obj_t *lobj)
 {
-    return abs(((g_obj *)lobj->user_data)->aln.y);
+    return abs(((gobj_t *)lobj->user_data)->aln.y);
 }
 
 static inline int32_t obj_scale_h(lv_obj_t *par)
 {
-    return ((g_obj *)par->user_data)->scale.h;
+    return ((gobj_t *)par->user_data)->scale.h;
 }
 
 static inline int32_t obj_scale_w(lv_obj_t *par)
 {
-    return ((g_obj *)par->user_data)->scale.w;
+    return ((gobj_t *)par->user_data)->scale.w;
 }
 
 static inline int32_t calc_pixels(int32_t par_size, int32_t percent)

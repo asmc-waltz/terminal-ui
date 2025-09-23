@@ -50,7 +50,7 @@
 static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
                                      const char *name)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     lv_obj_t *lobj = NULL;
 
     LV_ASSERT_NULL(par);
@@ -293,7 +293,7 @@ lv_obj_t *get_box_child(lv_obj_t *lobj)
 /******************************************************************************/
 void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
@@ -309,7 +309,7 @@ void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 
 void set_gobj_pos_center(lv_obj_t *lobj)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     lv_obj_t *par;
     int32_t x_ofs, y_ofs;
 
@@ -334,7 +334,7 @@ void set_gobj_pos_center(lv_obj_t *lobj)
 void align_gobj_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_align_to(lobj, base, align, x_ofs, y_ofs);

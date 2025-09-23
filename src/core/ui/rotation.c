@@ -67,7 +67,7 @@
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
-static int32_t gobj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
+static int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
 {
     int32_t new_x_mid = -1;
     int32_t new_y_mid = -1;
@@ -200,7 +200,7 @@ static int32_t gobj_get_center(g_obj *gobj, uint32_t par_w, uint32_t par_h)
     return 0;
 }
 
-static void gobj_update_alignment_rot90(g_obj *gobj)
+static void gobj_update_alignment_rot90(gobj_t *gobj)
 {
     int8_t align = LV_ALIGN_DEFAULT;
 
@@ -281,7 +281,7 @@ static void gobj_update_alignment_rot90(g_obj *gobj)
     gobj->aln.align = align;
 }
 
-static void gobj_swap_offset_rot90(g_obj *gobj)
+static void gobj_swap_offset_rot90(gobj_t *gobj)
 {
     int32_t swap;
 
@@ -290,7 +290,7 @@ static void gobj_swap_offset_rot90(g_obj *gobj)
     gobj->aln.y = swap;
 }
 
-static int32_t g_obj_rot_calc_align(g_obj *gobj)
+static int32_t g_obj_rot_calc_align(gobj_t *gobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
@@ -316,7 +316,7 @@ static int32_t g_obj_rot_calc_align(g_obj *gobj)
     return 0;
 }
 
-static int32_t rotate_base_gobj(g_obj *gobj)
+static int32_t rotate_base_gobj(gobj_t *gobj)
 {
     int32_t ret;
 
@@ -378,7 +378,7 @@ static int32_t rotate_base_gobj(g_obj *gobj)
     return 0;
 }
 
-static int32_t rotate_transform_gobj(g_obj *gobj)
+static int32_t rotate_transform_gobj(gobj_t *gobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
@@ -420,7 +420,7 @@ static int32_t rotate_transform_gobj(g_obj *gobj)
     return 0;
 }
 
-static int32_t gobj_refresh(g_obj *gobj)
+static int32_t gobj_refresh(gobj_t *gobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
@@ -481,9 +481,9 @@ static int32_t gobj_refresh(g_obj *gobj)
     return 0;
 }
 
-static int32_t gobj_refresh_child(g_obj *gobj)
+static int32_t gobj_refresh_child(gobj_t *gobj)
 {
-    g_obj *p_obj;
+    gobj_t *p_obj;
     int32_t ret;
     struct list_head *par_list;
 
@@ -536,7 +536,7 @@ int32_t get_scr_rotation()
  * Although primarily used for rotation checks and updates, it may trigger
  * broader layout adjustments.
  */
-int32_t refresh_obj_tree_layout(g_obj *gobj)
+int32_t refresh_obj_tree_layout(gobj_t *gobj)
 {
     int32_t ret;
 

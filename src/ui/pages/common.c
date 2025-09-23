@@ -72,7 +72,7 @@ int32_t get_random_3(void)
 static void rotate_key_handler(lv_event_t *event)
 {
     lv_obj_t *lobj = get_obj_by_name("screens.common", \
-                            &((g_obj *)(lv_screen_active()->user_data))->child);
+                            &((gobj_t *)(lv_screen_active()->user_data))->child);
 
     set_scr_rotation(get_random_3());
     refresh_obj_tree_layout(lobj->user_data);

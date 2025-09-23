@@ -132,7 +132,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
                      -calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
                      calc_pixels(obj_height(par), SETTING_PAD_TOP));
 
-    g_obj *gobj = get_gobj(detail_box);
+    gobj_t *gobj = get_gobj(detail_box);
     gobj->scale.post_rot_resize_adjust_cb = \
         detail_setting_post_rot_resize_adjust_cb;
 
@@ -257,7 +257,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
      * So we don't need to expand the width and height. The object size will
      * change according to the callback when the object is rotated.
      */
-    g_obj *gobj = get_gobj(menu_bar);
+    gobj_t *gobj = get_gobj(menu_bar);
     gobj->scale.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     /*------------------------------------------------------------------------*/

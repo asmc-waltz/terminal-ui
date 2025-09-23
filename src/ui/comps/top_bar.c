@@ -59,7 +59,7 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
                                const char *index)
 {
     lv_obj_t *box, *icon;
-    g_obj *gobj_par;
+    gobj_t *gobj_par;
     int32_t ret;
 
     gobj_par = par->user_data;
@@ -89,7 +89,7 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
 lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
 {
     lv_obj_t *box, *icon;
-    g_obj *gobj_par;
+    gobj_t *gobj_par;
 
     box = create_box(par, name);
     if (!box) {
@@ -142,7 +142,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
 
 lv_obj_t *create_top_bar(lv_obj_t *par)
 {
-    g_obj *gobj_par;
+    gobj_t *gobj_par;
     int32_t obj_w, obj_h, ofs_x, ofs_y;
     lv_obj_t *top_bar;
 

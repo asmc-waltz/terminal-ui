@@ -148,7 +148,7 @@ int32_t ui_main_init(ctx_t *ctx)
     register_obj(NULL, lv_layer_bottom(), NULL);
 
     create_scr_page(lv_screen_active(), "screens.common");
-    LOG_DEBUG("size of g_obj: %d", sizeof(g_obj));
+    LOG_DEBUG("size of gobj_t: %d", sizeof(gobj_t));
 
     return 0;
 }

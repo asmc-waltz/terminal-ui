@@ -65,18 +65,18 @@
  * root level; otherwise, it is added as a child of @par. The user_data of
  * @obj is set to point to the created g_obj.
  *
- * Return: Pointer to the created g_obj on success, NULL on failure.
+ * Return: Pointer to the created gobj_t on success, NULL on failure.
  */
-g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
+gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 {
     struct list_head *parent_list;
-    g_obj *new_obj;
+    gobj_t *new_obj;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!obj)
         return NULL;
 
-    new_obj = calloc(1, sizeof(g_obj));
+    new_obj = calloc(1, sizeof(gobj_t));
     if (!new_obj)
         return NULL;
 
@@ -93,13 +93,13 @@ g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
     new_obj->id = obj_ctx->next_id++;
     new_obj->obj = obj;
     obj->user_data = new_obj;
-    new_obj->par = (!par) ? NULL : (g_obj *)par->user_data;
+    new_obj->par = (!par) ? NULL : (gobj_t *)par->user_data;
 
 
     INIT_LIST_HEAD(&new_obj->child);
 
     parent_list = (!par) ? &obj_ctx->list:
-        &((g_obj *)par->user_data)->child;
+        &((gobj_t *)par->user_data)->child;
 
     list_add_tail(&new_obj->node, parent_list);
 
@@ -120,7 +120,7 @@ g_obj *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    g_obj *obj;
+    gobj_t *obj;
     lv_obj_t *found = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
@@ -149,7 +149,7 @@ lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    g_obj *obj;
+    gobj_t *obj;
     lv_obj_t *found = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
@@ -204,7 +204,7 @@ int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    g_obj *obj;
+    gobj_t *obj;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!name)
@@ -256,8 +256,8 @@ int32_t remove_obj_and_child_by_name(const char *name, \
 int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
-    g_obj *obj = NULL;
-    g_obj *tmp = NULL;
+    gobj_t *obj = NULL;
+    gobj_t *tmp = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
     int32_t removed = 0;
 
@@ -330,7 +330,7 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  *   >=0 → number of objects deleted
  *   -1  → error (invalid parent or context)
  */
-int32_t remove_children(g_obj *par)
+int32_t remove_children(gobj_t *par)
 {
     if (!par)
         return -1;
@@ -367,16 +367,16 @@ void destroy_ui_object_ctx(ctx_t *ctx)
     ctx->objs.next_id = 1;
 }
 
-g_obj *get_gobj(lv_obj_t *lobj)
+gobj_t *get_gobj(lv_obj_t *lobj)
 {
     if (!lobj)
         return NULL;
     return lobj->user_data;
 }
 
-g_obj *get_gobj_parent(lv_obj_t *lobj)
+gobj_t *get_gobj_parent(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj)
         return NULL;
@@ -390,7 +390,7 @@ g_obj *get_gobj_parent(lv_obj_t *lobj)
 
 void set_gobj_data(lv_obj_t *lobj, void *data)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj) {
         LOG_ERROR("lv_obj_t object invalid");
@@ -399,7 +399,7 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
 
     gobj = lobj->user_data;
     if (!gobj) {
-        LOG_ERROR("g_obj object invalid");
+        LOG_ERROR("gobj_t object invalid");
         return;
     }
 
@@ -408,7 +408,7 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
 
 void *get_gobj_data(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj)
         return NULL;

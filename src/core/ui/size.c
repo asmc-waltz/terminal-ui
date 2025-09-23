@@ -48,7 +48,7 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void swap_w_h_size(g_obj *gobj)
+static void swap_w_h_size(gobj_t *gobj)
 {
     int32_t tmp_w;
 
@@ -60,9 +60,9 @@ static void swap_w_h_size(g_obj *gobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t scale_gobj(g_obj *gobj)
+int32_t scale_gobj(gobj_t *gobj)
 {
-    g_obj *gobj_par = NULL;
+    gobj_t *gobj_par = NULL;
     int32_t scale_w, scale_h;
     int32_t abs_val_x, abs_val_y;
     int8_t scr_rot;
@@ -124,7 +124,7 @@ int32_t scale_gobj(g_obj *gobj)
 
     return 0;
 }
-int32_t calc_gobj_rotated_size(g_obj *gobj)
+int32_t calc_gobj_rotated_size(gobj_t *gobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
@@ -185,7 +185,7 @@ int32_t get_scr_height(void)
 
 void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     gobj = lobj->user_data;
@@ -197,7 +197,7 @@ void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
 
 void gobj_get_size(lv_obj_t *lobj)
 {
-    g_obj *gobj = NULL;
+    gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_update_layout(lobj);
@@ -217,7 +217,7 @@ void gobj_get_size(lv_obj_t *lobj)
  */
 int32_t enable_scale_w(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
@@ -230,7 +230,7 @@ int32_t enable_scale_w(lv_obj_t *lobj)
 
 int32_t enable_scale_h(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
@@ -243,7 +243,7 @@ int32_t enable_scale_h(lv_obj_t *lobj)
 
 int32_t disable_scale_w(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
@@ -256,7 +256,7 @@ int32_t disable_scale_w(lv_obj_t *lobj)
 
 int32_t disable_scale_h(lv_obj_t *lobj)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
@@ -269,7 +269,7 @@ int32_t disable_scale_h(lv_obj_t *lobj)
 
 int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
@@ -282,7 +282,7 @@ int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w)
 
 int32_t set_obj_scale_pad_h(lv_obj_t *lobj, int32_t pad_h)
 {
-    g_obj *gobj;
+    gobj_t *gobj;
 
     if (!lobj->user_data)
         return -1;
