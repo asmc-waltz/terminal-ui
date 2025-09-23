@@ -18,6 +18,7 @@
 #include <lvgl.h>
 #include "list.h"
 #include "ui/ui_core.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -38,7 +39,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static int32_t g_scr_rot_dir = ROTATION_0;
 
 /**********************
  *      MACROS
@@ -528,13 +528,22 @@ static int32_t gobj_refresh_child(g_obj *gobj)
  **********************/
 int32_t g_set_scr_rot_dir(int32_t rot_dir)
 {
-    g_scr_rot_dir = rot_dir;
+    ctx_t *ctx = get_ctx();
+    if (ctx == NULL)
+        return -EINVAL;
+
+    ctx->scr.rotation = rot_dir;
+
     return 0;
 }
 
 int32_t g_get_scr_rot_dir()
 {
-    return g_scr_rot_dir;
+    ctx_t *ctx = get_ctx();
+    if (ctx == NULL)
+        return -EINVAL;
+
+    return ctx->scr.rotation;
 }
 
 /*

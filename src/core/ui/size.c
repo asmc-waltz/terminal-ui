@@ -19,6 +19,7 @@
 #include <lvgl.h>
 #include "list.h"
 #include "ui/ui_core.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -39,8 +40,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static int32_t g_scr_width = 0;
-static int32_t g_scr_height = 0;
 
 /**********************
  *      MACROS
@@ -156,20 +155,32 @@ int32_t g_obj_rot_calc_size(g_obj *gobj)
 
 int32_t g_set_scr_size(int32_t width, int32_t height)
 {
-    // TODO: lock
-    g_scr_height = height;
-    g_scr_width = width;
+    ctx_t *ctx = get_ctx();
+    if (ctx == NULL)
+        return -EINVAL;
+
+    ctx->scr.width = width;
+    ctx->scr.height = height;
+
     return 0;
 }
 
 int32_t g_get_scr_width(void)
 {
-    return g_scr_width;
+    ctx_t *ctx = get_ctx();
+    if (ctx == NULL)
+        return -EINVAL;
+
+    return ctx->scr.width;
 }
 
 int32_t g_get_scr_height(void)
 {
-    return g_scr_height;
+    ctx_t *ctx = get_ctx();
+    if (ctx == NULL)
+        return -EINVAL;
+
+    return ctx->scr.height;
 }
 
 void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h)
