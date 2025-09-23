@@ -25,6 +25,7 @@
 #define SETTING_PAD_RIGHT               1       // %
 #define SETTING_WIDTH                   (100 - SETTING_PAD_LEFT - \
                                          SETTING_PAD_RIGHT)      // %
+#define SETTING_SYM_FONTS               &terminal_icons_20
 
 /**********************
  *      TYPEDEFS
