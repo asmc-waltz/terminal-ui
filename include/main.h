@@ -33,13 +33,12 @@ typedef struct screen {
 } scr_t;
 
 typedef struct obj_ctx {
-    struct list_head list;           /* List of registered UI objects */
+    struct list_head list;              /* List of registered UI objects */
     uint32_t next_id;
 } obj_ctx_t;
 
 typedef struct op_handler {
     struct list_head handler_lst;       /* List of registered opcode handlers */
-    wq_ctx_t *wq_ctxs;                  /* List of registered workqueues */
 } op_t;
 
 typedef struct comm_handler {
@@ -56,6 +55,7 @@ typedef struct ctx {
     sig_atomic_t run;
     scr_t scr;
     obj_ctx_t objs;
+    wq_ctx_t *wqs;
     op_t op;
     comm_t comm;
     conf_t cfg;
