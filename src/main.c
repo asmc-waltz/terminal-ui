@@ -22,7 +22,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include "ui/ui.h"
+#include "ui/screen.h"
 #include "comm/cmd_payload.h"
 #include "comm/f_comm.h"
 #include "comm/dbus_comm.h"

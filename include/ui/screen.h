@@ -1,10 +1,10 @@
 /**
- * @file ui.h
+ * @file screen.h
  *
  */
 
-#ifndef G_UI_H
-#define G_UI_H
+#ifndef G_SCREEN_H
+#define G_SCREEN_H
 /*********************
  *      INCLUDES
  *********************/
@@ -57,4 +57,4 @@ void ui_main_deinit(ctx_t *ctx);
  *      MACROS
  **********************/
 
-#endif /* G_UI_H */
+#endif /* G_SCREEN_H */

@@ -12,7 +12,7 @@
 
 #include <lvgl.h>
 #include "ui/ui_core.h"
-#include "ui/ui.h"
+#include "ui/screen.h"
 
 /*********************
  *      DEFINES

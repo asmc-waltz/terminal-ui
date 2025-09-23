@@ -24,7 +24,7 @@
 #include "ui/fonts.h"
 #include "ui/comps.h"
 #include "ui/pages.h"
-#include "ui/ui.h"
+#include "ui/screen.h"
 
 /*********************
  *      DEFINES
