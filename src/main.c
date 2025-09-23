@@ -27,6 +27,7 @@
 #include "comm/f_comm.h"
 #include "comm/dbus_comm.h"
 #include "sched/workqueue.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -40,16 +41,17 @@
  *  GLOBAL VARIABLES
  **********************/
 extern int32_t event_fd;
-volatile sig_atomic_t g_run = 1;
 
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+ctx_t *get_ctx();
 static void service_shutdown_flow();
 
 /**********************
  *  STATIC VARIABLES
  **********************/
+static ctx_t *runtime_ctx = NULL;
 
 /**********************
  *      MACROS
@@ -98,10 +100,28 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
+static int32_t create_ctx()
+{
+    runtime_ctx = (ctx_t *)calloc(1, sizeof(ctx_t));
+    if (runtime_ctx == NULL) {
+        return -ENOMEM;
+    }
+
+    return 0;
+}
+
 static int32_t service_startup_flow(void)
 {
     int32_t ret;
     pthread_t dbus_handler;
+
+    ret = create_ctx();
+    if (ret) {
+        LOG_FATAL("Unable to create application runtime context");
+        exit(-ENOMEM);
+    }
+
+    get_ctx()->run = 1;
 
     /* Initialize UI */
     ret = ui_main_init();
@@ -187,7 +207,7 @@ static void service_shutdown_flow(void)
     }
 
     /* Stop background threads and notify shutdown */
-    g_run = 0;                      /* Signal threads to stop */
+    get_ctx()->run = 0;                 /* Signal threads to stop */
     event_set(event_fd, SIGINT);    /* Notify DBus/system about shutdown */
 
     workqueue_deinit();
@@ -202,7 +222,7 @@ static void service_shutdown_flow(void)
 static int32_t main_loop()
 {
     LOG_INFO("Terminal UI service is running...");
-    while (g_run) {
+    while (get_ctx()->run) {
         lv_task_handler();
         usleep(5000);
     };
@@ -214,6 +234,11 @@ static int32_t main_loop()
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+ctx_t *get_ctx()
+{
+    return runtime_ctx;
+}
+
 int32_t main(void)
 {
     int32_t ret = 0;

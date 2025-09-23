@@ -45,7 +45,6 @@ typedef struct op_handler {
 typedef struct comm_handler {
     DBusConnection *dbus_conn;
     int32_t event_fd;
-    sig_atomic_t run;
 } comm_t;
 
 typedef struct conf_data {
@@ -54,6 +53,7 @@ typedef struct conf_data {
 } conf_t;
 
 typedef struct ctx {
+    sig_atomic_t run;
     screen_t scr;
     obj_t ui;
     op_t op;
@@ -72,6 +72,7 @@ typedef struct ctx {
 /**********************
  *  GLOBAL PROTOTYPES
  **********************/
+ctx_t *get_ctx();
 int32_t process_opcode(uint32_t opcode, void *data);
 
 /**********************
