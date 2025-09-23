@@ -16,10 +16,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
 
 #include <lvgl.h>
 #include "list.h"
 #include "ui/ui_core.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -40,8 +42,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static g_ctx *app_ctx = NULL;
-static uint32_t g_next_id = 1;
 
 /**********************
  *      MACROS
@@ -71,7 +71,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 {
     struct list_head *parent_list;
     g_obj *new_obj;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!obj)
         return NULL;
@@ -90,7 +90,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
         new_obj->name = NULL;
     }
 
-    new_obj->id = g_next_id++;
+    new_obj->id = obj_ctx->next_id++;
     new_obj->obj = obj;
     obj->user_data = new_obj;
     new_obj->par = (!par) ? NULL : (g_obj *)par->user_data;
@@ -98,7 +98,7 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 
     INIT_LIST_HEAD(&new_obj->child);
 
-    parent_list = (!par) ? &ctx->objs :
+    parent_list = (!par) ? &obj_ctx->list:
         &((g_obj *)par->user_data)->child;
 
     list_add_tail(&new_obj->node, parent_list);
@@ -122,9 +122,13 @@ lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
     struct list_head *scan_list;
     g_obj *obj;
     lv_obj_t *found = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return NULL;
+    }
 
     list_for_each_entry(obj, scan_list, node) {
         if (!obj->id)
@@ -147,12 +151,16 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
     struct list_head *scan_list;
     g_obj *obj;
     lv_obj_t *found = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!name)
         return NULL;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return NULL;
+    }
 
     list_for_each_entry(obj, scan_list, node) {
         LOG_TRACE("Finding name %s: checking %d %s", name, obj->id, obj->name);
@@ -195,14 +203,18 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
 int32_t gf_remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst)
 {
-    g_ctx *ctx = gf_get_app_ctx();
     struct list_head *scan_list;
     g_obj *obj;
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
-    if (!ctx || !name)
+    if (!name)
         return -1;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return -1;
+    }
 
     list_for_each_entry(obj, scan_list, node) {
         if (!obj->id)
@@ -246,13 +258,15 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
     struct list_head *scan_list = NULL;
     g_obj *obj = NULL;
     g_obj *tmp = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
     int32_t removed = 0;
 
-    if (!ctx)
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
         return -1;
+    }
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
     LOG_TRACE("Removing object%s",
         head_lst ? " (scan from parent)" : " (scan from root)");
 
@@ -325,66 +339,32 @@ int32_t gf_remove_children(g_obj *par)
 }
 
 /**
- * gf_create_app_ctx - Allocate and initialize the global application context
- *
- * This function creates an application context structure, initializes its
- * internal lists for objects and handlers, and returns a pointer to the
- * newly created context.
- *
- * Return: Pointer to g_ctx on success, NULL on failure.
+ * init_ui_object_list - Allocate and initialize the global ui object list 
  */
-g_ctx *gf_create_app_ctx(void)
+int32_t init_ui_object_ctx(ctx_t *ctx)
 {
-    g_ctx *ctx = NULL;
+    if (ctx == NULL)
+        return -EINVAL;
 
-    ctx = calloc(1, sizeof(g_ctx));
-    if (!ctx)
-        return NULL;
+    INIT_LIST_HEAD(&ctx->objs.list);
 
-    INIT_LIST_HEAD(&ctx->objs);
-
-    return ctx;
+    return 0;
 }
 
 /**
- * gf_destroy_app_ctx - Free the global application context and all resources
+ * destroy_ui_object_ctx - Free the global application context and all resources
  * @ctx: Pointer to the application context to destroy
  *
  * This function removes all registered objects and handlers from the given
  * context, then frees the context itself. Safe to call with NULL pointer.
  */
-
-void gf_destroy_app_ctx(g_ctx *ctx)
+void destroy_ui_object_ctx(ctx_t *ctx)
 {
     if (!ctx)
         return;
 
-    gf_remove_obj_and_child(ID_NOID, &ctx->objs);
-    free(ctx);
-    g_next_id = 1;
-}
-
-/**
- * gf_set_app_ctx - Set the global application context
- * @ctx: Pointer to the application context
- *
- * This function stores the given context as the global application context.
- * Must be called after gf_create_app_ctx() and before any context-dependent
- * operations.
- */
-void gf_set_app_ctx(g_ctx *ctx)
-{
-    app_ctx = ctx;
-}
-
-/**
- * gf_get_app_ctx - Get the current global application context
- *
- * Return: Pointer to the global application context, or NULL if not set.
- */
-g_ctx *gf_get_app_ctx(void)
-{
-    return app_ctx;
+    gf_remove_obj_and_child(ID_NOID, &ctx->objs.list);
+    ctx->objs.next_id = 1;
 }
 
 g_obj *get_gobj(lv_obj_t *lobj)

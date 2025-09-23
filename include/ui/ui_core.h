@@ -13,6 +13,7 @@
 
 #include <lvgl.h>
 #include "list.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -90,10 +91,6 @@ typedef struct g_obj {
     g_scale scale;
 } g_obj;
 
-typedef struct {
-    struct list_head objs;     /* List of registered UI objects */
-} g_ctx;
-
 /**********************
  *  GLOBAL VARIABLES
  **********************/
@@ -104,7 +101,6 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-void gf_set_app_ctx(g_ctx *ctx);
 void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
 
@@ -126,7 +122,6 @@ void set_gobj_data(lv_obj_t *lobj, void *data);
 /*=====================
  * Getter functions
  *====================*/
-g_ctx *gf_get_app_ctx(void);
 lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst);
 g_obj *get_gobj(lv_obj_t *lobj);
@@ -145,8 +140,8 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
 int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
 int32_t gf_remove_children(g_obj *par);
-g_ctx *gf_create_app_ctx(void);
-void gf_destroy_app_ctx(g_ctx *ctx);
+int32_t init_ui_object_ctx(ctx_t *ctx);
+void destroy_ui_object_ctx(ctx_t *ctx);
 
 lv_obj_t * gf_create_base(lv_obj_t *par, const char *name);
 lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);

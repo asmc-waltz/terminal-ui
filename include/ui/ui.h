@@ -50,7 +50,7 @@
 /*=====================
  * Other functions
  *====================*/
-int32_t ui_main_init(void);
+int32_t ui_main_init(ctx_t *ctx);
 void ui_main_deinit(void);
 
 /**********************

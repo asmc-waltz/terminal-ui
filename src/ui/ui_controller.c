@@ -106,13 +106,18 @@ static void gtimer_handler(lv_timer_t * timer)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t ui_main_init(void)
+int32_t ui_main_init(ctx_t *ctx)
 {
-    g_ctx *ctx = NULL;
     lv_timer_t *task_timer = NULL;
+    int32_t ret;
 
-    ctx = gf_create_app_ctx();
-    gf_set_app_ctx(ctx);
+    ret = init_ui_object_ctx(ctx);
+    if (ret) {
+        LOG_FATAL("Unable to init ui object list head");
+        return ret;
+    }
+
+    ctx->objs.next_id = 1;
 
     g_set_scr_size(DISP_WIDTH, DISP_HEIGHT);
 
@@ -151,5 +156,5 @@ int32_t ui_main_init(void)
 
 void ui_main_deinit(void)
 {
-    gf_destroy_app_ctx(gf_get_app_ctx());
+    destroy_ui_object_ctx(get_ctx());
 }

@@ -124,7 +124,7 @@ static int32_t service_startup_flow(void)
     get_ctx()->comm.event = -1;
 
     /* Initialize UI */
-    ret = ui_main_init();
+    ret = ui_main_init(get_ctx());
     if (ret) {
         LOG_FATAL("Failed to initialize UI, ret=%d", ret);
         return ret;

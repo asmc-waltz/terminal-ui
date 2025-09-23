@@ -32,10 +32,10 @@ typedef struct screen {
     int32_t rotation;
 } screen_t;
 
-typedef struct ui_obj {
-    struct list_head obj_lst;           /* List of registered UI objects */
+typedef struct obj_ctx {
+    struct list_head list;           /* List of registered UI objects */
     uint32_t next_id;
-} obj_t;
+} obj_ctx_t;
 
 typedef struct op_handler {
     struct list_head handler_lst;       /* List of registered opcode handlers */
@@ -55,7 +55,7 @@ typedef struct conf_data {
 typedef struct ctx {
     sig_atomic_t run;
     screen_t scr;
-    obj_t ui;
+    obj_ctx_t objs;
     op_t op;
     comm_t comm;
     conf_t cfg;
