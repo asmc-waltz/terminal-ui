@@ -45,7 +45,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_indev_t *touch_event = NULL;
 
 /**********************
  *      MACROS
@@ -127,8 +126,9 @@ int32_t ui_main_init(ctx_t *ctx)
         return -EIO;
     }
 
-    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, ctx->scr.drm_disp);
-    if (touch_event == NULL) {
+    ctx->scr.touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, \
+                                                ctx->scr.drm_disp);
+    if (ctx->scr.touch_event == NULL) {
         return -EIO;
     }
 
