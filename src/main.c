@@ -44,7 +44,6 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-ctx_t *get_ctx();
 static void service_shutdown_flow();
 
 /**********************
@@ -115,17 +114,13 @@ static void destroy_ctx(void)
     runtime_ctx = NULL;
 }
 
+ctx_t *get_ctx();
+
 static int32_t service_startup_flow(void)
 {
     int32_t ret;
     pthread_t dbus_handler;
     ctx_t *ctx;
-
-    ret = create_ctx();
-    if (ret) {
-        LOG_FATAL("Unable to create application runtime context");
-        exit(-ENOMEM);
-    }
 
     ctx = get_ctx();
     if (!ctx) {
@@ -243,8 +238,6 @@ static int32_t main_loop()
         usleep(5000);
     };
 
-    destroy_ctx();
-
     LOG_INFO("Terminal UI service is exiting...");
     return 0;
 }
@@ -262,6 +255,12 @@ int32_t main(void)
     int32_t ret = 0;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
+    ret = create_ctx();
+    if (ret) {
+        LOG_FATAL("Unable to create application runtime context");
+        return ret;
+    }
+
     ret = setup_signal_handler();
     if (ret) {
         return ret;
@@ -278,6 +277,8 @@ int32_t main(void)
         return ret;
     }
 
+    destroy_ctx();
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
+
     return 0;
 }
