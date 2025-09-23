@@ -89,9 +89,12 @@ int32_t event_get(int32_t evfd, uint64_t *out_val)
     return 0;
 }
 
-int32_t init_event_file(void)
+int32_t init_event_file(ctx_t *ctx)
 {
     int32_t fd;
+
+    if (!ctx)
+        return -EINVAL;
 
     fd = eventfd(0, EFD_NONBLOCK);
     if (fd == -1) {
@@ -100,24 +103,27 @@ int32_t init_event_file(void)
         return -errno;
     }
 
-    get_ctx()->comm.event = fd;
+    ctx->comm.event = fd;
     return 0;
 }
 
-int32_t cleanup_event_file(void)
+int32_t cleanup_event_file(ctx_t *ctx)
 {
     int32_t ret;
 
-    if (get_ctx()->comm.event == -1)
+    if (!ctx)
+        return -EINVAL;
+
+    if (ctx->comm.event == -1)
         return 0;
 
-    ret = close(get_ctx()->comm.event);
+    ret = close(ctx->comm.event);
     if (ret == -1) {
         LOG_TRACE("cleanup_event_file failed: fd=%d, err=%d(%s)", \
-                  get_ctx()->comm.event, errno, strerror(errno));
+                  ctx->comm.event, errno, strerror(errno));
         return -errno;
     }
 
-    get_ctx()->comm.event = -1;
+    ctx->comm.event = -1;
     return 0;
 }

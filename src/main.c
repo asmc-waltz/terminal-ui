@@ -99,7 +99,7 @@ static int32_t setup_signal_handler()
     return 0;
 }
 
-static int32_t create_ctx()
+static int32_t create_ctx(void)
 {
     runtime_ctx = (ctx_t *)calloc(1, sizeof(ctx_t));
     if (runtime_ctx == NULL) {
@@ -109,10 +109,17 @@ static int32_t create_ctx()
     return 0;
 }
 
+static void destroy_ctx(void)
+{
+    free(runtime_ctx);
+    runtime_ctx = NULL;
+}
+
 static int32_t service_startup_flow(void)
 {
     int32_t ret;
     pthread_t dbus_handler;
+    ctx_t *ctx;
 
     ret = create_ctx();
     if (ret) {
@@ -120,18 +127,23 @@ static int32_t service_startup_flow(void)
         exit(-ENOMEM);
     }
 
-    get_ctx()->run = 1;
-    get_ctx()->comm.event = -1;
+    ctx = get_ctx();
+    if (!ctx) {
+        exit(-EIO);
+    } else {
+        ctx->run = 1;
+        ctx->comm.event = -1;
+    }
 
     /* Initialize UI */
-    ret = ui_main_init(get_ctx());
+    ret = ui_main_init(ctx);
     if (ret) {
         LOG_FATAL("Failed to initialize UI, ret=%d", ret);
-        return ret;
+        goto exit_err;
     }
 
     /* Prepare eventfd to notify epoll when communicating with threads */
-    ret = init_event_file();
+    ret = init_event_file(ctx);
     if (ret) {
         LOG_FATAL("Failed to initialize eventfd, ret=%d", ret);
         goto exit_ui;
@@ -172,10 +184,13 @@ exit_workqueue:
     workqueue_deinit();
 
 exit_event:
-    cleanup_event_file();
+    cleanup_event_file(ctx);
 
 exit_ui:
-    ui_main_deinit();
+    ui_main_deinit(ctx);
+
+exit_err:
+    destroy_ctx();
     return ret;
 }
 
@@ -189,6 +204,7 @@ static void service_shutdown_flow(void)
 {
     int32_t ret;
     int32_t cnt;
+    ctx_t *ctx = get_ctx();
 
     /* Turn off backlight via remote task */
     ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_LONG, \
@@ -212,9 +228,11 @@ static void service_shutdown_flow(void)
 
     workqueue_deinit();
 
-    cleanup_event_file();
+    cleanup_event_file(ctx);
 
-    ui_main_deinit();
+    ui_main_deinit(ctx);
+
+    destroy_ctx();
 
     LOG_INFO("Service shutdown flow completed");
 }

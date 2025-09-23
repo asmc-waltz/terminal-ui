@@ -153,7 +153,7 @@ int32_t ui_main_init(ctx_t *ctx)
     return 0;
 }
 
-void ui_main_deinit(void)
+void ui_main_deinit(ctx_t *ctx)
 {
-    destroy_ui_object_ctx(get_ctx());
+    destroy_ui_object_ctx(ctx);
 }

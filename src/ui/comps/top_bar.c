@@ -105,7 +105,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
     if (!icon) {
         LOG_ERROR("Unable to add symbol %s", name);
         remove_obj_and_child_by_name(name, &gobj_par->child);
-        return -1;
+        return NULL;
     }
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 

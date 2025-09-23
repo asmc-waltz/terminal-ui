@@ -51,7 +51,7 @@
  * Other functions
  *====================*/
 int32_t ui_main_init(ctx_t *ctx);
-void ui_main_deinit(void);
+void ui_main_deinit(ctx_t *ctx);
 
 /**********************
  *      MACROS
