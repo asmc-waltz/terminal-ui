@@ -22,6 +22,7 @@
 #include "ui/ui_core.h"
 #include "ui/comps.h"
 #include "ui/fonts.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -140,25 +141,28 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
  *                             ICON_BELL_SLASH_SOLID);
  */
 
-lv_obj_t *create_top_bar(lv_obj_t *par)
+lv_obj_t *create_top_bar(ctx_t *ctx)
 {
-    gobj_t *gobj_par;
-    int32_t obj_w, obj_h, ofs_x, ofs_y;
-    lv_obj_t *top_bar;
+    int32_t obj_w, obj_h, pad_w;
+    lv_obj_t *par, *top_bar;
 
-    if (!par)
+    if (!ctx || !ctx->scr.now.obj)
         return NULL;
+
+    par = ctx->scr.now.obj;
 
     /* Create container box for top bar */
     top_bar = create_box(par, TOP_BAR_NAME);
     if (!top_bar)
         return NULL;
 
-    gobj_par = par->user_data;
+    ctx->scr.now.top.obj = top_bar;
+    ctx->scr.now.top.upper_space = (obj_height(par) * TOP_BAR_PAD_TOP) / 100;
+    ctx->scr.now.top.under_space = (obj_height(par) * TOP_BAR_PAD_BOT) / 100;
 
     /* Calculate top bar size as percentage of parent size */
-    obj_w = (gobj_par->pos.w * TOP_BAR_WIDTH) / 100;
-    obj_h = (gobj_par->pos.h * TOP_BAR_HEIGHT) / 100;
+    obj_w = (obj_width(par) * TOP_BAR_WIDTH) / 100;
+    obj_h = (obj_height(par) * TOP_BAR_HEIGHT) / 100;
     set_gobj_size(top_bar, obj_w, obj_h);
 
     /* Set background color and disable scroll */
@@ -167,12 +171,12 @@ lv_obj_t *create_top_bar(lv_obj_t *par)
 
     /* Enable horizontal scaling with padding */
     enable_scale_w(top_bar);
-    ofs_x = (gobj_par->pos.w * (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT)) / 100;
-    set_obj_scale_pad_w(top_bar, ofs_x);
+    pad_w = (obj_width(par) * (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT)) / 100;
+    set_obj_scale_pad_w(top_bar, pad_w);
 
     /* Align top bar to top middle of parent with vertical offset */
-    ofs_y = (gobj_par->pos.h * TOP_BAR_PAD_TOP) / 100;
-    align_gobj_to(top_bar, par, LV_ALIGN_TOP_MID, 0, ofs_y);
+    align_gobj_to(top_bar, par, LV_ALIGN_TOP_MID, 0, \
+                  ctx->scr.now.top.upper_space);
 
     return top_bar;
 }

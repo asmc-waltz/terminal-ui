@@ -113,7 +113,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     lv_obj_set_style_bg_color(screen, lv_color_hex(SCREEN_BG_COLOR), 0);
 
 
-    lv_obj_t *top_space = create_top_bar(screen);
+    lv_obj_t *top_space = create_top_bar(ctx);
     lv_obj_t *sym_box = add_top_bar_symbol(top_space, TOP_BAR_NAME".wifi",
                                                 ICON_WIFI_SOLID);
     align_gobj_to(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
