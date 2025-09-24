@@ -13,6 +13,7 @@
 #include <lvgl.h>
 #include "ui/ui_core.h"
 #include "ui/screen.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -49,7 +50,7 @@
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_scr_page(lv_obj_t *par, const char *name);
+lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name);
 lv_obj_t *create_setting_page(lv_obj_t *par);
 
 /**********************

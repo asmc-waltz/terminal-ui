@@ -25,6 +25,7 @@
 #include "ui/comps.h"
 #include "ui/pages.h"
 #include "ui/screen.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -107,6 +108,7 @@ static void gtimer_handler(lv_timer_t * timer)
 int32_t ui_main_init(ctx_t *ctx)
 {
     lv_timer_t *task_timer = NULL;
+    lv_obj_t *com_scr = NULL;
     int32_t ret;
 
     ret = init_ui_object_ctx(ctx);
@@ -147,8 +149,14 @@ int32_t ui_main_init(ctx_t *ctx)
     register_obj(NULL, lv_screen_active(), NULL);
     register_obj(NULL, lv_layer_bottom(), NULL);
 
-    create_scr_page(lv_screen_active(), COM_SCR_NAME);
+    com_scr = create_common_screen(ctx, lv_screen_active(), COM_SCR_NAME);
+    if (!com_scr) {
+        LOG_ERROR("Failed to create main screen, no content can be displayed");
+        return -EIO;
+    }
+
     LOG_DEBUG("size of gobj_t: %d", sizeof(gobj_t));
+    LOG_DEBUG("size of ctx_t: %d", sizeof(ctx_t));
 
     return 0;
 }

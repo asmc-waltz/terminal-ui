@@ -81,40 +81,45 @@ static void rotate_key_handler(lv_event_t *event)
 
 static void create_keyboard_handler(lv_event_t *event)
 {
-    lv_obj_t *comm_page;
+    lv_obj_t *com_scr;
 
-    comm_page = get_obj_by_name(COM_SCR_NAME, \
+    com_scr = get_obj_by_name(COM_SCR_NAME, \
                                 &get_gobj(lv_screen_active())->child);
-    if (!comm_page) {
+    if (!com_scr) {
         LOG_ERROR("Screen [%s] not found", COM_SCR_NAME);
     }
 
-    create_keyboard(comm_page);
+    create_keyboard(com_scr);
 }
 
 #endif
 
-lv_obj_t *create_scr_page(lv_obj_t *par, const char *name)
+lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 {
     int32_t obj_w, obj_h;
-    lv_obj_t *page;
+    lv_obj_t *screen;
 
-    page = create_base(par, name);
+    screen = create_base(par, name);
+    if (!screen) {
+        LOG_ERROR("Unable to create common screen");
+        return NULL;
+    }
+    ctx->scr.now.obj = screen;
 
-    set_gobj_size(page, get_scr_width(), get_scr_height());
-    set_gobj_pos(page, 0, 0);
+    set_gobj_size(screen, get_scr_width(), get_scr_height());
+    set_gobj_pos(screen, 0, 0);
 
     // TODO: create background
-    lv_obj_set_style_bg_color(page, lv_color_hex(SCREEN_BG_COLOR), 0);
+    lv_obj_set_style_bg_color(screen, lv_color_hex(SCREEN_BG_COLOR), 0);
 
 
-    lv_obj_t *top_space = create_top_bar(page);
+    lv_obj_t *top_space = create_top_bar(screen);
     lv_obj_t *sym_box = add_top_bar_symbol(top_space, TOP_BAR_NAME".wifi",
                                                 ICON_WIFI_SOLID);
     align_gobj_to(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
 
-    // TODO: debug setting page
-    create_setting_page(page);
+    // TODO: debug setting screen
+    create_setting_page(screen);
 
 
 #if defined(TEST)
@@ -136,5 +141,5 @@ lv_obj_t *create_scr_page(lv_obj_t *par, const char *name)
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 #endif
 
-    return page;
+    return screen;
 }
