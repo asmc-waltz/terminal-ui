@@ -24,6 +24,7 @@
 #include "ui/fonts.h"
 #include "ui/comps.h"
 #include "ui/pages.h"
+#include "ui/screen.h"
 
 /*********************
  *      DEFINES
@@ -71,7 +72,7 @@ int32_t get_random_3(void)
 
 static void rotate_key_handler(lv_event_t *event)
 {
-    lv_obj_t *lobj = get_obj_by_name("screens.common", \
+    lv_obj_t *lobj = get_obj_by_name(COM_SCR_NAME, \
                             &((gobj_t *)(lv_screen_active()->user_data))->child);
 
     set_scr_rotation(get_random_3());
@@ -81,9 +82,11 @@ static void rotate_key_handler(lv_event_t *event)
 static void create_keyboard_handler(lv_event_t *event)
 {
     lv_obj_t *comm_page;
-    comm_page = get_obj_by_name("screens.common", &get_gobj(lv_screen_active())->child);
+
+    comm_page = get_obj_by_name(COM_SCR_NAME, \
+                                &get_gobj(lv_screen_active())->child);
     if (!comm_page) {
-        LOG_ERROR("Screen [%s] not found", "screens.common");
+        LOG_ERROR("Screen [%s] not found", COM_SCR_NAME);
     }
 
     create_keyboard(comm_page);

@@ -28,6 +28,7 @@
 
 #define TOUCH_EVENT_FILE                "/dev/input/event1"
 
+#define COM_SCR_NAME                    "screens.common"
 /**********************
  *      TYPEDEFS
  **********************/
