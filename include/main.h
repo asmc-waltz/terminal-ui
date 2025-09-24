@@ -31,6 +31,7 @@ typedef struct scr_region {
 } region_t;
 
 typedef struct scr_space {
+    lv_obj_t *obj;
     region_t top;
     region_t mid;
     region_t bot;
