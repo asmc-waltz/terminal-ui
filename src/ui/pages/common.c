@@ -25,6 +25,7 @@
 #include "ui/comps.h"
 #include "ui/pages.h"
 #include "ui/screen.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -81,15 +82,14 @@ static void rotate_key_handler(lv_event_t *event)
 
 static void create_keyboard_handler(lv_event_t *event)
 {
-    lv_obj_t *com_scr;
+    ctx_t *ctx = get_ctx();
 
-    com_scr = get_obj_by_name(COM_SCR_NAME, \
-                                &get_gobj(lv_screen_active())->child);
-    if (!com_scr) {
-        LOG_ERROR("Screen [%s] not found", COM_SCR_NAME);
+    if (!ctx) {
+        LOG_ERROR("Runtime context not found");
+        return;
     }
 
-    create_keyboard(com_scr);
+    create_keyboard(ctx);
 }
 
 #endif

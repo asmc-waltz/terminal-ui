@@ -23,6 +23,7 @@
 #include "ui/ui_core.h"
 #include "ui/comps.h"
 #include "ux/ux.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -902,17 +903,21 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_keyboard(lv_obj_t *par)
+lv_obj_t *create_keyboard(ctx_t *ctx)
 {
-    lv_obj_t *kb;
+    lv_obj_t *par, *kb;
     const keyboard_def *map = &kb_maps[0];
     int32_t ret;
+
+    if (!ctx || !ctx->scr.now.obj)
+        return NULL;
 
     if (act_map) {
         LOG_WARN("Keyboard already active, please recall the previous one");
         return NULL;
     }
 
+    par = ctx->scr.now.obj;
     kb = create_keyboard_containter(par);
     if (!kb)
         return NULL;
@@ -934,10 +939,15 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     return kb;
 }
 
-void remove_keyboard(lv_obj_t *par)
+void remove_keyboard(ctx_t *ctx)
 {
-    lv_obj_t *kb;
+    lv_obj_t *par, *kb;
     int32_t ret;
+
+    if (!ctx || !ctx->scr.now.obj)
+        return;
+
+    par = ctx->scr.now.obj;
 
     if (act_map) {
         act_map = NULL;

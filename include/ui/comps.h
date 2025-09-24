@@ -68,8 +68,8 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
  *====================*/
 lv_obj_t *create_top_bar(ctx_t *ctx);
 
-lv_obj_t *create_keyboard(lv_obj_t *par);
-void remove_keyboard(lv_obj_t *par);
+lv_obj_t *create_keyboard(ctx_t *ctx);
+void remove_keyboard(ctx_t *ctx);
 
 /**********************
  *      MACROS
