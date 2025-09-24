@@ -119,7 +119,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     align_gobj_to(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
 
     // TODO: debug setting screen
-    create_setting_page(screen);
+    create_setting_page(ctx);
 
 
 #if defined(TEST)

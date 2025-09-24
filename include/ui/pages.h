@@ -51,7 +51,7 @@
  * Other functions
  *====================*/
 lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name);
-lv_obj_t *create_setting_page(lv_obj_t *par);
+lv_obj_t *create_setting_page(ctx_t *ctx);
 
 /**********************
  *      MACROS

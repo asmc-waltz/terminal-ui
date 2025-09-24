@@ -352,18 +352,35 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
 
     return cont;
 }
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
-lv_obj_t *create_setting_page(lv_obj_t *par)
+lv_obj_t *create_setting_page(ctx_t *ctx)
 {
-    lv_obj_t *page;
-    lv_obj_t *menu_bar;
-    lv_obj_t *detail;
+    lv_obj_t *par;
+    lv_obj_t *setting_ctn, *menu_bar, *detail;
 
-    page = create_setting_container(par);
-    menu_bar = create_menu_bar(page);
-    detail = create_setting_detail(page);
-    return page;
+    if (!ctx || !ctx->scr.now.obj)
+        return NULL;
+
+    par = ctx->scr.now.obj;
+
+    setting_ctn = create_setting_container(par);
+
+    menu_bar = create_menu_bar(setting_ctn);
+    if (!menu_bar)
+        goto exit_err;
+
+    detail = create_setting_detail(setting_ctn);
+    if (!detail)
+        goto exit_err;
+
+    return setting_ctn;
+
+exit_err:
+    if (remove_obj_and_child_by_name(SETTING_PAGE_NAME, &get_gobj(par)->child))
+        LOG_WARN("Setting container object not found");
+
+    return NULL;
 }
