@@ -24,13 +24,26 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct scr_region {
+    int32_t upper_space;
+    lv_obj_t *obj;
+    int32_t under_space;
+} region_t;
+
+typedef struct scr_space {
+    region_t top;
+    region_t mid;
+    region_t bot;
+} space_t;
+
 typedef struct screen {
     lv_display_t *drm_disp;
     lv_indev_t *touch_event;
     int32_t width;
     int32_t height;
     int32_t rotation;
-} scr_t;
+    space_t now;
+} scr_ctx_t;
 
 typedef struct obj_ctx {
     struct list_head list;              /* List of registered UI objects */
@@ -53,7 +66,7 @@ typedef struct conf_data {
 
 typedef struct ctx {
     sig_atomic_t run;
-    scr_t scr;
+    scr_ctx_t scr;
     obj_ctx_t objs;
     wq_ctx_t *wqs;
     op_t op;

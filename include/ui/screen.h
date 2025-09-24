@@ -11,9 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <lvgl.h>
-#include "list.h"
-#include "ui/ui_core.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
