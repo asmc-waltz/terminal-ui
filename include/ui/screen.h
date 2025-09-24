@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "main.h"
+#include <lvgl.h>
 
 /*********************
  *      DEFINES
@@ -30,6 +30,27 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct scr_region {
+    int32_t upper_space;
+    lv_obj_t *obj;
+    int32_t under_space;
+} region_t;
+
+typedef struct scr_space {
+    lv_obj_t *obj;
+    region_t top;
+    region_t mid;
+    region_t bot;
+} space_t;
+
+typedef struct screen {
+    lv_display_t *drm_disp;
+    lv_indev_t *touch_event;
+    int32_t width;
+    int32_t height;
+    int32_t rotation;
+    space_t now;
+} scr_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -49,8 +70,6 @@
 /*=====================
  * Other functions
  *====================*/
-int32_t ui_main_init(ctx_t *ctx);
-void ui_main_deinit(ctx_t *ctx);
 
 /**********************
  *      MACROS

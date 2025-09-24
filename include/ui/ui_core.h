@@ -204,6 +204,9 @@ static inline int32_t calc_pixels_remaining(int32_t par_size, int32_t percent)
 {
     return par_size - ((par_size * percent) / 100);
 }
+
+int32_t ui_main_init(ctx_t *ctx);
+void ui_main_deinit(ctx_t *ctx);
 /**********************
  *      MACROS
  **********************/

@@ -16,6 +16,7 @@
 #include <lvgl.h>
 #include "list.h"
 #include "sched/workqueue.h"
+#include "ui/screen.h"
 
 /*********************
  *      DEFINES
@@ -24,28 +25,6 @@
 /**********************
  *      TYPEDEFS
  **********************/
-typedef struct scr_region {
-    int32_t upper_space;
-    lv_obj_t *obj;
-    int32_t under_space;
-} region_t;
-
-typedef struct scr_space {
-    lv_obj_t *obj;
-    region_t top;
-    region_t mid;
-    region_t bot;
-} space_t;
-
-typedef struct screen {
-    lv_display_t *drm_disp;
-    lv_indev_t *touch_event;
-    int32_t width;
-    int32_t height;
-    int32_t rotation;
-    space_t now;
-} scr_ctx_t;
-
 typedef struct obj_ctx {
     struct list_head list;              /* List of registered UI objects */
     uint32_t next_id;
