@@ -922,6 +922,10 @@ lv_obj_t *create_keyboard(ctx_t *ctx)
     if (!kb)
         return NULL;
 
+    ctx->scr.now.bot.obj = kb;
+    ctx->scr.now.bot.upper_space = 15;
+    ctx->scr.now.bot.under_space = 15;
+
     ret = create_keys_layout(kb, map);
     if (ret) {
         LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \

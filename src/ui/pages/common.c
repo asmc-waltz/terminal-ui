@@ -90,6 +90,8 @@ static void create_keyboard_handler(lv_event_t *event)
     }
 
     create_keyboard(ctx);
+
+    refresh_obj_tree_layout((ctx->scr.now.obj)->user_data);
 }
 
 #endif

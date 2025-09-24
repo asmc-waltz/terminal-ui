@@ -36,8 +36,7 @@
 
 #define SETTING_MENU_BAR_HOR_WIDTH      30 // %
 #define SETTING_MENU_BAR_ALIGN          2  // %
-#define SETTING_MENU_BAR_VER_WIDTH      (100 - SETTING_PAD_LEFT - \
-                                         SETTING_PAD_RIGHT) // %
+#define SETTING_MENU_BAR_VER_WIDTH      40 // %
 
 #define SETTING_CONT_BG_COLOR           0x636D7A
 #define SETTING_MENU_BG_COLOR           0x8F9DB0
@@ -87,20 +86,21 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels_remaining(obj_scale_w(par),
+        obj_w = calc_pixels_remaining(obj_width(par),
                                       SETTING_MENU_BAR_HOR_WIDTH +
                                       SETTING_PAD_LEFT +
                                       SETTING_PAD_RIGHT +
                                       SETTING_PAD_RIGHT);
-        obj_h = calc_pixels_remaining(obj_scale_h(par),
+        obj_h = calc_pixels_remaining(obj_height(par),
                                       SETTING_MENU_BAR_ALIGN);
-        lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels(obj_scale_w(par),
-                            SETTING_MENU_BAR_VER_WIDTH);
-        obj_h = calc_pixels_remaining(obj_scale_h(par),
+        obj_w = calc_pixels_remaining(obj_width(par),
                                       SETTING_MENU_BAR_ALIGN * 2);
-        lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+        obj_h = calc_pixels_remaining(obj_height(par),
+                                      SETTING_MENU_BAR_VER_WIDTH +
+                                      SETTING_PAD_LEFT*2 +
+                                      SETTING_PAD_RIGHT*2 +
+                                      SETTING_PAD_RIGHT*2);
     }
 
     set_gobj_size(lobj, obj_w, obj_h);
@@ -164,13 +164,12 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels(obj_scale_w(par), SETTING_MENU_BAR_HOR_WIDTH);
-        obj_h = calc_pixels_remaining(obj_scale_h(par),
-                                      SETTING_MENU_BAR_ALIGN);
-    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels(obj_scale_w(par), SETTING_MENU_BAR_VER_WIDTH);
-        obj_h = calc_pixels_remaining(obj_scale_h(par),
+        obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
+        obj_h = calc_pixels_remaining(obj_height(par),
                                       SETTING_MENU_BAR_ALIGN * 2);
+    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_BAR_ALIGN * 2);
+        obj_h = calc_pixels(obj_height(par), SETTING_MENU_BAR_VER_WIDTH);
     }
 
     set_gobj_size(lobj, obj_w, obj_h);
@@ -344,11 +343,62 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
     lv_obj_set_style_bg_color(cont, lv_color_hex(SETTING_CONT_BG_COLOR), 0);
     align_gobj_to(cont, par, LV_ALIGN_TOP_MID, 0,\
                      calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
-    enable_scale_w(cont);
-    set_obj_scale_pad_w(cont, calc_pixels(obj_width(par), (SETTING_PAD_RIGHT
-                                             + SETTING_PAD_LEFT)));
-    enable_scale_h(cont);
-    set_obj_scale_pad_h(cont, calc_pixels(obj_height(par), SETTING_PAD_BOT));
+
+    return cont;
+}
+
+static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
+{
+    ctx_t *ctx = get_ctx();
+    int32_t obj_w, obj_h;
+    int32_t scr_rot;
+    lv_obj_t *par;
+
+    if (!cont || !ctx)
+        return NULL;
+
+    par = lv_obj_get_parent(cont);
+    if (!par)
+        return NULL;
+
+    if (get_scr_rotation() != ROTATION_0) {
+        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
+    }
+
+    scr_rot = get_scr_rotation();
+    if (scr_rot != ROTATION_0) {
+        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
+    }
+
+    if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+        obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
+        obj_h = obj_height(par);
+
+        if (ctx->scr.now.top.obj) {
+            obj_h = obj_h - (ctx->scr.now.top.upper_space + \
+                obj_height(ctx->scr.now.top.obj) + ctx->scr.now.top.under_space);
+        }
+
+        if (ctx->scr.now.bot.obj) {
+            obj_h = obj_h - (ctx->scr.now.bot.upper_space + \
+                obj_height(ctx->scr.now.bot.obj) + ctx->scr.now.bot.under_space);
+        }
+    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        obj_h = calc_pixels(obj_height(par), SETTING_WIDTH);
+        obj_w = obj_width(par);
+
+        if (ctx->scr.now.top.obj) {
+            obj_w = obj_w - (ctx->scr.now.top.upper_space + \
+                obj_width(ctx->scr.now.top.obj) + ctx->scr.now.top.under_space);
+        }
+
+        if (ctx->scr.now.bot.obj) {
+            obj_w = obj_w - (ctx->scr.now.bot.upper_space + \
+                obj_width(ctx->scr.now.bot.obj) + ctx->scr.now.bot.under_space);
+        }
+    }
+
+    set_gobj_size(cont, obj_w, obj_h);
 
     return cont;
 }
@@ -367,6 +417,11 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     par = ctx->scr.now.obj;
 
     setting_ctn = create_setting_container(par);
+    if (!setting_ctn)
+        return NULL;
+
+    get_gobj(setting_ctn)->scale.post_rot_resize_adjust_cb = \
+                                    setting_container_post_rot_resize_adjust_cb;
 
     menu_bar = create_menu_bar(setting_ctn);
     if (!menu_bar)
