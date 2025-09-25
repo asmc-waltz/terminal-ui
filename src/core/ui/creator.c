@@ -90,6 +90,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     gobj->type = type;
     gobj->pos.rot = ROTATION_0;
     gobj->aln.align = LV_ALIGN_DEFAULT;
+    gobj->aln.flex = FLEX_NONE;
     gobj->scale.ena_w = 0;
     gobj->scale.ena_h = 0;
 

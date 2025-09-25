@@ -476,6 +476,16 @@ static int32_t gobj_refresh(gobj_t *gobj)
         return ret;
     }
 
+    if (gobj->aln.flex) {
+        ret = update_flex_by_rot(gobj);
+        if (ret)
+            LOG_WARN("Unable to update flex value, ret %d", ret);
+
+        ret = set_flex_scroll_dir(gobj);
+        if (ret)
+            LOG_WARN("Unable to update scroll configuration, ret %d", ret);
+    }
+
     gobj->pos.rot = scr_rot;
 
     return 0;
@@ -500,6 +510,10 @@ static int32_t gobj_refresh_child(gobj_t *gobj)
         if (ret < 0) {
             LOG_ERROR("Rotate child obj ID %d failed", gobj->id);
             return ret;
+        }
+
+        if (p_obj->aln.flex) {
+            update_list_align_by_rot(p_obj);
         }
     }
 
