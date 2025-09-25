@@ -199,7 +199,8 @@ int32_t get_normal_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
  *
  * Returns 0 on success, negative errno on failure.
  */
-int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj)
+int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
+                             int32_t y_ofs)
 {
     gobj_t *gobj_par;
     int32_t flow;
@@ -251,7 +252,15 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj)
               get_gobj(lobj) ? get_gobj(lobj)->name : "(null)",
               get_gobj(ref) ? get_gobj(ref)->name : "(null)");
 
-    align_gobj_to(lobj, ref, align, 0, 0);
+    /*
+     * Unlike normal objects where rotation does not affect alignment,
+     * rotating by 90 or 180 degrees will cause the alignment value
+     * to become negative.
+     *
+     * For list objects, however, the alignment is adjusted to the
+     * root coordinate system, so the alignment value must remain positive.
+     */
+    align_gobj_to(lobj, ref, align, abs(x_ofs), abs(y_ofs));
 
     return 0;
 }
@@ -265,7 +274,7 @@ int32_t update_normal_list_obj_align(gobj_t *gobj)
 {
     lv_obj_t *par;
     lv_obj_t *child;
-    int32_t child_cnt;
+    int32_t child_cnt, ret;
     int32_t i;
 
     if (!gobj || !gobj->obj)
@@ -284,10 +293,14 @@ int32_t update_normal_list_obj_align(gobj_t *gobj)
         }
 
         LOG_TRACE("NORMAL Walk object, %s",
-                  ((gobj_t *)child->user_data) ?
-                  ((gobj_t *)child->user_data)->name : "(null)");
+                  get_gobj(child) ?
+                  get_gobj(child)->name : "(null)");
 
-        (void)align_gobj_list_item(par, child);
+        ret = align_gobj_list_item(par, child, get_gobj(child)->aln.x, \
+                                   get_gobj(child)->aln.y);
+        if (ret) {
+            LOG_ERROR("Unable to align object %s", get_gobj(child)->name);
+        }
     }
 
     return 0;
@@ -301,7 +314,7 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
 {
     lv_obj_t *par;
     lv_obj_t *child;
-    int32_t child_cnt;
+    int32_t child_cnt, ret;
     int32_t i;
 
     if (!gobj || !gobj->obj)
@@ -320,10 +333,14 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
         }
 
         LOG_TRACE("REVERT Walk object, %s",
-                  ((gobj_t *)child->user_data) ?
-                  ((gobj_t *)child->user_data)->name : "(null)");
+                  get_gobj(child) ?
+                  get_gobj(child)->name : "(null)");
 
-        (void)align_gobj_list_item(par, child);
+        ret = align_gobj_list_item(par, child, get_gobj(child)->aln.x, \
+                                   get_gobj(child)->aln.y);
+        if (ret) {
+            LOG_ERROR("Unable to align object %s", get_gobj(child)->name);
+        }
     }
 
     return 0;

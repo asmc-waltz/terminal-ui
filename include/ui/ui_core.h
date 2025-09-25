@@ -178,7 +178,8 @@ lv_obj_t *get_box_child(lv_obj_t *lobj);
 int32_t refresh_obj_tree_layout(gobj_t *gobj);
 int32_t calc_gobj_rotated_size(gobj_t *gobj);
 
-int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj);
+int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
+                             int32_t y_ofs);
 int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
