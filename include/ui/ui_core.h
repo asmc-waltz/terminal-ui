@@ -39,6 +39,13 @@ typedef enum {
     OBJ_TEXTAREA,
 } type_t;
 
+typedef enum {
+    FLEX_NONE = 0,
+    FLEX_ROW,
+    FLEX_COLUMN,
+    FLEX_END,
+} flex_t;
+
 typedef struct {
     int8_t ena_w;
     int8_t ena_h;
@@ -63,9 +70,12 @@ typedef struct {
     int32_t x;
     int32_t y;
     lv_obj_t *base;
+    flex_t flex;
     int8_t align;
 } align_t;
 
+
+int32_t add_list_object(lv_obj_t *par, lv_obj_t *lobj);
 typedef struct {
     int32_t x_mid;      // Latest center point X coordinate
     int32_t y_mid;      // Latest center point Y coordinate
@@ -118,6 +128,9 @@ int32_t disable_scale_h(lv_obj_t *lobj);
 int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w);
 int32_t set_obj_scale_pad_h(lv_obj_t *lobj, int32_t pad_h);
 void set_gobj_data(lv_obj_t *lobj, void *data);
+int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow);
+int32_t set_flex_scroll_dir(gobj_t *gobj);
+int32_t update_flex_by_rot(gobj_t *gobj);
 
 /*=====================
  * Getter functions
@@ -164,6 +177,9 @@ lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(gobj_t *gobj);
 int32_t calc_gobj_rotated_size(gobj_t *gobj);
+
+int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj);
+int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
 {

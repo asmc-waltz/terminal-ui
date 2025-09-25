@@ -52,55 +52,101 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t set_gobj_list_flow(lv_obj_t *lobj, int8_t flow)
+int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow)
 {
+    gobj_t *gobj;
+
     if (!lobj)
         return -EINVAL;
 
     if (flow <= FLEX_NONE || flow >= FLEX_END)
         return -EINVAL;
 
-    get_gobj(lobj)->aln.flex = flow;
+    gobj = get_gobj(lobj);
+    if (!gobj)
+        return -EIO;
+
+    gobj->aln.flex = flow;
 
     return 0;
 }
 
-lv_obj_t *get_revert_align_ref_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj)
+/**
+ * Return the "next" ref when traversing in revert order:
+ * - If lobj is NOT the last child -> return next sibling
+ * - Else -> return parent
+ *
+ * Returns NULL on invalid args or if index is invalid.
+ */
+lv_obj_t *get_revert_obj_ref(lv_obj_t *par, lv_obj_t *lobj)
 {
-    lv_obj_t *ref;
+    lv_obj_t *ref = NULL;
+    int32_t obj_after;
+    int32_t idx;
 
+    if (!par || !lobj)
+        return NULL;
+
+    idx = lv_obj_get_index(lobj);
+    if (idx < 0)
+        return NULL;
+
+    /* if lobj is not last child, use next sibling */
     if (lv_obj_get_child(par, -1) != lobj) {
-        //  obj get obj after as ref
-        int32_t obj_after = (int32_t)lv_obj_get_index(lobj) + 1;
+        obj_after = idx + 1;
         ref = lv_obj_get_child(par, obj_after);
+        if (!ref)
+            return NULL;
     } else {
-        // Last obj get ref
+        /* last child -> use parent as ref */
         ref = par;
     }
 
     return ref;
 }
 
-lv_obj_t *get_normal_align_ref_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj)
+/**
+ * Return the "previous" ref when traversing in normal order:
+ * - If lobj is NOT the first child -> return prev sibling
+ * - Else -> return parent
+ *
+ * Returns NULL on invalid args or if index is invalid.
+ */
+lv_obj_t *get_normal_obj_ref(lv_obj_t *par, lv_obj_t *lobj)
 {
-    lv_obj_t *ref;
+    lv_obj_t *ref = NULL;
+    int32_t obj_before;
+    int32_t idx;
+
+    if (!par || !lobj)
+        return NULL;
+
+    idx = lv_obj_get_index(lobj);
+    if (idx < 0)
+        return NULL;
 
     if (lv_obj_get_child(par, 0) != lobj) {
-        // obj get obj before as ref
-        int32_t obj_before = (int32_t)lv_obj_get_index(lobj) - 1;
+        obj_before = idx - 1;
         ref = lv_obj_get_child(par, obj_before);
+        if (!ref)
+            return NULL;
     } else {
-        // First obj get ref
+        /* first child -> use parent as ref */
         ref = par;
     }
 
     return ref;
 }
 
-
-int32_t get_revert_align_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
+/**
+ * Compute align for revert traversal.
+ */
+int32_t get_revert_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
 {
     int32_t align;
+
+    if (!par || !lobj)
+        return -EINVAL;
 
     if (lv_obj_get_child(par, -1) != lobj) {
         if (flow == FLEX_COLUMN) {
@@ -119,10 +165,15 @@ int32_t get_revert_align_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj, int8_t flow
 
     return align;
 }
-
-int32_t get_normal_align_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
+/**
+ * Compute align for normal traversal.
+ */
+int32_t get_normal_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
 {
     int32_t align;
+
+    if (!par || !lobj)
+        return -EINVAL;
 
     if (lv_obj_get_child(par, 0) != lobj) {
         if (flow == FLEX_COLUMN) {
@@ -142,121 +193,263 @@ int32_t get_normal_align_flex_obj_lst(lv_obj_t *par, lv_obj_t *lobj, int8_t flow
     return align;
 }
 
-int32_t align_obj_in_gobj_list(lv_obj_t *par, lv_obj_t *lobj)
+/**
+ * Align a child object inside a gobj list based on effective flex
+ * and the current screen rotation.
+ *
+ * Returns 0 on success, negative errno on failure.
+ */
+int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj)
 {
-    gobj_t *gobj_par = get_gobj(par);
+    gobj_t *gobj_par;
+    int32_t flow;
+    lv_obj_t *ref = NULL;
+    int32_t align;
+    int32_t scr_rot;
 
-    int32_t flow = gobj_par->aln.flex;
+    if (!par || !lobj)
+        return -EINVAL;
 
+    gobj_par = get_gobj(par);
+    if (!gobj_par)
+        return -EIO;
+
+    flow = gobj_par->aln.flex;
     if (flow == FLEX_NONE) {
         LOG_ERROR("Unable to add list object into normal parent");
         return -EIO;
     }
 
+    scr_rot = get_scr_rotation();
 
+    /* choose ref and align according to rotation groups */
+    if (scr_rot == ROTATION_0 || scr_rot == ROTATION_270) {
+        ref = get_normal_obj_ref(par, lobj);
+        if (!ref) {
+            LOG_ERROR("Unable to find ref object for %s",
+                      get_gobj(lobj) ? get_gobj(lobj)->name : "(null)");
+            return -EIO;
+        }
 
+        align = get_normal_obj_align(par, lobj, flow);
+    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_180) {
+        ref = get_revert_obj_ref(par, lobj);
+        if (!ref) {
+            LOG_ERROR("Unable to find ref object for %s",
+                      get_gobj(lobj) ? get_gobj(lobj)->name : "(null)");
+            return -EIO;
+        }
 
-    lv_obj_t *ref;
-    int32_t align;
+        align = get_revert_obj_align(par, lobj, flow);
+    } else {
+        /* unexpected rotation value */
+        LOG_ERROR("Unsupported rotation %d", scr_rot);
+        return -EIO;
+    }
 
-    int32_t scr_rot = get_scr_rotation();
+    LOG_TRACE("Align object: %s to %s",
+              get_gobj(lobj) ? get_gobj(lobj)->name : "(null)",
+              get_gobj(ref) ? get_gobj(ref)->name : "(null)");
+
+    align_gobj_to(lobj, ref, align, 0, 0);
+
+    return 0;
+}
+
+/**
+ * Walk children in normal order and align them.
+ *
+ * Returns 0 on success, negative errno on invalid args.
+ */
+int32_t update_normal_list_obj_align(gobj_t *gobj)
+{
+    lv_obj_t *par;
+    lv_obj_t *child;
+    int32_t child_cnt;
+    int32_t i;
+
+    if (!gobj || !gobj->obj)
+        return -EINVAL;
+
+    par = gobj->obj;
+    child_cnt = lv_obj_get_child_count(par);
+
+    LOG_TRACE("Child count = %d", child_cnt);
+
+    for (i = 0; i < child_cnt; i++) {
+        child = lv_obj_get_child(par, i);
+        if (!child) {
+            LOG_WARN("Null child at index %d", i);
+            continue;
+        }
+
+        LOG_TRACE("NORMAL Walk object, %s",
+                  ((gobj_t *)child->user_data) ?
+                  ((gobj_t *)child->user_data)->name : "(null)");
+
+        (void)align_gobj_list_item(par, child);
+    }
+
+    return 0;
+}
+/**
+ * Walk children in reverse order and align them.
+ *
+ * Returns 0 on success, negative errno on invalid args.
+ */
+int32_t update_revert_list_obj_align(gobj_t *gobj)
+{
+    lv_obj_t *par;
+    lv_obj_t *child;
+    int32_t child_cnt;
+    int32_t i;
+
+    if (!gobj || !gobj->obj)
+        return -EINVAL;
+
+    par = gobj->obj;
+    child_cnt = lv_obj_get_child_count(par);
+
+    LOG_TRACE("Child count = %d", child_cnt);
+
+    for (i = child_cnt - 1; i >= 0; i--) {
+        child = lv_obj_get_child(par, i);
+        if (!child) {
+            LOG_WARN("Null child at index %d", i);
+            continue;
+        }
+
+        LOG_TRACE("REVERT Walk object, %s",
+                  ((gobj_t *)child->user_data) ?
+                  ((gobj_t *)child->user_data)->name : "(null)");
+
+        (void)align_gobj_list_item(par, child);
+    }
+
+    return 0;
+}
+
+/**
+ * Set scroll dir for a flex list based on its effective flex.
+ *
+ * Returns 0 on success, -EINVAL for invalid args, -EIO for invalid flex.
+ */
+int32_t set_flex_scroll_dir(gobj_t *gobj)
+{
+    lv_obj_t *lobj;
+    int32_t cur_flex;
+
+    if (!gobj)
+        return -EINVAL;
+
+    lobj = gobj->obj;
+    if (!lobj)
+        return -EIO;
+
+    cur_flex = gobj->aln.flex;
+    if (cur_flex <= FLEX_NONE || cur_flex >= FLEX_END)
+        return -EIO;
+
+    if (cur_flex == FLEX_COLUMN) {
+        lv_obj_set_scroll_dir(lobj, LV_DIR_TOP | LV_DIR_BOTTOM);
+    } else if (cur_flex == FLEX_ROW) {
+        lv_obj_set_scroll_dir(lobj, LV_DIR_LEFT | LV_DIR_RIGHT);
+    } else {
+        /* defensive: unknown flow */
+        LOG_WARN("Unknown flex %d", cur_flex);
+        return -EIO;
+    }
+
+    return 0;
+}
+
+/**
+ * Update stored flex according to rotation groups.
+ *
+ * Group A: ROTATION_0, ROTATION_180
+ * Group B: ROTATION_90, ROTATION_270
+ *
+ * If scr_rot and cur_rot are in same group -> keep cur_flex.
+ * Else swap COLUMN <-> ROW.
+ *
+ * Returns 0 on success, -EINVAL for invalid args.
+ */
+int32_t update_flex_by_rot(gobj_t *gobj)
+{
+    int32_t scr_rot;
+    int32_t cur_rot;
+    int32_t cur_flex;
+    bool same_group;
+
+    if (!gobj)
+        return -EINVAL;
+
+    scr_rot = get_scr_rotation();
+    cur_rot = gobj->pos.rot;
+    cur_flex = gobj->aln.flex;
+
+    /* validate current flex */
+    if (cur_flex != FLEX_COLUMN && cur_flex != FLEX_ROW) {
+        LOG_WARN("gobj has non-standard flex %d", cur_flex);
+        /* keep as-is and return success to avoid forcing invalid value */
+        return -EIO;
+    }
+
+    same_group = ((scr_rot == ROTATION_0 || scr_rot == ROTATION_180) &&
+                  (cur_rot == ROTATION_0 || cur_rot == ROTATION_180)) ||
+                 ((scr_rot == ROTATION_90 || scr_rot == ROTATION_270) &&
+                  (cur_rot == ROTATION_90 || cur_rot == ROTATION_270));
+
+    if (same_group)
+        gobj->aln.flex = cur_flex;
+    else
+        gobj->aln.flex = (cur_flex == FLEX_COLUMN) ? FLEX_ROW : FLEX_COLUMN;
+
+    return 0;
+}
+
+/**
+ * Update list alignment according to current screen rotation.
+ *
+ * - Choose traversal order: normal (0/270) or revert (90/180).
+ * - Walk children and align.
+ * - Update layout and scroll first child into view if exists.
+ *
+ * Returns 0 on success, -EINVAL if gobj invalid.
+ */
+int32_t update_list_align_by_rot(gobj_t *gobj)
+{
+    lv_obj_t *lobj;
+    lv_obj_t *first_child;
+    int32_t scr_rot;
+    int32_t ret;
+
+    if (!gobj || !gobj->obj)
+        return -EINVAL;
+
+    lobj = gobj->obj;
+
+    scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_270) {
-
-        ref = get_normal_align_ref_flex_obj_lst(par, lobj);
-        if (!ref) {
-            LOG_ERROR("Unable to find ref object for %s", get_gobj(lobj)->name);
-            return -EIO;
-        }
-
-        align = get_normal_align_flex_obj_lst(par, lobj, flow);
-    } else if (scr_rot == ROTATION_90  || scr_rot == ROTATION_180) {
-        ref = get_revert_align_ref_flex_obj_lst(par, lobj);
-        if (!ref) {
-            LOG_ERROR("Unable to find ref object for %s", get_gobj(lobj)->name);
-            return -EIO;
-        }
-
-        align = get_revert_align_flex_obj_lst(par, lobj, flow);
+        ret = update_normal_list_obj_align(gobj);
+        if (ret)
+            LOG_WARN("update_normal_align returned %d", ret);
+    } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_180) {
+        ret = update_revert_list_obj_align(gobj);
+        if (ret)
+            LOG_WARN("update_revert_align returned %d", ret);
+    } else {
+        LOG_ERROR("Unsupported rotation %d", scr_rot);
+        return -EIO;
     }
 
-
-
-
-
-
-
-
-    LOG_TRACE("Align object: %s to %s", get_gobj(lobj)->name, get_gobj(ref)->name);
-    align_gobj_to(lobj, ref, align, 0, 0);
-}
-
-
-
-int32_t update_revert_obj_list_align(gobj_t *gobj_par)
-{
-    lv_obj_t *par = gobj_par->obj;
-    int32_t child_cnt = lv_obj_get_child_count(par);
-    int32_t scr_rot = get_scr_rotation();
-
-    LOG_TRACE("Child count = %d", child_cnt);
-
-    for (int32_t i = child_cnt - 1; i >= 0; i--) {
-        lv_obj_t * sibling = lv_obj_get_child(par, i);
-        LOG_TRACE("REVERT Walk object, %s", ((gobj_t *)sibling->user_data)->name);
-
-
-        align_obj_in_gobj_list(par, sibling);
-    }
-}
-
-
-int32_t update_normal_obj_list_align(gobj_t *gobj_par)
-{
-
-    lv_obj_t *par = gobj_par->obj;
-    int32_t child_cnt = lv_obj_get_child_count(par);
-    int32_t scr_rot = get_scr_rotation();
-
-    LOG_TRACE("Child count = %d", child_cnt);
-
-    for (int32_t i = 0; i < child_cnt; i++) {
-        lv_obj_t * sibling = lv_obj_get_child(par, i);
-        LOG_TRACE("NORMAL Walk object, %s", ((gobj_t *)sibling->user_data)->name);
-
-
-        align_obj_in_gobj_list(par, sibling);
-    }
-}
-
-
-
-
-int32_t update_list_object_rotation_alignment(gobj_t *gobj)
-{
-    int32_t scr_rot = get_scr_rotation();
-    lv_obj_t *lobj = gobj->obj;
-
-    if (scr_rot == ROTATION_0) {
-        gobj->aln.flex = FLEX_COLUMN;
-        update_normal_obj_list_align(gobj);
-        lv_obj_set_scroll_dir(lobj, LV_DIR_TOP | LV_DIR_BOTTOM);
-    } else if (scr_rot == ROTATION_90) {
-        gobj->aln.flex = FLEX_ROW;
-        update_revert_obj_list_align(gobj);
-        lv_obj_set_scroll_dir(lobj, LV_DIR_LEFT | LV_DIR_RIGHT);
-    } else if (scr_rot == ROTATION_180) {
-        gobj->aln.flex = FLEX_COLUMN;
-        update_revert_obj_list_align(gobj);
-        lv_obj_set_scroll_dir(lobj, LV_DIR_TOP | LV_DIR_BOTTOM);
-    } else if (scr_rot == ROTATION_270) {
-        gobj->aln.flex = FLEX_ROW;
-        update_normal_obj_list_align(gobj);
-        lv_obj_set_scroll_dir(lobj, LV_DIR_LEFT | LV_DIR_RIGHT);
-    }
-    
+    /* update layout and ensure first child visible if present */
     lv_obj_update_layout(lobj);
 
-    lv_obj_t *first_child = lv_obj_get_child(lobj, 0);
-    lv_obj_scroll_to_view(first_child, LV_ANIM_OFF);
+    first_child = lv_obj_get_child(lobj, 0);
+    if (first_child)
+        lv_obj_scroll_to_view(first_child, LV_ANIM_OFF);
+
+    return 0;
 }
