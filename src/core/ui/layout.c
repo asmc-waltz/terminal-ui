@@ -68,6 +68,8 @@ int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow)
 
     gobj->aln.flex = flow;
 
+    lv_obj_set_scrollbar_mode(lobj, LV_SCROLLBAR_MODE_OFF);
+
     return 0;
 }
 
