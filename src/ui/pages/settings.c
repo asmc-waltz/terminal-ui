@@ -206,7 +206,7 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
     lv_obj_set_style_bg_color(btn_box, \
                               lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
 
-    align_gobj_list_item(par, btn_box);
+    align_gobj_list_item(par, btn_box, 0, calc_pixels(obj_width(par), 2));
 
     align_gobj_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_height(btn_box), 50), \
