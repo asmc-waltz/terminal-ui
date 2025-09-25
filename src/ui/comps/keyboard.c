@@ -961,6 +961,10 @@ void remove_keyboard(ctx_t *ctx)
     if (ret)
         LOG_WARN("Keyboard object not found");
 
+    ctx->scr.now.bot.obj = NULL;
+    ctx->scr.now.bot.upper_space = 0;
+    ctx->scr.now.bot.under_space = 0;
+
     ret = refresh_obj_tree_layout(par->user_data);
     if (ret)
         LOG_WARN("Unable to refresh after remove keyboard");

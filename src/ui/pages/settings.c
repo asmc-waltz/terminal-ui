@@ -378,13 +378,11 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
     if (!par)
         return NULL;
 
-    if (get_scr_rotation() != ROTATION_0) {
-        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
-    }
-
     scr_rot = get_scr_rotation();
-    if (scr_rot != ROTATION_0) {
-        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
+    if (get_scr_rotation() != ROTATION_0) {
+        if (ctx->scr.now.bot.obj) {
+            refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
+        }
     }
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {

@@ -83,13 +83,23 @@ static void rotate_key_handler(lv_event_t *event)
 static void create_keyboard_handler(lv_event_t *event)
 {
     ctx_t *ctx = get_ctx();
+    static bool kb_en = false;
+    lv_obj_t *kb;
 
     if (!ctx) {
         LOG_ERROR("Runtime context not found");
         return;
     }
 
-    create_keyboard(ctx);
+    if (!kb_en) {
+        kb = create_keyboard(ctx);
+        if (kb)
+            kb_en = true;
+    } else {
+        remove_keyboard(ctx);
+        kb_en = false;
+
+    }
 
     refresh_obj_tree_layout((ctx->scr.now.obj)->user_data);
 }
