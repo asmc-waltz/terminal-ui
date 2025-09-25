@@ -206,13 +206,7 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
     lv_obj_set_style_bg_color(btn_box, \
                               lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
 
-    if (par == ref) {
-        align_gobj_to(btn_box, par, LV_ALIGN_TOP_MID, 0, \
-                         calc_pixels(obj_width(par), 2));
-    } else {
-        align_gobj_to(btn_box, ref, LV_ALIGN_OUT_BOTTOM_MID, 0, \
-                         calc_pixels(obj_width(par), 2));
-    }
+    align_gobj_list_item(par, btn_box);
 
     align_gobj_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_height(btn_box), 50), \
@@ -237,7 +231,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
         return NULL;
 
     /* Create container box for menu bar */
-    menu_bar = create_box(par, "pages.setting.menu_bar");
+    menu_bar = create_box(par, SETTING_PAGE_NAME".menu_bar");
     if (!menu_bar)
         return NULL;
 
@@ -258,6 +252,9 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
      */
     gobj_t *gobj = get_gobj(menu_bar);
     gobj->scale.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
+
+    // lv_obj_t *network_container = create_container(menu_bar, SETTING_PAGE_NAME".menu_bar.network");
+    set_gobj_list_layout(menu_bar, FLEX_COLUMN);
 
     /*------------------------------------------------------------------------*/
     lv_obj_t *setting_btn;
@@ -292,6 +289,16 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       "Hostspot");
 
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.phone", \
+                                      ICON_PHONE_SOLID, \
+                                      "Phone");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.message", \
+                                      ICON_COMMENT_SOLID, \
+                                      "Message");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.brightness", \
                                       ICON_CIRCLE_HALF_STROKE_SOLID, \
                                       "Brightness");
@@ -311,6 +318,16 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       "pages.setting.menu_bar.gnss", \
                                       ICON_SATELLITE_DISH_SOLID, \
                                       "GNSS");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.datetime", \
+                                      ICON_CALENDAR_DAYS_SOLID, \
+                                      "Datatime");
+
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.information", \
+                                      ICON_CIRCLE_INFO_SOLID, \
+                                      "Information");
 
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.power", \
