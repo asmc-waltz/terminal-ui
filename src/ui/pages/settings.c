@@ -284,9 +284,17 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       ICON_NETWORK_WIRED_SOLID, \
                                       "Network");
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.filter", \
+                                      ICON_FILTER_SOLID, \
+                                      "Filter");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.hostspot", \
                                       ICON_SHARE_NODES_SOLID, \
                                       "Hostspot");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.timer", \
+                                      ICON_HOURGLASS_START_SOLID, \
+                                      "Timer");
 
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.phone", \
@@ -302,6 +310,10 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       "pages.setting.menu_bar.brightness", \
                                       ICON_CIRCLE_HALF_STROKE_SOLID, \
                                       "Brightness");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.volume", \
+                                      ICON_VOLUME_HIGH_SOLID, \
+                                      "Volume");
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.rotation", \
                                       ICON_ROTATE_SOLID, \
@@ -325,6 +337,10 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       "Datatime");
 
     setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.general", \
+                                      ICON_GEAR_SOLID, \
+                                      "General");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
                                       "pages.setting.menu_bar.information", \
                                       ICON_CIRCLE_INFO_SOLID, \
                                       "Information");
@@ -333,6 +349,10 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
                                       "pages.setting.menu_bar.power", \
                                       ICON_PLUG_SOLID, \
                                       "Power");
+    setting_btn = create_menu_bar_btn(menu_bar, setting_btn, \
+                                      "pages.setting.menu_bar.poweroff", \
+                                      ICON_POWER_OFF_SOLID, \
+                                      "Power Off");
 
     /*------------------------------------------------------------------------*/
 
