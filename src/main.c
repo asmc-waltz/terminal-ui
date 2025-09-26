@@ -235,7 +235,7 @@ static int32_t main_loop()
     LOG_INFO("Terminal UI service is running...");
     while (get_ctx()->run) {
         lv_task_handler();
-        usleep(5000);
+        usleep(32000);
     };
 
     LOG_INFO("Terminal UI service is exiting...");
