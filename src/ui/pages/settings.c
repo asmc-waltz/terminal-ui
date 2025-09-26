@@ -523,6 +523,10 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     if (!detail)
         goto exit_err;
 
+    ctx->scr.now.mid.obj = setting_ctn;
+    ctx->scr.now.mid.upper_space = SETTING_CONTAINTER_ALIGN;
+    ctx->scr.now.mid.under_space = 0;
+
     return setting_ctn;
 
 exit_err:
