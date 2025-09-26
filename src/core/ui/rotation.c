@@ -371,8 +371,22 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
         lv_obj_set_pos(gobj->obj, gobj->pos.x_mid - (gobj->pos.w / 2), \
                        gobj->pos.y_mid - (gobj->pos.h / 2));
     } else {
-        lv_obj_align_to(gobj->obj, gobj->aln.base, gobj->aln.align, \
-                        gobj->aln.x, gobj->aln.y);
+        // Check alignment scaling configuration
+        if (gobj->aln.scale == DIS_SCALE) {
+            lv_obj_align_to(gobj->obj, gobj->aln.base, gobj->aln.align, \
+                            gobj->aln.x, gobj->aln.y);
+        } else {
+            LOG_TRACE("Re-align object %s with scaling enable x [%d] y[%d]", \
+                      gobj->name, calc_pixels(obj_width((gobj->par)->obj), \
+                                                        gobj->aln.x), \
+                      calc_pixels(obj_height((gobj->par)->obj), \
+                                             gobj->aln.y));
+            lv_obj_align_to(gobj->obj, gobj->aln.base, gobj->aln.align, \
+                            calc_pixels(obj_width((gobj->par)->obj), \
+                                        gobj->aln.x), \
+                            calc_pixels(obj_height((gobj->par)->obj), \
+                                        gobj->aln.y));
+        }
     }
 
     return 0;

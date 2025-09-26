@@ -23,6 +23,8 @@
 #define ROTATION_180                    LV_DISPLAY_ROTATION_180
 #define ROTATION_270                    LV_DISPLAY_ROTATION_270
 
+#define DIS_SCALE                       0
+#define ENA_SCALE                       1
 /**********************
  *      TYPEDEFS
  **********************/
@@ -72,6 +74,7 @@ typedef struct {
     lv_obj_t *base;
     flex_t flex;
     int8_t align;
+    int8_t scale;
 } align_t;
 
 

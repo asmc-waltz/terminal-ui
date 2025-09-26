@@ -346,5 +346,25 @@ void align_gobj_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj->aln.base = base;
     gobj->aln.x = x_ofs;
     gobj->aln.y = y_ofs;
+    gobj->aln.scale = DIS_SCALE;
 }
 
+void align_gobj_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                      int32_t x_ofs, int32_t y_ofs)
+{
+    gobj_t *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
+
+
+    gobj = lobj->user_data;
+    LV_ASSERT_NULL(gobj);
+    gobj->aln.align = align;
+    gobj->aln.base = base;
+    gobj->aln.x = x_ofs;
+    gobj->aln.y = y_ofs;
+    gobj->aln.scale = ENA_SCALE;
+
+    lv_obj_align_to(lobj, base, align, \
+                        calc_pixels(obj_width((gobj->par)->obj), gobj->aln.x), \
+                        calc_pixels(obj_height((gobj->par)->obj), gobj->aln.y));
+}
