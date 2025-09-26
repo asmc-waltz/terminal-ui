@@ -128,7 +128,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     lv_obj_t *top_space = create_top_bar(ctx);
     lv_obj_t *sym_box = add_top_bar_symbol(top_space, TOP_BAR_NAME".wifi",
                                                 ICON_WIFI_SOLID);
-    align_gobj_to(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
+    align_gobj_fix(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
 
     // TODO: debug setting screen
     create_setting_page(ctx);
@@ -138,7 +138,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     lv_obj_t *btn = create_btn(lv_layer_top(), "common.rotate_btn");
     lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, btn->user_data);
     set_gobj_size(btn, 54, 54);
-    align_gobj_to(btn, lv_layer_top(), LV_ALIGN_CENTER, -50, 0);
+    align_gobj_fix(btn, lv_layer_top(), LV_ALIGN_CENTER, -50, 0);
 
     lv_obj_t *icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
@@ -146,7 +146,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     btn = create_btn(lv_layer_top(), "create keyboard");
     set_gobj_size(btn, 54, 54);
-    align_gobj_to(btn, lv_layer_top(), LV_ALIGN_CENTER, 50, 0);
+    align_gobj_fix(btn, lv_layer_top(), LV_ALIGN_CENTER, 50, 0);
     lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, btn->user_data);
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);

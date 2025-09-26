@@ -131,7 +131,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
-    align_gobj_to(detail_box, par, LV_ALIGN_RIGHT_MID, \
+    align_gobj_fix(detail_box, par, LV_ALIGN_RIGHT_MID, \
                      -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
 
     gobj_t *gobj = get_gobj(detail_box);
@@ -144,7 +144,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     child = create_box(detail_box, "child_test");
     set_gobj_size(child, calc_pixels(obj_width(detail_box), 80), \
                      calc_pixels(obj_height(detail_box), 10));
-    align_gobj_to(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
+    align_gobj_fix(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
     /*------------------------------------------------------------------------*/
 
     return detail_box;
@@ -210,10 +210,10 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
 
     align_gobj_list_item(par, btn_box, 0, calc_pixels(obj_width(par), 2));
 
-    align_gobj_to(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
+    align_gobj_fix(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_height(btn_box), 50), \
                      (obj_height(btn_box) - lv_obj_get_height(sym_box)) / 2);
-    align_gobj_to(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
+    align_gobj_fix(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
                      calc_pixels(obj_height(btn_box), 50), 0);
 
     return btn_box;
@@ -243,7 +243,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
 
     set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
-    align_gobj_to(menu_bar, par, LV_ALIGN_LEFT_MID, \
+    align_gobj_fix(menu_bar, par, LV_ALIGN_LEFT_MID, \
                   calc_pixels(obj_width(par), SETTING_PAD_LEFT), 0);
     /*
      * In case of the menu bar, the layout changes based on the rotation.
@@ -508,8 +508,9 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     if (!setting_ctn)
         return NULL;
 
-    align_gobj_to(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, 0,\
-                     calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
+    align_gobj_scale(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, \
+                     0,\
+                     SETTING_CONTAINTER_ALIGN);
 
     get_gobj(setting_ctn)->scale.post_rot_resize_adjust_cb = \
                                     setting_container_post_rot_resize_adjust_cb;
