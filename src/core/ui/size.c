@@ -100,17 +100,17 @@ int32_t scale_gobj(gobj_t *gobj)
 
     if (gobj->scale.ena_h) {
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_h = par_h - abs_val_y - gobj->scale.pad_h;
+            scale_h = par_h - abs_val_y - calc_pixels(par_h, gobj->scale.pad_h);
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_w = par_w - abs_val_x - gobj->scale.pad_h;
+            scale_w = par_w - abs_val_x - calc_pixels(par_w, gobj->scale.pad_h);
         }
     }
 
     if (gobj->scale.ena_w) {
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-            scale_w = par_w - abs_val_x - gobj->scale.pad_w;
+            scale_w = par_w - abs_val_x - calc_pixels(par_w, gobj->scale.pad_w);
         } else if (scr_rot == ROTATION_270 || scr_rot == ROTATION_90) {
-            scale_h = par_h - abs_val_y - gobj->scale.pad_w;
+            scale_h = par_h - abs_val_y - calc_pixels(par_h, gobj->scale.pad_w);
         }
     }
 

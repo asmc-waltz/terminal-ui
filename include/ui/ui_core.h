@@ -51,8 +51,8 @@ typedef struct {
     int8_t ena_h;
     int32_t w;
     int32_t h;
-    int32_t pad_w;
-    int32_t pad_h;
+    int32_t pad_w; // %
+    int32_t pad_h; // %
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the

@@ -171,7 +171,8 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
 
     /* Enable horizontal scaling with padding */
     enable_scale_w(top_bar);
-    pad_w = (obj_width(par) * (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT)) / 100;
+    // pad_w = (obj_width(par) * (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT)) / 100;
+    pad_w = (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT);
     set_obj_scale_pad_w(top_bar, pad_w);
 
     /* Align top bar to top middle of parent with vertical offset */

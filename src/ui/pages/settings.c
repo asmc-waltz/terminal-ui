@@ -206,7 +206,7 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
     set_gobj_size(btn_box, calc_pixels(obj_width(par), 96), \
                      calc_pixels(obj_height(sym_box), 200));
     enable_scale_w(btn_box);
-    set_obj_scale_pad_w(btn_box, calc_pixels(obj_width(par), 4));
+    set_obj_scale_pad_w(btn_box, (SETTING_PAD_LEFT + SETTING_PAD_RIGHT));
 
     lv_obj_set_style_bg_color(btn_box, \
                               lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
