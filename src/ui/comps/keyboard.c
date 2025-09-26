@@ -863,7 +863,7 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
     set_gobj_size(kb, obj_w, obj_h);
     get_gobj(kb)->pos.rot = ROTATION_0;
     align_gobj_to(kb, par, LV_ALIGN_BOTTOM_MID, 0,\
-                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+                     -calc_pixels(obj_height(par), KEYBOARD_PAD_BOT));
 
     // TODO: map?
     const keyboard_def *map = &kb_maps[0];
@@ -893,7 +893,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
     align_gobj_to(cont, par, LV_ALIGN_BOTTOM_MID, 0,\
-                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+                     -calc_pixels(obj_height(par), KEYBOARD_PAD_BOT));
 
     get_gobj(cont)->scale.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
 
@@ -923,8 +923,8 @@ lv_obj_t *create_keyboard(ctx_t *ctx)
         return NULL;
 
     ctx->scr.now.bot.obj = kb;
-    ctx->scr.now.bot.upper_space = 15;
-    ctx->scr.now.bot.under_space = 15;
+    ctx->scr.now.bot.upper_space = KEYBOARD_PAD_TOP;
+    ctx->scr.now.bot.under_space = KEYBOARD_PAD_BOT;
 
     ret = create_keys_layout(kb, map);
     if (ret) {

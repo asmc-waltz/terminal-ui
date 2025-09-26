@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -29,14 +29,15 @@
  *      DEFINES
  *********************/
 #define SETTING_USED_HEIGHT             (TOP_BAR_PAD_TOP + TOP_BAR_HEIGHT + \
-                                         TOP_BAR_PAD_BOT + SETTING_PAD_TOP + \
+                                         SETTING_PAD_TOP + \
                                          SETTING_PAD_BOT) // %
-#define SETTING_CONTAINTER_ALIGN        (TOP_BAR_PAD_TOP + TOP_BAR_HEIGHT + \
-                                         TOP_BAR_PAD_BOT + SETTING_PAD_TOP) // %
+#define SETTING_CONTAINTER_ALIGN        SETTING_PAD_TOP // %
 
 #define SETTING_MENU_BAR_HOR_WIDTH      30 // %
-#define SETTING_MENU_BAR_ALIGN          2  // %
 #define SETTING_MENU_BAR_VER_WIDTH      40 // %
+
+#define SETTING_MENU_HOR_ALIGN          (SETTING_PAD_TOP + SETTING_PAD_BOT) // %
+#define SETTING_MENU_VER_ALIGN          (SETTING_PAD_TOP + SETTING_PAD_BOT) // %
 
 #define SETTING_CONT_BG_COLOR           0x636D7A
 #define SETTING_MENU_BG_COLOR           0x8F9DB0
@@ -92,10 +93,10 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
                                       SETTING_PAD_RIGHT +
                                       SETTING_PAD_RIGHT);
         obj_h = calc_pixels_remaining(obj_height(par),
-                                      SETTING_MENU_BAR_ALIGN);
+                                      SETTING_MENU_HOR_ALIGN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         obj_w = calc_pixels_remaining(obj_width(par),
-                                      SETTING_MENU_BAR_ALIGN * 2);
+                                      SETTING_MENU_VER_ALIGN);
         obj_h = calc_pixels_remaining(obj_height(par),
                                       SETTING_MENU_BAR_VER_WIDTH +
                                       SETTING_PAD_LEFT*2 +
@@ -123,7 +124,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH + \
                                   SETTING_PAD_LEFT + SETTING_PAD_RIGHT + \
                                   SETTING_PAD_RIGHT);
-    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
+    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_HOR_ALIGN);
 
     set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
@@ -148,6 +149,10 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     return detail_box;
 }
 
+
+
+
+
 static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
 {
     lv_obj_t *par;
@@ -166,9 +171,9 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
         obj_h = calc_pixels_remaining(obj_height(par),
-                                      SETTING_MENU_BAR_ALIGN * 2);
+                                      SETTING_MENU_HOR_ALIGN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_BAR_ALIGN * 2);
+        obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_VER_ALIGN);
         obj_h = calc_pixels(obj_height(par), SETTING_MENU_BAR_VER_WIDTH);
     }
 
@@ -237,7 +242,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
 
     /* Calculate menu bar size as percentage of parent size */
     obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
-    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_BAR_ALIGN);
+    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_HOR_ALIGN);
 
     set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
@@ -378,8 +383,6 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
 
     set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(SETTING_CONT_BG_COLOR), 0);
-    align_gobj_to(cont, par, LV_ALIGN_TOP_MID, 0,\
-                     calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
 
     return cont;
 }
@@ -410,30 +413,70 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
         obj_h = obj_height(par);
 
         if (ctx->scr.now.top.obj) {
-            obj_h = obj_h - (ctx->scr.now.top.upper_space + \
-                obj_height(ctx->scr.now.top.obj) + ctx->scr.now.top.under_space);
+            obj_h = obj_h - \
+                ( \
+                    calc_pixels(obj_height(par), ctx->scr.now.top.upper_space)
+                    + obj_height(ctx->scr.now.top.obj)
+                    + calc_pixels(obj_height(par), ctx->scr.now.top.under_space)
+                    + calc_pixels(obj_height(par),
+                                  (SETTING_PAD_TOP + SETTING_PAD_BOT))
+                );
         }
 
+
+        LOG_DEBUG("HOR top bar: top space %d, w %d, h %d, bot space %d", \
+                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space), \
+                  obj_width(ctx->scr.now.top.obj), \
+                  obj_height(ctx->scr.now.top.obj), \
+                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
+                  );
+
         if (ctx->scr.now.bot.obj) {
-            obj_h = obj_h - (ctx->scr.now.bot.upper_space + \
-                obj_height(ctx->scr.now.bot.obj) + ctx->scr.now.bot.under_space);
+            obj_h = obj_h - \
+                ( \
+                    calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space)
+                    + obj_height(ctx->scr.now.bot.obj)
+                    + calc_pixels(obj_height(par), ctx->scr.now.bot.under_space)
+                );
         }
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         obj_h = calc_pixels(obj_height(par), SETTING_WIDTH);
         obj_w = obj_width(par);
 
         if (ctx->scr.now.top.obj) {
-            obj_w = obj_w - (ctx->scr.now.top.upper_space + \
-                obj_width(ctx->scr.now.top.obj) + ctx->scr.now.top.under_space);
+            obj_w = obj_w - \
+                ( \
+                    calc_pixels(obj_width(par), ctx->scr.now.top.upper_space)
+                    + obj_width(ctx->scr.now.top.obj) \
+                    + calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
+                    + calc_pixels(obj_width(par), \
+                                  (SETTING_PAD_TOP + SETTING_PAD_BOT))
+                );
         }
 
+        LOG_DEBUG("VER top bar: top space %d, w %d, h %d, bot space %d", \
+                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space), \
+                  obj_width(ctx->scr.now.top.obj), \
+                  obj_height(ctx->scr.now.top.obj), \
+                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
+                  );
+
         if (ctx->scr.now.bot.obj) {
-            obj_w = obj_w - (ctx->scr.now.bot.upper_space + \
-                obj_width(ctx->scr.now.bot.obj) + ctx->scr.now.bot.under_space);
+            obj_w = obj_w - \
+                ( \
+                    calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space)
+                    + obj_width(ctx->scr.now.bot.obj)
+                    + calc_pixels(obj_width(par), ctx->scr.now.bot.under_space)
+                );
         }
     }
 
-    set_gobj_size(cont, obj_w, obj_h);
+    if (obj_w <= 0 || obj_h <= 0) {
+        LOG_WARN("Invalid object size are detected width [%d] - height [%d]", \
+                 obj_w, obj_h);
+    } else {
+        set_gobj_size(cont, obj_w, obj_h);
+    }
 
     return cont;
 }
@@ -454,6 +497,9 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     setting_ctn = create_setting_container(par);
     if (!setting_ctn)
         return NULL;
+
+    align_gobj_to(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, 0,\
+                     calc_pixels(obj_height(par), SETTING_CONTAINTER_ALIGN));
 
     get_gobj(setting_ctn)->scale.post_rot_resize_adjust_cb = \
                                     setting_container_post_rot_resize_adjust_cb;

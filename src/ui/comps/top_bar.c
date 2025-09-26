@@ -157,8 +157,8 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
         return NULL;
 
     ctx->scr.now.top.obj = top_bar;
-    ctx->scr.now.top.upper_space = (obj_height(par) * TOP_BAR_PAD_TOP) / 100;
-    ctx->scr.now.top.under_space = (obj_height(par) * TOP_BAR_PAD_BOT) / 100;
+    ctx->scr.now.top.upper_space = TOP_BAR_PAD_TOP;
+    ctx->scr.now.top.under_space = TOP_BAR_PAD_BOT;
 
     /* Calculate top bar size as percentage of parent size */
     obj_w = (obj_width(par) * TOP_BAR_WIDTH) / 100;
@@ -176,7 +176,7 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
 
     /* Align top bar to top middle of parent with vertical offset */
     align_gobj_to(top_bar, par, LV_ALIGN_TOP_MID, 0, \
-                  ctx->scr.now.top.upper_space);
+                  calc_pixels(obj_height(par), ctx->scr.now.top.upper_space));
 
     return top_bar;
 }
