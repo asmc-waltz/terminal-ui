@@ -416,15 +416,14 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
                     + calc_pixels(obj_height(par),
                                   (SETTING_PAD_TOP + SETTING_PAD_BOT))
                 );
-        }
 
-
-        LOG_DEBUG("HOR top bar: top space %d, w %d, h %d, bot space %d", \
-                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space), \
+            LOG_TRACE("HOR top bar: top space %d, w %d, h %d, bot space %d", \
+                  calc_pixels(obj_height(par), ctx->scr.now.top.upper_space), \
                   obj_width(ctx->scr.now.top.obj), \
                   obj_height(ctx->scr.now.top.obj), \
-                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
+                  calc_pixels(obj_height(par), ctx->scr.now.top.under_space)
                   );
+        }
 
         if (ctx->scr.now.bot.obj) {
             obj_h = obj_h - \
@@ -433,6 +432,13 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
                     + obj_height(ctx->scr.now.bot.obj)
                     + calc_pixels(obj_height(par), ctx->scr.now.bot.under_space)
                 );
+
+            LOG_TRACE("HOR keyboard: top space %d, w %d, h %d, bot space %d", \
+                  calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space), \
+                  obj_width(ctx->scr.now.bot.obj), \
+                  obj_height(ctx->scr.now.bot.obj), \
+                  calc_pixels(obj_height(par), ctx->scr.now.bot.under_space)
+                  );
         }
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         obj_h = calc_pixels(obj_height(par), SETTING_WIDTH);
@@ -447,14 +453,14 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
                     + calc_pixels(obj_width(par), \
                                   (SETTING_PAD_TOP + SETTING_PAD_BOT))
                 );
-        }
 
-        LOG_DEBUG("VER top bar: top space %d, w %d, h %d, bot space %d", \
+            LOG_TRACE("VER top bar: top space %d, w %d, h %d, bot space %d", \
                   calc_pixels(obj_width(par), ctx->scr.now.top.upper_space), \
                   obj_width(ctx->scr.now.top.obj), \
                   obj_height(ctx->scr.now.top.obj), \
                   calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
                   );
+        }
 
         if (ctx->scr.now.bot.obj) {
             obj_w = obj_w - \
@@ -463,6 +469,13 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
                     + obj_width(ctx->scr.now.bot.obj)
                     + calc_pixels(obj_width(par), ctx->scr.now.bot.under_space)
                 );
+
+            LOG_TRACE("VER keyboard: top space %d, w %d, h %d, bot space %d", \
+                  calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space), \
+                  obj_width(ctx->scr.now.bot.obj), \
+                  obj_height(ctx->scr.now.bot.obj), \
+                  calc_pixels(obj_width(par), ctx->scr.now.bot.under_space)
+                  );
         }
     }
 
@@ -470,6 +483,8 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
         LOG_WARN("Invalid object size are detected width [%d] - height [%d]", \
                  obj_w, obj_h);
     } else {
+        LOG_TRACE("Setting container object size width [%d] - height [%d]", \
+                 obj_w, obj_h);
         set_gobj_size(cont, obj_w, obj_h);
     }
 
