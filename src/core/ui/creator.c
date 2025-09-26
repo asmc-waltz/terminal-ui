@@ -332,7 +332,7 @@ void set_gobj_pos_center(lv_obj_t *lobj)
     gobj->pos.y_mid = y_ofs + (gobj->pos.h / 2);
 }
 
-void align_gobj_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs)
 {
     gobj_t *gobj = NULL;

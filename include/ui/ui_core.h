@@ -114,7 +114,7 @@ typedef struct gobj_t {
 /*=====================
  * Setter functions
  *====================*/
-void align_gobj_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
 
 void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
