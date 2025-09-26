@@ -88,9 +88,9 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels_remaining(obj_width(par),
-                                      SETTING_MENU_BAR_HOR_WIDTH +
                                       SETTING_PAD_LEFT +
-                                      SETTING_PAD_RIGHT +
+                                      SETTING_MENU_BAR_HOR_WIDTH +
+                                      SETTING_PAD_MID_HOR +
                                       SETTING_PAD_RIGHT);
         obj_h = calc_pixels_remaining(obj_height(par),
                                       SETTING_MENU_HOR_ALIGN);
@@ -98,10 +98,10 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
         obj_w = calc_pixels_remaining(obj_width(par),
                                       SETTING_MENU_VER_ALIGN);
         obj_h = calc_pixels_remaining(obj_height(par),
+                                      SETTING_PAD_LEFT +
                                       SETTING_MENU_BAR_VER_WIDTH +
-                                      SETTING_PAD_LEFT*2 +
-                                      SETTING_PAD_RIGHT*2 +
-                                      SETTING_PAD_RIGHT*2);
+                                      SETTING_PAD_MID_VER +
+                                      SETTING_PAD_RIGHT);
     }
 
     set_gobj_size(lobj, obj_w, obj_h);
@@ -121,17 +121,18 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
         return NULL;
 
     /* Calculate menu bar size as percentage of parent size */
-    obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH + \
-                                  SETTING_PAD_LEFT + SETTING_PAD_RIGHT + \
+    obj_w = calc_pixels_remaining(obj_width(par), \
+                                  SETTING_PAD_LEFT + \
+                                  SETTING_MENU_BAR_HOR_WIDTH + \
+                                  SETTING_PAD_MID_HOR + \
                                   SETTING_PAD_RIGHT);
     obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_HOR_ALIGN);
 
     set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
-    align_gobj_to(detail_box, par, LV_ALIGN_TOP_RIGHT, \
-                     -calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
-                     calc_pixels(obj_height(par), SETTING_PAD_TOP));
+    align_gobj_to(detail_box, par, LV_ALIGN_RIGHT_MID, \
+                     -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
 
     gobj_t *gobj = get_gobj(detail_box);
     gobj->scale.post_rot_resize_adjust_cb = \
@@ -148,10 +149,6 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
 
     return detail_box;
 }
-
-
-
-
 
 static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
 {
@@ -246,10 +243,8 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
 
     set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
-    align_gobj_to(menu_bar, par, LV_ALIGN_TOP_LEFT, \
-                     calc_pixels(obj_width(par), SETTING_PAD_LEFT), \
-                     calc_pixels(obj_height(par), SETTING_PAD_TOP));
-
+    align_gobj_to(menu_bar, par, LV_ALIGN_LEFT_MID, \
+                  calc_pixels(obj_width(par), SETTING_PAD_LEFT), 0);
     /*
      * In case of the menu bar, the layout changes based on the rotation.
      * So we don't need to expand the width and height. The object size will
