@@ -382,13 +382,86 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
     return cont;
 }
 
+static int32_t subtract_top_space(ctx_t *ctx, lv_obj_t *par,
+                                  int32_t base, bool is_hor)
+{
+    int32_t result = base;
+
+    if (!ctx->scr.now.top.obj)
+        return result;
+
+    if (is_hor) {
+        result -= calc_pixels(obj_height(par), ctx->scr.now.top.upper_space);
+        result -= obj_height(ctx->scr.now.top.obj);
+        result -= calc_pixels(obj_height(par), ctx->scr.now.top.under_space);
+        result -= calc_pixels(obj_height(par),
+                              (SETTING_PAD_TOP + SETTING_PAD_BOT));
+
+        LOG_TRACE("HOR top bar: top space %d, w %d, h %d, bot space %d",
+                  calc_pixels(obj_height(par), ctx->scr.now.top.upper_space),
+                  obj_width(ctx->scr.now.top.obj),
+                  obj_height(ctx->scr.now.top.obj),
+                  calc_pixels(obj_height(par), ctx->scr.now.top.under_space));
+    } else {
+        result -= calc_pixels(obj_width(par), ctx->scr.now.top.upper_space);
+        result -= obj_width(ctx->scr.now.top.obj);
+        result -= calc_pixels(obj_width(par), ctx->scr.now.top.under_space);
+        result -= calc_pixels(obj_width(par),
+                              (SETTING_PAD_TOP + SETTING_PAD_BOT));
+
+        LOG_TRACE("VER top bar: top space %d, w %d, h %d, bot space %d",
+                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space),
+                  obj_width(ctx->scr.now.top.obj),
+                  obj_height(ctx->scr.now.top.obj),
+                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space));
+    }
+
+    return result;
+}
+
+static int32_t subtract_bot_space(ctx_t *ctx, lv_obj_t *par,
+                                  int32_t base, bool is_hor)
+{
+    int32_t result = base;
+
+    if (!ctx->scr.now.bot.obj)
+        return result;
+
+    if (is_hor) {
+        result -= calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space);
+        result -= obj_height(ctx->scr.now.bot.obj);
+        result -= calc_pixels(obj_height(par), ctx->scr.now.bot.under_space);
+
+        LOG_TRACE("HOR keyboard: top space %d, w %d, h %d, bot space %d",
+                  calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space),
+                  obj_width(ctx->scr.now.bot.obj),
+                  obj_height(ctx->scr.now.bot.obj),
+                  calc_pixels(obj_height(par), ctx->scr.now.bot.under_space));
+    } else {
+        result -= calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space);
+        result -= obj_width(ctx->scr.now.bot.obj);
+        result -= calc_pixels(obj_width(par), ctx->scr.now.bot.under_space);
+
+        LOG_TRACE("VER keyboard: top space %d, w %d, h %d, bot space %d",
+                  calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space),
+                  obj_width(ctx->scr.now.bot.obj),
+                  obj_height(ctx->scr.now.bot.obj),
+                  calc_pixels(obj_width(par), ctx->scr.now.bot.under_space));
+    }
+
+    return result;
+}
+
+/*--------------------------------------------------------------
+ * Main adjustment function
+ *-------------------------------------------------------------*/
 static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
 {
-    ctx_t *ctx = get_ctx();
-    int32_t obj_w, obj_h;
-    int32_t scr_rot;
+    ctx_t *ctx;
+    int32_t obj_w, obj_h, scr_rot;
     lv_obj_t *par;
 
+    ctx = get_ctx();
     if (!cont || !ctx)
         return NULL;
 
@@ -397,94 +470,32 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
         return NULL;
 
     scr_rot = get_scr_rotation();
-    if (get_scr_rotation() != ROTATION_0) {
-        if (ctx->scr.now.bot.obj) {
-            refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
-        }
-    }
+
+    /* Refresh layout tree when rotated */
+    if (scr_rot != ROTATION_0 && ctx->scr.now.bot.obj)
+        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
         obj_h = obj_height(par);
 
-        if (ctx->scr.now.top.obj) {
-            obj_h = obj_h - \
-                ( \
-                    calc_pixels(obj_height(par), ctx->scr.now.top.upper_space)
-                    + obj_height(ctx->scr.now.top.obj)
-                    + calc_pixels(obj_height(par), ctx->scr.now.top.under_space)
-                    + calc_pixels(obj_height(par),
-                                  (SETTING_PAD_TOP + SETTING_PAD_BOT))
-                );
+        obj_h = subtract_top_space(ctx, par, obj_h, true);
+        obj_h = subtract_bot_space(ctx, par, obj_h, true);
 
-            LOG_TRACE("HOR top bar: top space %d, w %d, h %d, bot space %d", \
-                  calc_pixels(obj_height(par), ctx->scr.now.top.upper_space), \
-                  obj_width(ctx->scr.now.top.obj), \
-                  obj_height(ctx->scr.now.top.obj), \
-                  calc_pixels(obj_height(par), ctx->scr.now.top.under_space)
-                  );
-        }
-
-        if (ctx->scr.now.bot.obj) {
-            obj_h = obj_h - \
-                ( \
-                    calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space)
-                    + obj_height(ctx->scr.now.bot.obj)
-                    + calc_pixels(obj_height(par), ctx->scr.now.bot.under_space)
-                );
-
-            LOG_TRACE("HOR keyboard: top space %d, w %d, h %d, bot space %d", \
-                  calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space), \
-                  obj_width(ctx->scr.now.bot.obj), \
-                  obj_height(ctx->scr.now.bot.obj), \
-                  calc_pixels(obj_height(par), ctx->scr.now.bot.under_space)
-                  );
-        }
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         obj_h = calc_pixels(obj_height(par), SETTING_WIDTH);
         obj_w = obj_width(par);
 
-        if (ctx->scr.now.top.obj) {
-            obj_w = obj_w - \
-                ( \
-                    calc_pixels(obj_width(par), ctx->scr.now.top.upper_space)
-                    + obj_width(ctx->scr.now.top.obj) \
-                    + calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
-                    + calc_pixels(obj_width(par), \
-                                  (SETTING_PAD_TOP + SETTING_PAD_BOT))
-                );
-
-            LOG_TRACE("VER top bar: top space %d, w %d, h %d, bot space %d", \
-                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space), \
-                  obj_width(ctx->scr.now.top.obj), \
-                  obj_height(ctx->scr.now.top.obj), \
-                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space)
-                  );
-        }
-
-        if (ctx->scr.now.bot.obj) {
-            obj_w = obj_w - \
-                ( \
-                    calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space)
-                    + obj_width(ctx->scr.now.bot.obj)
-                    + calc_pixels(obj_width(par), ctx->scr.now.bot.under_space)
-                );
-
-            LOG_TRACE("VER keyboard: top space %d, w %d, h %d, bot space %d", \
-                  calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space), \
-                  obj_width(ctx->scr.now.bot.obj), \
-                  obj_height(ctx->scr.now.bot.obj), \
-                  calc_pixels(obj_width(par), ctx->scr.now.bot.under_space)
-                  );
-        }
+        obj_w = subtract_top_space(ctx, par, obj_w, false);
+        obj_w = subtract_bot_space(ctx, par, obj_w, false);
     }
 
     if (obj_w <= 0 || obj_h <= 0) {
-        LOG_WARN("Invalid object size are detected width [%d] - height [%d]", \
+        LOG_WARN("Invalid object size detected: width [%d] - height [%d]",
                  obj_w, obj_h);
     } else {
-        LOG_TRACE("Setting container object size width [%d] - height [%d]", \
-                 obj_w, obj_h);
+        LOG_TRACE("Setting container size: width [%d] - height [%d]",
+                  obj_w, obj_h);
         set_gobj_size(cont, obj_w, obj_h);
     }
 
