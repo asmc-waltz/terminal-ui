@@ -353,14 +353,10 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
     } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
     } else {
-        if (gobj->size.scale == DIS_SCALE) {
-            lv_obj_set_size(gobj->obj, gobj->size.w, gobj->size.h);
+        if (gobj->size.scale_w == ENA_SCALE || gobj->size.scale_h == ENA_SCALE) {
+            refresh_gobj_scale_size(gobj->obj);
         } else {
-            lv_obj_set_size(gobj->obj, \
-                            calc_pixels(obj_width((gobj->par)->obj), \
-                                        gobj->size.w), \
-                            calc_pixels(obj_height((gobj->par)->obj), \
-                                        gobj->size.h));
+            lv_obj_set_size(gobj->obj, gobj->size.w, gobj->size.h);
         }
     }
 

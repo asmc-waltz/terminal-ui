@@ -183,32 +183,95 @@ int32_t get_scr_height(void)
     return ctx->scr.height;
 }
 
-void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
+void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
     gobj = lobj->user_data;
-    gobj->size.w = w;
-    gobj->size.h = h;
-    gobj->size.scale = DIS_SCALE;
+    gobj->size.w = px_x;
+    gobj->size.h = px_y;
+    gobj->size.scale_w = DIS_SCALE;
+    gobj->size.scale_h = DIS_SCALE;
 
     lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
 
-void set_gobj_size_scale(lv_obj_t *lobj, int32_t w, int32_t h)
+void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = lobj->user_data;
-    gobj->size.w = w;
-    gobj->size.h = h;
-    gobj->size.scale = ENA_SCALE;
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    gobj->size.w = pct_x;
+    gobj->size.h = px_y;
+    gobj->size.scale_w = ENA_SCALE;
+    gobj->size.scale_h = DIS_SCALE;
+
+    lv_obj_set_size(gobj->obj, \
+                    calc_pixels(obj_width((gobj->par)->obj), gobj->size.w), \
+                    gobj->size.h);
+}
+
+void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
+{
+    gobj_t *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
+
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    gobj->size.w = px_x;
+    gobj->size.h = pct_y;
+    gobj->size.scale_w = DIS_SCALE;
+    gobj->size.scale_h = ENA_SCALE;
+
+    lv_obj_set_size(gobj->obj, \
+                    gobj->size.w, \
+                    calc_pixels(obj_height((gobj->par)->obj), gobj->size.h));
+}
+
+void set_gobj_size_scale_xy(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
+{
+    gobj_t *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
+
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    gobj->size.w = pct_x;
+    gobj->size.h = pct_y;
+    gobj->size.scale_w = ENA_SCALE;
+    gobj->size.scale_h = ENA_SCALE;
 
     lv_obj_set_size(gobj->obj, \
                     calc_pixels(obj_width((gobj->par)->obj), gobj->size.w), \
                     calc_pixels(obj_height((gobj->par)->obj), gobj->size.h));
+}
+
+void refresh_gobj_scale_size(lv_obj_t *lobj)
+{
+    gobj_t *gobj = NULL;
+    int32_t px_x = 0;
+    int32_t px_y = 0;
+
+    LV_ASSERT_NULL(lobj);
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    if (gobj->size.scale_w == ENA_SCALE)
+        px_x = calc_pixels(obj_width((gobj->par)->obj), gobj->size.w);
+    else
+        px_x = gobj->size.w;
+
+    if (gobj->size.scale_h == ENA_SCALE)
+        px_y = calc_pixels(obj_height((gobj->par)->obj), gobj->size.h);
+    else
+        px_y = gobj->size.h;
+
+    lv_obj_set_size(lobj, px_x, px_y);
 }
 
 void gobj_get_size(lv_obj_t *lobj)
@@ -220,6 +283,8 @@ void gobj_get_size(lv_obj_t *lobj)
     gobj = lobj->user_data;
     gobj->size.w = lv_obj_get_width(lobj);
     gobj->size.h = lv_obj_get_height(lobj);
+    gobj->size.scale_w = DIS_SCALE;
+    gobj->size.scale_h = DIS_SCALE;
 }
 
 /*
