@@ -1,5 +1,5 @@
 /**
- * @file common.c
+ * @file screens.c
  *
  */
 
