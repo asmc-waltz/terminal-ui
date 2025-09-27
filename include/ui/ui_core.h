@@ -88,6 +88,8 @@ int32_t add_list_object(lv_obj_t *par, lv_obj_t *lobj);
 typedef struct {
     int32_t w;
     int32_t h;
+    int8_t par_w_pct;
+    int8_t par_h_pct;
     int8_t scale_w;
     int8_t scale_h;
 } obj_size_t;

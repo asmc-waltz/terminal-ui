@@ -51,15 +51,19 @@
 static void swap_w_h_size(gobj_t *gobj)
 {
     int32_t tmp_w;
+    int32_t tmp_par_w_pct;
     int32_t tmp_w_scale;
 
     tmp_w = gobj->size.w;
+    tmp_par_w_pct = gobj->size.par_w_pct;
     tmp_w_scale = gobj->size.scale_w;
 
     gobj->size.w = gobj->size.h;
+    gobj->size.par_w_pct = gobj->size.par_h_pct;
     gobj->size.scale_w = gobj->size.scale_h;
 
     gobj->size.h = tmp_w;
+    gobj->size.par_h_pct = tmp_par_w_pct;
     gobj->size.scale_h = tmp_w_scale;
 }
 
@@ -132,6 +136,8 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     gobj = lobj->user_data;
     gobj->size.w = px_x;
     gobj->size.h = px_y;
+    gobj->size.par_w_pct = 0;
+    gobj->size.par_h_pct = 0;
     gobj->size.scale_w = DIS_SCALE;
     gobj->size.scale_h = DIS_SCALE;
 
@@ -150,8 +156,10 @@ void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
-    gobj->size.w = pct_x;
+    gobj->size.w = 0;
     gobj->size.h = px_y;
+    gobj->size.par_w_pct = pct_x;
+    gobj->size.par_h_pct = 0;
     gobj->size.scale_w = ENA_SCALE;
     gobj->size.scale_h = DIS_SCALE;
 
@@ -171,7 +179,9 @@ void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = px_x;
-    gobj->size.h = pct_y;
+    gobj->size.h = 0;
+    gobj->size.par_w_pct = 0;
+    gobj->size.par_h_pct = pct_y;
     gobj->size.scale_w = DIS_SCALE;
     gobj->size.scale_h = ENA_SCALE;
 
@@ -190,8 +200,10 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
-    gobj->size.w = pct_x;
-    gobj->size.h = pct_y;
+    gobj->size.w = 0;
+    gobj->size.h = 0;
+    gobj->size.par_w_pct = pct_x;
+    gobj->size.par_h_pct = pct_y;
     gobj->size.scale_w = ENA_SCALE;
     gobj->size.scale_h = ENA_SCALE;
 
@@ -201,26 +213,19 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
 void apply_gobj_size(lv_obj_t *lobj)
 {
     gobj_t *gobj = NULL;
-    int32_t px_x = 0;
-    int32_t px_y = 0;
 
     LV_ASSERT_NULL(lobj);
     gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     if (gobj->size.scale_w == ENA_SCALE)
-        px_x = calc_pixels(obj_width((gobj->data.parent)->obj), \
-                           gobj->size.w);
-    else
-        px_x = gobj->size.w;
+        gobj->size.w = calc_pixels(obj_width((gobj->data.parent)->obj), \
+                           gobj->size.par_w_pct);
 
     if (gobj->size.scale_h == ENA_SCALE)
-        px_y = calc_pixels(obj_height((gobj->data.parent)->obj), \
-                           gobj->size.h);
-    else
-        px_y = gobj->size.h;
-
-    lv_obj_set_size(lobj, px_x, px_y);
+        gobj->size.h = calc_pixels(obj_height((gobj->data.parent)->obj), \
+                           gobj->size.par_h_pct);
+    lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
 
 void gobj_get_size(lv_obj_t *lobj)
