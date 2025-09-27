@@ -69,6 +69,12 @@ typedef struct {
 } scale_t;
 
 typedef struct {
+    /* Objects without alignment as text and symbol */
+    int32_t mid_x;                      // Latest center point X coordinate
+    int32_t mid_y;                      // Latest center point Y coordinate
+    int32_t par_w;      // Parent width when x_mid was calculated
+    int32_t par_h;      // Parent height when y_mid was calculated
+    /* Objects with alignment */
     int32_t x;
     int32_t y;
     lv_obj_t *base;
@@ -80,10 +86,6 @@ typedef struct {
 
 int32_t add_list_object(lv_obj_t *par, lv_obj_t *lobj);
 typedef struct {
-    int32_t x_mid;      // Latest center point X coordinate
-    int32_t y_mid;      // Latest center point Y coordinate
-    int32_t par_w;      // Parent width when x_mid was calculated
-    int32_t par_h;      // Parent height when y_mid was calculated
     int32_t w;
     int32_t h;
     int8_t scale;
