@@ -135,9 +135,9 @@ void set_gobj_pos_center(lv_obj_t *lobj);
 int32_t set_scr_rotation(int32_t rot_dir);
 int32_t set_scr_size(int32_t width, int32_t height);
 void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
-void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
-void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
-void set_gobj_size_scale_xy(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
+void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
+void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
+void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
 void apply_gobj_size(lv_obj_t *lobj);
 
 int32_t enable_scale_w(lv_obj_t *lobj);

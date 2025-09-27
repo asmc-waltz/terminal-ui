@@ -51,10 +51,16 @@
 static void swap_w_h_size(gobj_t *gobj)
 {
     int32_t tmp_w;
+    int32_t tmp_w_scale;
 
     tmp_w = gobj->size.w;
+    tmp_w_scale = gobj->size.scale_w;
+
     gobj->size.w = gobj->size.h;
+    gobj->size.scale_w = gobj->size.scale_h;
+
     gobj->size.h = tmp_w;
+    gobj->size.scale_h = tmp_w_scale;
 }
 
 /**********************
@@ -202,9 +208,9 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
 
 /*
  * Set dynamic size for object based on parent size.
- * Only the X coordinate is resized; Y coordinate remains default.
+ * Only the Width is resized; Height remains default.
  */
-void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
+void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -222,9 +228,9 @@ void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 
 /*
  * Set dynamic size for object based on parent size.
- * Only the Y coordinate is resized; X coordinate remains default.
+ * Only the Height is resized; Width remains default.
  */
-void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
+void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -242,9 +248,9 @@ void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
 
 /*
  * Set dynamic size for object based on parent size.
- * Both of X and Y coordinate are resized.
+ * Both of Width and Height coordinate are resized.
  */
-void set_gobj_size_scale_xy(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
+void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
