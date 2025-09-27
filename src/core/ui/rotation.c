@@ -86,7 +86,7 @@ static int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
     }
 
     scr_rot = get_scr_rotation();
-    old_rot = gobj->pos.rot;
+    old_rot = gobj->rotation;
 
     /* nothing to do if rotation unchanged */
     if (scr_rot == old_rot)
@@ -192,7 +192,7 @@ static int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
     gobj->pos.y_mid = new_y_mid;
     gobj->pos.par_w = par_w;
     gobj->pos.par_h = par_h;
-    gobj->pos.rot = scr_rot;
+    gobj->rotation = scr_rot;
 
     LOG_TRACE("success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
               new_x_mid, new_y_mid, par_w, par_h, scr_rot);
@@ -299,7 +299,7 @@ static int32_t g_obj_rot_calc_align(gobj_t *gobj)
     if (!gobj)
         return -EINVAL;
 
-    cur_rot = gobj->pos.rot;
+    cur_rot = gobj->rotation;
     scr_rot = get_scr_rotation();
 
     if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
@@ -453,7 +453,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
     }
 
     // NOTE: Refresh now applies beyond rotation
-    // if (gobj->pos.rot == scr_rot) {
+    // if (gobj->rotation == scr_rot) {
     //     return 0;
     // }
 
@@ -508,7 +508,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
             LOG_WARN("Unable to update scroll configuration, ret %d", ret);
     }
 
-    gobj->pos.rot = scr_rot;
+    gobj->rotation = scr_rot;
 
     return 0;
 }

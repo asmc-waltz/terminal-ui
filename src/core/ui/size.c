@@ -135,7 +135,7 @@ int32_t calc_gobj_rotated_size(gobj_t *gobj)
     }
 
     scr_rot = get_scr_rotation();  /* returns 0-3 */
-    cur_rot = gobj->pos.rot;        /* stored as 0-3 */
+    cur_rot = gobj->rotation;        /* stored as 0-3 */
 
     if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
         scr_rot < ROTATION_0 || scr_rot > ROTATION_270)

@@ -676,7 +676,7 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
             //     LOG_ERROR("line box [%s] not found", map->key[i].label);
             //     return -EINVAL;
             /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
-            get_gobj(line_box)->pos.rot = ROTATION_0;
+            get_gobj(line_box)->rotation = ROTATION_0;
 
             continue;
         }
@@ -709,8 +709,8 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
         set_gobj_pos_center(btn_lbl);
 
         // Reset key configurations to the horizontal map.
-        get_gobj(btn)->pos.rot = ROTATION_0;
-        get_gobj(btn_lbl)->pos.rot = ROTATION_0;
+        get_gobj(btn)->rotation = ROTATION_0;
+        get_gobj(btn_lbl)->rotation = ROTATION_0;
 
         line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
     }
@@ -861,7 +861,7 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
 
     // Reset all keyboard configurations to the horizontal layout.
     set_gobj_size(kb, obj_w, obj_h);
-    get_gobj(kb)->pos.rot = ROTATION_0;
+    get_gobj(kb)->rotation = ROTATION_0;
     align_gobj_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     // TODO: map?

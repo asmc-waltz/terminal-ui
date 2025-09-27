@@ -404,7 +404,7 @@ int32_t update_flex_by_rot(gobj_t *gobj)
         return -EINVAL;
 
     scr_rot = get_scr_rotation();
-    cur_rot = gobj->pos.rot;
+    cur_rot = gobj->rotation;
     cur_flex = gobj->aln.flex;
 
     /* validate current flex */

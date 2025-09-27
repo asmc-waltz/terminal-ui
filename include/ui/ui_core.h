@@ -86,7 +86,6 @@ typedef struct {
     int32_t par_h;      // Parent height when y_mid was calculated
     int32_t w;
     int32_t h;
-    int8_t rot;
     int8_t scale;
 } pos_t;
 
@@ -99,6 +98,7 @@ typedef struct gobj_t {
     struct gobj_t *par;
     char *name;
     void *obj_data;
+    int8_t rotation;
     type_t type;
     pos_t pos;
     align_t aln;
