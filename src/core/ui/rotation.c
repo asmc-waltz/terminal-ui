@@ -441,7 +441,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
     // TODO: check obj type and update flex flow, scale...
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
-    switch (gobj->type) {
+    switch (gobj->data.obj_type) {
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
@@ -471,7 +471,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
             ret = 0;
             break;
         default:
-            LOG_WARN("Unknown G object type: %d", gobj->type);
+            LOG_WARN("Unknown G object type: %d", gobj->data.obj_type);
             break;
     }
 

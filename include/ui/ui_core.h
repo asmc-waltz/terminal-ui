@@ -50,6 +50,7 @@ typedef enum {
 
 typedef struct {
     void *internal;                     /* Internal data */
+    type_t obj_type;
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the
@@ -97,7 +98,6 @@ typedef struct gobj_t {
     struct gobj_t *par;
     char *name;
     int8_t rotation;
-    type_t type;
     obj_size_t size;
     align_t aln;
     obj_data_t data;
