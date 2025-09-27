@@ -172,13 +172,13 @@ static void refresh_screen_rotate_layout(lv_obj_t *root)
     ctx_t *ctx = get_ctx();
     lv_obj_t *screen = ctx->scr.now.obj;
 
-    refresh_obj_tree_layout(screen->user_data);
+    refresh_obj_tree_layout(l_to_gobj(screen));
 }
 
 static void rotate_key_handler(lv_event_t *event)
 {
     lv_obj_t *lobj = get_obj_by_name(COM_SCR_NAME, \
-                            &((gobj_t *)(lv_screen_active()->user_data))->child);
+                            &l_to_gobj(lv_screen_active())->child);
 
     set_scr_rotation(get_random_3());
 
@@ -191,7 +191,7 @@ static void rotate_key_handler(lv_event_t *event)
     //               450, /* phase 3 */
     //               350, /* phase 4 */
     //               refresh_screen_rotate_layout);
-    refresh_obj_tree_layout(screen->user_data);
+    refresh_obj_tree_layout(l_to_gobj(screen));
 }
 
 static void create_keyboard_handler(lv_event_t *event)
@@ -215,7 +215,7 @@ static void create_keyboard_handler(lv_event_t *event)
 
     }
 
-    refresh_obj_tree_layout((ctx->scr.now.obj)->user_data);
+    refresh_obj_tree_layout(l_to_gobj(ctx->scr.now.obj));
 }
 
 #endif
@@ -253,7 +253,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
 #if defined(TEST)
     lv_obj_t *btn = create_btn(lv_layer_top(), "common.rotate_btn");
-    lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, btn->user_data);
+    lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, l_to_gobj(btn));
     set_gobj_size(btn, 54, 54);
     set_gobj_align(btn, lv_layer_top(), LV_ALIGN_CENTER, -50, 0);
 
@@ -264,7 +264,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     btn = create_btn(lv_layer_top(), "create keyboard");
     set_gobj_size(btn, 54, 54);
     set_gobj_align(btn, lv_layer_top(), LV_ALIGN_CENTER, 50, 0);
-    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, btn->user_data);
+    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, l_to_gobj(btn));
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);

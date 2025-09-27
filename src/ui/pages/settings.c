@@ -134,7 +134,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     set_gobj_align(detail_box, par, LV_ALIGN_RIGHT_MID, \
                      -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
 
-    gobj_t *gobj = get_gobj(detail_box);
+    gobj_t *gobj = l_to_gobj(detail_box);
     gobj->data.post_rot_resize_adjust_cb = \
         detail_setting_post_rot_resize_adjust_cb;
 
@@ -186,13 +186,13 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
 
     sym_box = create_symbol_box(btn_box, NULL, SETTING_SYM_FONTS, index);
     if (sym_box == NULL) {
-        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
         return NULL;
     }
 
     text_box = create_text_box(btn_box, NULL, &lv_font_montserrat_24, str);
     if (text_box == NULL) {
-        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
         return NULL;
     }
 
@@ -243,7 +243,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
      * So we don't need to expand the width and height. The object size will
      * change according to the callback when the object is rotated.
      */
-    gobj_t *gobj = get_gobj(menu_bar);
+    gobj_t *gobj = l_to_gobj(menu_bar);
     gobj->data.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     // lv_obj_t *network_container = create_container(menu_bar, SETTING_PAGE_NAME".menu_bar.network");
@@ -466,7 +466,7 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
 
     /* Refresh layout tree when rotated */
     if (scr_rot != ROTATION_0 && ctx->scr.now.bot.obj)
-        refresh_obj_tree_layout((ctx->scr.now.bot.obj)->user_data);
+        refresh_obj_tree_layout(l_to_gobj(ctx->scr.now.bot.obj));
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
@@ -516,7 +516,7 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
                      0,\
                      SETTING_CONTAINTER_ALIGN);
 
-    get_gobj(setting_ctn)->data.post_rot_resize_adjust_cb = \
+    l_to_gobj(setting_ctn)->data.post_rot_resize_adjust_cb = \
                                     setting_container_post_rot_resize_adjust_cb;
 
     menu_bar = create_menu_bar(setting_ctn);
@@ -534,7 +534,7 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     return setting_ctn;
 
 exit_err:
-    if (remove_obj_and_child_by_name(SETTING_PAGE_NAME, &get_gobj(par)->child))
+    if (remove_obj_and_child_by_name(SETTING_PAGE_NAME, &l_to_gobj(par)->child))
         LOG_WARN("Setting container object not found");
 
     return NULL;

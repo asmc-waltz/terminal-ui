@@ -187,7 +187,7 @@ lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
 
     text = create_text(box, NULL, font, str);
     if (!text) {
-        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
         return NULL;
     }
 
@@ -235,7 +235,7 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
 
     icon = create_sym(box, NULL, font, index);
     if (!icon) {
-        remove_obj_and_child_by_name(name, &(get_gobj(par))->child);
+        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
         return NULL;
     }
 

@@ -54,7 +54,7 @@ void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
-    gobj = lobj->user_data;
+    gobj = l_to_gobj(lobj);
     if (!gobj->size.w)
         LOG_WARN("Cannot calculate the center x");
     if (!gobj->size.h)
@@ -77,14 +77,6 @@ void set_gobj_pos_center(lv_obj_t *lobj)
     y_ofs = (obj_height(par) - lv_obj_get_height(lobj)) / 2;
 
     set_gobj_pos(lobj, x_ofs, y_ofs);
-
-    gobj = get_gobj(lobj);
-    if (!gobj->size.w)
-        LOG_WARN("Cannot calculate the center x");
-    if (!gobj->size.h)
-        LOG_WARN("Cannot calculate the center y");
-    gobj->aln.mid_x = x_ofs + (gobj->size.w / 2);
-    gobj->aln.mid_y = y_ofs + (gobj->size.h / 2);
 }
 
 void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
@@ -93,7 +85,7 @@ void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = lobj->user_data;
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
     gobj->aln.align = align;
     gobj->aln.base = base;
@@ -111,7 +103,7 @@ void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->aln.align = align;
@@ -130,7 +122,7 @@ void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->aln.align = align;
@@ -149,7 +141,7 @@ void set_gobj_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->aln.align = align;
@@ -169,7 +161,7 @@ void apply_gobj_align(lv_obj_t *lobj)
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     if (gobj->aln.scale_x == ENA_SCALE)

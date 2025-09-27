@@ -133,7 +133,7 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = lobj->user_data;
+    gobj = l_to_gobj(lobj);
     gobj->size.w = px_x;
     gobj->size.h = px_y;
     gobj->size.par_w_pct = 0;
@@ -153,7 +153,7 @@ void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = 0;
@@ -175,7 +175,7 @@ void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = px_x;
@@ -197,7 +197,7 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = 0;
@@ -215,7 +215,7 @@ void apply_gobj_size(lv_obj_t *lobj)
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
+    gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     if (gobj->size.scale_w == ENA_SCALE)
@@ -234,7 +234,7 @@ void gobj_get_size(lv_obj_t *lobj)
     LV_ASSERT_NULL(lobj);
 
     lv_obj_update_layout(lobj);
-    gobj = lobj->user_data;
+    gobj = l_to_gobj(lobj);
     gobj->size.w = lv_obj_get_width(lobj);
     gobj->size.h = lv_obj_get_height(lobj);
     gobj->size.scale_w = DIS_SCALE;

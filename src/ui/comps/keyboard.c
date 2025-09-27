@@ -350,14 +350,14 @@ static void kb_key_cb(lv_event_t *event)
     int32_t ret;
     bool haptic_req = false;
 
-    key_data = (const key_def *)get_gobj_data(btn);
+    key_data = (const key_def *)get_gobj_internal_data(btn);
     if (!key_data) {
         LOG_ERROR("Unable to get key internal data");
         return;
     }
 
     LOG_TRACE("KB: key ID[%d] is pressed, text data: (%s)", \
-              get_gobj(btn)->id, key_data->label);
+              l_to_gobj(btn)->id, key_data->label);
 
     // TODO: Push local work
     switch (key_data->type) {
@@ -546,12 +546,12 @@ static lv_obj_t *create_key(lv_obj_t *par, const key_def *key, kb_size_ctx *size
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_set_style_pad_gap(btn, 0, 0);
     lv_obj_set_style_shadow_width(btn, 0, 0);
-    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
+    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, l_to_gobj(btn));
     set_key_size(btn, key, size);
 
     lbl = create_text(btn, NULL, KEYBOARD_CHAR_FONTS, key->label);
     if (!lbl) {
-        remove_obj_and_child_by_name(key->label, &(get_gobj_parent(par))->child);
+        remove_obj_and_child_by_name(key->label, &l_to_gobj_parent(par)->child);
         return NULL;
     }
 
@@ -622,7 +622,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
         /* set_key_size(btn, &map->key[i], &size); */
         set_key_color(btn, &map->key[i]);
         set_gobj_data(btn, (void *)&map->key[i]);
-        line_w += size.k_pad_left + get_gobj(btn)->size.w + size.k_pad_right;
+        line_w += size.k_pad_left + l_to_gobj(btn)->size.w + size.k_pad_right;
     }
 
     return 0;
@@ -669,20 +669,20 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
             continue;
         } else if (map->key[i].type == T_HOLDER) {
             line_box = get_obj_by_name(map->key[i].label, \
-                                          &get_gobj(par)->child);
+                                          &l_to_gobj(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
             //     LOG_ERROR("line box [%s] not found", map->key[i].label);
             //     return -EINVAL;
             /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
-            get_gobj(line_box)->data.rotation = ROTATION_0;
+            l_to_gobj(line_box)->data.rotation = ROTATION_0;
 
             continue;
         }
 
         btn = get_obj_by_name(map->key[i].label, \
-                                 &get_gobj(line_box)->child);
+                                 &l_to_gobj(line_box)->child);
         if (!btn) {
             LOG_ERROR("Key [%s] not found", map->key[i].label);
             continue;
@@ -709,10 +709,10 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
         set_gobj_pos_center(btn_lbl);
 
         // Reset key configurations to the horizontal map.
-        get_gobj(btn)->data.rotation = ROTATION_0;
-        get_gobj(btn_lbl)->data.rotation = ROTATION_0;
+        l_to_gobj(btn)->data.rotation = ROTATION_0;
+        l_to_gobj(btn_lbl)->data.rotation = ROTATION_0;
 
-        line_w += size.k_pad_left + get_gobj(btn)->size.w + size.k_pad_right;
+        line_w += size.k_pad_left + l_to_gobj(btn)->size.w + size.k_pad_right;
     }
 
     return 0;
@@ -785,7 +785,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
             continue;
         } else if (map->key[i].type == T_HOLDER) {
             line_box = get_obj_by_name(map->key[i].label, \
-                                          &get_gobj(par)->child);
+                                          &l_to_gobj(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
@@ -796,7 +796,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
         }
 
         btn = get_obj_by_name(map->key[i].label, \
-                                 &get_gobj(line_box)->child);
+                                 &l_to_gobj(line_box)->child);
         if (!btn) {
             LOG_ERROR("Key [%s] not found", map->key[i].label);
             continue;
@@ -820,7 +820,7 @@ static int32_t set_keyboard_mode(const key_def *key)
     int32_t ret;
 
     kb = get_obj_by_name(KEYBOAR_NAME, \
-                                   &get_gobj(lv_screen_active())->child);
+                                   &l_to_gobj(lv_screen_active())->child);
     if (!kb) {
         LOG_ERROR("Keyboard [%s] not found", KEYBOAR_NAME);
         return -EINVAL;
@@ -861,7 +861,7 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
 
     // Reset all keyboard configurations to the horizontal layout.
     set_gobj_size(kb, obj_w, obj_h);
-    get_gobj(kb)->data.rotation = ROTATION_0;
+    l_to_gobj(kb)->data.rotation = ROTATION_0;
     set_gobj_align_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     // TODO: map?
@@ -893,7 +893,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
     set_gobj_align_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
-    get_gobj(cont)->data.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
+    l_to_gobj(cont)->data.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
 
     return cont;
 }
@@ -928,14 +928,14 @@ lv_obj_t *create_keyboard(ctx_t *ctx)
     if (ret) {
         LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \
                    remove_obj_and_child_by_name(KEYBOAR_NAME, \
-                                            &get_gobj(par)->child));
+                                            &l_to_gobj(par)->child));
         return NULL;
     }
 
     act_map = map;
 
     if (get_scr_rotation() != ROTATION_0) {
-        refresh_obj_tree_layout(kb->user_data);
+        refresh_obj_tree_layout(l_to_gobj(kb));
     }
 
     return kb;
@@ -955,7 +955,7 @@ void remove_keyboard(ctx_t *ctx)
         act_map = NULL;
     }
 
-    ret = remove_obj_and_child_by_name(KEYBOAR_NAME, &get_gobj(par)->child);
+    ret = remove_obj_and_child_by_name(KEYBOAR_NAME, &l_to_gobj(par)->child);
     if (ret)
         LOG_WARN("Keyboard object not found");
 
@@ -963,7 +963,7 @@ void remove_keyboard(ctx_t *ctx)
     ctx->scr.now.bot.upper_space = 0;
     ctx->scr.now.bot.under_space = 0;
 
-    ret = refresh_obj_tree_layout(par->user_data);
+    ret = refresh_obj_tree_layout(l_to_gobj(par));
     if (ret)
         LOG_WARN("Unable to refresh after remove keyboard");
 }

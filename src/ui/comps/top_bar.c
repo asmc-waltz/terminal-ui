@@ -63,14 +63,14 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
     gobj_t *gobj_par;
     int32_t ret;
 
-    gobj_par = par->user_data;
+    gobj_par = l_to_gobj(par);
     box = get_obj_by_name(name, &gobj_par->child);
     if (!box) {
         LOG_ERROR("Symbol box %s not found", name);
         return -1;
     }
 
-    ret = remove_children(box->user_data);
+    ret = remove_children(l_to_gobj(box));
     if (ret <= 0) {
         LOG_ERROR("Unable to remove children of %s, ret %d", name, ret);
         return -1;

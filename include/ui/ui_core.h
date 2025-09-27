@@ -146,13 +146,11 @@ int32_t update_flex_by_rot(gobj_t *gobj);
  *====================*/
 lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst);
 lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
-gobj_t *get_gobj(lv_obj_t *lobj);
-gobj_t *get_gobj_parent(lv_obj_t *lobj);
 int32_t get_scr_rotation();
 int32_t get_scr_width(void);
 int32_t get_scr_height(void);
 void gobj_get_size(lv_obj_t *lobj);
-void *get_gobj_data(lv_obj_t *lobj);
+void *get_gobj_internal_data(lv_obj_t *lobj);
 
 /*=====================
  * Other functions
@@ -191,24 +189,33 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
                              int32_t y_ofs);
 int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
+static inline gobj_t *l_to_gobj(lv_obj_t *lobj)
+{
+    return lobj ? (gobj_t *)lobj->user_data : NULL;
+}
+
+static inline gobj_t *l_to_gobj_parent(lv_obj_t *lobj)
+{
+    gobj_t *gobj;
+
+    if (!lobj)
+        return NULL;
+
+    gobj = l_to_gobj(lobj);
+    if (!gobj)
+        return NULL;
+
+    return (gobj_t *)gobj->data.parent;
+}
+
 static inline int32_t obj_height(lv_obj_t *lobj)
 {
-    return ((gobj_t *)lobj->user_data)->size.h;
+    return (int32_t)l_to_gobj(lobj)->size.h;
 }
 
 static inline int32_t obj_width(lv_obj_t *lobj)
 {
-    return ((gobj_t *)lobj->user_data)->size.w;
-}
-
-static inline int32_t obj_aln_x(lv_obj_t *lobj)
-{
-    return abs(((gobj_t *)lobj->user_data)->aln.x);
-}
-
-static inline int32_t obj_aln_y(lv_obj_t *lobj)
-{
-    return abs(((gobj_t *)lobj->user_data)->aln.y);
+    return (int32_t)l_to_gobj(lobj)->size.w;
 }
 
 static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
