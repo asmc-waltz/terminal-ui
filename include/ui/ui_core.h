@@ -89,7 +89,7 @@ typedef struct {
     int32_t w;
     int32_t h;
     int8_t scale;
-} pos_t;
+} obj_size_t;
 
 struct gobj_t;
 typedef struct gobj_t {
@@ -102,7 +102,7 @@ typedef struct gobj_t {
     void *obj_data;
     int8_t rotation;
     type_t type;
-    pos_t pos;
+    obj_size_t size;
     align_t aln;
     scale_t scale;
 } gobj_t;
@@ -191,12 +191,12 @@ int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
 static inline int32_t obj_height(lv_obj_t *lobj)
 {
-    return ((gobj_t *)lobj->user_data)->pos.h;
+    return ((gobj_t *)lobj->user_data)->size.h;
 }
 
 static inline int32_t obj_width(lv_obj_t *lobj)
 {
-    return ((gobj_t *)lobj->user_data)->pos.w;
+    return ((gobj_t *)lobj->user_data)->size.w;
 }
 
 static inline int32_t obj_aln_x(lv_obj_t *lobj)

@@ -100,7 +100,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
     lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);
     lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
     gobj_par = par->user_data;
-    set_gobj_size(box, gobj_par->pos.h, gobj_par->pos.h);
+    set_gobj_size(box, gobj_par->size.h, gobj_par->size.h);
 
     icon = create_sym(box, NULL, TOP_BAR_SYM_FONTS, index);
     if (!icon) {

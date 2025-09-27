@@ -622,7 +622,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
         /* set_key_size(btn, &map->key[i], &size); */
         set_key_color(btn, &map->key[i]);
         set_gobj_data(btn, (void *)&map->key[i]);
-        line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
+        line_w += size.k_pad_left + get_gobj(btn)->size.w + size.k_pad_right;
     }
 
     return 0;
@@ -712,7 +712,7 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
         get_gobj(btn)->rotation = ROTATION_0;
         get_gobj(btn_lbl)->rotation = ROTATION_0;
 
-        line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
+        line_w += size.k_pad_left + get_gobj(btn)->size.w + size.k_pad_right;
     }
 
     return 0;

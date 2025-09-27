@@ -52,9 +52,9 @@ static void swap_w_h_size(gobj_t *gobj)
 {
     int32_t tmp_w;
 
-    tmp_w = gobj->pos.w;
-    gobj->pos.w = gobj->pos.h;
-    gobj->pos.h = tmp_w;
+    tmp_w = gobj->size.w;
+    gobj->size.w = gobj->size.h;
+    gobj->size.h = tmp_w;
 }
 
 /**********************
@@ -83,8 +83,8 @@ int32_t scale_gobj(gobj_t *gobj)
         par_w = gobj_par->scale.w;
         par_h = gobj_par->scale.h;
     } else {
-        par_w = gobj_par->pos.w;
-        par_h = gobj_par->pos.h;
+        par_w = gobj_par->size.w;
+        par_h = gobj_par->size.h;
     }
 
     /*
@@ -95,8 +95,8 @@ int32_t scale_gobj(gobj_t *gobj)
     abs_val_x = abs(gobj->aln.x);
     abs_val_y = abs(gobj->aln.y);
     scr_rot = get_scr_rotation();  /* returns 0-3 */
-    scale_w = gobj->pos.w;
-    scale_h = gobj->pos.h;
+    scale_w = gobj->size.w;
+    scale_h = gobj->size.h;
 
     if (gobj->scale.ena_h) {
         if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
@@ -119,7 +119,7 @@ int32_t scale_gobj(gobj_t *gobj)
 
     LOG_TRACE("Parent: w=%d h=%d - ABS align x=%d y=%d - Pading w=%d h=%d\n" \
               "\tObj: scale: w->%d h->%d", \
-              gobj_par->pos.w, gobj_par->pos.h, abs_val_x, abs_val_y, \
+              gobj_par->size.w, gobj_par->size.h, abs_val_x, abs_val_y, \
               gobj->scale.pad_w, gobj->scale.pad_h, gobj->scale.w, gobj->scale.h);
 
     return 0;
@@ -189,11 +189,11 @@ void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
     LV_ASSERT_NULL(lobj);
 
     gobj = lobj->user_data;
-    gobj->pos.w = w;
-    gobj->pos.h = h;
-    gobj->pos.scale = DIS_SCALE;
+    gobj->size.w = w;
+    gobj->size.h = h;
+    gobj->size.scale = DIS_SCALE;
 
-    lv_obj_set_size(lobj, gobj->pos.w, gobj->pos.h);
+    lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
 
 void set_gobj_size_scale(lv_obj_t *lobj, int32_t w, int32_t h)
@@ -202,13 +202,13 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t w, int32_t h)
     LV_ASSERT_NULL(lobj);
 
     gobj = lobj->user_data;
-    gobj->pos.w = w;
-    gobj->pos.h = h;
-    gobj->pos.scale = ENA_SCALE;
+    gobj->size.w = w;
+    gobj->size.h = h;
+    gobj->size.scale = ENA_SCALE;
 
     lv_obj_set_size(gobj->obj, \
-                    calc_pixels(obj_width((gobj->par)->obj), gobj->pos.w), \
-                    calc_pixels(obj_height((gobj->par)->obj), gobj->pos.h));
+                    calc_pixels(obj_width((gobj->par)->obj), gobj->size.w), \
+                    calc_pixels(obj_height((gobj->par)->obj), gobj->size.h));
 }
 
 void gobj_get_size(lv_obj_t *lobj)
@@ -218,8 +218,8 @@ void gobj_get_size(lv_obj_t *lobj)
 
     lv_obj_update_layout(lobj);
     gobj = lobj->user_data;
-    gobj->pos.w = lv_obj_get_width(lobj);
-    gobj->pos.h = lv_obj_get_height(lobj);
+    gobj->size.w = lv_obj_get_width(lobj);
+    gobj->size.h = lv_obj_get_height(lobj);
 }
 
 /*

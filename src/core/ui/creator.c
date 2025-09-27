@@ -300,12 +300,12 @@ void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
     gobj = lobj->user_data;
-    if (!gobj->pos.w)
+    if (!gobj->size.w)
         LOG_WARN("Cannot calculate the center x");
-    if (!gobj->pos.h)
+    if (!gobj->size.h)
         LOG_WARN("Cannot calculate the center y");
-    gobj->aln.mid_x = x_ofs + (gobj->pos.w / 2);
-    gobj->aln.mid_y = y_ofs + (gobj->pos.h / 2);
+    gobj->aln.mid_x = x_ofs + (gobj->size.w / 2);
+    gobj->aln.mid_y = y_ofs + (gobj->size.h / 2);
 }
 
 void set_gobj_pos_center(lv_obj_t *lobj)
@@ -324,12 +324,12 @@ void set_gobj_pos_center(lv_obj_t *lobj)
     set_gobj_pos(lobj, x_ofs, y_ofs);
 
     gobj = get_gobj(lobj);
-    if (!gobj->pos.w)
+    if (!gobj->size.w)
         LOG_WARN("Cannot calculate the center x");
-    if (!gobj->pos.h)
+    if (!gobj->size.h)
         LOG_WARN("Cannot calculate the center y");
-    gobj->aln.mid_x = x_ofs + (gobj->pos.w / 2);
-    gobj->aln.mid_y = y_ofs + (gobj->pos.h / 2);
+    gobj->aln.mid_x = x_ofs + (gobj->size.w / 2);
+    gobj->aln.mid_y = y_ofs + (gobj->size.h / 2);
 }
 
 void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \

@@ -353,14 +353,14 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
     } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
     } else {
-        if (gobj->pos.scale == DIS_SCALE) {
-            lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+        if (gobj->size.scale == DIS_SCALE) {
+            lv_obj_set_size(gobj->obj, gobj->size.w, gobj->size.h);
         } else {
             lv_obj_set_size(gobj->obj, \
                             calc_pixels(obj_width((gobj->par)->obj), \
-                                        gobj->pos.w), \
+                                        gobj->size.w), \
                             calc_pixels(obj_height((gobj->par)->obj), \
-                                        gobj->pos.h));
+                                        gobj->size.h));
         }
     }
 
@@ -376,8 +376,8 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
         if (ret) {
             return -EINVAL;
         }
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->pos.w / 2), \
-                       gobj->aln.mid_y - (gobj->pos.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
+                       gobj->aln.mid_y - (gobj->size.h / 2));
     } else {
         // Check alignment scaling configuration
         if (gobj->aln.scale == DIS_SCALE) {
@@ -420,23 +420,23 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     if (scr_rot == ROTATION_0) {
         rot_val = 0;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->pos.w / 2), \
-                       gobj->aln.mid_y - (gobj->pos.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
+                       gobj->aln.mid_y - (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_90) {
         rot_val = 900;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->pos.w / 2), \
-                       gobj->aln.mid_y - (gobj->pos.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->size.w / 2), \
+                       gobj->aln.mid_y - (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_180) {
         rot_val = 1800;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->pos.w / 2), \
-                       gobj->aln.mid_y + (gobj->pos.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->size.w / 2), \
+                       gobj->aln.mid_y + (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_270) {
         rot_val = 2700;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->pos.w / 2), \
-                       gobj->aln.mid_y + (gobj->pos.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
+                       gobj->aln.mid_y + (gobj->size.h / 2));
     }
 
     return 0;
@@ -480,7 +480,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
              */
             ret = calc_gobj_rotated_size(gobj);
             if (!ret)
-                lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+                lv_obj_set_size(gobj->obj, gobj->size.w, gobj->size.h);
             break;
         case OBJ_BASE:
             /*
