@@ -331,8 +331,8 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    if (gobj->scale.pre_rot_redraw_cb) {
-        gobj->scale.pre_rot_redraw_cb(gobj->obj);
+    if (gobj->data.pre_rot_redraw_cb) {
+        gobj->data.pre_rot_redraw_cb(gobj->obj);
     }
 
     // The size and scale calculation depends on alignment values,
@@ -354,10 +354,8 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
     }
 
 
-    if (gobj->scale.post_rot_resize_adjust_cb) {
-        gobj->scale.post_rot_resize_adjust_cb(gobj->obj);
-    } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
-        lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
+    if (gobj->data.post_rot_resize_adjust_cb) {
+        gobj->data.post_rot_resize_adjust_cb(gobj->obj);
     } else {
         apply_gobj_size(gobj->obj);
     }

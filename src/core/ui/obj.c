@@ -397,13 +397,13 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
         return;
     }
 
-    gobj = lobj->user_data;
+    gobj = get_gobj(lobj);
     if (!gobj) {
         LOG_ERROR("gobj_t object invalid");
         return;
     }
 
-    gobj->obj_data = data;
+    gobj->data.internal = data;
 }
 
 void *get_gobj_data(lv_obj_t *lobj)
@@ -413,9 +413,9 @@ void *get_gobj_data(lv_obj_t *lobj)
     if (!lobj)
         return NULL;
 
-    gobj = lobj->user_data;
+    gobj = get_gobj(lobj);
     if (!gobj)
         return NULL;
 
-    return gobj->obj_data;
+    return gobj->data.internal;
 }

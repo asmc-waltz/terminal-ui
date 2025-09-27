@@ -135,7 +135,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
                      -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
 
     gobj_t *gobj = get_gobj(detail_box);
-    gobj->scale.post_rot_resize_adjust_cb = \
+    gobj->data.post_rot_resize_adjust_cb = \
         detail_setting_post_rot_resize_adjust_cb;
 
 
@@ -244,7 +244,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
      * change according to the callback when the object is rotated.
      */
     gobj_t *gobj = get_gobj(menu_bar);
-    gobj->scale.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
+    gobj->data.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     // lv_obj_t *network_container = create_container(menu_bar, SETTING_PAGE_NAME".menu_bar.network");
     set_gobj_list_layout(menu_bar, FLEX_COLUMN);
@@ -516,7 +516,7 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
                      0,\
                      SETTING_CONTAINTER_ALIGN);
 
-    get_gobj(setting_ctn)->scale.post_rot_resize_adjust_cb = \
+    get_gobj(setting_ctn)->data.post_rot_resize_adjust_cb = \
                                     setting_container_post_rot_resize_adjust_cb;
 
     menu_bar = create_menu_bar(setting_ctn);

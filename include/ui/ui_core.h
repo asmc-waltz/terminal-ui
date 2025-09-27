@@ -49,12 +49,7 @@ typedef enum {
 } flex_t;
 
 typedef struct {
-    int8_t ena_w;
-    int8_t ena_h;
-    int32_t w;
-    int32_t h;
-    int32_t pad_w; // %
-    int32_t pad_h; // %
+    void *internal;                     /* Internal data */
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the
@@ -66,7 +61,7 @@ typedef struct {
      * To keep the previous size for the original object is some situation.
      */
     void (*post_rot_resize_adjust_cb)(lv_obj_t *lobj);
-} scale_t;
+} obj_data_t;
 
 typedef struct {
     /* Objects without alignment as text and symbol */
@@ -101,12 +96,11 @@ typedef struct gobj_t {
     lv_obj_t *obj;
     struct gobj_t *par;
     char *name;
-    void *obj_data;
     int8_t rotation;
     type_t type;
     obj_size_t size;
     align_t aln;
-    scale_t scale;
+    obj_data_t data;
 } gobj_t;
 
 /**********************
@@ -140,12 +134,6 @@ void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
 void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
 void apply_gobj_size(lv_obj_t *lobj);
 
-int32_t enable_scale_w(lv_obj_t *lobj);
-int32_t enable_scale_h(lv_obj_t *lobj);
-int32_t disable_scale_w(lv_obj_t *lobj);
-int32_t disable_scale_h(lv_obj_t *lobj);
-int32_t set_obj_scale_pad_w(lv_obj_t *lobj, int32_t pad_w);
-int32_t set_obj_scale_pad_h(lv_obj_t *lobj, int32_t pad_h);
 void set_gobj_data(lv_obj_t *lobj, void *data);
 int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow);
 int32_t set_flex_scroll_dir(gobj_t *gobj);
@@ -219,16 +207,6 @@ static inline int32_t obj_aln_x(lv_obj_t *lobj)
 static inline int32_t obj_aln_y(lv_obj_t *lobj)
 {
     return abs(((gobj_t *)lobj->user_data)->aln.y);
-}
-
-static inline int32_t obj_scale_h(lv_obj_t *par)
-{
-    return ((gobj_t *)par->user_data)->scale.h;
-}
-
-static inline int32_t obj_scale_w(lv_obj_t *par)
-{
-    return ((gobj_t *)par->user_data)->scale.w;
 }
 
 static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
