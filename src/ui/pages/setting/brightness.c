@@ -56,3 +56,13 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+lv_obj_t *create_brightness_setting(lv_obj_t *par)
+{
+    lv_obj_t *brightness_box;
+
+    brightness_box = create_box(par, SETTING_PAGE_NAME".detail.brightness");
+
+    set_gobj_size_scale_xy(brightness_box, 96, 98);
+    align_gobj_scale(brightness_box, par, LV_ALIGN_TOP_MID, 0, 1);
+}
+

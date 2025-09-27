@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -140,11 +140,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
 
 
     /*------------------------------------------------------------------------*/
-    lv_obj_t *child;
-    child = create_box(detail_box, "child_test");
-    set_gobj_size(child, calc_pixels(obj_width(detail_box), 80), \
-                     calc_pixels(obj_height(detail_box), 10));
-    align_gobj_fix(child, detail_box, LV_ALIGN_TOP_LEFT, 10, 10);
+    lv_obj_t *detail_space = create_brightness_setting(detail_box);
     /*------------------------------------------------------------------------*/
 
     return detail_box;

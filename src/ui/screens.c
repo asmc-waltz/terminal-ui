@@ -185,12 +185,13 @@ static void rotate_key_handler(lv_event_t *event)
     ctx_t *ctx = get_ctx();
     lv_obj_t *screen = ctx->scr.now.obj;
 
-    rotate_anim_start(screen, 
-                  120, /* phase 1 */
-                  280, /* phase 2 */
-                  450, /* phase 3 */
-                  350, /* phase 4 */
-                  refresh_screen_rotate_layout);
+    // rotate_anim_start(screen,
+    //               120, /* phase 1 */
+    //               280, /* phase 2 */
+    //               450, /* phase 3 */
+    //               350, /* phase 4 */
+    //               refresh_screen_rotate_layout);
+    refresh_obj_tree_layout(screen->user_data);
 }
 
 static void create_keyboard_handler(lv_event_t *event)
