@@ -138,7 +138,7 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
 void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
 void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
 void set_gobj_size_scale_xy(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
-void refresh_gobj_scale_size(lv_obj_t *lobj);
+void apply_gobj_size(lv_obj_t *lobj);
 
 int32_t enable_scale_w(lv_obj_t *lobj);
 int32_t enable_scale_h(lv_obj_t *lobj);
