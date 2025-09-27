@@ -122,19 +122,19 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
  * Add first symbol: signal icon
  *      lv_obj_t *sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".signal",
  *                                         ICON_SIGNAL_SOLID);
- *      align_gobj_fix(sym, top_bar, LV_ALIGN_TOP_LEFT,
+ *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_LEFT,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add second symbol: WiFi icon, aligned to the right of signal icon
  *      lv_obj_t *sub = add_top_bar_symbol(top_bar, TOP_BAR_NAME".wifi",
  *                                         ICON_WIFI_SOLID);
- *      align_gobj_fix(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
+ *      set_gobj_align(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add third symbol: alert (bell) icon, centered on top bar
  *      sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
  *                               ICON_BELL_SOLID);
- *      align_gobj_fix(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
+ *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
 
  * Replace alert symbol with "bell slash" version
  *      replace_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
@@ -176,7 +176,7 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     set_obj_scale_pad_w(top_bar, pad_w);
 
     /* Align top bar to top middle of parent with vertical offset */
-    align_gobj_scale_pct_xy(top_bar, par, LV_ALIGN_TOP_MID, \
+    set_gobj_align_scale_xy(top_bar, par, LV_ALIGN_TOP_MID, \
                      0, \
                      ctx->scr.now.top.upper_space);
 

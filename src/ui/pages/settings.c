@@ -131,7 +131,7 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
     set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
-    align_gobj_fix(detail_box, par, LV_ALIGN_RIGHT_MID, \
+    set_gobj_align(detail_box, par, LV_ALIGN_RIGHT_MID, \
                      -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
 
     gobj_t *gobj = get_gobj(detail_box);
@@ -206,10 +206,10 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
 
     align_gobj_list_item(par, btn_box, 0, calc_pixels(obj_width(par), 2));
 
-    align_gobj_fix(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
+    set_gobj_align(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
                      calc_pixels(obj_height(btn_box), 50), \
                      (obj_height(btn_box) - lv_obj_get_height(sym_box)) / 2);
-    align_gobj_fix(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
+    set_gobj_align(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
                      calc_pixels(obj_height(btn_box), 50), 0);
 
     return btn_box;
@@ -239,7 +239,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
 
     set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
-    align_gobj_fix(menu_bar, par, LV_ALIGN_LEFT_MID, \
+    set_gobj_align(menu_bar, par, LV_ALIGN_LEFT_MID, \
                   calc_pixels(obj_width(par), SETTING_PAD_LEFT), 0);
     /*
      * In case of the menu bar, the layout changes based on the rotation.
@@ -515,7 +515,7 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     if (!setting_ctn)
         return NULL;
 
-    align_gobj_scale_pct_xy(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, \
+    set_gobj_align_scale_xy(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, \
                      0,\
                      SETTING_CONTAINTER_ALIGN);
 
