@@ -92,23 +92,10 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
     lv_obj_t *box, *icon;
     gobj_t *gobj_par;
 
-    box = create_box(par, name);
-    if (!box) {
-        return NULL;
-    }
-
+    box = create_symbol_box(par, name, TOP_BAR_SYM_FONTS, index);
     lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);
     lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
-    gobj_par = par->user_data;
-    set_gobj_size(box, gobj_par->size.h, gobj_par->size.h);
-
-    icon = create_sym(box, NULL, TOP_BAR_SYM_FONTS, index);
-    if (!icon) {
-        LOG_ERROR("Unable to add symbol %s", name);
-        remove_obj_and_child_by_name(name, &gobj_par->child);
-        return NULL;
-    }
-    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(get_box_child(box), lv_color_hex(0xFFFFFF), 0);
 
     return box;
 }
@@ -143,7 +130,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
 
 lv_obj_t *create_top_bar(ctx_t *ctx)
 {
-    int32_t obj_w, obj_h, pad_w;
+    int32_t obj_h;
     lv_obj_t *par, *top_bar;
 
     if (!ctx || !ctx->scr.now.obj)
@@ -156,29 +143,19 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     if (!top_bar)
         return NULL;
 
-    ctx->scr.now.top.obj = top_bar;
-    ctx->scr.now.top.upper_space = TOP_BAR_PAD_TOP;
-    ctx->scr.now.top.under_space = TOP_BAR_PAD_BOT;
+    // Keep the default top bar height, and scale width
+    set_gobj_size_scale_w(top_bar, TOP_BAR_WIDTH, \
+                          calc_pixels(obj_height(par), TOP_BAR_HEIGHT));
 
-    /* Calculate top bar size as percentage of parent size */
-    obj_w = (obj_width(par) * TOP_BAR_WIDTH) / 100;
-    obj_h = (obj_height(par) * TOP_BAR_HEIGHT) / 100;
-    set_gobj_size(top_bar, obj_w, obj_h);
+    set_gobj_align_scale(top_bar, par, LV_ALIGN_TOP_MID, \
+                         0, TOP_BAR_PAD_TOP);
 
-    /* Set background color and disable scroll */
     lv_obj_set_style_bg_color(top_bar, lv_color_hex(TOP_BAR_BG_COLOR), 0);
     lv_obj_clear_flag(top_bar, LV_OBJ_FLAG_SCROLLABLE);
 
-    /* Enable horizontal scaling with padding */
-    enable_scale_w(top_bar);
-    // pad_w = (obj_width(par) * (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT)) / 100;
-    pad_w = (TOP_BAR_PAD_LEFT + TOP_BAR_PAD_RIGHT);
-    set_obj_scale_pad_w(top_bar, pad_w);
-
-    /* Align top bar to top middle of parent with vertical offset */
-    set_gobj_align_scale(top_bar, par, LV_ALIGN_TOP_MID, \
-                     0, \
-                     ctx->scr.now.top.upper_space);
+    ctx->scr.now.top.obj = top_bar;
+    ctx->scr.now.top.upper_space = TOP_BAR_PAD_TOP;
+    ctx->scr.now.top.under_space = TOP_BAR_PAD_BOT;
 
     return top_bar;
 }

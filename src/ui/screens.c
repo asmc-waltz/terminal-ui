@@ -245,7 +245,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     lv_obj_t *top_space = create_top_bar(ctx);
     lv_obj_t *sym_box = add_top_bar_symbol(top_space, TOP_BAR_NAME".wifi",
                                                 ICON_WIFI_SOLID);
-    set_gobj_align(sym_box, top_space, LV_ALIGN_TOP_LEFT, TOP_BAR_SYM_ALN, 0);
+    set_gobj_align_scale_x(sym_box, top_space, LV_ALIGN_LEFT_MID, TOP_BAR_SYM_ALN, 0);
 
     // TODO: debug setting screen
     create_setting_page(ctx);

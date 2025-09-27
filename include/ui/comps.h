@@ -25,7 +25,7 @@
 #define TOP_BAR_PAD_BOT                 0       // %
 #define TOP_BAR_PAD_LEFT                1       // %
 #define TOP_BAR_PAD_RIGHT               1       // %
-#define TOP_BAR_SYM_ALN                 5       // pixel
+#define TOP_BAR_SYM_ALN                 2       // %
 #define TOP_BAR_SYM_FONTS               &terminal_icons_32
 
 
