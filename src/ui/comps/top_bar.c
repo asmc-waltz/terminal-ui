@@ -176,7 +176,7 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     set_obj_scale_pad_w(top_bar, pad_w);
 
     /* Align top bar to top middle of parent with vertical offset */
-    set_gobj_align_scale_xy(top_bar, par, LV_ALIGN_TOP_MID, \
+    set_gobj_align_scale(top_bar, par, LV_ALIGN_TOP_MID, \
                      0, \
                      ctx->scr.now.top.upper_space);
 

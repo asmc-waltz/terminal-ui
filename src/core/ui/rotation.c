@@ -283,11 +283,17 @@ static void gobj_update_alignment_rot90(gobj_t *gobj)
 
 static void gobj_swap_offset_rot90(gobj_t *gobj)
 {
-    int32_t swap;
+    int32_t tmp_x_aln;
+    int32_t tmp_scale_x;
 
-    swap = gobj->aln.x;
+    tmp_x_aln = gobj->aln.x;
+    tmp_scale_x = gobj->aln.scale_x;
+
     gobj->aln.x = -(gobj->aln.y);
-    gobj->aln.y = swap;
+    gobj->aln.scale_x = gobj->aln.scale_y;
+
+    gobj->aln.y = tmp_x_aln;
+    gobj->aln.scale_y = tmp_scale_x;
 }
 
 static int32_t g_obj_rot_calc_align(gobj_t *gobj)

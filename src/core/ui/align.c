@@ -143,7 +143,7 @@ void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void set_gobj_align_scale_xy(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_gobj_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct)
 {
     gobj_t *gobj = NULL;
