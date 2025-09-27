@@ -88,38 +88,100 @@ void set_gobj_pos_center(lv_obj_t *lobj)
 }
 
 void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
-                      int32_t x_ofs, int32_t y_ofs)
+                      int32_t x_ofs_px, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
-
-    lv_obj_align_to(lobj, base, align, x_ofs, y_ofs);
 
     gobj = lobj->user_data;
     LV_ASSERT_NULL(gobj);
     gobj->aln.align = align;
     gobj->aln.base = base;
-    gobj->aln.x = x_ofs;
-    gobj->aln.y = y_ofs;
-    gobj->aln.scale = DIS_SCALE;
+    gobj->aln.x = x_ofs_px;
+    gobj->aln.y = y_ofs_px;
+    gobj->aln.scale_x = DIS_SCALE;
+    gobj->aln.scale_y = DIS_SCALE;
+
+    apply_gobj_align(lobj);
 }
 
-void align_gobj_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
-                      int32_t x_ofs, int32_t y_ofs)
+void align_gobj_scale_pct_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                            int32_t x_ofs_pct, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
+
     LV_ASSERT_NULL(lobj);
-
-
-    gobj = lobj->user_data;
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
+
     gobj->aln.align = align;
     gobj->aln.base = base;
-    gobj->aln.x = x_ofs;
-    gobj->aln.y = y_ofs;
-    gobj->aln.scale = ENA_SCALE;
+    gobj->aln.x = x_ofs_pct;
+    gobj->aln.y = y_ofs_px;
+    gobj->aln.scale_x = ENA_SCALE;
+    gobj->aln.scale_y = DIS_SCALE;
 
-    lv_obj_align_to(lobj, base, align, \
-                        calc_pixels(obj_width((gobj->par)->obj), gobj->aln.x), \
-                        calc_pixels(obj_height((gobj->par)->obj), gobj->aln.y));
+    apply_gobj_align(lobj);
 }
+
+void align_gobj_scale_pct_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                            int32_t x_ofs_px, int32_t y_ofs_pct)
+{
+    gobj_t *gobj = NULL;
+
+    LV_ASSERT_NULL(lobj);
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    gobj->aln.align = align;
+    gobj->aln.base = base;
+    gobj->aln.x = x_ofs_px;
+    gobj->aln.y = y_ofs_pct;
+    gobj->aln.scale_x = DIS_SCALE;
+    gobj->aln.scale_y = ENA_SCALE;
+
+    apply_gobj_align(lobj);
+}
+
+void align_gobj_scale_pct_xy(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                             int32_t x_ofs_pct, int32_t y_ofs_pct)
+{
+    gobj_t *gobj = NULL;
+
+    LV_ASSERT_NULL(lobj);
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    gobj->aln.align = align;
+    gobj->aln.base = base;
+    gobj->aln.x = x_ofs_pct;
+    gobj->aln.y = y_ofs_pct;
+    gobj->aln.scale_x = ENA_SCALE;
+    gobj->aln.scale_y = ENA_SCALE;
+
+    apply_gobj_align(lobj);
+}
+
+void apply_gobj_align(lv_obj_t *lobj)
+{
+    int32_t x_ofs_px;
+    int32_t y_ofs_px;
+    gobj_t *gobj = NULL;
+
+    LV_ASSERT_NULL(lobj);
+    gobj = get_gobj(lobj);
+    LV_ASSERT_NULL(gobj);
+
+    if (gobj->aln.scale_x == ENA_SCALE)
+        x_ofs_px = calc_pixels(obj_width((gobj->par)->obj), gobj->aln.x);
+    else
+        x_ofs_px = gobj->aln.x;
+
+    if (gobj->aln.scale_y == ENA_SCALE)
+        y_ofs_px = calc_pixels(obj_height((gobj->par)->obj), gobj->aln.y);
+    else
+        y_ofs_px = gobj->aln.y;
+
+    lv_obj_align_to(lobj, gobj->aln.base, gobj->aln.align, x_ofs_px, y_ofs_px);
+}
+
