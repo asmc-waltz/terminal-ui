@@ -93,7 +93,7 @@ gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
     new_obj->id = obj_ctx->next_id++;
     new_obj->obj = obj;
     obj->user_data = new_obj;
-    new_obj->par = (!par) ? NULL : (gobj_t *)par->user_data;
+    new_obj->data.parent = (!par) ? NULL : (gobj_t *)par->user_data;
 
 
     INIT_LIST_HEAD(&new_obj->child);
@@ -385,7 +385,7 @@ gobj_t *get_gobj_parent(lv_obj_t *lobj)
     if (!gobj)
         return NULL;
 
-    return gobj->par;
+    return gobj->data.parent;
 }
 
 void set_gobj_data(lv_obj_t *lobj, void *data)

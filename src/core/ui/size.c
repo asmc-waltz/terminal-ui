@@ -209,12 +209,14 @@ void apply_gobj_size(lv_obj_t *lobj)
     LV_ASSERT_NULL(gobj);
 
     if (gobj->size.scale_w == ENA_SCALE)
-        px_x = calc_pixels(obj_width((gobj->par)->obj), gobj->size.w);
+        px_x = calc_pixels(obj_width((gobj->data.parent)->obj), \
+                           gobj->size.w);
     else
         px_x = gobj->size.w;
 
     if (gobj->size.scale_h == ENA_SCALE)
-        px_y = calc_pixels(obj_height((gobj->par)->obj), gobj->size.h);
+        px_y = calc_pixels(obj_height((gobj->data.parent)->obj), \
+                           gobj->size.h);
     else
         px_y = gobj->size.h;
 

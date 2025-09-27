@@ -48,10 +48,12 @@ typedef enum {
     FLEX_END,
 } flex_t;
 
+struct gobj_t;
 typedef struct {
     void *internal;                     /* Internal data */
     type_t obj_type;
     int8_t rotation;
+    struct gobj_t *parent;
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the
@@ -90,13 +92,11 @@ typedef struct {
     int8_t scale_h;
 } obj_size_t;
 
-struct gobj_t;
 typedef struct gobj_t {
     struct list_head node;
     struct list_head child;
     uint32_t id;
     lv_obj_t *obj;
-    struct gobj_t *par;
     char *name;
     obj_size_t size;
     align_t aln;

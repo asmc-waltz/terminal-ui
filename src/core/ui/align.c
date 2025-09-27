@@ -173,12 +173,14 @@ void apply_gobj_align(lv_obj_t *lobj)
     LV_ASSERT_NULL(gobj);
 
     if (gobj->aln.scale_x == ENA_SCALE)
-        x_ofs_px = calc_pixels(obj_width((gobj->par)->obj), gobj->aln.x);
+        x_ofs_px = calc_pixels(obj_width((gobj->data.parent)->obj), \
+                               gobj->aln.x);
     else
         x_ofs_px = gobj->aln.x;
 
     if (gobj->aln.scale_y == ENA_SCALE)
-        y_ofs_px = calc_pixels(obj_height((gobj->par)->obj), gobj->aln.y);
+        y_ofs_px = calc_pixels(obj_height((gobj->data.parent)->obj), \
+                               gobj->aln.y);
     else
         y_ofs_px = gobj->aln.y;
 

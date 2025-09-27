@@ -367,8 +367,8 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      */
     if (gobj->aln.align == LV_ALIGN_DEFAULT) {
 
-        ret = gobj_get_center(gobj, obj_width((gobj->par)->obj), \
-                              obj_height((gobj->par)->obj));
+        ret = gobj_get_center(gobj, obj_width((gobj->data.parent)->obj), \
+                              obj_height((gobj->data.parent)->obj));
         if (ret) {
             return -EINVAL;
         }
@@ -392,8 +392,8 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
         return -EINVAL;
     }
 
-    ret = gobj_get_center(gobj, obj_width((gobj->par)->obj), \
-                          obj_height((gobj->par)->obj));
+    ret = gobj_get_center(gobj, obj_width((gobj->data.parent)->obj), \
+                          obj_height((gobj->data.parent)->obj));
     if (ret) {
         return -EINVAL;
     }
