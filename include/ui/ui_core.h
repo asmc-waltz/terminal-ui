@@ -78,10 +78,10 @@ typedef struct {
     int32_t y;
     lv_obj_t *base;
     flex_t flex;
-    int8_t align;
+    int8_t value;
     int8_t scale_x;
     int8_t scale_y;
-} align_t;
+} obj_align_t;
 
 
 int32_t add_list_object(lv_obj_t *par, lv_obj_t *lobj);
@@ -101,7 +101,7 @@ typedef struct gobj_t {
     lv_obj_t *obj;
     char *name;
     obj_size_t size;
-    align_t aln;
+    obj_align_t align;
     obj_data_t data;
 } gobj_t;
 

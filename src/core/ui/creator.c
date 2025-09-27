@@ -89,8 +89,8 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     gobj = register_obj(par, lobj, name);
     gobj->data.obj_type = type;
     gobj->data.rotation = ROTATION_0;
-    gobj->aln.align = LV_ALIGN_DEFAULT;
-    gobj->aln.flex = FLEX_NONE;
+    gobj->align.value = LV_ALIGN_DEFAULT;
+    gobj->align.flex = FLEX_NONE;
 
     LV_ASSERT_NULL(gobj);
 

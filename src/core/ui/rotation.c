@@ -101,10 +101,10 @@ static int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
     }
 
     /* cache old parent geometry and gaps */
-    old_pw = gobj->aln.par_w;
-    old_ph = gobj->aln.par_h;
-    L = gobj->aln.mid_x;
-    T = gobj->aln.mid_y;
+    old_pw = gobj->align.par_w;
+    old_ph = gobj->align.par_h;
+    L = gobj->align.mid_x;
+    T = gobj->align.mid_y;
     R = old_pw - L;
     B = old_ph - T;
 
@@ -188,10 +188,10 @@ static int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
     }
 
     /* Atomic update of gobj position state */
-    gobj->aln.mid_x = new_x_mid;
-    gobj->aln.mid_y = new_y_mid;
-    gobj->aln.par_w = par_w;
-    gobj->aln.par_h = par_h;
+    gobj->align.mid_x = new_x_mid;
+    gobj->align.mid_y = new_y_mid;
+    gobj->align.par_w = par_w;
+    gobj->align.par_h = par_h;
     gobj->data.rotation = scr_rot;
 
     LOG_TRACE("success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
@@ -204,7 +204,7 @@ static void gobj_update_alignment_rot90(gobj_t *gobj)
 {
     int8_t align = LV_ALIGN_DEFAULT;
 
-    switch (gobj->aln.align) {
+    switch (gobj->align.value) {
         case LV_ALIGN_TOP_LEFT:
             align = LV_ALIGN_TOP_RIGHT;
             break;
@@ -278,7 +278,7 @@ static void gobj_update_alignment_rot90(gobj_t *gobj)
             return;
     }
 
-    gobj->aln.align = align;
+    gobj->align.value = align;
 }
 
 static void gobj_swap_offset_rot90(gobj_t *gobj)
@@ -286,14 +286,14 @@ static void gobj_swap_offset_rot90(gobj_t *gobj)
     int32_t tmp_x_aln;
     int32_t tmp_scale_x;
 
-    tmp_x_aln = gobj->aln.x;
-    tmp_scale_x = gobj->aln.scale_x;
+    tmp_x_aln = gobj->align.x;
+    tmp_scale_x = gobj->align.scale_x;
 
-    gobj->aln.x = -(gobj->aln.y);
-    gobj->aln.scale_x = gobj->aln.scale_y;
+    gobj->align.x = -(gobj->align.y);
+    gobj->align.scale_x = gobj->align.scale_y;
 
-    gobj->aln.y = tmp_x_aln;
-    gobj->aln.scale_y = tmp_scale_x;
+    gobj->align.y = tmp_x_aln;
+    gobj->align.scale_y = tmp_scale_x;
 }
 
 static int32_t g_obj_rot_calc_align(gobj_t *gobj)
@@ -337,7 +337,7 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
 
     // The size and scale calculation depends on alignment values,
     // so we must process these first.
-    if (gobj->aln.align != LV_ALIGN_DEFAULT) {
+    if (gobj->align.value != LV_ALIGN_DEFAULT) {
         ret = g_obj_rot_calc_align(gobj);
         if (ret) {
             return -EINVAL;
@@ -365,15 +365,15 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * recalculated based on the logical rotation. Using this new center,
      * the width and height can then be updated accordingly.
      */
-    if (gobj->aln.align == LV_ALIGN_DEFAULT) {
+    if (gobj->align.value == LV_ALIGN_DEFAULT) {
 
         ret = gobj_get_center(gobj, obj_width((gobj->data.parent)->obj), \
                               obj_height((gobj->data.parent)->obj));
         if (ret) {
             return -EINVAL;
         }
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
-                       gobj->aln.mid_y - (gobj->size.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
+                       gobj->align.mid_y - (gobj->size.h / 2));
     } else {
         apply_gobj_align(gobj->obj);
     }
@@ -401,23 +401,23 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     if (scr_rot == ROTATION_0) {
         rot_val = 0;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
-                       gobj->aln.mid_y - (gobj->size.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
+                       gobj->align.mid_y - (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_90) {
         rot_val = 900;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->size.w / 2), \
-                       gobj->aln.mid_y - (gobj->size.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->align.mid_x + (gobj->size.w / 2), \
+                       gobj->align.mid_y - (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_180) {
         rot_val = 1800;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x + (gobj->size.w / 2), \
-                       gobj->aln.mid_y + (gobj->size.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->align.mid_x + (gobj->size.w / 2), \
+                       gobj->align.mid_y + (gobj->size.h / 2));
     } else if (scr_rot == ROTATION_270) {
         rot_val = 2700;
         lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->aln.mid_x - (gobj->size.w / 2), \
-                       gobj->aln.mid_y + (gobj->size.h / 2));
+        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
+                       gobj->align.mid_y + (gobj->size.h / 2));
     }
 
     return 0;
@@ -479,7 +479,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
         return ret;
     }
 
-    if (gobj->aln.flex) {
+    if (gobj->align.flex) {
         ret = update_flex_by_rot(gobj);
         if (ret)
             LOG_WARN("Unable to update flex value, ret %d", ret);
@@ -515,7 +515,7 @@ static int32_t gobj_refresh_child(gobj_t *gobj)
             return ret;
         }
 
-        if (p_obj->aln.flex) {
+        if (p_obj->align.flex) {
             update_list_align_by_rot(p_obj);
         }
     }

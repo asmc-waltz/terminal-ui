@@ -66,7 +66,7 @@ int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow)
     if (!gobj)
         return -EIO;
 
-    gobj->aln.flex = flow;
+    gobj->align.flex = flow;
 
     lv_obj_set_scrollbar_mode(lobj, LV_SCROLLBAR_MODE_OFF);
 
@@ -217,7 +217,7 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
     if (!gobj_par)
         return -EIO;
 
-    flow = gobj_par->aln.flex;
+    flow = gobj_par->align.flex;
     if (flow == FLEX_NONE) {
         LOG_ERROR("Unable to add list object into normal parent");
         return -EIO;
@@ -298,8 +298,8 @@ int32_t update_normal_list_obj_align(gobj_t *gobj)
                   l_to_gobj(child) ?
                   l_to_gobj(child)->name : "(null)");
 
-        ret = align_gobj_list_item(par, child, l_to_gobj(child)->aln.x, \
-                                   l_to_gobj(child)->aln.y);
+        ret = align_gobj_list_item(par, child, l_to_gobj(child)->align.x, \
+                                   l_to_gobj(child)->align.y);
         if (ret) {
             LOG_ERROR("Unable to align object %s", l_to_gobj(child)->name);
         }
@@ -338,8 +338,8 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
                   l_to_gobj(child) ?
                   l_to_gobj(child)->name : "(null)");
 
-        ret = align_gobj_list_item(par, child, l_to_gobj(child)->aln.x, \
-                                   l_to_gobj(child)->aln.y);
+        ret = align_gobj_list_item(par, child, l_to_gobj(child)->align.x, \
+                                   l_to_gobj(child)->align.y);
         if (ret) {
             LOG_ERROR("Unable to align object %s", l_to_gobj(child)->name);
         }
@@ -365,7 +365,7 @@ int32_t set_flex_scroll_dir(gobj_t *gobj)
     if (!lobj)
         return -EIO;
 
-    cur_flex = gobj->aln.flex;
+    cur_flex = gobj->align.flex;
     if (cur_flex <= FLEX_NONE || cur_flex >= FLEX_END)
         return -EIO;
 
@@ -405,7 +405,7 @@ int32_t update_flex_by_rot(gobj_t *gobj)
 
     scr_rot = get_scr_rotation();
     cur_rot = gobj->data.rotation;
-    cur_flex = gobj->aln.flex;
+    cur_flex = gobj->align.flex;
 
     /* validate current flex */
     if (cur_flex != FLEX_COLUMN && cur_flex != FLEX_ROW) {
@@ -420,9 +420,9 @@ int32_t update_flex_by_rot(gobj_t *gobj)
                   (cur_rot == ROTATION_90 || cur_rot == ROTATION_270));
 
     if (same_group)
-        gobj->aln.flex = cur_flex;
+        gobj->align.flex = cur_flex;
     else
-        gobj->aln.flex = (cur_flex == FLEX_COLUMN) ? FLEX_ROW : FLEX_COLUMN;
+        gobj->align.flex = (cur_flex == FLEX_COLUMN) ? FLEX_ROW : FLEX_COLUMN;
 
     return 0;
 }
