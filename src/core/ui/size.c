@@ -183,6 +183,9 @@ int32_t get_scr_height(void)
     return ctx->scr.height;
 }
 
+/*
+ * Set fix size for object based on input values.
+ */
 void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
@@ -197,6 +200,10 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     apply_gobj_size(lobj);
 }
 
+/*
+ * Set dynamic size for object based on parent size.
+ * Only the X coordinate is resized; Y coordinate remains default.
+ */
 void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
@@ -213,6 +220,10 @@ void set_gobj_size_scale_x(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     apply_gobj_size(lobj);
 }
 
+/*
+ * Set dynamic size for object based on parent size.
+ * Only the Y coordinate is resized; X coordinate remains default.
+ */
 void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
@@ -229,6 +240,10 @@ void set_gobj_size_scale_y(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     apply_gobj_size(lobj);
 }
 
+/*
+ * Set dynamic size for object based on parent size.
+ * Both of X and Y coordinate are resized.
+ */
 void set_gobj_size_scale_xy(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
