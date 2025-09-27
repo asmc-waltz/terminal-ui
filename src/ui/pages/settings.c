@@ -515,7 +515,7 @@ lv_obj_t *create_setting_page(ctx_t *ctx)
     if (!setting_ctn)
         return NULL;
 
-    align_gobj_scale(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, \
+    align_gobj_scale_pct_xy(setting_ctn, ctx->scr.now.top.obj, LV_ALIGN_OUT_BOTTOM_MID, \
                      0,\
                      SETTING_CONTAINTER_ALIGN);
 

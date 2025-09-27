@@ -862,7 +862,7 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
     // Reset all keyboard configurations to the horizontal layout.
     set_gobj_size(kb, obj_w, obj_h);
     get_gobj(kb)->rotation = ROTATION_0;
-    align_gobj_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
+    align_gobj_scale_pct_xy(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     // TODO: map?
     const keyboard_def *map = &kb_maps[0];
@@ -891,7 +891,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 
     set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
-    align_gobj_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
+    align_gobj_scale_pct_xy(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     get_gobj(cont)->scale.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
 
