@@ -353,7 +353,15 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
     } else if (gobj->scale.ena_h || gobj->scale.ena_w) {
         lv_obj_set_size(gobj->obj, gobj->scale.w, gobj->scale.h);
     } else {
-        lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+        if (gobj->pos.scale == DIS_SCALE) {
+            lv_obj_set_size(gobj->obj, gobj->pos.w, gobj->pos.h);
+        } else {
+            lv_obj_set_size(gobj->obj, \
+                            calc_pixels(obj_width((gobj->par)->obj), \
+                                        gobj->pos.w), \
+                            calc_pixels(obj_height((gobj->par)->obj), \
+                                        gobj->pos.h));
+        }
     }
 
     /*
@@ -516,13 +524,13 @@ static int32_t gobj_refresh_child(gobj_t *gobj)
     list_for_each_entry(p_obj, par_list, node) {
         ret = gobj_refresh(p_obj);
         if (ret < 0) {
-            LOG_ERROR("Rotate obj ID %d failed", gobj->id);
+            LOG_ERROR("Object %d (%s) rotation failed", gobj->id, gobj->name);
             return ret;
         }
 
         ret = gobj_refresh_child(p_obj);
         if (ret < 0) {
-            LOG_ERROR("Rotate child obj ID %d failed", gobj->id);
+            LOG_ERROR("Child object %d (%s) rotation failed", gobj->id, gobj->name);
             return ret;
         }
 

@@ -87,6 +87,7 @@ typedef struct {
     int32_t w;
     int32_t h;
     int8_t rot;
+    int8_t scale;
 } pos_t;
 
 struct gobj_t;
@@ -123,6 +124,7 @@ void set_gobj_pos_center(lv_obj_t *lobj);
 int32_t set_scr_rotation(int32_t rot_dir);
 int32_t set_scr_size(int32_t width, int32_t height);
 void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h);
+void set_gobj_size_scale(lv_obj_t *lobj, int32_t w, int32_t h);
 
 int32_t enable_scale_w(lv_obj_t *lobj);
 int32_t enable_scale_h(lv_obj_t *lobj);

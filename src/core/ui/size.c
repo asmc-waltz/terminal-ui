@@ -191,8 +191,24 @@ void set_gobj_size(lv_obj_t *lobj, int32_t w, int32_t h)
     gobj = lobj->user_data;
     gobj->pos.w = w;
     gobj->pos.h = h;
+    gobj->pos.scale = DIS_SCALE;
 
     lv_obj_set_size(lobj, gobj->pos.w, gobj->pos.h);
+}
+
+void set_gobj_size_scale(lv_obj_t *lobj, int32_t w, int32_t h)
+{
+    gobj_t *gobj = NULL;
+    LV_ASSERT_NULL(lobj);
+
+    gobj = lobj->user_data;
+    gobj->pos.w = w;
+    gobj->pos.h = h;
+    gobj->pos.scale = ENA_SCALE;
+
+    lv_obj_set_size(gobj->obj, \
+                    calc_pixels(obj_width((gobj->par)->obj), gobj->pos.w), \
+                    calc_pixels(obj_height((gobj->par)->obj), gobj->pos.h));
 }
 
 void gobj_get_size(lv_obj_t *lobj)
