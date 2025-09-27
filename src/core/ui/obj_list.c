@@ -262,7 +262,7 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
      * For list objects, however, the alignment is adjusted to the
      * root coordinate system, so the alignment value must remain positive.
      */
-    align_gobj_fix(lobj, ref, align, abs(x_ofs), abs(y_ofs));
+    set_gobj_align(lobj, ref, align, abs(x_ofs), abs(y_ofs));
 
     return 0;
 }

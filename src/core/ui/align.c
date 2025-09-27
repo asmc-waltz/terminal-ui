@@ -87,7 +87,7 @@ void set_gobj_pos_center(lv_obj_t *lobj)
     gobj->aln.mid_y = y_ofs + (gobj->size.h / 2);
 }
 
-void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs_px, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
@@ -105,7 +105,7 @@ void align_gobj_fix(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void align_gobj_scale_pct_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_pct, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
@@ -124,7 +124,7 @@ void align_gobj_scale_pct_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void align_gobj_scale_pct_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct)
 {
     gobj_t *gobj = NULL;
@@ -143,7 +143,7 @@ void align_gobj_scale_pct_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void align_gobj_scale_pct_xy(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_gobj_align_scale_xy(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct)
 {
     gobj_t *gobj = NULL;
