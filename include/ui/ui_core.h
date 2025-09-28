@@ -150,7 +150,6 @@ lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
 int32_t get_scr_rotation();
 int32_t get_scr_width(void);
 int32_t get_scr_height(void);
-void gobj_get_size(lv_obj_t *lobj);
 void *get_gobj_internal_data(lv_obj_t *lobj);
 
 /*=====================

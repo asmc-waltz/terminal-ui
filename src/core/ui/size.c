@@ -227,16 +227,3 @@ void apply_gobj_size(lv_obj_t *lobj)
                            gobj->size.par_h_pct);
     lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
-
-void gobj_get_size(lv_obj_t *lobj)
-{
-    gobj_t *gobj = NULL;
-    LV_ASSERT_NULL(lobj);
-
-    lv_obj_update_layout(lobj);
-    gobj = l_to_gobj(lobj);
-    gobj->size.w = lv_obj_get_width(lobj);
-    gobj->size.h = lv_obj_get_height(lobj);
-    gobj->size.scale_w = DIS_SCALE;
-    gobj->size.scale_h = DIS_SCALE;
-}
