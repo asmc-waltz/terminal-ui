@@ -30,6 +30,8 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
+
 typedef struct scr_region {
     int32_t upper_space;
     lv_obj_t *obj;
@@ -70,6 +72,7 @@ typedef struct screen {
 /*=====================
  * Other functions
  *====================*/
+lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name);
 
 /**********************
  *      MACROS

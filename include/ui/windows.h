@@ -1,10 +1,10 @@
 /**
- * @file pages.h
+ * @file window.h
  *
  */
 
-#ifndef G_PAGES_H
-#define G_PAGES_H
+#ifndef G_WINDOWS_H
+#define G_WINDOWS_H
 /*********************
  *      INCLUDES
  *********************/
@@ -13,7 +13,6 @@
 #include <lvgl.h>
 #include "ui/ui_core.h"
 #include "ui/screen.h"
-#include "main.h"
 
 /*********************
  *      DEFINES
@@ -33,6 +32,7 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -52,11 +52,10 @@
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name);
-lv_obj_t *create_setting_page(ctx_t *ctx);
+lv_obj_t *create_setting_window(ctx_t *ctx);
 
 /**********************
  *      MACROS
  **********************/
 
-#endif /* G_PAGES_H */
+#endif /* G_WINDOWS_H */

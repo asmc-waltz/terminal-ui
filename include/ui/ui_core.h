@@ -13,7 +13,6 @@
 
 #include <lvgl.h>
 #include "list.h"
-#include "main.h"
 
 /*********************
  *      DEFINES
@@ -28,6 +27,8 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
+
 typedef enum {
     OBJ_NONE = 0,
     OBJ_BASE,

@@ -23,7 +23,7 @@
 #include "ui/ui_core.h"
 #include "ui/fonts.h"
 #include "ui/comps.h"
-#include "ui/pages.h"
+#include "ui/windows.h"
 #include "ui/screen.h"
 #include "main.h"
 
@@ -248,7 +248,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_gobj_align_scale_x(sym_box, top_space, LV_ALIGN_LEFT_MID, TOP_BAR_SYM_ALN, 0);
 
     // TODO: debug setting screen
-    create_setting_page(ctx);
+    create_setting_window(ctx);
 
 
 #if defined(TEST)

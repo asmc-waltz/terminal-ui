@@ -23,7 +23,8 @@
 #include "ui/ui_core.h"
 #include "ui/fonts.h"
 #include "ui/comps.h"
-#include "ui/pages.h"
+#include "ui/windows.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -498,7 +499,7 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_setting_page(ctx_t *ctx)
+lv_obj_t *create_setting_window(ctx_t *ctx)
 {
     lv_obj_t *par;
     lv_obj_t *setting_ctn, *menu_bar, *detail;

@@ -23,7 +23,7 @@
 #include "ui/ui_core.h"
 #include "ui/fonts.h"
 #include "ui/comps.h"
-#include "ui/pages.h"
+#include "ui/windows.h"
 #include "ui/screen.h"
 #include "main.h"
 

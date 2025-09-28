@@ -22,6 +22,7 @@
 #include <pthread.h>
 #include <errno.h>
 
+#include "ui/ui_core.h"
 #include "ui/screen.h"
 #include "comm/cmd_payload.h"
 #include "comm/f_comm.h"

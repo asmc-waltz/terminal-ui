@@ -13,7 +13,6 @@
 #include <lvgl.h>
 #include "ui/ui_core.h"
 #include "ui/screen.h"
-#include "main.h"
 
 /*********************
  *      DEFINES
@@ -43,6 +42,7 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
