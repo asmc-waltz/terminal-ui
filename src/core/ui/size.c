@@ -226,27 +226,25 @@ void apply_gobj_size(lv_obj_t *lobj)
 
     if (gobj->size.scale_w == ENA_SCALE) {
         // percent to pixel
-        gobj->size.w = pct_to_px(get_w((gobj->data.parent)->obj), \
-                           gobj->size.par_w_pct);
+        gobj->size.w = pct_to_px(get_par_w(lobj), gobj->size.par_w_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
         gobj->size.par_w_pct =  px_to_pct(get_par_w(lobj), get_w(lobj));
         LOG_TRACE("Update obj W size [%d] -> percent [%d]", \
-                  gobj_w(lobj), gobj->size.par_w_pct);
+                  get_w(lobj), gobj->size.par_w_pct);
     }
 
 
     if (gobj->size.scale_h == ENA_SCALE) {
         // percent to pixel
-        gobj->size.h = pct_to_px(get_h((gobj->data.parent)->obj), \
-                           gobj->size.par_h_pct);
+        gobj->size.h = pct_to_px(get_par_h(lobj), gobj->size.par_h_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
         gobj->size.par_h_pct =  px_to_pct(get_par_h(lobj), get_h(lobj));
         LOG_TRACE("Update obj H size [%d] -> percent [%d]", \
-                  obj_h(lobj), gobj->size.par_h_pct);
+                  get_h(lobj), gobj->size.par_h_pct);
     }
 
     lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);

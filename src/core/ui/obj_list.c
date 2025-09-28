@@ -279,10 +279,10 @@ int32_t update_normal_list_obj_align(gobj_t *gobj)
     int32_t child_cnt, ret;
     int32_t i;
 
-    if (!gobj || !gobj->obj)
+    par = gobj ? get_lobj(gobj) : NULL;
+    if (!par)
         return -EINVAL;
 
-    par = gobj->obj;
     child_cnt = lv_obj_get_child_count(par);
 
     LOG_TRACE("Child count = %d", child_cnt);
@@ -319,10 +319,10 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
     int32_t child_cnt, ret;
     int32_t i;
 
-    if (!gobj || !gobj->obj)
+    par = gobj ? get_lobj(gobj) : NULL;
+    if (!par)
         return -EINVAL;
 
-    par = gobj->obj;
     child_cnt = lv_obj_get_child_count(par);
 
     LOG_TRACE("Child count = %d", child_cnt);
@@ -358,12 +358,9 @@ int32_t set_flex_scroll_dir(gobj_t *gobj)
     lv_obj_t *lobj;
     int32_t cur_flex;
 
-    if (!gobj)
-        return -EINVAL;
-
-    lobj = gobj->obj;
+    lobj = gobj ? get_lobj(gobj) : NULL;
     if (!lobj)
-        return -EIO;
+        return -EINVAL;
 
     cur_flex = gobj->align.flex;
     if (cur_flex <= FLEX_NONE || cur_flex >= FLEX_END)
@@ -443,10 +440,9 @@ int32_t update_list_align_by_rot(gobj_t *gobj)
     int32_t scr_rot;
     int32_t ret;
 
-    if (!gobj || !gobj->obj)
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
         return -EINVAL;
-
-    lobj = gobj->obj;
 
     scr_rot = get_scr_rotation();
 

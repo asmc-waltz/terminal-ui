@@ -173,7 +173,7 @@ lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
 
             LOG_TRACE("Finding name %s: check %d %s: OBJ FOUND", \
                       name, obj->id, obj->name);
-            return obj->obj;
+            return get_lobj(obj);
         }
 
         found = get_obj_by_name(name, &obj->child);
@@ -283,9 +283,9 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
             if (child_removed > 0)
                 removed += child_removed;
 
-            if (lv_obj_is_valid(obj->obj)) {
+            if (lv_obj_is_valid(get_lobj(obj))) {
                 LOG_TRACE("ID %u: deleting LVGL object", obj->id);
-                lv_obj_delete(obj->obj);
+                lv_obj_delete(get_lobj(obj));
             }
 
             LOG_TRACE("DELETE obj ID %d - name %s", obj->id,

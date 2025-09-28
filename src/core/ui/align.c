@@ -165,14 +165,12 @@ void apply_gobj_align(lv_obj_t *lobj)
     LV_ASSERT_NULL(gobj);
 
     if (gobj->align.scale_x == ENA_SCALE)
-        x_ofs_px = pct_to_px(get_w((gobj->data.parent)->obj), \
-                               gobj->align.x);
+        x_ofs_px = pct_to_px(get_par_w(lobj), gobj->align.x);
     else
         x_ofs_px = gobj->align.x;
 
     if (gobj->align.scale_y == ENA_SCALE)
-        y_ofs_px = pct_to_px(get_h((gobj->data.parent)->obj), \
-                               gobj->align.y);
+        y_ofs_px = pct_to_px(get_par_h(lobj), gobj->align.y);
     else
         y_ofs_px = gobj->align.y;
 

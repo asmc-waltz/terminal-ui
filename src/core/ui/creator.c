@@ -94,7 +94,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 
     LV_ASSERT_NULL(gobj);
 
-    return gobj->obj;
+    return get_lobj(gobj);
 }
 
 /**********************

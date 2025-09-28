@@ -325,6 +325,11 @@ static int32_t g_obj_rot_calc_align(gobj_t *gobj)
 static int32_t rotate_base_gobj(gobj_t *gobj)
 {
     int32_t ret;
+    lv_obj_t *lobj;
+
+    lobj = get_lobj(gobj);
+    if (!lobj)
+        return -EINVAL;
 
     /*
      * For some objects like the keyboard, the size and ratio are different
@@ -332,7 +337,7 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * object to a compatible ratio before performing the component rotation.
      */
     if (gobj->data.pre_rot_redraw_cb) {
-        gobj->data.pre_rot_redraw_cb(gobj->obj);
+        gobj->data.pre_rot_redraw_cb(lobj);
     }
 
     // The size and scale calculation depends on alignment values,
@@ -355,9 +360,9 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
 
 
     if (gobj->data.post_rot_resize_adjust_cb) {
-        gobj->data.post_rot_resize_adjust_cb(gobj->obj);
+        gobj->data.post_rot_resize_adjust_cb(lobj);
     } else {
-        apply_gobj_size(gobj->obj);
+        apply_gobj_size(lobj);
     }
 
     /*
@@ -367,15 +372,14 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      */
     if (gobj->align.value == LV_ALIGN_DEFAULT) {
 
-        ret = gobj_get_center(gobj, get_w((gobj->data.parent)->obj), \
-                              get_h((gobj->data.parent)->obj));
+        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
         if (ret) {
             return -EINVAL;
         }
-        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
-                       gobj->align.mid_y - (gobj->size.h / 2));
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
     } else {
-        apply_gobj_align(gobj->obj);
+        apply_gobj_align(lobj);
     }
 
     return 0;
@@ -386,38 +390,42 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
     int32_t rot_val = 0;
+    lv_obj_t *lobj;
+
+    lobj = get_lobj(gobj);
+    if (!lobj)
+        return -EINVAL;
 
     ret = calc_gobj_rotated_size(gobj);
     if (ret) {
         return -EINVAL;
     }
 
-    ret = gobj_get_center(gobj, get_w((gobj->data.parent)->obj), \
-                          get_h((gobj->data.parent)->obj));
+    ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
     if (ret) {
         return -EINVAL;
     }
 
     if (scr_rot == ROTATION_0) {
         rot_val = 0;
-        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
-                       gobj->align.mid_y - (gobj->size.h / 2));
+        lv_obj_set_style_transform_rotation(lobj, rot_val, 0);
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
     } else if (scr_rot == ROTATION_90) {
         rot_val = 900;
-        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->align.mid_x + (gobj->size.w / 2), \
-                       gobj->align.mid_y - (gobj->size.h / 2));
+        lv_obj_set_style_transform_rotation(lobj, rot_val, 0);
+        lv_obj_set_pos(lobj, gobj->align.mid_x + (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
     } else if (scr_rot == ROTATION_180) {
         rot_val = 1800;
-        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->align.mid_x + (gobj->size.w / 2), \
-                       gobj->align.mid_y + (gobj->size.h / 2));
+        lv_obj_set_style_transform_rotation(lobj, rot_val, 0);
+        lv_obj_set_pos(lobj, gobj->align.mid_x + (get_w(lobj) / 2), \
+                       gobj->align.mid_y + (get_h(lobj) / 2));
     } else if (scr_rot == ROTATION_270) {
         rot_val = 2700;
-        lv_obj_set_style_transform_rotation(gobj->obj, rot_val, 0);
-        lv_obj_set_pos(gobj->obj, gobj->align.mid_x - (gobj->size.w / 2), \
-                       gobj->align.mid_y + (gobj->size.h / 2));
+        lv_obj_set_style_transform_rotation(lobj, rot_val, 0);
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y + (get_h(lobj) / 2));
     }
 
     return 0;
@@ -426,7 +434,12 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
 static int32_t gobj_refresh(gobj_t *gobj)
 {
     int32_t ret;
+    lv_obj_t *lobj;
     int32_t scr_rot = get_scr_rotation();
+
+    lobj = get_lobj(gobj);
+    if (!lobj)
+        return -EINVAL;
 
     if (!gobj) {
         LOG_ERROR("Invalid g object");
@@ -461,7 +474,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
              */
             ret = calc_gobj_rotated_size(gobj);
             if (!ret)
-                lv_obj_set_size(gobj->obj, gobj->size.w, gobj->size.h);
+                lv_obj_set_size(lobj, get_w(lobj), get_h(lobj));
             break;
         case OBJ_BASE:
             /*
