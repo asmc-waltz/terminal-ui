@@ -273,10 +273,39 @@ lv_obj_t *create_btn(lv_obj_t *par, const char *name)
     return lobj;
 }
 
+int32_t redraw_slider_layout(lv_obj_t *lobj)
+{
+    gobj_t *gobj;
+    int32_t scr_rot, cur_rot;
+    int32_t min, max;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+
+    cur_rot = gobj->data.rotation;
+    scr_rot = get_scr_rotation();
+
+    if (((scr_rot == ROTATION_0 || scr_rot == ROTATION_270) &&
+         (cur_rot == ROTATION_90 || cur_rot == ROTATION_180)) ||
+        ((scr_rot == ROTATION_90 || scr_rot == ROTATION_180) &&
+         (cur_rot == ROTATION_0 || cur_rot == ROTATION_270))) {
+
+        min = lv_slider_get_max_value(lobj);
+        max = lv_slider_get_min_value(lobj);
+        lv_slider_set_range(lobj, min, max);
+    }
+
+    return 0;
+}
+
 lv_obj_t *create_slider(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
+
+    get_gobj(lobj)->data.pre_rot_redraw_cb = redraw_slider_layout;
+
     return lobj;
 }
 
