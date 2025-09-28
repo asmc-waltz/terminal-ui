@@ -551,7 +551,7 @@ static lv_obj_t *create_key(lv_obj_t *par, const key_def *key, kb_size_ctx *size
 
     lbl = create_text(btn, NULL, KEYBOARD_CHAR_FONTS, key->label);
     if (!lbl) {
-        remove_obj_and_child_by_name(key->label, &l_to_gobj_parent(par)->child);
+        remove_obj_and_child_by_name(key->label, &l_to_par_gobj(par)->child);
         return NULL;
     }
 
