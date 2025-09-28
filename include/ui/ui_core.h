@@ -194,18 +194,20 @@ static inline gobj_t *l_to_gobj(lv_obj_t *lobj)
     return lobj ? (gobj_t *)lobj->user_data : NULL;
 }
 
-static inline gobj_t *l_to_gobj_parent(lv_obj_t *lobj)
+static inline lv_obj_t *g_to_lobj(gobj_t *gobj)
 {
-    gobj_t *gobj;
+    return gobj ? (lv_obj_t *)gobj->obj : NULL;
+}
 
-    if (!lobj)
-        return NULL;
+static inline gobj_t *l_to_par_gobj(lv_obj_t *lobj)
+{
+    gobj_t *gobj = lobj ? l_to_gobj(lobj) : NULL;
+    return gobj ? (gobj_t *)gobj->data.parent : NULL;
+}
 
-    gobj = l_to_gobj(lobj);
-    if (!gobj)
-        return NULL;
-
-    return (gobj_t *)gobj->data.parent;
+static inline gobj_t *g_to_par_gobj(gobj_t *gobj)
+{
+    return gobj ? (gobj_t *)gobj->data.parent : NULL;
 }
 
 static inline int32_t obj_height(lv_obj_t *lobj)
@@ -218,6 +220,16 @@ static inline int32_t obj_width(lv_obj_t *lobj)
     return (int32_t)l_to_gobj(lobj)->size.w;
 }
 
+static inline int32_t par_obj_width(lv_obj_t *lobj)
+{
+    return lobj ? (int32_t)l_to_par_gobj(lobj)->size.w : 0;
+}
+
+static inline int32_t par_obj_height(lv_obj_t *lobj)
+{
+    return lobj ? (int32_t)l_to_par_gobj(lobj)->size.h : 0;
+}
+
 static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
 {
     return (par_size * percent) / 100;
@@ -226,6 +238,11 @@ static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
 static inline int32_t calc_pixels_remaining(int32_t par_size, int32_t percent)
 {
     return par_size - ((par_size * percent) / 100);
+}
+
+static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
+{
+    return (pixels * 100) / par_pixels;
 }
 
 int32_t ui_main_init(ctx_t *ctx);
