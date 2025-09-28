@@ -62,7 +62,7 @@ int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow)
     if (flow <= FLEX_NONE || flow >= FLEX_END)
         return -EINVAL;
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     if (!gobj)
         return -EIO;
 
@@ -213,7 +213,7 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
     if (!par || !lobj)
         return -EINVAL;
 
-    gobj_par = l_to_gobj(par);
+    gobj_par = get_gobj(par);
     if (!gobj_par)
         return -EIO;
 
@@ -230,7 +230,7 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
         ref = get_normal_obj_ref(par, lobj);
         if (!ref) {
             LOG_ERROR("Unable to find ref object for %s",
-                      l_to_gobj(lobj) ? l_to_gobj(lobj)->name : "(null)");
+                      get_gobj(lobj) ? get_gobj(lobj)->name : "(null)");
             return -EIO;
         }
 
@@ -239,7 +239,7 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
         ref = get_revert_obj_ref(par, lobj);
         if (!ref) {
             LOG_ERROR("Unable to find ref object for %s",
-                      l_to_gobj(lobj) ? l_to_gobj(lobj)->name : "(null)");
+                      get_gobj(lobj) ? get_gobj(lobj)->name : "(null)");
             return -EIO;
         }
 
@@ -251,8 +251,8 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
     }
 
     LOG_TRACE("Align object: %s to %s",
-              l_to_gobj(lobj) ? l_to_gobj(lobj)->name : "(null)",
-              l_to_gobj(ref) ? l_to_gobj(ref)->name : "(null)");
+              get_gobj(lobj) ? get_gobj(lobj)->name : "(null)",
+              get_gobj(ref) ? get_gobj(ref)->name : "(null)");
 
     /*
      * Unlike normal objects where rotation does not affect alignment,
@@ -295,13 +295,13 @@ int32_t update_normal_list_obj_align(gobj_t *gobj)
         }
 
         LOG_TRACE("NORMAL Walk object, %s",
-                  l_to_gobj(child) ?
-                  l_to_gobj(child)->name : "(null)");
+                  get_gobj(child) ?
+                  get_gobj(child)->name : "(null)");
 
-        ret = align_gobj_list_item(par, child, l_to_gobj(child)->align.x, \
-                                   l_to_gobj(child)->align.y);
+        ret = align_gobj_list_item(par, child, get_gobj(child)->align.x, \
+                                   get_gobj(child)->align.y);
         if (ret) {
-            LOG_ERROR("Unable to align object %s", l_to_gobj(child)->name);
+            LOG_ERROR("Unable to align object %s", get_gobj(child)->name);
         }
     }
 
@@ -335,13 +335,13 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
         }
 
         LOG_TRACE("REVERT Walk object, %s",
-                  l_to_gobj(child) ?
-                  l_to_gobj(child)->name : "(null)");
+                  get_gobj(child) ?
+                  get_gobj(child)->name : "(null)");
 
-        ret = align_gobj_list_item(par, child, l_to_gobj(child)->align.x, \
-                                   l_to_gobj(child)->align.y);
+        ret = align_gobj_list_item(par, child, get_gobj(child)->align.x, \
+                                   get_gobj(child)->align.y);
         if (ret) {
-            LOG_ERROR("Unable to align object %s", l_to_gobj(child)->name);
+            LOG_ERROR("Unable to align object %s", get_gobj(child)->name);
         }
     }
 

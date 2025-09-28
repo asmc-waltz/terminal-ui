@@ -54,7 +54,7 @@ void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     if (!gobj->size.w)
         LOG_WARN("Cannot calculate the center x");
     if (!gobj->size.h)
@@ -73,8 +73,8 @@ void set_gobj_pos_center(lv_obj_t *lobj)
 
     // lv_obj_set_pos(lobj, x_ofs, y_ofs);
     par = lv_obj_get_parent(lobj);
-    x_ofs = (obj_width(par) - lv_obj_get_width(lobj)) / 2;
-    y_ofs = (obj_height(par) - lv_obj_get_height(lobj)) / 2;
+    x_ofs = (get_w(par) - lv_obj_get_width(lobj)) / 2;
+    y_ofs = (get_h(par) - lv_obj_get_height(lobj)) / 2;
 
     set_gobj_pos(lobj, x_ofs, y_ofs);
 }
@@ -85,7 +85,7 @@ void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
     gobj->align.value = align;
     gobj->align.base = base;
@@ -103,7 +103,7 @@ void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->align.value = align;
@@ -122,7 +122,7 @@ void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->align.value = align;
@@ -141,7 +141,7 @@ void set_gobj_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->align.value = align;
@@ -161,17 +161,17 @@ void apply_gobj_align(lv_obj_t *lobj)
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     if (gobj->align.scale_x == ENA_SCALE)
-        x_ofs_px = calc_pixels(obj_width((gobj->data.parent)->obj), \
+        x_ofs_px = pct_to_px(get_w((gobj->data.parent)->obj), \
                                gobj->align.x);
     else
         x_ofs_px = gobj->align.x;
 
     if (gobj->align.scale_y == ENA_SCALE)
-        y_ofs_px = calc_pixels(obj_height((gobj->data.parent)->obj), \
+        y_ofs_px = pct_to_px(get_h((gobj->data.parent)->obj), \
                                gobj->align.y);
     else
         y_ofs_px = gobj->align.y;

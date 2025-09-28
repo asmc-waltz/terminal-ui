@@ -189,19 +189,19 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
                              int32_t y_ofs);
 int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
-static inline gobj_t *l_to_gobj(lv_obj_t *lobj)
+static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {
     return lobj ? (gobj_t *)lobj->user_data : NULL;
 }
 
-static inline lv_obj_t *g_to_lobj(gobj_t *gobj)
+static inline lv_obj_t *get_lobj(gobj_t *gobj)
 {
     return gobj ? (lv_obj_t *)gobj->obj : NULL;
 }
 
 static inline gobj_t *l_to_par_gobj(lv_obj_t *lobj)
 {
-    gobj_t *gobj = lobj ? l_to_gobj(lobj) : NULL;
+    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     return gobj ? (gobj_t *)gobj->data.parent : NULL;
 }
 
@@ -210,34 +210,34 @@ static inline gobj_t *g_to_par_gobj(gobj_t *gobj)
     return gobj ? (gobj_t *)gobj->data.parent : NULL;
 }
 
-static inline int32_t obj_height(lv_obj_t *lobj)
+static inline int32_t get_h(lv_obj_t *lobj)
 {
-    return (int32_t)l_to_gobj(lobj)->size.h;
+    return (int32_t)get_gobj(lobj)->size.h;
 }
 
-static inline int32_t obj_width(lv_obj_t *lobj)
+static inline int32_t get_w(lv_obj_t *lobj)
 {
-    return (int32_t)l_to_gobj(lobj)->size.w;
+    return (int32_t)get_gobj(lobj)->size.w;
 }
 
-static inline int32_t par_obj_width(lv_obj_t *lobj)
+static inline int32_t get_par_w(lv_obj_t *lobj)
 {
     return lobj ? (int32_t)l_to_par_gobj(lobj)->size.w : 0;
 }
 
-static inline int32_t par_obj_height(lv_obj_t *lobj)
+static inline int32_t get_par_h(lv_obj_t *lobj)
 {
     return lobj ? (int32_t)l_to_par_gobj(lobj)->size.h : 0;
 }
 
-static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
-{
-    return (par_size * percent) / 100;
-}
-
-static inline int32_t calc_pixels_remaining(int32_t par_size, int32_t percent)
+static inline int32_t avail_px(int32_t par_size, int32_t percent)
 {
     return par_size - ((par_size * percent) / 100);
+}
+
+static inline int32_t pct_to_px(int32_t par_pixels, int32_t percent)
+{
+    return (par_pixels * percent) / 100;
 }
 
 static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)

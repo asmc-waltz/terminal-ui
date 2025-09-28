@@ -187,11 +187,11 @@ lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
 
     text = create_text(box, NULL, font, str);
     if (!text) {
-        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
         return NULL;
     }
 
-    set_gobj_size(box, obj_width(text), obj_height(text));
+    set_gobj_size(box, get_w(text), get_h(text));
     set_gobj_pos_center(text);
     lv_obj_add_flag(text, LV_OBJ_FLAG_EVENT_BUBBLE);
 
@@ -230,16 +230,16 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
     //                           lv_color_hex(0x00AA00), 0);
     lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_flag(box, LV_OBJ_FLAG_EVENT_BUBBLE);
-    set_gobj_size(box, calc_pixels(obj_height(par), 80), \
-                     calc_pixels(obj_height(par), 80));
+    set_gobj_size(box, pct_to_px(get_h(par), 80), \
+                     pct_to_px(get_h(par), 80));
 
     icon = create_sym(box, NULL, font, index);
     if (!icon) {
-        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
         return NULL;
     }
 
-    set_gobj_size(box, obj_width(icon), obj_height(icon));
+    set_gobj_size(box, get_w(icon), get_h(icon));
     set_gobj_pos_center(icon);
     lv_obj_add_flag(icon, LV_OBJ_FLAG_EVENT_BUBBLE);
 

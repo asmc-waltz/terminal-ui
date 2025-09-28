@@ -88,17 +88,17 @@ static void detail_setting_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels_remaining(obj_width(par),
+        obj_w = avail_px(get_w(par),
                                       SETTING_PAD_LEFT +
                                       SETTING_MENU_BAR_HOR_WIDTH +
                                       SETTING_PAD_MID_HOR +
                                       SETTING_PAD_RIGHT);
-        obj_h = calc_pixels_remaining(obj_height(par),
+        obj_h = avail_px(get_h(par),
                                       SETTING_MENU_HOR_ALIGN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels_remaining(obj_width(par),
+        obj_w = avail_px(get_w(par),
                                       SETTING_MENU_VER_ALIGN);
-        obj_h = calc_pixels_remaining(obj_height(par),
+        obj_h = avail_px(get_h(par),
                                       SETTING_PAD_LEFT +
                                       SETTING_MENU_BAR_VER_WIDTH +
                                       SETTING_PAD_MID_VER +
@@ -122,20 +122,20 @@ static lv_obj_t *create_setting_detail(lv_obj_t *par)
         return NULL;
 
     /* Calculate menu bar size as percentage of parent size */
-    obj_w = calc_pixels_remaining(obj_width(par), \
+    obj_w = avail_px(get_w(par), \
                                   SETTING_PAD_LEFT + \
                                   SETTING_MENU_BAR_HOR_WIDTH + \
                                   SETTING_PAD_MID_HOR + \
                                   SETTING_PAD_RIGHT);
-    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_HOR_ALIGN);
+    obj_h = avail_px(get_h(par), SETTING_MENU_HOR_ALIGN);
 
     set_gobj_size(detail_box, obj_w, obj_h);
     lv_obj_set_style_bg_color(detail_box, \
                               lv_color_hex(SETTING_DETAIL_BG_COLOR), 0);
     set_gobj_align(detail_box, par, LV_ALIGN_RIGHT_MID, \
-                     -calc_pixels(obj_width(par), SETTING_PAD_RIGHT), 0);
+                     -pct_to_px(get_w(par), SETTING_PAD_RIGHT), 0);
 
-    gobj_t *gobj = l_to_gobj(detail_box);
+    gobj_t *gobj = get_gobj(detail_box);
     gobj->data.post_rot_resize_adjust_cb = \
         detail_setting_post_rot_resize_adjust_cb;
 
@@ -163,12 +163,12 @@ static void menu_bar_post_rot_resize_adjust_cb(lv_obj_t *lobj)
     scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
-        obj_h = calc_pixels_remaining(obj_height(par),
+        obj_w = pct_to_px(get_w(par), SETTING_MENU_BAR_HOR_WIDTH);
+        obj_h = avail_px(get_h(par),
                                       SETTING_MENU_HOR_ALIGN);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels_remaining(obj_width(par), SETTING_MENU_VER_ALIGN);
-        obj_h = calc_pixels(obj_height(par), SETTING_MENU_BAR_VER_WIDTH);
+        obj_w = avail_px(get_w(par), SETTING_MENU_VER_ALIGN);
+        obj_h = pct_to_px(get_h(par), SETTING_MENU_BAR_VER_WIDTH);
     }
 
     set_gobj_size(lobj, obj_w, obj_h);
@@ -187,28 +187,28 @@ static lv_obj_t *create_menu_bar_btn(lv_obj_t *par, lv_obj_t *ref, \
 
     sym_box = create_symbol_box(btn_box, NULL, SETTING_SYM_FONTS, index);
     if (sym_box == NULL) {
-        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
         return NULL;
     }
 
     text_box = create_text_box(btn_box, NULL, &lv_font_montserrat_24, str);
     if (text_box == NULL) {
-        remove_obj_and_child_by_name(name, &l_to_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
         return NULL;
     }
 
-    set_gobj_size_scale_w(btn_box, 96, calc_pixels(obj_height(sym_box), 200));
+    set_gobj_size_scale_w(btn_box, 96, pct_to_px(get_h(sym_box), 200));
 
     lv_obj_set_style_bg_color(btn_box, \
                               lv_color_hex(SETTING_MENU_BTN_BG_COLOR), 0);
 
-    align_gobj_list_item(par, btn_box, 0, calc_pixels(obj_width(par), 2));
+    align_gobj_list_item(par, btn_box, 0, pct_to_px(get_w(par), 2));
 
     set_gobj_align(sym_box, btn_box, LV_ALIGN_TOP_LEFT, \
-                     calc_pixels(obj_height(btn_box), 50), \
-                     (obj_height(btn_box) - lv_obj_get_height(sym_box)) / 2);
+                     pct_to_px(get_h(btn_box), 50), \
+                     (get_h(btn_box) - lv_obj_get_height(sym_box)) / 2);
     set_gobj_align(text_box, sym_box, LV_ALIGN_OUT_RIGHT_MID, \
-                     calc_pixels(obj_height(btn_box), 50), 0);
+                     pct_to_px(get_h(btn_box), 50), 0);
 
     return btn_box;
 }
@@ -232,19 +232,19 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
         return NULL;
 
     /* Calculate menu bar size as percentage of parent size */
-    obj_w = calc_pixels(obj_width(par), SETTING_MENU_BAR_HOR_WIDTH);
-    obj_h = calc_pixels_remaining(obj_height(par), SETTING_MENU_HOR_ALIGN);
+    obj_w = pct_to_px(get_w(par), SETTING_MENU_BAR_HOR_WIDTH);
+    obj_h = avail_px(get_h(par), SETTING_MENU_HOR_ALIGN);
 
     set_gobj_size(menu_bar, obj_w, obj_h);
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(SETTING_MENU_BG_COLOR), 0);
     set_gobj_align(menu_bar, par, LV_ALIGN_LEFT_MID, \
-                  calc_pixels(obj_width(par), SETTING_PAD_LEFT), 0);
+                  pct_to_px(get_w(par), SETTING_PAD_LEFT), 0);
     /*
      * In case of the menu bar, the layout changes based on the rotation.
      * So we don't need to expand the width and height. The object size will
      * change according to the callback when the object is rotated.
      */
-    gobj_t *gobj = l_to_gobj(menu_bar);
+    gobj_t *gobj = get_gobj(menu_bar);
     gobj->data.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     // lv_obj_t *network_container = create_container(menu_bar, SETTING_PAGE_NAME".menu_bar.network");
@@ -367,8 +367,8 @@ static lv_obj_t *create_setting_container(lv_obj_t *par)
         return NULL;
 
     /* Calculate setting container size as percentage of parent size */
-    obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
-    obj_h = calc_pixels_remaining(obj_height(par), SETTING_USED_HEIGHT);
+    obj_w = pct_to_px(get_w(par), SETTING_WIDTH);
+    obj_h = avail_px(get_h(par), SETTING_USED_HEIGHT);
 
     set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(SETTING_CONT_BG_COLOR), 0);
@@ -385,29 +385,29 @@ static int32_t subtract_top_space(ctx_t *ctx, lv_obj_t *par,
         return result;
 
     if (is_hor) {
-        result -= calc_pixels(obj_height(par), ctx->scr.now.top.upper_space);
-        result -= obj_height(ctx->scr.now.top.obj);
-        result -= calc_pixels(obj_height(par), ctx->scr.now.top.under_space);
-        result -= calc_pixels(obj_height(par),
+        result -= pct_to_px(get_h(par), ctx->scr.now.top.upper_space);
+        result -= get_h(ctx->scr.now.top.obj);
+        result -= pct_to_px(get_h(par), ctx->scr.now.top.under_space);
+        result -= pct_to_px(get_h(par),
                               (SETTING_PAD_TOP + SETTING_PAD_BOT));
 
         LOG_TRACE("HOR top bar: top space %d, w %d, h %d, bot space %d",
-                  calc_pixels(obj_height(par), ctx->scr.now.top.upper_space),
-                  obj_width(ctx->scr.now.top.obj),
-                  obj_height(ctx->scr.now.top.obj),
-                  calc_pixels(obj_height(par), ctx->scr.now.top.under_space));
+                  pct_to_px(get_h(par), ctx->scr.now.top.upper_space),
+                  get_w(ctx->scr.now.top.obj),
+                  get_h(ctx->scr.now.top.obj),
+                  pct_to_px(get_h(par), ctx->scr.now.top.under_space));
     } else {
-        result -= calc_pixels(obj_width(par), ctx->scr.now.top.upper_space);
-        result -= obj_width(ctx->scr.now.top.obj);
-        result -= calc_pixels(obj_width(par), ctx->scr.now.top.under_space);
-        result -= calc_pixels(obj_width(par),
+        result -= pct_to_px(get_w(par), ctx->scr.now.top.upper_space);
+        result -= get_w(ctx->scr.now.top.obj);
+        result -= pct_to_px(get_w(par), ctx->scr.now.top.under_space);
+        result -= pct_to_px(get_w(par),
                               (SETTING_PAD_TOP + SETTING_PAD_BOT));
 
         LOG_TRACE("VER top bar: top space %d, w %d, h %d, bot space %d",
-                  calc_pixels(obj_width(par), ctx->scr.now.top.upper_space),
-                  obj_width(ctx->scr.now.top.obj),
-                  obj_height(ctx->scr.now.top.obj),
-                  calc_pixels(obj_width(par), ctx->scr.now.top.under_space));
+                  pct_to_px(get_w(par), ctx->scr.now.top.upper_space),
+                  get_w(ctx->scr.now.top.obj),
+                  get_h(ctx->scr.now.top.obj),
+                  pct_to_px(get_w(par), ctx->scr.now.top.under_space));
     }
 
     return result;
@@ -422,25 +422,25 @@ static int32_t subtract_bot_space(ctx_t *ctx, lv_obj_t *par,
         return result;
 
     if (is_hor) {
-        result -= calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space);
-        result -= obj_height(ctx->scr.now.bot.obj);
-        result -= calc_pixels(obj_height(par), ctx->scr.now.bot.under_space);
+        result -= pct_to_px(get_h(par), ctx->scr.now.bot.upper_space);
+        result -= get_h(ctx->scr.now.bot.obj);
+        result -= pct_to_px(get_h(par), ctx->scr.now.bot.under_space);
 
         LOG_TRACE("HOR keyboard: top space %d, w %d, h %d, bot space %d",
-                  calc_pixels(obj_height(par), ctx->scr.now.bot.upper_space),
-                  obj_width(ctx->scr.now.bot.obj),
-                  obj_height(ctx->scr.now.bot.obj),
-                  calc_pixels(obj_height(par), ctx->scr.now.bot.under_space));
+                  pct_to_px(get_h(par), ctx->scr.now.bot.upper_space),
+                  get_w(ctx->scr.now.bot.obj),
+                  get_h(ctx->scr.now.bot.obj),
+                  pct_to_px(get_h(par), ctx->scr.now.bot.under_space));
     } else {
-        result -= calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space);
-        result -= obj_width(ctx->scr.now.bot.obj);
-        result -= calc_pixels(obj_width(par), ctx->scr.now.bot.under_space);
+        result -= pct_to_px(get_w(par), ctx->scr.now.bot.upper_space);
+        result -= get_w(ctx->scr.now.bot.obj);
+        result -= pct_to_px(get_w(par), ctx->scr.now.bot.under_space);
 
         LOG_TRACE("VER keyboard: top space %d, w %d, h %d, bot space %d",
-                  calc_pixels(obj_width(par), ctx->scr.now.bot.upper_space),
-                  obj_width(ctx->scr.now.bot.obj),
-                  obj_height(ctx->scr.now.bot.obj),
-                  calc_pixels(obj_width(par), ctx->scr.now.bot.under_space));
+                  pct_to_px(get_w(par), ctx->scr.now.bot.upper_space),
+                  get_w(ctx->scr.now.bot.obj),
+                  get_h(ctx->scr.now.bot.obj),
+                  pct_to_px(get_w(par), ctx->scr.now.bot.under_space));
     }
 
     return result;
@@ -467,18 +467,18 @@ static lv_obj_t *setting_container_post_rot_resize_adjust_cb(lv_obj_t *cont)
 
     /* Refresh layout tree when rotated */
     if (scr_rot != ROTATION_0 && ctx->scr.now.bot.obj)
-        refresh_obj_tree_layout(l_to_gobj(ctx->scr.now.bot.obj));
+        refresh_obj_tree_layout(get_gobj(ctx->scr.now.bot.obj));
 
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels(obj_width(par), SETTING_WIDTH);
-        obj_h = obj_height(par);
+        obj_w = pct_to_px(get_w(par), SETTING_WIDTH);
+        obj_h = get_h(par);
 
         obj_h = subtract_top_space(ctx, par, obj_h, true);
         obj_h = subtract_bot_space(ctx, par, obj_h, true);
 
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_h = calc_pixels(obj_height(par), SETTING_WIDTH);
-        obj_w = obj_width(par);
+        obj_h = pct_to_px(get_h(par), SETTING_WIDTH);
+        obj_w = get_w(par);
 
         obj_w = subtract_top_space(ctx, par, obj_w, false);
         obj_w = subtract_bot_space(ctx, par, obj_w, false);
@@ -517,7 +517,7 @@ lv_obj_t *create_setting_window(ctx_t *ctx)
                      0,\
                      SETTING_CONTAINTER_ALIGN);
 
-    l_to_gobj(setting_ctn)->data.post_rot_resize_adjust_cb = \
+    get_gobj(setting_ctn)->data.post_rot_resize_adjust_cb = \
                                     setting_container_post_rot_resize_adjust_cb;
 
     menu_bar = create_menu_bar(setting_ctn);
@@ -535,7 +535,7 @@ lv_obj_t *create_setting_window(ctx_t *ctx)
     return setting_ctn;
 
 exit_err:
-    if (remove_obj_and_child_by_name(SETTING_PAGE_NAME, &l_to_gobj(par)->child))
+    if (remove_obj_and_child_by_name(SETTING_PAGE_NAME, &get_gobj(par)->child))
         LOG_WARN("Setting container object not found");
 
     return NULL;

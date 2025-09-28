@@ -93,12 +93,12 @@ gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
     new_obj->id = obj_ctx->next_id++;
     new_obj->obj = obj;
     obj->user_data = new_obj;
-    new_obj->data.parent = (!par) ? NULL : l_to_gobj(par);
+    new_obj->data.parent = (!par) ? NULL : get_gobj(par);
 
 
     INIT_LIST_HEAD(&new_obj->child);
 
-    parent_list = (!par) ? &obj_ctx->list : &l_to_gobj(par)->child;
+    parent_list = (!par) ? &obj_ctx->list : &get_gobj(par)->child;
 
     list_add_tail(&new_obj->node, parent_list);
 
@@ -179,7 +179,7 @@ lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
         found = get_obj_by_name(name, &obj->child);
         if (found) {
             LOG_TRACE("Finding name %s: check list %d %s: OBJ FROM DEEPER LEVEL", \
-                      name, l_to_gobj(found)->id, l_to_gobj(found)->name);
+                      name, get_gobj(found)->id, get_gobj(found)->name);
             return found;
         }
     }
@@ -375,7 +375,7 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
         return;
     }
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     if (!gobj) {
         LOG_ERROR("gobj_t object invalid");
         return;
@@ -391,7 +391,7 @@ void *get_gobj_internal_data(lv_obj_t *lobj)
     if (!lobj)
         return NULL;
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     if (!gobj)
         return NULL;
 

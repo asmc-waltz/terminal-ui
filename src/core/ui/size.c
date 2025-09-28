@@ -133,7 +133,7 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     gobj->size.w = px_x;
     gobj->size.h = px_y;
     gobj->size.par_w_pct = 0;
@@ -153,7 +153,7 @@ void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = 0;
@@ -175,7 +175,7 @@ void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = px_x;
@@ -197,7 +197,7 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     gobj->size.w = 0;
@@ -221,17 +221,17 @@ void apply_gobj_size(lv_obj_t *lobj)
     gobj_t *gobj = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = l_to_gobj(lobj);
+    gobj = get_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
     if (gobj->size.scale_w == ENA_SCALE) {
         // percent to pixel
-        gobj->size.w = calc_pixels(obj_width((gobj->data.parent)->obj), \
+        gobj->size.w = pct_to_px(get_w((gobj->data.parent)->obj), \
                            gobj->size.par_w_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
-        gobj->size.par_w_pct =  px_to_pct(par_obj_width(lobj), obj_width(lobj));
+        gobj->size.par_w_pct =  px_to_pct(get_par_w(lobj), get_w(lobj));
         LOG_TRACE("Update obj W size [%d] -> percent [%d]", \
                   gobj_w(lobj), gobj->size.par_w_pct);
     }
@@ -239,12 +239,12 @@ void apply_gobj_size(lv_obj_t *lobj)
 
     if (gobj->size.scale_h == ENA_SCALE) {
         // percent to pixel
-        gobj->size.h = calc_pixels(obj_height((gobj->data.parent)->obj), \
+        gobj->size.h = pct_to_px(get_h((gobj->data.parent)->obj), \
                            gobj->size.par_h_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
-        gobj->size.par_h_pct =  px_to_pct(par_obj_height(lobj), obj_height(lobj));
+        gobj->size.par_h_pct =  px_to_pct(get_par_h(lobj), get_h(lobj));
         LOG_TRACE("Update obj H size [%d] -> percent [%d]", \
                   obj_h(lobj), gobj->size.par_h_pct);
     }
