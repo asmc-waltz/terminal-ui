@@ -210,6 +210,12 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     apply_gobj_size(lobj);
 }
 
+/*
+ * Object size can be set by percent for scaling or by pixel for fixed size.
+ * Since both percent and raw pixel values exist, they must be kept in sync
+ * whenever size is updated or applied. This synchronization also helps sibling
+ * objects calculate the remaining parent space more easily.
+ */
 void apply_gobj_size(lv_obj_t *lobj)
 {
     gobj_t *gobj = NULL;
@@ -218,12 +224,30 @@ void apply_gobj_size(lv_obj_t *lobj)
     gobj = l_to_gobj(lobj);
     LV_ASSERT_NULL(gobj);
 
-    if (gobj->size.scale_w == ENA_SCALE)
+    if (gobj->size.scale_w == ENA_SCALE) {
+        // percent to pixel
         gobj->size.w = calc_pixels(obj_width((gobj->data.parent)->obj), \
                            gobj->size.par_w_pct);
+    } else {
+        // Update object size in percent-based scaling
+        // Pixel to percent
+        gobj->size.par_w_pct =  px_to_pct(par_obj_width(lobj), obj_width(lobj));
+        LOG_TRACE("Update obj W size [%d] -> percent [%d]", \
+                  gobj_w(lobj), gobj->size.par_w_pct);
+    }
 
-    if (gobj->size.scale_h == ENA_SCALE)
+
+    if (gobj->size.scale_h == ENA_SCALE) {
+        // percent to pixel
         gobj->size.h = calc_pixels(obj_height((gobj->data.parent)->obj), \
                            gobj->size.par_h_pct);
+    } else {
+        // Update object size in percent-based scaling
+        // Pixel to percent
+        gobj->size.par_h_pct =  px_to_pct(par_obj_height(lobj), obj_height(lobj));
+        LOG_TRACE("Update obj H size [%d] -> percent [%d]", \
+                  obj_h(lobj), gobj->size.par_h_pct);
+    }
+
     lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
