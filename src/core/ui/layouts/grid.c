@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -48,29 +48,61 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-int32_t set_dsc_data(grid_desc_t *dsc, int32_t value)
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc, int8_t is_row, int32_t val_pct)
 {
-    int32_t *new_arr;
+    int32_t par_w, par_h;
+    int32_t *new_px, *new_pct;
 
     if (!dsc)
         return -EINVAL;
 
-    if (!dsc->cell_px) {
-        LOG_INFO("Create new grid descriptor");
-        dsc->size = 0;
-        dsc->cell_px = calloc(2, sizeof(int32_t)); /* 1 value + LV_GRID_TEMPLATE_LAST */
-        if (!dsc->cell_px)
-            return -ENOMEM;
+    /* Determine base size */
+    if (par) {
+        par_w = get_w(par);
+        par_h = get_h(par);
+        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]", par_w, par_h);
     } else {
-        new_arr = realloc(dsc->cell_px, (dsc->size + 2) * sizeof(int32_t));
-        if (!new_arr)
-            return -ENOMEM;
-        dsc->cell_px = new_arr;
+        par_w = get_scr_width();
+        par_h = get_scr_height();
+        LOG_TRACE("Descriptor based on screen: W[%d] H[%d]", par_w, par_h);
     }
 
-    dsc->cell_px[dsc->size] = value;
+    /* First-time allocation */
+    if (!dsc->cell_px || !dsc->cell_pct) {
+        LOG_TRACE("Create new grid descriptor");
+        dsc->size = 0;
+
+        dsc->cell_px  = calloc(2, sizeof(int32_t));
+        dsc->cell_pct = calloc(2, sizeof(int32_t));
+        if (!dsc->cell_px || !dsc->cell_pct)
+            return -ENOMEM;
+    } else {
+        /* Extend both arrays in one go */
+        LOG_TRACE("Append value into grid descriptor");
+        new_px  = realloc(dsc->cell_px,  (dsc->size + 2) * sizeof(int32_t));
+        new_pct = realloc(dsc->cell_pct, (dsc->size + 2) * sizeof(int32_t));
+
+        if (!new_px || !new_pct)
+            return -ENOMEM;
+
+        dsc->cell_px  = new_px;
+        dsc->cell_pct = new_pct;
+    }
+
+    /* Fill new slot */
+    dsc->cell_pct[dsc->size] = val_pct;
+    dsc->cell_px[dsc->size]  = is_row ?
+        pct_to_px(par_h, val_pct) : pct_to_px(par_w, val_pct);
+
     dsc->size++;
-    dsc->cell_px[dsc->size] = LV_GRID_TEMPLATE_LAST;
+
+    /* Always keep sentinel */
+    dsc->cell_pct[dsc->size] = LV_GRID_TEMPLATE_LAST;
+    dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
 
     return 0;
 }
@@ -126,9 +158,6 @@ int32_t apply_grid_layout(lv_obj_t *lobj, grid_layout_t *layout)
     return 0;
 }
 
-/**********************
- *   GLOBAL FUNCTIONS
- ***********Az**********/
 lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
 {
 
