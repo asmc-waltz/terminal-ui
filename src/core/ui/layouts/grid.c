@@ -55,46 +55,46 @@ int32_t set_dsc_data(grid_desc_t *dsc, int32_t value)
     if (!dsc)
         return -EINVAL;
 
-    if (!dsc->arr) {
+    if (!dsc->cell_px) {
         LOG_INFO("Create new grid descriptor");
         dsc->size = 0;
-        dsc->arr = calloc(2, sizeof(int32_t)); /* 1 value + LV_GRID_TEMPLATE_LAST */
-        if (!dsc->arr)
+        dsc->cell_px = calloc(2, sizeof(int32_t)); /* 1 value + LV_GRID_TEMPLATE_LAST */
+        if (!dsc->cell_px)
             return -ENOMEM;
     } else {
-        new_arr = realloc(dsc->arr, (dsc->size + 2) * sizeof(int32_t));
+        new_arr = realloc(dsc->cell_px, (dsc->size + 2) * sizeof(int32_t));
         if (!new_arr)
             return -ENOMEM;
-        dsc->arr = new_arr;
+        dsc->cell_px = new_arr;
     }
 
-    dsc->arr[dsc->size] = value;
+    dsc->cell_px[dsc->size] = value;
     dsc->size++;
-    dsc->arr[dsc->size] = LV_GRID_TEMPLATE_LAST;
+    dsc->cell_px[dsc->size] = LV_GRID_TEMPLATE_LAST;
 
     return 0;
 }
 
 int32_t get_dsc_data(grid_desc_t *dsc, int32_t index, int32_t value)
 {
-    if (!dsc || !dsc->arr)
+    if (!dsc || !dsc->cell_px)
         return -EINVAL;
 
     if (index < 0 || index >= dsc->size)
         return -EINVAL;
 
-    return dsc->arr[index];
+    return dsc->cell_px[index];
 }
 
 int32_t edit_dsc_data(grid_desc_t *dsc, int32_t index, int32_t value)
 {
-    if (!dsc || !dsc->arr)
+    if (!dsc || !dsc->cell_px)
         return -EINVAL;
 
     if (index < 0 || index >= dsc->size)
         return -EINVAL;
 
-    dsc->arr[index] = value;
+    dsc->cell_px[index] = value;
     return 0;
 }
 
@@ -103,10 +103,10 @@ void free_dsc(grid_desc_t *dsc)
     if (!dsc)
         return;
 
-    if (dsc->arr) {
+    if (dsc->cell_px) {
         LOG_DEBUG("Free grid descriptor size=%d", dsc->size);
-        free(dsc->arr);
-        dsc->arr = NULL;
+        free(dsc->cell_px);
+        dsc->cell_px = NULL;
     }
 
     dsc->size = 0;
@@ -117,11 +117,11 @@ int32_t apply_grid_layout(lv_obj_t *lobj, grid_layout_t *layout)
     if (!lobj || !layout)
         return -EINVAL;
 
-    if (!layout->row_dsc.arr || !layout->col_dsc.arr)
+    if (!layout->row_dsc.cell_px || !layout->col_dsc.cell_px)
         return -EINVAL;
 
-    lv_obj_set_grid_dsc_array(lobj, layout->col_dsc.arr,
-                                   layout->row_dsc.arr);
+    lv_obj_set_grid_dsc_array(lobj, layout->col_dsc.cell_px,
+                                   layout->row_dsc.cell_px);
 
     return 0;
 }

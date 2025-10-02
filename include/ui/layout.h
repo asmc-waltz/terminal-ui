@@ -31,7 +31,7 @@ typedef struct grid_cell {
 
 typedef struct grid_desc {
     int8_t size;
-    int32_t *arr;
+    int32_t *cell_px;
 } grid_desc_t;
 
 typedef struct grid_layout {
