@@ -38,11 +38,19 @@ typedef struct grid_desc {
     int32_t *cell_px;
 } grid_desc_t;
 
+typedef struct grid_pad {
+    int8_t scale;
+    int8_t pct;
+    int32_t px;
+} grid_pad_t;
+
 typedef struct grid_layout {
     grid_desc_t row_dsc;
     grid_desc_t col_dsc;
     lv_grid_align_t col_align;
     lv_grid_align_t row_align;
+    grid_pad_t pad_row;
+    grid_pad_t pad_col;
 } grid_layout_t;
 
 /**********************
@@ -69,6 +77,11 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
 int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
 int32_t set_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align);
+int32_t config_grid_layout_pad_col(lv_obj_t *lobj, int8_t scale, int32_t val);
+int32_t config_grid_layout_pad_row(lv_obj_t *lobj, int8_t scale, int32_t val);
+int32_t apply_grid_layout_gap(lv_obj_t *lobj);
+int32_t set_grid_layout_gap(lv_obj_t *lobj, int8_t scale_col, int32_t pad_col, \
+                            int8_t scale_row, int32_t pad_row);
 
 int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
                                int32_t col_pos, int32_t col_span, \

@@ -343,3 +343,87 @@ int32_t set_grid_layout_align(lv_obj_t *lobj, \
     return 0;
 }
 
+int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
+                               int32_t val)
+{
+    lv_obj_t *par;
+    int32_t par_w, par_h;
+    grid_layout_t *conf;
+    grid_pad_t *pad;
+    int32_t ret;
+
+    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    par = get_lobj(l_to_par_gobj(lobj));
+    if (par == lv_scr_act()) {
+        par = NULL;
+    }
+
+    get_base_size(par, &par_w, &par_h);
+
+    if (is_row == IS_ROW)
+        pad = &conf->pad_row;
+    else
+        pad = &conf->pad_col;
+
+    pad->scale = scale;
+    if (scale == ENA_SCALE) {
+        pad->pct = val;
+        pad->px = is_row ? pct_to_px(par_h, val) : pct_to_px(par_w, val);
+    } else {
+        pad->px = val;
+        pad->pct = is_row ? px_to_pct(par_h, val) : px_to_pct(par_w, val);
+    }
+
+    return 0;
+}
+
+int32_t config_grid_layout_pad_col(lv_obj_t *lobj, int8_t scale, int32_t val)
+{
+    return config_grid_layout_gap(lobj, IS_COL, scale, val);
+}
+
+int32_t config_grid_layout_pad_row(lv_obj_t *lobj, int8_t scale, int32_t val)
+{
+    return config_grid_layout_gap(lobj, IS_ROW, scale, val);
+}
+
+int32_t apply_grid_layout_gap(lv_obj_t *lobj)
+{
+    grid_layout_t *conf;
+
+    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_style_pad_row(lobj, conf->pad_row.px, 0);
+    lv_obj_set_style_pad_column(lobj, conf->pad_col.px, 0);
+
+    return 0;
+}
+
+int32_t set_grid_layout_gap(lv_obj_t *lobj, int8_t scale_col, int32_t pad_col, \
+                            int8_t scale_row, int32_t pad_row)
+{
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    ret = config_grid_layout_pad_row(lobj, scale_row, pad_row);
+    if (ret)
+        return ret;
+
+    ret = config_grid_layout_pad_col(lobj, scale_col, pad_col);
+    if (ret)
+        return ret;
+
+    ret = apply_grid_layout_gap(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}
+
