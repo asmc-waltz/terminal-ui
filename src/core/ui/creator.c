@@ -56,9 +56,9 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     LV_ASSERT_NULL(par);
 
     switch (type) {
-        case OBJ_BASE:
+        case OBJ_LAYOUT:
         case OBJ_BOX:
-        case OBJ_CONTAINER:
+        case OBJ_CELL:
             lobj = lv_obj_create(par);
             break;
         case OBJ_BTN:
@@ -100,14 +100,22 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_base(lv_obj_t *par, const char *name)
+lv_obj_t *create_layout(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *lobj = create_gobj(par, OBJ_BASE, name);
+    lv_obj_t *lobj = create_gobj(par, OBJ_LAYOUT, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
     lv_obj_set_style_border_width(lobj, 0, 0);
     lv_obj_set_style_outline_width(lobj, 0, 0);
     lv_obj_set_style_shadow_width(lobj, 0, 0);
+    return lobj;
+}
+
+lv_obj_t *create_cell(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *lobj = create_gobj(par, OBJ_CELL, name);
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
     return lobj;
 }
 
@@ -119,14 +127,6 @@ lv_obj_t *create_box(lv_obj_t *par, const char *name)
     lv_obj_set_style_border_width(lobj, 0, 0);
     lv_obj_set_style_outline_width(lobj, 0, 0);
     lv_obj_set_style_shadow_width(lobj, 0, 0);
-    return lobj;
-}
-
-lv_obj_t *create_container(lv_obj_t *par, const char *name)
-{
-    lv_obj_t *lobj = create_gobj(par, OBJ_CONTAINER, name);
-    lv_obj_set_style_pad_all(lobj, 0, 0);
-    lv_obj_set_style_pad_gap(lobj, 0, 0);
     return lobj;
 }
 

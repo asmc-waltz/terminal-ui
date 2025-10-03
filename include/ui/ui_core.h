@@ -31,8 +31,8 @@ typedef struct ctx ctx_t;
 
 typedef enum {
     OBJ_NONE = 0,
-    OBJ_BASE,
-    OBJ_CONTAINER,
+    OBJ_LAYOUT,
+    OBJ_CELL,
     OBJ_BOX,
     OBJ_BTN,
     OBJ_SLIDER,
@@ -163,9 +163,9 @@ int32_t remove_children(gobj_t *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
-lv_obj_t *create_base(lv_obj_t *par, const char *name);
+lv_obj_t *create_layout(lv_obj_t *par, const char *name);
+lv_obj_t *create_cell(lv_obj_t *par, const char *name);
 lv_obj_t *create_box(lv_obj_t *par, const char *name);
-lv_obj_t *create_container(lv_obj_t *par, const char *name);
 lv_obj_t *create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str);
 lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
@@ -250,5 +250,8 @@ void ui_main_deinit(ctx_t *ctx);
 /**********************
  *      MACROS
  **********************/
+
+
+lv_obj_t *test_screen(lv_obj_t *par);
 
 #endif /* G_UI_CORE_H */

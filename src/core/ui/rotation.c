@@ -467,7 +467,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
             ret = rotate_transform_gobj(gobj);
             break;
 
-        case OBJ_CONTAINER:
+        case OBJ_CELL:
             /*
              * The container maintains its original offset (0,0)
              * for scrolling purposes.
@@ -476,7 +476,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
             if (!ret)
                 lv_obj_set_size(lobj, get_w(lobj), get_h(lobj));
             break;
-        case OBJ_BASE:
+        case OBJ_LAYOUT:
             /*
              * Base object does not change
              * it remains solid and stays on screen as a physical part

@@ -309,7 +309,7 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     if (!conf)
         return NULL;
 
-    lv_obj_t *cont = create_base(par, name);
+    lv_obj_t *cont = create_layout(par, name);
     if (!cont) {
         free(conf);
         return NULL;
