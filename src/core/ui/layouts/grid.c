@@ -614,3 +614,29 @@ int32_t rotate_grid_align_90(lv_obj_t *lobj)
 
     return 0;
 }
+
+int32_t rotate_grid_rc_pad_90(lv_obj_t *lobj)
+{
+
+    grid_layout_t *conf;
+    grid_pad_t *row_pad, *col_pad;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_layout_data(lobj);
+    if (!conf) {
+        return -EIO;
+    }
+
+    row_pad = get_layout_row_pad_data(lobj);
+    col_pad = get_layout_col_pad_data(lobj);
+
+    if (!row_pad || !col_pad)
+        return -EIO;
+
+    conf->row.pad = col_pad;
+    conf->col.pad = row_pad;
+
+    return 0;
+}
