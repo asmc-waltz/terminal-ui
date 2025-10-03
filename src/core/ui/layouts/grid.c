@@ -238,7 +238,7 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!lobj)
         return -EINVAL;
 
-    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->row_dsc;
+    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->row.dsc;
 
 
     par = get_lobj(l_to_par_gobj(lobj));
@@ -262,7 +262,7 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!lobj)
         return -EINVAL;
 
-    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->col_dsc;
+    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->col.dsc;
 
 
     par = get_lobj(l_to_par_gobj(lobj));
@@ -285,14 +285,14 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
     if (!layout)
         return -EINVAL;
 
-    if (!layout->row_dsc.cell_px || !layout->col_dsc.cell_px)
+    if (!layout->row.dsc.cell_px || !layout->col.dsc.cell_px)
         return -EIO;
 
-    lv_obj_set_grid_dsc_array(lobj, layout->col_dsc.cell_px,
-                                   layout->row_dsc.cell_px);
+    lv_obj_set_grid_dsc_array(lobj, layout->col.dsc.cell_px,
+                                   layout->row.dsc.cell_px);
 
     LOG_DEBUG("Applied grid descriptors: row=%d col=%d",
-              layout->row_dsc.size, layout->col_dsc.size);
+              layout->row.dsc.size, layout->col.dsc.size);
 
     return 0;
 }
@@ -332,8 +332,8 @@ int32_t config_grid_layout_align(lv_obj_t *lobj, \
     if (!conf)
         return -EINVAL;
 
-    conf->row_align = row_align;
-    conf->col_align = col_align;
+    conf->row.align = row_align;
+    conf->col.align = col_align;
 
     return 0;
 }
@@ -346,7 +346,7 @@ int32_t apply_grid_layout_align(lv_obj_t *lobj)
     if (!conf)
         return -EINVAL;
 
-    lv_obj_set_grid_align(lobj, conf->col_align, conf->row_align);
+    lv_obj_set_grid_align(lobj, conf->col.align, conf->row.align);
 
     return 0;
 }
@@ -391,9 +391,9 @@ int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
     get_base_size(par, &par_w, &par_h);
 
     if (is_row == IS_ROW)
-        pad = &conf->pad_row;
+        pad = &conf->row.pad;
     else
-        pad = &conf->pad_col;
+        pad = &conf->col.pad;
 
     pad->scale = scale;
     if (scale == ENA_SCALE) {
@@ -425,8 +425,8 @@ int32_t apply_grid_layout_gap(lv_obj_t *lobj)
     if (!conf)
         return -EINVAL;
 
-    lv_obj_set_style_pad_row(lobj, conf->pad_row.px, 0);
-    lv_obj_set_style_pad_column(lobj, conf->pad_col.px, 0);
+    lv_obj_set_style_pad_row(lobj, conf->row.pad.px, 0);
+    lv_obj_set_style_pad_column(lobj, conf->col.pad.px, 0);
 
     return 0;
 }

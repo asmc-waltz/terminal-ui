@@ -44,13 +44,15 @@ typedef struct grid_pad {
     int32_t px;
 } grid_pad_t;
 
+typedef struct grid_layout_rc {
+    grid_desc_t dsc;
+    lv_grid_align_t align;
+    grid_pad_t pad;
+} grid_layout_rc_t;
+
 typedef struct grid_layout {
-    grid_desc_t row_dsc;
-    grid_desc_t col_dsc;
-    lv_grid_align_t col_align;
-    lv_grid_align_t row_align;
-    grid_pad_t pad_row;
-    grid_pad_t pad_col;
+    grid_layout_rc_t row;
+    grid_layout_rc_t col;
 } grid_layout_t;
 
 /**********************
