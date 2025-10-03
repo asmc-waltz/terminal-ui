@@ -154,6 +154,30 @@ static int32_t set_dsc_data(lv_obj_t *lobj, grid_desc_t *dsc,
 
     return 0;
 }
+
+static void free_grid_desc(grid_desc_t *dsc)
+{
+    if (!dsc)
+        return;
+
+    if (dsc->scale) {
+        free(dsc->scale);
+        dsc->scale = NULL;
+    }
+
+    if (dsc->cell_pct) {
+        free(dsc->cell_pct);
+        dsc->cell_pct = NULL;
+    }
+
+    if (dsc->cell_px) {
+        free(dsc->cell_px);
+        dsc->cell_px = NULL;
+    }
+
+    dsc->size = 0;
+    free(dsc);
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -309,6 +333,19 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     conf = calloc(1, sizeof(*conf));
     if (!conf)
         return NULL;
+
+    conf->row.dsc = calloc(1, sizeof(grid_desc_t));
+    if (!conf->row.dsc) {
+        free(conf);
+        return NULL;
+    }
+
+    conf->col.dsc = calloc(1, sizeof(grid_desc_t));
+    if (!conf->col.dsc) {
+        free(conf->row.dsc);
+        free(conf);
+        return NULL;
+    }
 
     lv_obj_t *cont = create_layout(par, name);
     if (!cont) {
