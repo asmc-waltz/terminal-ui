@@ -324,34 +324,35 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
 
 lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
 {
-
-    grid_layout_t *conf;
+    lv_obj_t *cont = NULL;
+    grid_layout_t *conf = NULL;
 
     if (!par)
         return NULL;
 
-    conf = calloc(1, sizeof(*conf));
+    conf = (grid_layout_t *)calloc(1, sizeof(grid_layout_t));
     if (!conf)
         return NULL;
 
-    conf->row.dsc = calloc(1, sizeof(grid_desc_t));
-    if (!conf->row.dsc) {
-        free(conf);
-        return NULL;
-    }
+    conf->row.dsc = (grid_desc_t *)calloc(1, sizeof(grid_desc_t));
+    if (!conf->row.dsc)
+        goto out_free_conf;
 
-    conf->col.dsc = calloc(1, sizeof(grid_desc_t));
-    if (!conf->col.dsc) {
-        free(conf->row.dsc);
-        free(conf);
-        return NULL;
-    }
+    conf->col.dsc = (grid_desc_t *)calloc(1, sizeof(grid_desc_t));
+    if (!conf->col.dsc)
+        goto out_free_row_dsc;
 
-    lv_obj_t *cont = create_layout(par, name);
-    if (!cont) {
-        free(conf);
-        return NULL;
-    }
+    conf->row.pad = (grid_pad_t *)calloc(1, sizeof(grid_pad_t));
+    if (!conf->row.pad)
+        goto out_free_col_dsc;
+
+    conf->col.pad = (grid_pad_t *)calloc(1, sizeof(grid_pad_t));
+    if (!conf->col.pad)
+        goto out_free_row_pad;
+
+    cont = create_layout(par, name);
+    if (!cont)
+        goto out_free_col_pad;
 
     get_gobj(cont)->data.internal = conf;
 
@@ -359,6 +360,18 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     lv_obj_center(cont);
 
     return cont;
+
+out_free_col_pad:
+    free(conf->col.pad);
+out_free_row_pad:
+    free(conf->row.pad);
+out_free_col_dsc:
+    free(conf->col.dsc);
+out_free_row_dsc:
+    free(conf->row.dsc);
+out_free_conf:
+    free(conf);
+    return NULL;
 }
 
 int32_t config_grid_layout_align(lv_obj_t *lobj, \
@@ -584,6 +597,7 @@ out:
 int32_t rotate_grid_align_90(lv_obj_t *lobj)
 {
     lv_grid_align_t *r_align, *c_align;
+    lv_grid_align_t tmp_align;
 
     if (!lobj)
         return -EINVAL;
@@ -594,8 +608,9 @@ int32_t rotate_grid_align_90(lv_obj_t *lobj)
     if (!r_align || !c_align)
         return -EIO;
 
-    *r_align = c_align;
-    *c_align = r_align;
+    tmp_align = *r_align;
+    *r_align = *c_align;
+    *c_align = tmp_align;
 
     return 0;
 }
