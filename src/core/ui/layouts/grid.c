@@ -147,7 +147,7 @@ static int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t add_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
@@ -171,7 +171,7 @@ int32_t add_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     return 0;
 }
 
-int32_t add_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
@@ -195,21 +195,7 @@ int32_t add_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     return 0;
 }
 
-void free_dsc(grid_desc_t *dsc)
-{
-    if (!dsc)
-        return;
-
-    if (dsc->cell_px) {
-        LOG_DEBUG("Free grid descriptor size=%d", dsc->size);
-        free(dsc->cell_px);
-        dsc->cell_px = NULL;
-    }
-
-    dsc->size = 0;
-}
-
-int32_t apply_grid_dsc(lv_obj_t *lobj)
+int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
 {
     grid_layout_t *layout;
 
@@ -255,7 +241,7 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     return cont;
 }
 
-int32_t set_grid_layout(lv_obj_t *lobj, \
+int32_t set_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align)
 {
     grid_layout_t *conf;
