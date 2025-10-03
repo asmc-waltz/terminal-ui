@@ -323,22 +323,49 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     return cont;
 }
 
-int32_t set_grid_layout_align(lv_obj_t *lobj, \
+int32_t config_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align)
 {
     grid_layout_t *conf;
 
-    if (!lobj)
-        return -EINVAL;
-
-    lv_obj_set_grid_align(lobj, col_align, row_align);
-
-    conf = (grid_layout_t *)get_gobj(lobj)->data.internal;
+    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
     if (!conf)
-        return -EIO;
+        return -EINVAL;
 
     conf->row_align = row_align;
     conf->col_align = col_align;
+
+    return 0;
+}
+
+int32_t apply_grid_layout_align(lv_obj_t *lobj)
+{
+    grid_layout_t *conf;
+
+    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_grid_align(lobj, conf->col_align, conf->row_align);
+
+    return 0;
+}
+
+int32_t set_grid_layout_align(lv_obj_t *lobj, \
+                        lv_grid_align_t col_align, lv_grid_align_t row_align)
+{
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    ret = config_grid_layout_align(lobj, col_align, row_align);
+    if (ret)
+        return ret;
+
+    ret = apply_grid_layout_align(lobj);
+    if (ret)
+        return ret;
 
     return 0;
 }
