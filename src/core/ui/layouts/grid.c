@@ -48,47 +48,6 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static inline grid_layout_t *get_layout_data(lv_obj_t *lobj)
-{
-    return lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-}
-
-static inline grid_pad_t *get_layout_row_pad_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? &layout->row.pad : NULL;
-}
-
-static inline grid_pad_t *get_layout_col_pad_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? &layout->col.pad : NULL;
-}
-
-static inline grid_desc_t *get_layout_row_dsc_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? &layout->row.dsc : NULL;
-}
-
-static inline grid_desc_t *get_layout_col_dsc_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? &layout->col.dsc : NULL;
-}
-
-static inline lv_grid_align_t *get_layout_row_align(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? layout->row.align : NULL;
-}
-
-static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_layout_data(lobj);
-    return layout ? layout->col.align : NULL;
-}
-
 static void get_base_size(lv_obj_t *par, int32_t *par_w, int32_t *par_h)
 {
     if (par) {
@@ -279,8 +238,9 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!lobj)
         return -EINVAL;
 
-    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->row.dsc;
-
+    dsc = get_layout_row_dsc_data(lobj);
+    if (!dsc)
+        return -EIO;
 
     par = get_lobj(l_to_par_gobj(lobj));
     if (par == lv_scr_act()) {
@@ -303,7 +263,9 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!lobj)
         return -EINVAL;
 
-    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->col.dsc;
+    dsc = get_layout_col_dsc_data(lobj);
+    if (!dsc)
+        return -EIO;
 
 
     par = get_lobj(l_to_par_gobj(lobj));
@@ -320,20 +282,21 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 
 int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
 {
-    grid_layout_t *layout;
+    grid_desc_t *r_dsc, *c_dsc;
 
-    layout = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-    if (!layout)
+    if (!lobj)
         return -EINVAL;
 
-    if (!layout->row.dsc.cell_px || !layout->col.dsc.cell_px)
+    r_dsc = get_layout_row_dsc_data(lobj);
+    c_dsc = get_layout_col_dsc_data(lobj);
+
+    if (!r_dsc || !c_dsc)
         return -EIO;
 
-    lv_obj_set_grid_dsc_array(lobj, layout->col.dsc.cell_px,
-                                   layout->row.dsc.cell_px);
+    lv_obj_set_grid_dsc_array(lobj, c_dsc->cell_px, r_dsc->cell_px);
 
     LOG_DEBUG("Applied grid descriptors: row=%d col=%d",
-              layout->row.dsc.size, layout->col.dsc.size);
+              r_dsc->size, c_dsc->size);
 
     return 0;
 }
@@ -367,27 +330,37 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
 int32_t config_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align)
 {
-    grid_layout_t *conf;
+    lv_grid_align_t *r_align, *c_align;
 
-    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-    if (!conf)
+    if (!lobj)
         return -EINVAL;
 
-    conf->row.align = row_align;
-    conf->col.align = col_align;
+    r_align = get_layout_row_align(lobj);
+    c_align = get_layout_col_align(lobj);
+
+    if (!r_align || !c_align)
+        return -EIO;
+
+    *r_align = row_align;
+    *c_align = col_align;
 
     return 0;
 }
 
 int32_t apply_grid_layout_align(lv_obj_t *lobj)
 {
-    grid_layout_t *conf;
+    lv_grid_align_t *r_align, *c_align;
 
-    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-    if (!conf)
+    if (!lobj)
         return -EINVAL;
 
-    lv_obj_set_grid_align(lobj, conf->col.align, conf->row.align);
+    r_align = get_layout_row_align(lobj);
+    c_align = get_layout_col_align(lobj);
+
+    if (!r_align || !c_align)
+        return -EIO;
+
+    lv_obj_set_grid_align(lobj, *c_align, *r_align);
 
     return 0;
 }
@@ -416,13 +389,19 @@ int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
 {
     lv_obj_t *par;
     int32_t par_w, par_h;
-    grid_layout_t *conf;
     grid_pad_t *pad;
     int32_t ret;
 
-    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-    if (!conf)
+    if (!lobj)
         return -EINVAL;
+
+    if (is_row == IS_ROW)
+        pad = get_layout_row_pad_data(lobj);
+    else
+        pad = get_layout_col_pad_data(lobj);
+
+    if (!pad)
+        return -EIO;
 
     par = get_lobj(l_to_par_gobj(lobj));
     if (par == lv_scr_act()) {
@@ -430,11 +409,6 @@ int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
     }
 
     get_base_size(par, &par_w, &par_h);
-
-    if (is_row == IS_ROW)
-        pad = &conf->row.pad;
-    else
-        pad = &conf->col.pad;
 
     pad->scale = scale;
     if (scale == ENA_SCALE) {
@@ -460,14 +434,19 @@ int32_t config_grid_layout_pad_row(lv_obj_t *lobj, int8_t scale, int32_t val)
 
 int32_t apply_grid_layout_gap(lv_obj_t *lobj)
 {
-    grid_layout_t *conf;
+    grid_pad_t *row_pad, *col_pad;
 
-    conf = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-    if (!conf)
+    if (!lobj)
         return -EINVAL;
 
-    lv_obj_set_style_pad_row(lobj, conf->row.pad.px, 0);
-    lv_obj_set_style_pad_column(lobj, conf->col.pad.px, 0);
+    row_pad = get_layout_row_pad_data(lobj);
+    col_pad = get_layout_col_pad_data(lobj);
+
+    if (!row_pad || !col_pad)
+        return -EIO;
+
+    lv_obj_set_style_pad_row(lobj, row_pad->px, 0);
+    lv_obj_set_style_pad_column(lobj, col_pad->px, 0);
 
     return 0;
 }

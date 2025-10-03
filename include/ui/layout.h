@@ -101,6 +101,46 @@ int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
                             lv_grid_align_t row_align, int32_t row_pos, \
                             int32_t row_span);
 
+static inline grid_layout_t *get_layout_data(lv_obj_t *lobj)
+{
+    return lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
+}
+
+static inline grid_pad_t *get_layout_row_pad_data(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->row.pad : NULL;
+}
+
+static inline grid_pad_t *get_layout_col_pad_data(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->col.pad : NULL;
+}
+
+static inline grid_desc_t *get_layout_row_dsc_data(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->row.dsc : NULL;
+}
+
+static inline grid_desc_t *get_layout_col_dsc_data(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->col.dsc : NULL;
+}
+
+static inline lv_grid_align_t *get_layout_row_align(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->row.align : NULL;
+}
+
+static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
+{
+    grid_layout_t *layout = get_layout_data(lobj);
+    return layout ? &layout->col.align : NULL;
+}
 /**********************
  *      MACROS
  **********************/
