@@ -580,3 +580,22 @@ out_free_r:
 out:
     return ret;
 }
+
+int32_t rotate_grid_align_90(lv_obj_t *lobj)
+{
+    lv_grid_align_t *r_align, *c_align;
+
+    if (!lobj)
+        return -EINVAL;
+
+    r_align = get_layout_row_align(lobj);
+    c_align = get_layout_col_align(lobj);
+
+    if (!r_align || !c_align)
+        return -EIO;
+
+    *r_align = c_align;
+    *c_align = r_align;
+
+    return 0;
+}

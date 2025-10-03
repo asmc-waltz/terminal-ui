@@ -102,6 +102,7 @@ int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
                             int32_t row_span);
 
 int32_t rotate_grid_dsc_90(lv_obj_t *lobj);
+int32_t rotate_grid_align_90(lv_obj_t *lobj);
 
 static inline grid_layout_t *get_layout_data(lv_obj_t *lobj)
 {
