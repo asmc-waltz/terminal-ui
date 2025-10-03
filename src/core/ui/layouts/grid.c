@@ -48,85 +48,103 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc, int8_t is_row, int32_t val_pct)
+static void get_base_size(lv_obj_t *par, int32_t *par_w, int32_t *par_h)
 {
-    int32_t par_w, par_h;
-    int32_t *new_px, *new_pct;
-
-    if (!dsc)
-        return -EINVAL;
-
-    /* Determine base size */
     if (par) {
-        par_w = get_w(par);
-        par_h = get_h(par);
-        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]", par_w, par_h);
+        *par_w = get_w(par);
+        *par_h = get_h(par);
+        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]",
+                  *par_w, *par_h);
     } else {
-        par_w = get_scr_width();
-        par_h = get_scr_height();
-        LOG_TRACE("Descriptor based on screen: W[%d] H[%d]", par_w, par_h);
+        *par_w = get_scr_width();
+        *par_h = get_scr_height();
+        LOG_TRACE("Descriptor based on screen: W[%d] H[%d]",
+                  *par_w, *par_h);
+    }
+}
+
+/* Generic array allocator/expander */
+static void *alloc_or_extend_array(void *arr, size_t elem_size, int32_t count)
+{
+    void *new_arr;
+
+    if (!arr) {
+        /* First time: allocate count + 1 sentinel */
+        new_arr = calloc(count + 1, elem_size);
+    } else {
+        /* Extend: add 1 new slot + sentinel */
+        new_arr = realloc(arr, (count + 2) * elem_size);
     }
 
-    /* First-time allocation */
-    if (!dsc->cell_px || !dsc->cell_pct) {
-        LOG_TRACE("Create new grid descriptor");
-        dsc->size = 0;
+    return new_arr;
+}
 
-        dsc->cell_px  = calloc(2, sizeof(int32_t));
-        dsc->cell_pct = calloc(2, sizeof(int32_t));
-        if (!dsc->cell_px || !dsc->cell_pct)
-            return -ENOMEM;
-    } else {
-        /* Extend both arrays in one go */
-        LOG_TRACE("Append value into grid descriptor");
-        new_px  = realloc(dsc->cell_px,  (dsc->size + 2) * sizeof(int32_t));
-        new_pct = realloc(dsc->cell_pct, (dsc->size + 2) * sizeof(int32_t));
+static int32_t alloc_or_extend_dsc(grid_desc_t *dsc)
+{
+    void *new_arr;
 
-        if (!new_px || !new_pct)
-            return -ENOMEM;
+    new_arr = alloc_or_extend_array(dsc->scale, sizeof(int8_t), dsc->size);
+    if (!new_arr)
+        return -ENOMEM;
+    dsc->scale = new_arr;
 
-        dsc->cell_px  = new_px;
-        dsc->cell_pct = new_pct;
-    }
+    new_arr = alloc_or_extend_array(dsc->cell_pct, sizeof(int8_t), dsc->size);
+    if (!new_arr)
+        return -ENOMEM;
+    dsc->cell_pct = new_arr;
 
-    /* Fill new slot */
-    dsc->cell_pct[dsc->size] = val_pct;
-    dsc->cell_px[dsc->size]  = is_row ?
-        pct_to_px(par_h, val_pct) : pct_to_px(par_w, val_pct);
-
-    dsc->size++;
-
-    /* Always keep sentinel */
-    dsc->cell_pct[dsc->size] = LV_GRID_TEMPLATE_LAST;
-    dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
+    new_arr = alloc_or_extend_array(dsc->cell_px, sizeof(int32_t), dsc->size);
+    if (!new_arr)
+        return -ENOMEM;
+    dsc->cell_px = new_arr;
 
     return 0;
 }
 
-int32_t get_dsc_data(grid_desc_t *dsc, int32_t index, int32_t value)
+static void fill_new_slot(grid_desc_t *dsc, int8_t is_row,
+                          int32_t par_w, int32_t par_h,
+                          int8_t scale, int32_t val)
 {
-    if (!dsc || !dsc->cell_px)
-        return -EINVAL;
+    dsc->scale[dsc->size] = scale;
 
-    if (index < 0 || index >= dsc->size)
-        return -EINVAL;
+    if (scale == ENA_SCALE) {
+        dsc->cell_pct[dsc->size] = val;
+        dsc->cell_px[dsc->size]  = is_row ?
+            pct_to_px(par_h, val) : pct_to_px(par_w, val);
+    } else {
+        dsc->cell_px[dsc->size]  = val;
+        dsc->cell_pct[dsc->size] = is_row ?
+            px_to_pct(par_h, val) : px_to_pct(par_w, val);
+    }
 
-    return dsc->cell_px[index];
+    dsc->size++;
+
+    /* Always keep sentinel */
+    dsc->scale[dsc->size]    = LV_GRID_TEMPLATE_LAST;
+    dsc->cell_pct[dsc->size] = LV_GRID_TEMPLATE_LAST;
+    dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
 }
 
-int32_t edit_dsc_data(grid_desc_t *dsc, int32_t index, int32_t value)
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
+                     int8_t is_row, int8_t scale, int32_t val)
 {
-    if (!dsc || !dsc->cell_px)
+    int32_t par_w, par_h;
+    int32_t ret;
+
+    if (!dsc)
         return -EINVAL;
 
-    if (index < 0 || index >= dsc->size)
-        return -EINVAL;
+    get_base_size(par, &par_w, &par_h);
 
-    dsc->cell_px[index] = value;
+    ret = alloc_or_extend_dsc(dsc);
+    if (ret)
+        return ret;
+
+    fill_new_slot(dsc, is_row, par_w, par_h, scale, val);
+
     return 0;
 }
 

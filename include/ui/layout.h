@@ -31,7 +31,8 @@ typedef struct grid_cell {
 
 typedef struct grid_desc {
     int8_t size;
-    int32_t *cell_pct;
+    int8_t *scale;
+    int8_t *cell_pct;
     int32_t *cell_px;
 } grid_desc_t;
 
