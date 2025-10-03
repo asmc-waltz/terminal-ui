@@ -147,6 +147,23 @@ static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
     grid_layout_t *layout = get_layout_data(lobj);
     return layout ? &layout->col.align : NULL;
 }
+
+static inline grid_cell_t *get_cell_data(lv_obj_t *lobj)
+{
+    return lobj ? (grid_cell_t *)get_gobj(lobj)->data.internal : NULL;
+}
+
+static inline grid_rc_t *get_cell_row_data(lv_obj_t *lobj)
+{
+    grid_cell_t *cell_data = get_cell_data(lobj);
+    return cell_data ? &cell_data->row : NULL;
+}
+
+static inline grid_rc_t *get_cell_col_data(lv_obj_t *lobj)
+{
+    grid_cell_t *cell_data = get_cell_data(lobj);
+    return cell_data ? &cell_data->col : NULL;
+}
 /**********************
  *      MACROS
  **********************/
