@@ -640,3 +640,57 @@ int32_t rotate_grid_rc_pad_90(lv_obj_t *lobj)
 
     return 0;
 }
+
+int32_t rotate_grid_layout_90(lv_obj_t *lobj)
+{
+    int32_t ret;
+
+    ret = rotate_grid_dsc_90(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout dsc rotation failed, ret %d", ret);
+        return ret;
+    }
+
+    ret = rotate_grid_align_90(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout align rotation failed, ret %d", ret);
+        return ret;
+    }
+
+    ret = rotate_grid_rc_pad_90(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout rc pad rotation failed, ret %d", ret);
+        return ret;
+    }
+
+    LOG_TRACE("Grid layout %s rotated 90 deg", get_gobj(lobj)->name);
+
+    return 0;
+}
+
+int32_t apply_grid_layout_config(lv_obj_t *lobj)
+{
+    int32_t ret;
+
+    ret = apply_grid_layout_dsc(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout dsc apply failed, ret %d", ret);
+        return ret;
+    }
+
+    ret = apply_grid_layout_align(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout align apply failed, ret %d", ret);
+        return ret;
+    }
+
+    ret = apply_grid_layout_gap(lobj);
+    if (ret) {
+        LOG_ERROR("Grid layout rc pad apply failed, ret %d", ret);
+        return ret;
+    }
+
+    LOG_TRACE("Grid layout %s applied", get_gobj(lobj)->name);
+
+    return 0;
+}
