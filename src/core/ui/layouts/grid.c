@@ -504,3 +504,79 @@ int32_t set_grid_layout_gap(lv_obj_t *lobj, int8_t scale_col, int32_t pad_col, \
     return 0;
 }
 
+int32_t rotate_grid_dsc_90(lv_obj_t *lobj)
+{
+    int32_t ret;
+    grid_desc_t *r_dsc, *c_dsc;
+    grid_desc_t *next_r_dsc = NULL, *next_c_dsc = NULL;
+    grid_layout_t *conf;
+    int32_t i;
+
+    if (!lobj)
+        return -EINVAL;
+
+    r_dsc = get_layout_row_dsc_data(lobj);
+    if (!r_dsc)
+        return -EIO;
+
+    c_dsc = get_layout_col_dsc_data(lobj);
+    if (!c_dsc)
+        return -EIO;
+
+    next_r_dsc = calloc(1, sizeof(grid_desc_t));
+    if (!next_r_dsc) {
+        ret = -ENOMEM;
+        goto out;
+    }
+
+    next_c_dsc = calloc(1, sizeof(grid_desc_t));
+    if (!next_c_dsc) {
+        ret = -ENOMEM;
+        goto out_free_r;
+    }
+
+    for (i = 0; i < c_dsc->size; i++) {
+        if (c_dsc->scale[i] == ENA_SCALE)
+            ret = set_dsc_data(lobj, next_r_dsc, IS_ROW, ENA_SCALE, \
+                               c_dsc->cell_pct[i]);
+        else
+            ret = set_dsc_data(lobj, next_r_dsc, IS_ROW, DIS_SCALE, \
+                               c_dsc->cell_px[i]);
+
+        if (ret)
+            goto out_free_c;
+    }
+
+    for (i = (r_dsc->size - 1); i >= 0; i--) {
+        if (r_dsc->scale[i] == ENA_SCALE)
+            ret = set_dsc_data(lobj, next_c_dsc, IS_COL, ENA_SCALE, \
+                               r_dsc->cell_pct[i]);
+        else
+            ret = set_dsc_data(lobj, next_c_dsc, IS_COL, DIS_SCALE, \
+                               r_dsc->cell_px[i]);
+
+        if (ret)
+            goto out_free_c;
+    }
+
+    free_grid_desc(r_dsc);
+    free_grid_desc(c_dsc);
+
+    conf = get_layout_data(lobj);
+    if (!conf) {
+        ret = -EIO;
+        goto out_free_c;
+    }
+
+    conf->row.dsc = next_r_dsc;
+    conf->col.dsc = next_c_dsc;
+
+    return 0;
+
+out_free_c:
+    free_grid_desc(next_c_dsc);
+out_free_r:
+    free_grid_desc(next_r_dsc);
+out:
+    return ret;
+}
