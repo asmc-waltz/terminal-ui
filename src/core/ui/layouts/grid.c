@@ -48,19 +48,27 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void get_base_size(lv_obj_t *par, int32_t *par_w, int32_t *par_h)
+static int32_t get_base_size(lv_obj_t *lobj, int32_t *par_w, int32_t *par_h)
 {
-    if (par) {
-        *par_w = get_w(par);
-        *par_h = get_h(par);
-        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]",
-                  *par_w, *par_h);
-    } else {
+    lv_obj_t *par;
+
+    par = lobj ? lv_obj_get_parent(lobj) : NULL;
+    if (!par)
+        return -EINVAL;
+
+    if (par == lv_screen_active()) {
         *par_w = get_scr_width();
         *par_h = get_scr_height();
         LOG_TRACE("Descriptor based on screen: W[%d] H[%d]",
                   *par_w, *par_h);
+    } else {
+        *par_w = get_w(par);
+        *par_h = get_h(par);
+        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]",
+                  *par_w, *par_h);
     }
+
+    return 0;
 }
 
 /* Generic array allocator/expander */
@@ -125,7 +133,7 @@ static void fill_new_slot(grid_desc_t *dsc, int8_t is_row,
     dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
 }
 
-static int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
+static int32_t set_dsc_data(lv_obj_t *lobj, grid_desc_t *dsc,
                      int8_t is_row, int8_t scale, int32_t val)
 {
     int32_t par_w, par_h;
@@ -134,7 +142,9 @@ static int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
     if (!dsc)
         return -EINVAL;
 
-    get_base_size(par, &par_w, &par_h);
+    ret = get_base_size(lobj, &par_w, &par_h);
+    if (ret)
+        return ret;
 
     ret = alloc_or_extend_dsc(dsc);
     if (ret)
@@ -233,7 +243,6 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
-    lv_obj_t *par;
 
     if (!lobj)
         return -EINVAL;
@@ -242,12 +251,7 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!dsc)
         return -EIO;
 
-    par = get_lobj(l_to_par_gobj(lobj));
-    if (par == lv_scr_act()) {
-        par = NULL;
-    }
-
-    ret = set_dsc_data(par, dsc, IS_ROW, scale, val);
+    ret = set_dsc_data(lobj, dsc, IS_ROW, scale, val);
     if (ret)
         return ret;
 
@@ -258,7 +262,6 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
-    lv_obj_t *par;
 
     if (!lobj)
         return -EINVAL;
@@ -267,13 +270,7 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!dsc)
         return -EIO;
 
-
-    par = get_lobj(l_to_par_gobj(lobj));
-    if (par == lv_scr_act()) {
-        par = NULL;
-    }
-
-    ret = set_dsc_data(par, dsc, IS_COL, scale, val);
+    ret = set_dsc_data(lobj, dsc, IS_COL, scale, val);
     if (ret)
         return ret;
 
@@ -387,7 +384,6 @@ int32_t set_grid_layout_align(lv_obj_t *lobj, \
 int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
                                int32_t val)
 {
-    lv_obj_t *par;
     int32_t par_w, par_h;
     grid_pad_t *pad;
     int32_t ret;
@@ -403,12 +399,9 @@ int32_t config_grid_layout_gap(lv_obj_t *lobj, int8_t is_row, int8_t scale, \
     if (!pad)
         return -EIO;
 
-    par = get_lobj(l_to_par_gobj(lobj));
-    if (par == lv_scr_act()) {
-        par = NULL;
-    }
-
-    get_base_size(par, &par_w, &par_h);
+    ret = get_base_size(lobj, &par_w, &par_h);
+    if (ret)
+        return ret;
 
     pad->scale = scale;
     if (scale == ENA_SCALE) {
