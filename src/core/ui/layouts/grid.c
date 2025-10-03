@@ -125,10 +125,7 @@ static void fill_new_slot(grid_desc_t *dsc, int8_t is_row,
     dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
 }
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
+static int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
                      int8_t is_row, int8_t scale, int32_t val)
 {
     int32_t par_w, par_h;
@@ -147,6 +144,56 @@ int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
 
     return 0;
 }
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t add_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+{
+    int32_t ret;
+    grid_desc_t *dsc;
+    lv_obj_t *par;
+
+    if (!lobj)
+        return -EINVAL;
+
+    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->row_dsc;
+
+
+    par = get_lobj(l_to_par_gobj(lobj));
+    if (par == lv_scr_act()) {
+        par = NULL;
+    }
+
+    ret = set_dsc_data(par, dsc, IS_ROW, scale, val);
+    if (ret)
+        return ret;
+
+    return 0;
+}
+
+int32_t add_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+{
+    int32_t ret;
+    grid_desc_t *dsc;
+    lv_obj_t *par;
+
+    if (!lobj)
+        return -EINVAL;
+
+    dsc = &((grid_layout_t *)get_gobj(lobj)->data.internal)->col_dsc;
+
+
+    par = get_lobj(l_to_par_gobj(lobj));
+    if (par == lv_scr_act()) {
+        par = NULL;
+    }
+
+    ret = set_dsc_data(par, dsc, IS_COL, scale, val);
+    if (ret)
+        return ret;
+
+    return 0;
+}
 
 void free_dsc(grid_desc_t *dsc)
 {
@@ -162,16 +209,22 @@ void free_dsc(grid_desc_t *dsc)
     dsc->size = 0;
 }
 
-int32_t apply_grid_layout(lv_obj_t *lobj, grid_layout_t *layout)
+int32_t apply_grid_dsc(lv_obj_t *lobj)
 {
-    if (!lobj || !layout)
+    grid_layout_t *layout;
+
+    layout = lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
+    if (!layout)
         return -EINVAL;
 
     if (!layout->row_dsc.cell_px || !layout->col_dsc.cell_px)
-        return -EINVAL;
+        return -EIO;
 
     lv_obj_set_grid_dsc_array(lobj, layout->col_dsc.cell_px,
                                    layout->row_dsc.cell_px);
+
+    LOG_DEBUG("Applied grid descriptors: row=%d col=%d",
+              layout->row_dsc.size, layout->col_dsc.size);
 
     return 0;
 }
