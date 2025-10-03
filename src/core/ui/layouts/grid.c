@@ -147,6 +147,88 @@ static int32_t set_dsc_data(lv_obj_t *par, grid_desc_t *dsc,
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+/*
+ * Set the cell of an object. The object's parent needs to have grid layout, else nothing will happen
+ * @param obj pointer to an object
+ * @param col_align the vertical alignment in the cell. `LV_GRID_START/END/CENTER/STRETCH`
+ * @param col_pos column ID
+ * @param col_span number of columns to take (>= 1)
+ * @param row_align the horizontal alignment in the cell. `LV_GRID_START/END/CENTER/STRETCH`
+ * @param row_pos row ID
+ * @param row_span number of rows to take (>= 1)
+ */
+int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
+                               int32_t col_pos, int32_t col_span, \
+                               lv_grid_align_t row_align, int32_t row_pos, \
+                               int32_t row_span)
+{
+    grid_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = calloc(1, sizeof(*conf));
+    if (!conf)
+        return -ENOMEM;
+
+    get_gobj(lobj)->data.internal = conf;
+
+    conf->col.index = col_pos;
+    conf->col.span = col_span;
+    conf->col.align = col_align;
+
+    conf->row.index = row_pos;
+    conf->row.span = row_span;
+    conf->row.align = row_align;
+
+    return 0;
+}
+
+int32_t apply_grid_cell_align(lv_obj_t * lobj)
+{
+    grid_cell_t *conf;
+
+    conf = lobj ? (grid_cell_t *)get_gobj(lobj)->data.internal : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_grid_cell(lobj,
+                         conf->col.align, \
+                         conf->col.index, \
+                         conf->col.span, \
+                         conf->row.align, \
+                         conf->row.index, \
+                         conf->row.span \
+                         );
+
+    return 0;
+}
+
+int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
+                            int32_t col_pos, int32_t col_span, \
+                            lv_grid_align_t row_align, int32_t row_pos, \
+                            int32_t row_span)
+{
+    int32_t ret;
+
+    ret = config_grid_cell_align(lobj, \
+                                 col_align, \
+                                 col_pos, \
+                                 col_span, \
+                                 row_align, \
+                                 row_pos, \
+                                 row_span \
+                                 );
+    if (ret)
+        return ret;
+
+    ret = apply_grid_cell_align(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}
+
 int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
 {
     int32_t ret;

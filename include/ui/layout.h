@@ -70,6 +70,16 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
 int32_t set_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align);
 
+int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
+                               int32_t col_pos, int32_t col_span, \
+                               lv_grid_align_t row_align, int32_t row_pos, \
+                               int32_t row_span);
+int32_t apply_grid_cell_align(lv_obj_t * lobj);
+int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
+                            int32_t col_pos, int32_t col_span, \
+                            lv_grid_align_t row_align, int32_t row_pos, \
+                            int32_t row_span);
+
 /**********************
  *      MACROS
  **********************/
