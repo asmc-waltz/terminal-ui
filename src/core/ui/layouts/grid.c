@@ -229,6 +229,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
 int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj)
 {
     grid_cell_t *conf;
+    int32_t ret;
 
     conf = lobj ? get_cell_data(lobj) : NULL;
     if (!conf)
@@ -242,6 +243,12 @@ int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj)
                          conf->row.index, \
                          conf->row.span \
                          );
+
+    ret = store_computed_object_size(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to store new cell object data");
+        return ret;
+    }
 
     return 0;
 }
@@ -283,6 +290,12 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     ret = apply_grid_cell_align_and_pos(lobj);
     if (ret)
         return ret;
+
+    ret = store_computed_object_size(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to store cell object data");
+        return ret;
+    }
 
     return 0;
 }
