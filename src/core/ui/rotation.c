@@ -346,12 +346,75 @@ static int32_t g_obj_rot_calc_align(gobj_t *gobj)
     return 0;
 }
 
-static int32_t rotate_base_gobj(gobj_t *gobj)
+/*
+ * Common adjustment handler used after layout rotation.
+ * Handles align, size, and positional recalculation for rotated objects.
+ */
+static int32_t rotate_common_post_adjust(gobj_t *gobj, lv_obj_t *lobj, \
+                                         bool skip_type_check, int32_t type)
 {
     int32_t ret;
-    lv_obj_t *lobj;
+    int32_t par_w, par_h;
 
-    lobj = get_lobj(gobj);
+    /* Ignore size and align adjustment for base (non-rotated) object */
+    if (!skip_type_check) {
+        if (type == OBJ_BASE)
+            return 0;
+    }
+
+    /* Recalculate alignment values if needed */
+    if (gobj->align.value != LV_ALIGN_DEFAULT) {
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret)
+            return -EINVAL;
+    }
+
+    /*
+     * For each object, when rotation occurs, its size must be recalculated.
+     * Since the root coordinate does not change, the width and height
+     * will be adjusted according to the logical rotation.
+     */
+    ret = calc_gobj_rotated_size(gobj);
+    if (ret)
+        return -EINVAL;
+
+    if (gobj->data.post_rot_resize_adjust_cb)
+        gobj->data.post_rot_resize_adjust_cb(lobj);
+    else
+        apply_gobj_size(lobj);
+
+    /*
+     * For an object placed inside a parent, its new center point must be
+     * recalculated based on the logical rotation. Using this new center,
+     * the width and height can then be updated accordingly.
+     */
+    if (gobj->align.value == LV_ALIGN_DEFAULT) {
+        par_w = get_par_w(lobj);
+        par_h = get_par_h(lobj);
+
+        ret = gobj_get_center(gobj, par_w, par_h);
+        if (ret)
+            return -EINVAL;
+
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
+    } else {
+        apply_gobj_align(lobj);
+    }
+
+    return 0;
+}
+
+/*
+ * Rotate a base object (non-layout) such as keyboard or standalone widget.
+ * The size and alignment logic depends on its ratio and orientation mode.
+ */
+static int32_t rotate_base_gobj(gobj_t *gobj)
+{
+    lv_obj_t *lobj;
+    int32_t ret;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
     if (!lobj)
         return -EINVAL;
 
@@ -360,51 +423,16 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    if (gobj->data.pre_rot_redraw_cb) {
+    if (gobj->data.pre_rot_redraw_cb)
         gobj->data.pre_rot_redraw_cb(lobj);
-    }
-
-    // The size and scale calculation depends on alignment values,
-    // so we must process these first.
-    if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = g_obj_rot_calc_align(gobj);
-        if (ret) {
-            return -EINVAL;
-        }
-    }
-    /*
-     * For each object, when rotation occurs, its size must be recalculated.
-     * Since the root coordinate does not change, the width and height
-     * will be adjusted according to the logical rotation.
-     */
-    ret = calc_gobj_rotated_size(gobj);
-    if (ret) {
-        return -EINVAL;
-    }
-
-
-    if (gobj->data.post_rot_resize_adjust_cb) {
-        gobj->data.post_rot_resize_adjust_cb(lobj);
-    } else {
-        apply_gobj_size(lobj);
-    }
 
     /*
-     * For an object placed inside a parent, its new center point must be
-     * recalculated based on the logical rotation. Using this new center,
-     * the width and height can then be updated accordingly.
+     * For base objects, rotation only affects geometric and alignment data.
+     * There is no layout type to verify, so skip type check.
      */
-    if (gobj->align.value == LV_ALIGN_DEFAULT) {
-
-        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
-        if (ret) {
-            return -EINVAL;
-        }
-        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
-                       gobj->align.mid_y - (get_h(lobj) / 2));
-    } else {
-        apply_gobj_align(lobj);
-    }
+    ret = rotate_common_post_adjust(gobj, lobj, true, 0);
+    if (ret)
+        return ret;
 
     return 0;
 }
@@ -455,6 +483,10 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     return 0;
 }
 
+/*
+ * Rotate grid layout object based on current and target screen rotation.
+ * Handles pre/post redraw, layout config reapply, and post-adjust steps.
+ */
 static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
 {
     int32_t ret;
@@ -475,11 +507,14 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     }
 
     rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
 
+    /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_layout_90(lobj);
         if (ret) {
-            LOG_ERROR("Failed to rotate layout object data");
+            LOG_ERROR("Failed to rotate layout object data at step %d", i);
             return ret;
         }
     }
@@ -490,41 +525,8 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         return ret;
     }
 
-    /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_grid_layout_data(lobj)->type == OBJ_BASE)
-        return 0;
-
-    if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = g_obj_rot_calc_align(gobj);
-        if (ret) {
-            return ret;
-        }
-    }
-
-    ret = calc_gobj_rotated_size(gobj);
-    if (ret) {
-        return ret;
-    }
-    
-    if (gobj->data.post_rot_resize_adjust_cb) {
-        gobj->data.post_rot_resize_adjust_cb(lobj);
-    } else {
-        apply_gobj_size(lobj);
-    }
-
-    if (gobj->align.value == LV_ALIGN_DEFAULT) {
-
-        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
-        if (ret) {
-            return ret;
-        }
-        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
-                       gobj->align.mid_y - (get_h(lobj) / 2));
-    } else {
-        apply_gobj_align(lobj);
-    }
-
-    return 0;
+    return rotate_common_post_adjust(gobj, lobj, false, \
+                                     get_grid_layout_data(lobj)->type);
 }
 
 static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
@@ -556,6 +558,10 @@ static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
     return 0;
 }
 
+/*
+ * Rotate flex layout object based on current and target screen rotation.
+ * Includes pre/post rotation callbacks, flow update, and geometry adjust.
+ */
 static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
 {
     int32_t ret;
@@ -566,16 +572,18 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
-    if (gobj->data.pre_rot_redraw_cb) {
+    if (gobj->data.pre_rot_redraw_cb)
         gobj->data.pre_rot_redraw_cb(lobj);
-    }
 
     rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
 
+    /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_flex_layout_90(lobj);
         if (ret) {
-            LOG_ERROR("Failed to rotate layout object data");
+            LOG_ERROR("Failed to rotate layout object data at step %d", i);
             return -EIO;
         }
     }
@@ -586,41 +594,8 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         return -EIO;
     }
 
-    /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_flex_layout_data(lobj)->type == OBJ_BASE)
-        return 0;
-
-    if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = g_obj_rot_calc_align(gobj);
-        if (ret) {
-            return -EINVAL;
-        }
-    }
-
-    ret = calc_gobj_rotated_size(gobj);
-    if (ret) {
-        return -EINVAL;
-    }
-
-    if (gobj->data.post_rot_resize_adjust_cb) {
-        gobj->data.post_rot_resize_adjust_cb(lobj);
-    } else {
-        apply_gobj_size(lobj);
-    }
-
-    if (gobj->align.value == LV_ALIGN_DEFAULT) {
-
-        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
-        if (ret) {
-            return -EINVAL;
-        }
-        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
-                       gobj->align.mid_y - (get_h(lobj) / 2));
-    } else {
-        apply_gobj_align(lobj);
-    }
-
-    return 0;
+    return rotate_common_post_adjust(gobj, lobj, false, \
+                                     get_flex_layout_data(lobj)->type);
 }
 
 static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
