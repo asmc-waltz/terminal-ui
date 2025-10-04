@@ -454,7 +454,7 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     return 0;
 }
 
-static int32_t rotate_layout_gobj(gobj_t *gobj)
+static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
 {
     int32_t ret;
     int8_t rot_cnt;
@@ -483,7 +483,7 @@ static int32_t rotate_layout_gobj(gobj_t *gobj)
     return 0;
 }
 
-static int32_t rotate_cell_gobj(gobj_t *gobj)
+static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
 {
     int32_t ret;
     int8_t rot_cnt;
@@ -607,13 +607,13 @@ static int32_t gobj_refresh(gobj_t *gobj)
             ret = rotate_transform_gobj(gobj);
             break;
         case OBJ_GRID_CELL:
-            ret = rotate_cell_gobj(gobj);
+            ret = rotate_grid_cell_gobj(gobj);
             break;
         case OBJ_FLEX_CELL:
             ret = rotate_flex_cell_gobj(gobj);
             break;
         case OBJ_LAYOUT_GRID:
-            ret = rotate_layout_gobj(gobj);
+            ret = rotate_grid_layout_gobj(gobj);
             break;
         case OBJ_LAYOUT_FLEX:
             ret = rotate_flex_layout_gobj(gobj);
