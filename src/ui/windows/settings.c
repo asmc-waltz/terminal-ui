@@ -248,7 +248,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par)
     gobj->data.post_rot_resize_adjust_cb = menu_bar_post_rot_resize_adjust_cb;
 
     // lv_obj_t *network_container = create_container(menu_bar, SETTING_PAGE_NAME".menu_bar.network");
-    set_gobj_list_layout(menu_bar, FLEX_COLUMN);
+    set_gobj_list_layout(menu_bar, LIST_COLUMN);
 
     /*------------------------------------------------------------------------*/
     lv_obj_t *setting_btn;

@@ -43,11 +43,11 @@ typedef enum {
 } type_t;
 
 typedef enum {
-    FLEX_NONE = 0,
-    FLEX_ROW,
-    FLEX_COLUMN,
-    FLEX_END,
-} flex_t;
+    LIST_NONE = 0,
+    LIST_ROW,
+    LIST_COLUMN,
+    LIST_END,
+} list_t;
 
 struct gobj_t;
 typedef struct {
@@ -78,7 +78,7 @@ typedef struct {
     int32_t x;
     int32_t y;
     lv_obj_t *base;
-    flex_t flex;
+    list_t list;
     int8_t value;
     int8_t scale_x;
     int8_t scale_y;
@@ -139,8 +139,8 @@ void apply_gobj_size(lv_obj_t *lobj);
 
 void set_gobj_data(lv_obj_t *lobj, void *data);
 int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow);
-int32_t set_flex_scroll_dir(gobj_t *gobj);
-int32_t update_flex_by_rot(gobj_t *gobj);
+int32_t set_list_scroll_dir(gobj_t *gobj);
+int32_t update_list_by_rot(gobj_t *gobj);
 
 /*=====================
  * Getter functions

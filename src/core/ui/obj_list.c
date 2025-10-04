@@ -59,14 +59,14 @@ int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow)
     if (!lobj)
         return -EINVAL;
 
-    if (flow <= FLEX_NONE || flow >= FLEX_END)
+    if (flow <= LIST_NONE || flow >= LIST_END)
         return -EINVAL;
 
     gobj = get_gobj(lobj);
     if (!gobj)
         return -EIO;
 
-    gobj->align.flex = flow;
+    gobj->align.list = flow;
 
     lv_obj_set_scrollbar_mode(lobj, LV_SCROLLBAR_MODE_OFF);
 
@@ -151,16 +151,16 @@ int32_t get_revert_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
         return -EINVAL;
 
     if (lv_obj_get_child(par, -1) != lobj) {
-        if (flow == FLEX_COLUMN) {
+        if (flow == LIST_COLUMN) {
             align = LV_ALIGN_OUT_BOTTOM_MID;
-        } else if (flow == FLEX_ROW) {
+        } else if (flow == LIST_ROW) {
             align = LV_ALIGN_OUT_RIGHT_MID;
         }
     } else {
         // Last obj get ref
-        if (flow == FLEX_COLUMN) {
+        if (flow == LIST_COLUMN) {
             align = LV_ALIGN_TOP_MID;
-        } else if (flow == FLEX_ROW) {
+        } else if (flow == LIST_ROW) {
             align = LV_ALIGN_LEFT_MID;
         }
     }
@@ -178,16 +178,16 @@ int32_t get_normal_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
         return -EINVAL;
 
     if (lv_obj_get_child(par, 0) != lobj) {
-        if (flow == FLEX_COLUMN) {
+        if (flow == LIST_COLUMN) {
             align = LV_ALIGN_OUT_BOTTOM_MID;
-        } else if (flow == FLEX_ROW) {
+        } else if (flow == LIST_ROW) {
             align = LV_ALIGN_OUT_RIGHT_MID;
         }
     } else {
         // First obj get align
-        if (flow == FLEX_COLUMN) {
+        if (flow == LIST_COLUMN) {
             align = LV_ALIGN_TOP_MID;
-        } else if (flow == FLEX_ROW) {
+        } else if (flow == LIST_ROW) {
             align = LV_ALIGN_LEFT_MID;
         }
     }
@@ -196,7 +196,7 @@ int32_t get_normal_obj_align(lv_obj_t *par, lv_obj_t *lobj, int8_t flow)
 }
 
 /**
- * Align a child object inside a gobj list based on effective flex
+ * Align a child object inside a gobj list based on effective list
  * and the current screen rotation.
  *
  * Returns 0 on success, negative errno on failure.
@@ -217,8 +217,8 @@ int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
     if (!gobj_par)
         return -EIO;
 
-    flow = gobj_par->align.flex;
-    if (flow == FLEX_NONE) {
+    flow = gobj_par->align.list;
+    if (flow == LIST_NONE) {
         LOG_ERROR("Unable to add list object into normal parent");
         return -EIO;
     }
@@ -349,30 +349,30 @@ int32_t update_revert_list_obj_align(gobj_t *gobj)
 }
 
 /**
- * Set scroll dir for a flex list based on its effective flex.
+ * Set scroll dir for a list list based on its effective list.
  *
- * Returns 0 on success, -EINVAL for invalid args, -EIO for invalid flex.
+ * Returns 0 on success, -EINVAL for invalid args, -EIO for invalid list.
  */
-int32_t set_flex_scroll_dir(gobj_t *gobj)
+int32_t set_list_scroll_dir(gobj_t *gobj)
 {
     lv_obj_t *lobj;
-    int32_t cur_flex;
+    int32_t cur_list;
 
     lobj = gobj ? get_lobj(gobj) : NULL;
     if (!lobj)
         return -EINVAL;
 
-    cur_flex = gobj->align.flex;
-    if (cur_flex <= FLEX_NONE || cur_flex >= FLEX_END)
+    cur_list = gobj->align.list;
+    if (cur_list <= LIST_NONE || cur_list >= LIST_END)
         return -EIO;
 
-    if (cur_flex == FLEX_COLUMN) {
+    if (cur_list == LIST_COLUMN) {
         lv_obj_set_scroll_dir(lobj, LV_DIR_TOP | LV_DIR_BOTTOM);
-    } else if (cur_flex == FLEX_ROW) {
+    } else if (cur_list == LIST_ROW) {
         lv_obj_set_scroll_dir(lobj, LV_DIR_LEFT | LV_DIR_RIGHT);
     } else {
         /* defensive: unknown flow */
-        LOG_WARN("Unknown flex %d", cur_flex);
+        LOG_WARN("Unknown list %d", cur_list);
         return -EIO;
     }
 
@@ -380,21 +380,21 @@ int32_t set_flex_scroll_dir(gobj_t *gobj)
 }
 
 /**
- * Update stored flex according to rotation groups.
+ * Update stored list according to rotation groups.
  *
  * Group A: ROTATION_0, ROTATION_180
  * Group B: ROTATION_90, ROTATION_270
  *
- * If scr_rot and cur_rot are in same group -> keep cur_flex.
+ * If scr_rot and cur_rot are in same group -> keep cur_list.
  * Else swap COLUMN <-> ROW.
  *
  * Returns 0 on success, -EINVAL for invalid args.
  */
-int32_t update_flex_by_rot(gobj_t *gobj)
+int32_t update_list_by_rot(gobj_t *gobj)
 {
     int32_t scr_rot;
     int32_t cur_rot;
-    int32_t cur_flex;
+    int32_t cur_list;
     bool same_group;
 
     if (!gobj)
@@ -402,11 +402,11 @@ int32_t update_flex_by_rot(gobj_t *gobj)
 
     scr_rot = get_scr_rotation();
     cur_rot = gobj->data.rotation;
-    cur_flex = gobj->align.flex;
+    cur_list = gobj->align.list;
 
-    /* validate current flex */
-    if (cur_flex != FLEX_COLUMN && cur_flex != FLEX_ROW) {
-        LOG_WARN("gobj has non-standard flex %d", cur_flex);
+    /* validate current list */
+    if (cur_list != LIST_COLUMN && cur_list != LIST_ROW) {
+        LOG_WARN("gobj has non-standard list %d", cur_list);
         /* keep as-is and return success to avoid forcing invalid value */
         return -EIO;
     }
@@ -417,9 +417,9 @@ int32_t update_flex_by_rot(gobj_t *gobj)
                   (cur_rot == ROTATION_90 || cur_rot == ROTATION_270));
 
     if (same_group)
-        gobj->align.flex = cur_flex;
+        gobj->align.list = cur_list;
     else
-        gobj->align.flex = (cur_flex == FLEX_COLUMN) ? FLEX_ROW : FLEX_COLUMN;
+        gobj->align.list = (cur_list == LIST_COLUMN) ? LIST_ROW : LIST_COLUMN;
 
     return 0;
 }
