@@ -512,6 +512,65 @@ static int32_t rotate_cell_gobj(gobj_t *gobj)
     return 0;
 }
 
+static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
+{
+    int32_t ret;
+    int8_t rot_cnt;
+    lv_obj_t *lobj;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
+
+    rot_cnt = calc_rotation_turn(gobj);
+
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        ret = rotate_flex_layout_90(lobj);
+        if (ret) {
+            LOG_ERROR("Failed to rotate layout object data");
+            return -EIO;
+        }
+    }
+
+    ret = apply_flex_layout_flow(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to apply new layout object data");
+        return -EIO;
+    }
+
+    ret = calc_gobj_rotated_size(gobj);
+    if (ret) {
+        return -EIO;
+    }
+
+    apply_gobj_size(lobj);
+
+
+    return 0;
+}
+
+static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
+{
+    int32_t ret;
+    int8_t rot_cnt;
+    lv_obj_t *lobj;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
+
+    ret = calc_gobj_rotated_size(gobj);
+    if (ret) {
+        return -EINVAL;
+    }
+
+    apply_gobj_size(lobj);
+
+    lv_obj_mark_layout_as_dirty(lv_obj_get_parent(lobj));
+
+    return 0;
+}
+
 static int32_t gobj_refresh(gobj_t *gobj)
 {
     int32_t ret;
@@ -550,8 +609,14 @@ static int32_t gobj_refresh(gobj_t *gobj)
         case OBJ_GRID_CELL:
             ret = rotate_cell_gobj(gobj);
             break;
+        case OBJ_FLEX_CELL:
+            ret = rotate_flex_cell_gobj(gobj);
+            break;
         case OBJ_LAYOUT_GRID:
             ret = rotate_layout_gobj(gobj);
+            break;
+        case OBJ_LAYOUT_FLEX:
+            ret = rotate_flex_layout_gobj(gobj);
             break;
         default:
             LOG_WARN("Unknown G object type: %d", gobj->data.obj_type);

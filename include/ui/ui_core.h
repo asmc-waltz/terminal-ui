@@ -34,6 +34,7 @@ typedef enum {
     OBJ_LAYOUT_GRID,
     OBJ_LAYOUT_FLEX,
     OBJ_GRID_CELL,
+    OBJ_FLEX_CELL,
     OBJ_BOX,
     OBJ_BTN,
     OBJ_SLIDER,
