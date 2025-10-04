@@ -18,6 +18,7 @@
 #include <lvgl.h>
 #include "list.h"
 #include "ui/ui_core.h"
+#include "ui/layout.h"
 #include "main.h"
 
 /*********************
@@ -47,6 +48,28 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static int8_t calc_rotation_turn(gobj_t *gobj)
+{
+    int8_t cur_rot;
+    int8_t scr_rot;
+    int8_t rot_cnt;
+
+    if (!gobj)
+        return -EINVAL;
+
+    cur_rot = gobj->data.rotation;
+    scr_rot = get_scr_rotation();
+
+    if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
+        scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
+        return -EINVAL;
+
+    /* Number of 90-degree turns to reach screen rotation from current */
+    rot_cnt = (scr_rot - cur_rot + 4) % 4;
+
+    return rot_cnt;
+}
+
 /*
  * Recalculate object's midpoint (x_mid, y_mid) when parent size
  * or screen rotation changes.
@@ -431,6 +454,64 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     return 0;
 }
 
+static int32_t rotate_layout_gobj(gobj_t *gobj)
+{
+    int32_t ret;
+    int8_t rot_cnt;
+    lv_obj_t *lobj;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
+
+    rot_cnt = calc_rotation_turn(gobj);
+
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        ret = rotate_grid_layout_90(lobj);
+        if (ret) {
+            LOG_ERROR("Failed to rotate layout object data");
+            return -EIO;
+        }
+    }
+
+    ret = apply_grid_layout_config(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to apply new layout object data");
+        return -EIO;
+    }
+
+    return 0;
+}
+
+static int32_t rotate_cell_gobj(gobj_t *gobj)
+{
+    int32_t ret;
+    int8_t rot_cnt;
+    lv_obj_t *lobj;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
+
+    rot_cnt = calc_rotation_turn(gobj);
+
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        ret = rotate_grid_cell_pos_90(lobj);
+        if (ret) {
+            LOG_ERROR("Failed to rotate cell object data");
+            return -EIO;
+        }
+    }
+
+    ret = apply_grid_cell_align_and_pos(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to apply new cell object data");
+        return -EIO;
+    }
+
+    return 0;
+}
+
 static int32_t gobj_refresh(gobj_t *gobj)
 {
     int32_t ret;
@@ -466,22 +547,11 @@ static int32_t gobj_refresh(gobj_t *gobj)
         case OBJ_TEXTAREA:
             ret = rotate_transform_gobj(gobj);
             break;
-
         case OBJ_CELL:
-            /*
-             * The container maintains its original offset (0,0)
-             * for scrolling purposes.
-             */
-            ret = calc_gobj_rotated_size(gobj);
-            if (!ret)
-                lv_obj_set_size(lobj, get_w(lobj), get_h(lobj));
+            ret = rotate_cell_gobj(gobj);
             break;
         case OBJ_LAYOUT:
-            /*
-             * Base object does not change
-             * it remains solid and stays on screen as a physical part
-             */
-            ret = 0;
+            ret = rotate_layout_gobj(gobj);
             break;
         default:
             LOG_WARN("Unknown G object type: %d", gobj->data.obj_type);
@@ -489,6 +559,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
     }
 
     if (ret) {
+        LOG_ERROR("Failed to handle object refresh event, ret %d", ret);
         return ret;
     }
 
