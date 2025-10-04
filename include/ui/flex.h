@@ -19,6 +19,7 @@
  *      TYPEDEFS
  **********************/
 typedef struct flex_layout {
+    type_t type;
     lv_flex_flow_t flow;
     lv_flex_align_t main_place;
     lv_flex_align_t cross_place;

@@ -570,13 +570,6 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         gobj->data.pre_rot_redraw_cb(lobj);
     }
 
-    if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = g_obj_rot_calc_align(gobj);
-        if (ret) {
-            return -EINVAL;
-        }
-    }
-
     rot_cnt = calc_rotation_turn(gobj);
 
     for (int8_t i = 0; i < rot_cnt; i++) {
@@ -591,6 +584,17 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     if (ret) {
         LOG_ERROR("Failed to apply new layout object data");
         return -EIO;
+    }
+
+    /* Ignore size and align adjustment for base (non-rotated) object */
+    if (get_layout_data(lobj)->type == OBJ_BASE)
+        return 0;
+
+    if (gobj->align.value != LV_ALIGN_DEFAULT) {
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret) {
+            return -EINVAL;
+        }
     }
 
     ret = calc_gobj_rotated_size(gobj);
