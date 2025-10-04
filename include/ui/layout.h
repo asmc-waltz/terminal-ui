@@ -22,6 +22,7 @@
  **********************/
 typedef struct grid_rc{
     int8_t index;
+    int8_t max;
     int8_t span;
     lv_grid_align_t align;
 } grid_rc_t;
@@ -92,14 +93,15 @@ int32_t set_grid_layout_gap(lv_obj_t *lobj, int8_t scale_col, int32_t pad_col, \
                             int8_t scale_row, int32_t pad_row);
 
 int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
-                               int32_t col_pos, int32_t col_span, \
-                               lv_grid_align_t row_align, int32_t row_pos, \
-                               int32_t row_span);
-int32_t apply_grid_cell_align(lv_obj_t * lobj);
+                               int8_t col_pos, int8_t col_span, \
+                               int8_t col_max, lv_grid_align_t row_align, \
+                               int8_t row_pos, int8_t row_span, int8_t row_max);
+int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj);
 int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
                             int32_t col_pos, int32_t col_span, \
                             lv_grid_align_t row_align, int32_t row_pos, \
                             int32_t row_span);
+int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj);
 
 int32_t rotate_grid_dsc_90(lv_obj_t *lobj);
 int32_t rotate_grid_align_90(lv_obj_t *lobj);

@@ -187,42 +187,50 @@ static void free_grid_desc(grid_desc_t *dsc)
  * @param col_align the vertical alignment in the cell. `LV_GRID_START/END/CENTER/STRETCH`
  * @param col_pos column ID
  * @param col_span number of columns to take (>= 1)
+ * @param col_max column ID max
  * @param row_align the horizontal alignment in the cell. `LV_GRID_START/END/CENTER/STRETCH`
  * @param row_pos row ID
  * @param row_span number of rows to take (>= 1)
+ * @param row_max row ID max
  */
 int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
-                               int32_t col_pos, int32_t col_span, \
-                               lv_grid_align_t row_align, int32_t row_pos, \
-                               int32_t row_span)
+                               int8_t col_pos, int8_t col_span, \
+                               int8_t col_max, lv_grid_align_t row_align, \
+                               int8_t row_pos, int8_t row_span, int8_t row_max)
 {
     grid_cell_t *conf;
 
     if (!lobj)
         return -EINVAL;
 
-    conf = calloc(1, sizeof(*conf));
-    if (!conf)
-        return -ENOMEM;
+    conf = get_cell_data(lobj);
+    if (!conf) {
+        LOG_TRACE("Allocating memory for grid cell");
+        conf = calloc(1, sizeof(*conf));
+        if (!conf)
+            return -EIO;
+    }
 
     get_gobj(lobj)->data.internal = conf;
 
     conf->col.index = col_pos;
+    conf->col.max = col_max;
     conf->col.span = col_span;
     conf->col.align = col_align;
 
     conf->row.index = row_pos;
+    conf->row.max = row_max;
     conf->row.span = row_span;
     conf->row.align = row_align;
 
     return 0;
 }
 
-int32_t apply_grid_cell_align(lv_obj_t * lobj)
+int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj)
 {
     grid_cell_t *conf;
 
-    conf = lobj ? (grid_cell_t *)get_gobj(lobj)->data.internal : NULL;
+    conf = lobj ? get_cell_data(lobj) : NULL;
     if (!conf)
         return -EINVAL;
 
@@ -238,25 +246,75 @@ int32_t apply_grid_cell_align(lv_obj_t * lobj)
     return 0;
 }
 
-int32_t set_grid_cell_align(lv_obj_t * lobj, lv_grid_align_t col_align, \
+int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
                             int32_t col_pos, int32_t col_span, \
                             lv_grid_align_t row_align, int32_t row_pos, \
                             int32_t row_span)
 {
     int32_t ret;
+    lv_obj_t *par;
+    grid_desc_t *r_dsc, *c_dsc;
+
+    par = lobj ? lv_obj_get_parent(lobj) : NULL;
+    if (!par)
+        return -EINVAL;
+
+    r_dsc = get_layout_row_dsc_data(par);
+    if (!r_dsc)
+        return -EIO;
+
+    c_dsc = get_layout_col_dsc_data(par);
+    if (!c_dsc)
+        return -EIO;
 
     ret = config_grid_cell_align(lobj, \
                                  col_align, \
                                  col_pos, \
                                  col_span, \
+                                 (c_dsc->size - 1), \
                                  row_align, \
                                  row_pos, \
-                                 row_span \
+                                 row_span, \
+                                 (r_dsc->size - 1) \
                                  );
     if (ret)
         return ret;
 
-    ret = apply_grid_cell_align(lobj);
+    ret = apply_grid_cell_align_and_pos(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}
+
+int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
+{
+    grid_rc_t *r_cell, *c_cell;
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    r_cell = get_cell_row_data(lobj);
+    c_cell = get_cell_col_data(lobj);
+    if (!r_cell || !c_cell)
+        return -EIO;
+
+    LOG_TRACE("Rotating grid cell 90:\tFrom row-col \t[%d][%d]", r_cell->index, c_cell->index);
+
+    ret = config_grid_cell_align(lobj, \
+                                 r_cell->align, \
+                                 (r_cell->max - r_cell->index), \
+                                 r_cell->span, \
+                                 r_cell->max, \
+                                 c_cell->align, \
+                                 c_cell->index, \
+                                 c_cell->span, \
+                                 c_cell->max
+                                 );
+
+    LOG_TRACE("Rotating grid cell 90:\tTo row-col \t[%d][%d]", r_cell->index, c_cell->index);
+
     if (ret)
         return ret;
 
