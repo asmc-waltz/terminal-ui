@@ -18,6 +18,12 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct flex_layout {
+    lv_flex_flow_t flow;
+    lv_flex_align_t main_place;
+    lv_flex_align_t cross_place;
+    lv_flex_align_t track_place;
+} flex_layout_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -37,6 +43,16 @@
 /*=====================
  * Other functions
  *====================*/
+lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name);
+int32_t config_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
+                                 lv_flex_align_t cross_place, \
+                                 lv_flex_align_t track_cross_place);
+int32_t apply_flex_layout_align(lv_obj_t *lobj);
+
+static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
+{
+    return lobj ? (flex_layout_t *)get_gobj(lobj)->data.internal : NULL;
+}
 
 /**********************
  *      MACROS

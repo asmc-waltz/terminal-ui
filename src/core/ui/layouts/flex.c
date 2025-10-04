@@ -52,4 +52,85 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *cont = NULL;
+    flex_layout_t *conf = NULL;
 
+    if (!par)
+        return NULL;
+
+    conf = (flex_layout_t *)calloc(1, sizeof(flex_layout_t));
+    if (!conf)
+        return NULL;
+
+    cont = create_flex_layout(par, name);
+    if (!cont)
+        goto out_free_conf;
+
+    get_gobj(cont)->data.internal = conf;
+
+    return cont;
+
+out_free_conf:
+    free(conf);
+    return NULL;
+}
+
+
+int32_t config_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
+                                 lv_flex_align_t cross_place, \
+                                 lv_flex_align_t track_cross_place)
+{
+    flex_layout_t *conf = NULL;
+    int32_t ret;
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    conf->main_place = main_place;
+    conf->cross_place = cross_place;
+    conf->track_place = track_cross_place;
+
+    return 0;
+}
+
+int32_t apply_flex_layout_align(lv_obj_t *lobj)
+{
+    flex_layout_t *conf = NULL;
+    int32_t ret;
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+
+    lv_obj_set_flex_align(lobj, conf->main_place, conf->cross_place, \
+                          conf->track_place);
+
+    return 0;
+}
+
+
+int32_t set_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
+                                 lv_flex_align_t cross_place, \
+                                 lv_flex_align_t track_cross_place)
+{
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    ret = config_flex_layout_align(lobj, main_place, cross_place, \
+                                   track_cross_place);
+    if (ret)
+        return ret;
+
+
+    ret = apply_flex_layout_align(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}

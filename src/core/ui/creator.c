@@ -57,6 +57,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 
     switch (type) {
         case OBJ_LAYOUT_GRID:
+        case OBJ_LAYOUT_FLEX:
         case OBJ_BOX:
         case OBJ_GRID_CELL:
             lobj = lv_obj_create(par);
@@ -118,6 +119,19 @@ lv_obj_t *create_grid_cell(lv_obj_t *par, const char *name)
     lv_obj_t *lobj = create_gobj(par, OBJ_GRID_CELL, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
+    return lobj;
+}
+
+lv_obj_t *create_flex_layout(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *lobj = create_gobj(par, OBJ_LAYOUT_FLEX, name);
+    lv_obj_set_style_pad_all(lobj, 0, 0);
+    lv_obj_set_style_pad_gap(lobj, 0, 0);
+    lv_obj_set_style_border_width(lobj, 0, 0);
+    lv_obj_set_style_outline_width(lobj, 0, 0);
+    lv_obj_set_style_shadow_width(lobj, 0, 0);
+    lv_obj_set_layout(lobj, LV_LAYOUT_FLEX);
+    lv_obj_center(lobj);
     return lobj;
 }
 
