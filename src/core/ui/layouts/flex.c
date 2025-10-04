@@ -182,3 +182,51 @@ int32_t set_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow)
 
     return 0;
 }
+/*
+ * Supported:
+ * LV_FLEX_FLOW_ROW: Place the children in a row without wrapping
+ * LV_FLEX_FLOW_COLUMN: Place the children in a column without wrapping
+ * LV_FLEX_FLOW_ROW_REVERSE: Place the children in a row without wrapping but in reversed order
+ * LV_FLEX_FLOW_COLUMN_REVERSE: Place the children in a column without wrapping but in reversed order
+ * TODO:
+ * LV_FLEX_FLOW_ROW_WRAP: Place the children in a row with wrapping
+ * LV_FLEX_FLOW_COLUMN_WRAP: Place the children in a column with wrapping
+ * LV_FLEX_FLOW_ROW_WRAP_REVERSE: Place the children in a row with wrapping but in reversed order
+ * LV_FLEX_FLOW_COLUMN_WRAP_REVERSE: Place the children in a column with wrapping but in reversed order
+ */
+int32_t rotate_flex_layout_90(lv_obj_t *lobj)
+{
+    lv_flex_flow_t pre_flow, next_flow;
+    flex_layout_t *conf = NULL;
+    int32_t ret;
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    pre_flow = conf->flow;
+
+    switch(pre_flow) {
+        case LV_FLEX_FLOW_ROW:
+            next_flow = LV_FLEX_FLOW_COLUMN;
+            break;
+        case LV_FLEX_FLOW_COLUMN:
+            next_flow = LV_FLEX_FLOW_ROW_REVERSE;
+            break;
+        case LV_FLEX_FLOW_ROW_REVERSE:
+            next_flow = LV_FLEX_FLOW_COLUMN_REVERSE;
+            break;
+        case LV_FLEX_FLOW_COLUMN_REVERSE:
+            next_flow = LV_FLEX_FLOW_ROW;
+            break;
+        default:
+            LOG_WARN("Flex box flow is invalid");
+            break;
+    }
+
+    ret = config_flex_layout_flow(lobj, next_flow);
+    LOG_TRACE("Flex layout %s rotated 90 deg: flow %d -> %d", \
+              get_gobj(lobj)->name, pre_flow, next_flow);
+
+    return 0;
+}
