@@ -54,6 +54,7 @@ typedef enum {
 struct gobj_t;
 typedef struct {
     void *internal;                     /* Internal data */
+    void *sub_data;                     /* Sub data */
     type_t obj_type;
     int8_t rotation;
     struct gobj_t *parent;

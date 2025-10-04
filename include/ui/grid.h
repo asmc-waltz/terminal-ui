@@ -152,7 +152,7 @@ static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
 
 static inline grid_cell_t *get_cell_data(lv_obj_t *lobj)
 {
-    return lobj ? (grid_cell_t *)get_gobj(lobj)->data.internal : NULL;
+    return lobj ? (grid_cell_t *)get_gobj(lobj)->data.sub_data : NULL;
 }
 
 static inline grid_rc_t *get_cell_row_data(lv_obj_t *lobj)

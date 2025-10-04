@@ -211,7 +211,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
             return -EIO;
     }
 
-    get_gobj(lobj)->data.internal = conf;
+    get_gobj(lobj)->data.sub_data = conf;
 
     conf->col.index = col_pos;
     conf->col.max = col_max;
