@@ -1,10 +1,10 @@
 /**
- * @file layout.h
+ * @file grid.h
  *
  */
 
-#ifndef G_LAYOUT_H
-#define G_LAYOUT_H
+#ifndef G_GRID_H
+#define G_GRID_H
 /*********************
  *      INCLUDES
  *********************/
@@ -170,4 +170,4 @@ static inline grid_rc_t *get_cell_col_data(lv_obj_t *lobj)
  *      MACROS
  **********************/
 
-#endif /* G_LAYOUT_H */
+#endif /* G_GRID_H */
