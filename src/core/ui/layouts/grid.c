@@ -644,7 +644,7 @@ int32_t rotate_grid_dsc_90(lv_obj_t *lobj)
     free_grid_desc(r_dsc);
     free_grid_desc(c_dsc);
 
-    conf = get_layout_data(lobj);
+    conf = get_grid_layout_data(lobj);
     if (!conf) {
         ret = -EIO;
         goto out_free_c;
@@ -693,7 +693,7 @@ int32_t rotate_grid_rc_pad_90(lv_obj_t *lobj)
     if (!lobj)
         return -EINVAL;
 
-    conf = get_layout_data(lobj);
+    conf = get_grid_layout_data(lobj);
     if (!conf) {
         return -EIO;
     }

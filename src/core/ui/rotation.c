@@ -491,7 +491,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     }
 
     /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_layout_data(lobj)->type == OBJ_BASE)
+    if (get_grid_layout_data(lobj)->type == OBJ_BASE)
         return 0;
 
     if (gobj->align.value != LV_ALIGN_DEFAULT) {
@@ -587,7 +587,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     }
 
     /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_layout_data(lobj)->type == OBJ_BASE)
+    if (get_flex_layout_data(lobj)->type == OBJ_BASE)
         return 0;
 
     if (gobj->align.value != LV_ALIGN_DEFAULT) {

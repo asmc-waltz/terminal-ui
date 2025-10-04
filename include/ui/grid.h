@@ -110,44 +110,44 @@ int32_t rotate_grid_rc_pad_90(lv_obj_t *lobj);
 int32_t rotate_grid_layout_90(lv_obj_t *lobj);
 int32_t apply_grid_layout_config(lv_obj_t *lobj);
 
-static inline grid_layout_t *get_layout_data(lv_obj_t *lobj)
+static inline grid_layout_t *get_grid_layout_data(lv_obj_t *lobj)
 {
     return lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
 }
 
 static inline grid_pad_t *get_layout_row_pad_data(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? layout->row.pad : NULL;
 }
 
 static inline grid_pad_t *get_layout_col_pad_data(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? layout->col.pad : NULL;
 }
 
 static inline grid_desc_t *get_layout_row_dsc_data(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? layout->row.dsc : NULL;
 }
 
 static inline grid_desc_t *get_layout_col_dsc_data(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? layout->col.dsc : NULL;
 }
 
 static inline lv_grid_align_t *get_layout_row_align(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? &layout->row.align : NULL;
 }
 
 static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
 {
-    grid_layout_t *layout = get_layout_data(lobj);
+    grid_layout_t *layout = get_grid_layout_data(lobj);
     return layout ? &layout->col.align : NULL;
 }
 
