@@ -522,6 +522,17 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
+    if (gobj->data.pre_rot_redraw_cb) {
+        gobj->data.pre_rot_redraw_cb(lobj);
+    }
+
+    if (gobj->align.value != LV_ALIGN_DEFAULT) {
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret) {
+            return -EINVAL;
+        }
+    }
+
     rot_cnt = calc_rotation_turn(gobj);
 
     for (int8_t i = 0; i < rot_cnt; i++) {
@@ -540,11 +551,26 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
 
     ret = calc_gobj_rotated_size(gobj);
     if (ret) {
-        return -EIO;
+        return -EINVAL;
     }
 
-    apply_gobj_size(lobj);
+    if (gobj->data.post_rot_resize_adjust_cb) {
+        gobj->data.post_rot_resize_adjust_cb(lobj);
+    } else {
+        apply_gobj_size(lobj);
+    }
 
+    if (gobj->align.value == LV_ALIGN_DEFAULT) {
+
+        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
+        if (ret) {
+            return -EINVAL;
+        }
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
+    } else {
+        apply_gobj_align(lobj);
+    }
 
     return 0;
 }
