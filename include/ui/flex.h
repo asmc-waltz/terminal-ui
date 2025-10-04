@@ -49,6 +49,10 @@ int32_t config_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
                                  lv_flex_align_t track_cross_place);
 int32_t apply_flex_layout_align(lv_obj_t *lobj);
 
+int32_t config_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow);
+int32_t apply_flex_layout_flow(lv_obj_t *lobj);
+int32_t set_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow);
+
 static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
 {
     return lobj ? (flex_layout_t *)get_gobj(lobj)->data.internal : NULL;

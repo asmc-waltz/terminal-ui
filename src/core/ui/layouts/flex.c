@@ -134,3 +134,51 @@ int32_t set_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
 
     return 0;
 }
+
+int32_t config_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow)
+{
+    flex_layout_t *conf = NULL;
+    int32_t ret;
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    conf->flow = flow;
+
+    return 0;
+}
+
+int32_t apply_flex_layout_flow(lv_obj_t *lobj)
+{
+    flex_layout_t *conf = NULL;
+    int32_t ret;
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_flex_flow(lobj, conf->flow);
+
+    return 0;
+}
+
+
+int32_t set_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow)
+{
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    ret = config_flex_layout_flow(lobj, flow);
+    if (ret)
+        return ret;
+
+
+    ret = apply_flex_layout_flow(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}
