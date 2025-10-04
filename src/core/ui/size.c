@@ -249,3 +249,36 @@ void apply_gobj_size(lv_obj_t *lobj)
 
     lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
 }
+
+/*
+ * Some objects, such as grid cells, have dynamic sizes depending on their
+ * descriptor and alignment. When the descriptor or layout changes, the stored
+ * size may become outdated, making it difficult for child objects to calculate
+ * their own sizes relative to the cell.
+ *
+ * This utility retrieves the current object size after layout updates and stores
+ * it into the gobj data in both percent and pixel units for later synchronization.
+ */
+int32_t store_computed_object_size(lv_obj_t *lobj)
+{
+    gobj_t *gobj;
+    int32_t w, h;
+
+    if (!lobj)
+        return -EINVAL;
+
+    lv_obj_update_layout(lobj);
+    w = lv_obj_get_width(lobj);
+    h = lv_obj_get_height(lobj);
+
+    gobj = get_gobj(lobj);
+    if (!gobj)
+        return -EIO;
+
+    gobj->size.par_w_pct = px_to_pct(get_par_w(lobj), w);
+    gobj->size.w = w;
+    gobj->size.par_h_pct = px_to_pct(get_par_w(lobj), h);
+    gobj->size.h = h;
+
+    return 0;
+}

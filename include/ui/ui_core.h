@@ -154,6 +154,7 @@ int32_t get_scr_rotation();
 int32_t get_scr_width(void);
 int32_t get_scr_height(void);
 void *get_gobj_internal_data(lv_obj_t *lobj);
+int32_t store_computed_object_size(lv_obj_t *lobj);
 
 /*=====================
  * Other functions
