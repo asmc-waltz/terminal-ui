@@ -31,8 +31,9 @@ typedef struct ctx ctx_t;
 
 typedef enum {
     OBJ_NONE = 0,
-    OBJ_LAYOUT,
-    OBJ_CELL,
+    OBJ_LAYOUT_GRID,
+    OBJ_LAYOUT_FLEX,
+    OBJ_GRID_CELL,
     OBJ_BOX,
     OBJ_BTN,
     OBJ_SLIDER,
@@ -163,8 +164,8 @@ int32_t remove_children(gobj_t *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
-lv_obj_t *create_layout(lv_obj_t *par, const char *name);
-lv_obj_t *create_cell(lv_obj_t *par, const char *name);
+lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name);
+lv_obj_t *create_grid_cell(lv_obj_t *par, const char *name);
 lv_obj_t *create_box(lv_obj_t *par, const char *name);
 lv_obj_t *create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str);

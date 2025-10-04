@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -380,7 +380,7 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
     return 0;
 }
 
-lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
+lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
 {
     lv_obj_t *cont = NULL;
     grid_layout_t *conf = NULL;
@@ -408,14 +408,12 @@ lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name)
     if (!conf->col.pad)
         goto out_free_row_pad;
 
-    cont = create_layout(par, name);
+    cont = create_grid_layout(par, name);
     if (!cont)
         goto out_free_col_pad;
 
     get_gobj(cont)->data.internal = conf;
 
-    lv_obj_set_layout(cont, LV_LAYOUT_GRID);
-    lv_obj_center(cont);
 
     return cont;
 

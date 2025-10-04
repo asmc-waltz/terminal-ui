@@ -547,10 +547,10 @@ static int32_t gobj_refresh(gobj_t *gobj)
         case OBJ_TEXTAREA:
             ret = rotate_transform_gobj(gobj);
             break;
-        case OBJ_CELL:
+        case OBJ_GRID_CELL:
             ret = rotate_cell_gobj(gobj);
             break;
-        case OBJ_LAYOUT:
+        case OBJ_LAYOUT_GRID:
             ret = rotate_layout_gobj(gobj);
             break;
         default:

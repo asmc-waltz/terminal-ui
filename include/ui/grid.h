@@ -74,7 +74,7 @@ typedef struct grid_layout {
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name);
+lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name);
 
 int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
 int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
