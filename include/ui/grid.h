@@ -52,6 +52,7 @@ typedef struct grid_layout_rc {
 } grid_layout_rc_t;
 
 typedef struct grid_layout {
+    type_t type;
     grid_layout_rc_t row;
     grid_layout_rc_t col;
 } grid_layout_t;

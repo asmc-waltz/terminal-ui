@@ -19,6 +19,7 @@
 #include "list.h"
 #include "ui/ui_core.h"
 #include "ui/grid.h"
+#include "ui/flex.h"
 #include "main.h"
 
 /*********************
@@ -464,20 +465,63 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
+    if (gobj->data.pre_rot_redraw_cb) {
+        ret = gobj->data.pre_rot_redraw_cb(lobj);
+        if (ret) {
+            LOG_ERROR("Failed to execute redraw callback for object %s", \
+                      gobj->name);
+            return ret;
+        }
+    }
+
     rot_cnt = calc_rotation_turn(gobj);
 
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_layout_90(lobj);
         if (ret) {
             LOG_ERROR("Failed to rotate layout object data");
-            return -EIO;
+            return ret;
         }
     }
 
     ret = apply_grid_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Failed to apply new layout object data");
-        return -EIO;
+        return ret;
+    }
+
+    /* Ignore size and align adjustment for base (non-rotated) object */
+    if (get_layout_data(lobj)->type == OBJ_BASE)
+        return 0;
+
+    if (gobj->align.value != LV_ALIGN_DEFAULT) {
+        ret = g_obj_rot_calc_align(gobj);
+        if (ret) {
+            return ret;
+        }
+    }
+
+    ret = calc_gobj_rotated_size(gobj);
+    if (ret) {
+        return ret;
+    }
+    
+    if (gobj->data.post_rot_resize_adjust_cb) {
+        gobj->data.post_rot_resize_adjust_cb(lobj);
+    } else {
+        apply_gobj_size(lobj);
+    }
+
+    if (gobj->align.value == LV_ALIGN_DEFAULT) {
+
+        ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
+        if (ret) {
+            return ret;
+        }
+        lv_obj_set_pos(lobj, gobj->align.mid_x - (get_w(lobj) / 2), \
+                       gobj->align.mid_y - (get_h(lobj) / 2));
+    } else {
+        apply_gobj_align(lobj);
     }
 
     return 0;

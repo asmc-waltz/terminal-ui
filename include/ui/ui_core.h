@@ -31,6 +31,7 @@ typedef struct ctx ctx_t;
 
 typedef enum {
     OBJ_NONE = 0,
+    OBJ_BASE,
     OBJ_LAYOUT_GRID,
     OBJ_LAYOUT_FLEX,
     OBJ_GRID_CELL,
