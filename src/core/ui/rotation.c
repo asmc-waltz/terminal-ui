@@ -618,69 +618,74 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
     return 0;
 }
 
-static int32_t gobj_refresh(gobj_t *gobj)
+static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
 {
-    int32_t ret;
-    lv_obj_t *lobj;
-    int32_t scr_rot = get_scr_rotation();
-
-    lobj = get_lobj(gobj);
-    if (!lobj)
+    if (!gobj)
         return -EINVAL;
 
-    if (!gobj) {
-        LOG_ERROR("Invalid g object");
-        return -EINVAL;
+    switch (gobj->data.sub_type) {
+    case OBJ_GRID_CELL:
+        return rotate_grid_cell_gobj(gobj);
+    case OBJ_FLEX_CELL:
+        return rotate_flex_cell_gobj(gobj);
+    case OBJ_LAYOUT_GRID:
+        return rotate_grid_layout_gobj(gobj);
+    case OBJ_LAYOUT_FLEX:
+        return rotate_flex_layout_gobj(gobj);
+    default:
+        return rotate_base_gobj(gobj);
     }
+}
 
-    // NOTE: Refresh now applies beyond rotation
-    // if (gobj->data.rotation == scr_rot) {
-    //     return 0;
-    // }
+static inline int32_t gobj_handle_transform(gobj_t *gobj)
+{
+    if (!gobj)
+        return -EINVAL;
 
-    // TODO: check obj type and update list flow, scale...
-    // Text, icon, switch will be rotate
-    // Frame, button, slider will be resize and relocation
     switch (gobj->data.obj_type) {
         case OBJ_BASE:
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            if (gobj->data.sub_type == OBJ_GRID_CELL) {
-                ret = rotate_grid_cell_gobj(gobj);
-                break;
-            }
-            if (gobj->data.sub_type == OBJ_FLEX_CELL) {
-                ret = rotate_flex_cell_gobj(gobj);
-                break;
-            }
-            if (gobj->data.sub_type == OBJ_LAYOUT_GRID) {
-                ret = rotate_grid_layout_gobj(gobj);
-                break;
-            }
-            if (gobj->data.sub_type == OBJ_LAYOUT_FLEX) {
-                ret = rotate_flex_layout_gobj(gobj);
-                break;
-            }
-            ret = rotate_base_gobj(gobj);
-            break;
+            return handle_gobj_layout_rotation(gobj);
+
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
         case OBJ_TEXTAREA:
-            ret = rotate_transform_gobj(gobj);
-            break;
-        default:
-            LOG_WARN("Unknown G object type: %d", gobj->data.obj_type);
-            break;
-    }
+            return rotate_transform_gobj(gobj);
 
+        default:
+            LOG_WARN("Unhandled object type %d, skipping transform", \
+                     gobj->data.obj_type);
+            return -EINVAL;
+    }
+}
+
+static int32_t gobj_refresh(gobj_t *gobj)
+{
+    int32_t ret;
+    lv_obj_t *lobj;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
+
+
+    // NOTE: Refresh now applies beyond rotation
+    // if (gobj->data.rotation == scr_rot)
+    //     return 0;
+
+    // TODO: check obj type and update list flow, scale...
+    // Text, icon, switch will be rotate
+    // Frame, button, slider will be resize and relocation
+    ret = gobj_handle_transform(gobj);
     if (ret) {
         LOG_ERROR("Failed to handle object refresh event, ret %d", ret);
         return ret;
     }
 
-    gobj->data.rotation = scr_rot;
+    gobj->data.rotation = get_scr_rotation();
 
     return 0;
 }
