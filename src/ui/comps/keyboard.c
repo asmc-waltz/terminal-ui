@@ -853,10 +853,10 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
     scr_rot = get_scr_rotation();
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         obj_w = pct_to_px(get_w(par), KEYBOARD_WIDTH);
-        obj_h = pct_to_px(get_h(par), HOR_KEYBOARD_HEIGHT);
+        obj_h = pct_to_px(get_h(par), KEYBOARD_HEIGHT);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         obj_w = pct_to_px(get_h(par), KEYBOARD_WIDTH);
-        obj_h = pct_to_px(get_w(par), VER_KEYBOARD_HEIGHT);
+        obj_h = pct_to_px(get_w(par), KEYBOARD_HEIGHT);
     }
 
     // Reset all keyboard configurations to the horizontal layout.
@@ -887,7 +887,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 
     /* Calculate setting container size as percentage of parent size */
     obj_w = pct_to_px(get_w(par), KEYBOARD_WIDTH);
-    obj_h = pct_to_px(get_h(par), HOR_KEYBOARD_HEIGHT);
+    obj_h = pct_to_px(get_h(par), KEYBOARD_HEIGHT);
 
     set_gobj_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
@@ -901,21 +901,17 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_keyboard(ctx_t *ctx)
+lv_obj_t *create_keyboard(lv_obj_t *par)
 {
-    lv_obj_t *par, *kb;
+    lv_obj_t *kb;
     const keyboard_def *map = &kb_maps[0];
     int32_t ret;
-
-    if (!ctx || !ctx->scr.now.obj)
-        return NULL;
 
     if (act_map) {
         LOG_WARN("Keyboard already active, please recall the previous one");
         return NULL;
     }
 
-    par = ctx->scr.now.obj;
     kb = create_keyboard_containter(par);
     if (!kb)
         return NULL;

@@ -29,9 +29,8 @@
 
 
 #define KEYBOAR_NAME                    "comps.keyboard"
-#define KEYBOARD_WIDTH                  98      // %
-#define HOR_KEYBOARD_HEIGHT             40      // %
-#define VER_KEYBOARD_HEIGHT             30      // %
+#define KEYBOARD_WIDTH                  100      // %
+#define KEYBOARD_HEIGHT                 100      // %
 #define KEYBOARD_PAD_TOP                0       // %
 #define KEYBOARD_PAD_BOT                1       // %
 #define KEYBOARD_PAD_LEFT               1       // %
@@ -69,7 +68,7 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
  *====================*/
 lv_obj_t *create_top_bar(ctx_t *ctx);
 
-lv_obj_t *create_keyboard(ctx_t *ctx);
+lv_obj_t *create_keyboard(lv_obj_t *par);
 void remove_keyboard(ctx_t *ctx);
 
 /**********************
