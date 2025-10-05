@@ -267,7 +267,6 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
     if (!lobj)
         return -EINVAL;
 
-    lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
 
@@ -279,6 +278,9 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
     gobj->size.w = w;
     gobj->size.par_h_pct = px_to_pct(get_par_w(lobj), h);
     gobj->size.h = h;
+
+    LOG_TRACE("Object size storaged W: %d/%d\% - H:%d/%d\%", \gobj->size.w, \
+              gobj->size.par_w_pct, gobj->size.h, gobj->size.par_h_pct);
 
     return 0;
 }
