@@ -178,6 +178,19 @@ static void free_grid_desc(grid_desc_t *dsc)
     dsc->size = 0;
     free(dsc);
 }
+
+static void on_size_changed_cb(lv_event_t *e)
+{
+    lv_obj_t *lobj = lv_event_get_target(e);
+    int32_t ret;
+
+    ret = store_computed_object_size(lobj);
+    if (ret) {
+        LOG_ERROR("Failed to store cell object data");
+        return;
+    }
+    LOG_TRACE("Grid cell object size is updated");
+}
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -243,12 +256,26 @@ int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj)
                          conf->row.index, \
                          conf->row.span \
                          );
-
-    ret = store_computed_object_size(lobj);
-    if (ret) {
-        LOG_ERROR("Failed to store new cell object data");
-        return ret;
-    }
+    /*
+     * TODO: Remaining issues:
+     *
+     * 1. To get the size calculated by the layout engine as soon as possible,
+     *    we must call "lv_obj_update_layout()". However, multiple consecutive
+     *    calls can cause instability or unexpected behavior in LVGL.
+     *
+     * 2. Without explicitly updating the layout, after applying a new layout,
+     *    the object must wait for LVGL to refresh it before obtaining the correct
+     *    size. The updated size is usually propagated through the "on_size_changed_cb"
+     *    callback.
+     *
+     *    Due to LVGL’s single-threaded nature, this size update may occur later
+     *    than subsequent child refresh or rotation operations. As a result, child
+     *    objects might read outdated parent sizes, leading to incorrect size
+     *    computations.
+     *
+     * We must define a reliable synchronization mechanism to ensure child objects
+     * recalculate their size only after the parent’s size is fully updated.
+     */
 
     return 0;
 }
@@ -291,11 +318,8 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     if (ret)
         return ret;
 
-    ret = store_computed_object_size(lobj);
-    if (ret) {
-        LOG_ERROR("Failed to store cell object data");
-        return ret;
-    }
+    lv_obj_add_event_cb(lobj, on_size_changed_cb, \
+                        LV_EVENT_SIZE_CHANGED, NULL);
 
     ret = set_grid_cell_sub_type(lobj);
     if (ret) {
