@@ -62,8 +62,8 @@ static int32_t get_base_size(lv_obj_t *lobj, int32_t *par_w, int32_t *par_h)
         LOG_TRACE("Descriptor based on screen: W[%d] H[%d]",
                   *par_w, *par_h);
     } else {
-        *par_w = get_w(par);
-        *par_h = get_h(par);
+        *par_w = get_w(lobj);
+        *par_h = get_h(lobj);
         LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]",
                   *par_w, *par_h);
     }
