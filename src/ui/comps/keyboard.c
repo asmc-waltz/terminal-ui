@@ -28,6 +28,13 @@
 /*********************
  *      DEFINES
  *********************/
+#define KEYBOARD_WIDTH                  100      // %
+#define KEYBOARD_HEIGHT                 100      // %
+#define KEYBOARD_PAD_TOP                0       // %
+#define KEYBOARD_PAD_BOT                1       // %
+#define KEYBOARD_PAD_LEFT               1       // %
+#define KEYBOARD_PAD_RIGHT              1       // %
+
 #define KEYBOARD_BG_COLOR               0xADBACC
 #define NORM_K_COLOR                    0xFFFFFF
 #define FUNC_K_COLOR                    0xCCD6E3
@@ -819,10 +826,10 @@ static int32_t set_keyboard_mode(const key_def *key)
     const keyboard_def *map;
     int32_t ret;
 
-    kb = get_obj_by_name(KEYBOAR_NAME, \
+    kb = get_obj_by_name(COMPS_KEYBOARD, \
                                    &get_gobj(lv_screen_active())->child);
     if (!kb) {
-        LOG_ERROR("Keyboard [%s] not found", KEYBOAR_NAME);
+        LOG_ERROR("Keyboard [%s] not found", COMPS_KEYBOARD);
         return -EINVAL;
     }
 
@@ -881,7 +888,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
         return NULL;
 
     /* Create container box for the keyboard and all button */
-    cont = create_box(par, KEYBOAR_NAME);
+    cont = create_box(par, COMPS_KEYBOARD);
     if (!cont)
         return NULL;
 
@@ -919,7 +926,7 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     ret = create_keys_layout(kb, map);
     if (ret) {
         LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \
-                   remove_obj_and_child_by_name(KEYBOAR_NAME, \
+                   remove_obj_and_child_by_name(COMPS_KEYBOARD, \
                                             &get_gobj(par)->child));
         return NULL;
     }
@@ -947,7 +954,7 @@ void remove_keyboard(ctx_t *ctx)
         act_map = NULL;
     }
 
-    ret = remove_obj_and_child_by_name(KEYBOAR_NAME, &get_gobj(par)->child);
+    ret = remove_obj_and_child_by_name(COMPS_KEYBOARD, &get_gobj(par)->child);
     if (ret)
         LOG_WARN("Keyboard object not found");
 

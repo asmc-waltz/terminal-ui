@@ -27,6 +27,11 @@
 /*********************
  *      DEFINES
  *********************/
+#define TOP_BAR_WIDTH                   98      // %
+#define TOP_BAR_HEIGHT                  7       // %
+#define TOP_BAR_PAD_TOP                 1       // %
+#define TOP_BAR_SYM_ALN                 2       // %
+
 #define TOP_BAR_BG_COLOR           0x636D7A
 
 /**********************
@@ -107,24 +112,24 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
  * to each other, and later replace a symbol by name.
  *
  * Add first symbol: signal icon
- *      lv_obj_t *sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".signal",
+ *      lv_obj_t *sym = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".signal",
  *                                         ICON_SIGNAL_SOLID);
  *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_LEFT,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add second symbol: WiFi icon, aligned to the right of signal icon
- *      lv_obj_t *sub = add_top_bar_symbol(top_bar, TOP_BAR_NAME".wifi",
+ *      lv_obj_t *sub = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".wifi",
  *                                         ICON_WIFI_SOLID);
  *      set_gobj_align(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add third symbol: alert (bell) icon, centered on top bar
- *      sym = add_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
+ *      sym = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".alert",
  *                               ICON_BELL_SOLID);
  *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
 
  * Replace alert symbol with "bell slash" version
- *      replace_top_bar_symbol(top_bar, TOP_BAR_NAME".alert",
+ *      replace_top_bar_symbol(top_bar, COMPS_TOP_BAR".alert",
  *                             ICON_BELL_SLASH_SOLID);
  */
 
@@ -139,7 +144,7 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     par = ctx->scr.now.obj;
 
     /* Create container box for top bar */
-    top_bar = create_box(par, TOP_BAR_NAME);
+    top_bar = create_box(par, COMPS_TOP_BAR);
     if (!top_bar)
         return NULL;
 

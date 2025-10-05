@@ -17,26 +17,11 @@
 /*********************
  *      DEFINES
  *********************/
-#define TOP_BAR_NAME                    "comps.top_bar"
-#define TOP_BAR_WIDTH                   98      // %
-#define TOP_BAR_HEIGHT                  7       // %
-#define TOP_BAR_PAD_TOP                 1       // %
-#define TOP_BAR_PAD_BOT                 0       // %
-#define TOP_BAR_PAD_LEFT                1       // %
-#define TOP_BAR_PAD_RIGHT               1       // %
-#define TOP_BAR_SYM_ALN                 2       // %
+#define COMPS_TOP_BAR                   "comps.top_bar"
 #define TOP_BAR_SYM_FONTS               &terminal_icons_32
 
-
-#define KEYBOAR_NAME                    "comps.keyboard"
-#define KEYBOARD_WIDTH                  100      // %
-#define KEYBOARD_HEIGHT                 100      // %
-#define KEYBOARD_PAD_TOP                0       // %
-#define KEYBOARD_PAD_BOT                1       // %
-#define KEYBOARD_PAD_LEFT               1       // %
-#define KEYBOARD_PAD_RIGHT              1       // %
+#define COMPS_KEYBOARD                  "comps.keyboard"
 #define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_24
-
 
 /**********************
  *      TYPEDEFS
