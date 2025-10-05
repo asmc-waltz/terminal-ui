@@ -171,7 +171,6 @@ int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
 lv_obj_t *create_grid_layout(lv_obj_t *par, const char *name);
-lv_obj_t *create_grid_cell(lv_obj_t *par, const char *name);
 lv_obj_t *create_flex_layout(lv_obj_t *par, const char *name);
 
 lv_obj_t *create_box(lv_obj_t *par, const char *name);

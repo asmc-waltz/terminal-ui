@@ -297,7 +297,7 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
         return ret;
     }
 
-    ret = set_sub_type(lobj, OBJ_GRID_CELL);
+    ret = set_grid_cell_sub_type(lobj);
     if (ret) {
         LOG_ERROR("Failed to set object sub type");
         return ret;

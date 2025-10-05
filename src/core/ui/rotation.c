@@ -646,11 +646,15 @@ static int32_t gobj_refresh(gobj_t *gobj)
     switch (gobj->data.obj_type) {
         case OBJ_BOX:
         case OBJ_BTN:
+        case OBJ_SLIDER:
+            if (gobj->data.sub_type == OBJ_GRID_CELL) {
+                ret = rotate_grid_cell_gobj(gobj);
+                break;
+            }
             if (gobj->data.sub_type == OBJ_FLEX_CELL) {
                 ret = rotate_flex_cell_gobj(gobj);
                 break;
             }
-        case OBJ_SLIDER:
             ret = rotate_base_gobj(gobj);
             break;
         case OBJ_LABEL:
@@ -658,9 +662,6 @@ static int32_t gobj_refresh(gobj_t *gobj)
         case OBJ_ICON:
         case OBJ_TEXTAREA:
             ret = rotate_transform_gobj(gobj);
-            break;
-        case OBJ_GRID_CELL:
-            ret = rotate_grid_cell_gobj(gobj);
             break;
         case OBJ_LAYOUT_GRID:
             ret = rotate_grid_layout_gobj(gobj);

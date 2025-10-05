@@ -167,6 +167,11 @@ static inline grid_rc_t *get_cell_col_data(lv_obj_t *lobj)
     grid_cell_t *cell_data = get_cell_data(lobj);
     return cell_data ? &cell_data->col : NULL;
 }
+
+static inline int32_t set_grid_cell_sub_type(lv_obj_t *lobj)
+{
+    return set_sub_type(lobj, OBJ_GRID_CELL);
+}
 /**********************
  *      MACROS
  **********************/
