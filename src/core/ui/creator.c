@@ -56,8 +56,6 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     LV_ASSERT_NULL(par);
 
     switch (type) {
-        case OBJ_LAYOUT_GRID:
-        case OBJ_LAYOUT_FLEX:
         case OBJ_BOX:
             lobj = lv_obj_create(par);
             break;
@@ -100,19 +98,6 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_flex_layout(lv_obj_t *par, const char *name)
-{
-    lv_obj_t *lobj = create_gobj(par, OBJ_LAYOUT_FLEX, name);
-    lv_obj_set_style_pad_all(lobj, 0, 0);
-    lv_obj_set_style_pad_gap(lobj, 0, 0);
-    lv_obj_set_style_border_width(lobj, 0, 0);
-    lv_obj_set_style_outline_width(lobj, 0, 0);
-    lv_obj_set_style_shadow_width(lobj, 0, 0);
-    lv_obj_set_layout(lobj, LV_LAYOUT_FLEX);
-    lv_obj_center(lobj);
-    return lobj;
-}
-
 lv_obj_t *create_box(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = create_gobj(par, OBJ_BOX, name);

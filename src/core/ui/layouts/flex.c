@@ -64,11 +64,14 @@ lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
     if (!conf)
         return NULL;
 
-    cont = create_flex_layout(par, name);
+    cont = create_box(par, name);
     if (!cont)
         goto out_free_conf;
 
     get_gobj(cont)->data.internal = conf;
+
+    lv_obj_set_layout(cont, LV_LAYOUT_FLEX);
+    lv_obj_center(cont);
 
     if (set_sub_type(cont, OBJ_LAYOUT_FLEX)) {
         LOG_ERROR("Failed to set object sub type");

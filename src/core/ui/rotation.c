@@ -659,6 +659,10 @@ static int32_t gobj_refresh(gobj_t *gobj)
                 ret = rotate_grid_layout_gobj(gobj);
                 break;
             }
+            if (gobj->data.sub_type == OBJ_LAYOUT_FLEX) {
+                ret = rotate_flex_layout_gobj(gobj);
+                break;
+            }
             ret = rotate_base_gobj(gobj);
             break;
         case OBJ_LABEL:
@@ -666,9 +670,6 @@ static int32_t gobj_refresh(gobj_t *gobj)
         case OBJ_ICON:
         case OBJ_TEXTAREA:
             ret = rotate_transform_gobj(gobj);
-            break;
-        case OBJ_LAYOUT_FLEX:
-            ret = rotate_flex_layout_gobj(gobj);
             break;
         default:
             LOG_WARN("Unknown G object type: %d", gobj->data.obj_type);
