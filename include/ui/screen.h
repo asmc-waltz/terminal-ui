@@ -32,17 +32,8 @@
  **********************/
 typedef struct ctx ctx_t;
 
-typedef struct scr_region {
-    int32_t upper_space;
-    lv_obj_t *obj;
-    int32_t under_space;
-} region_t;
-
 typedef struct scr_space {
     lv_obj_t *obj;
-    region_t top;
-    region_t mid;
-    region_t bot;
 } space_t;
 
 typedef struct screen {

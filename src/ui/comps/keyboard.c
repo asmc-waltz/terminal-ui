@@ -920,10 +920,6 @@ lv_obj_t *create_keyboard(ctx_t *ctx)
     if (!kb)
         return NULL;
 
-    ctx->scr.now.bot.obj = kb;
-    ctx->scr.now.bot.upper_space = KEYBOARD_PAD_TOP;
-    ctx->scr.now.bot.under_space = KEYBOARD_PAD_BOT;
-
     ret = create_keys_layout(kb, map);
     if (ret) {
         LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \
@@ -958,10 +954,6 @@ void remove_keyboard(ctx_t *ctx)
     ret = remove_obj_and_child_by_name(KEYBOAR_NAME, &get_gobj(par)->child);
     if (ret)
         LOG_WARN("Keyboard object not found");
-
-    ctx->scr.now.bot.obj = NULL;
-    ctx->scr.now.bot.upper_space = 0;
-    ctx->scr.now.bot.under_space = 0;
 
     ret = refresh_obj_tree_layout(get_gobj(par));
     if (ret)

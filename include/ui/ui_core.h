@@ -144,9 +144,6 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
 void apply_gobj_size(lv_obj_t *lobj);
 
 void set_gobj_data(lv_obj_t *lobj, void *data);
-int32_t set_gobj_list_layout(lv_obj_t *lobj, int8_t flow);
-int32_t set_list_scroll_dir(gobj_t *gobj);
-int32_t update_list_by_rot(gobj_t *gobj);
 
 /*=====================
  * Getter functions
@@ -189,10 +186,6 @@ lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(gobj_t *gobj);
 int32_t calc_gobj_rotated_size(gobj_t *gobj);
-
-int32_t align_gobj_list_item(lv_obj_t *par, lv_obj_t *lobj, int32_t x_ofs, \
-                             int32_t y_ofs);
-int32_t update_list_align_by_rot(gobj_t *gobj_par);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {

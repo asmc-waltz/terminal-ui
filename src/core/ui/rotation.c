@@ -680,16 +680,6 @@ static int32_t gobj_refresh(gobj_t *gobj)
         return ret;
     }
 
-    if (gobj->align.list) {
-        ret = update_list_by_rot(gobj);
-        if (ret)
-            LOG_WARN("Unable to update list value, ret %d", ret);
-
-        ret = set_list_scroll_dir(gobj);
-        if (ret)
-            LOG_WARN("Unable to update scroll configuration, ret %d", ret);
-    }
-
     gobj->data.rotation = scr_rot;
 
     return 0;
@@ -714,10 +704,6 @@ static int32_t gobj_refresh_child(gobj_t *gobj)
         if (ret < 0) {
             LOG_ERROR("Child object %d (%s) rotation failed", gobj->id, gobj->name);
             return ret;
-        }
-
-        if (p_obj->align.list) {
-            update_list_align_by_rot(p_obj);
         }
     }
 

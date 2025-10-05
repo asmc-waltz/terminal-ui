@@ -153,9 +153,5 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     lv_obj_set_style_bg_color(top_bar, lv_color_hex(TOP_BAR_BG_COLOR), 0);
     lv_obj_clear_flag(top_bar, LV_OBJ_FLAG_SCROLLABLE);
 
-    ctx->scr.now.top.obj = top_bar;
-    ctx->scr.now.top.upper_space = TOP_BAR_PAD_TOP;
-    ctx->scr.now.top.under_space = TOP_BAR_PAD_BOT;
-
     return top_bar;
 }
