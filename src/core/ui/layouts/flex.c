@@ -70,6 +70,11 @@ lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
 
     get_gobj(cont)->data.internal = conf;
 
+    if (set_sub_type(cont, OBJ_LAYOUT_FLEX)) {
+        LOG_ERROR("Failed to set object sub type");
+        goto out_free_conf;
+    }
+
     return cont;
 
 out_free_conf:

@@ -10,6 +10,7 @@
  *********************/
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
 
 #include <lvgl.h>
 #include "list.h"
@@ -56,6 +57,7 @@ struct gobj_t;
 typedef struct {
     void *internal;                     /* Internal data */
     void *sub_data;                     /* Sub data */
+    type_t sub_type;
     type_t obj_type;
     int8_t rotation;
     struct gobj_t *parent;
@@ -250,6 +252,19 @@ static inline int32_t pct_to_px(int32_t par_pixels, int32_t percent)
 static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
 {
     return (pixels * 100) / par_pixels;
+}
+
+static inline int32_t set_sub_type(lv_obj_t *lobj, type_t type)
+{
+    gobj_t *gobj;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+
+    gobj->data.sub_type = type;
+
+    return 0;
 }
 
 int32_t ui_main_init(ctx_t *ctx);

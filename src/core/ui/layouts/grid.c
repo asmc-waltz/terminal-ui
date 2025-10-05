@@ -297,6 +297,12 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
         return ret;
     }
 
+    ret = set_sub_type(lobj, OBJ_GRID_CELL);
+    if (ret) {
+        LOG_ERROR("Failed to set object sub type");
+        return ret;
+    }
+
     return 0;
 }
 
@@ -427,6 +433,10 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
 
     get_gobj(cont)->data.internal = conf;
 
+    if (set_sub_type(cont, OBJ_LAYOUT_GRID)) {
+        LOG_ERROR("Failed to set object sub type");
+        goto out_free_col_pad;
+    }
 
     return cont;
 
