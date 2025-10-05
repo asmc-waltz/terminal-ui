@@ -55,10 +55,10 @@ typedef enum {
 
 struct gobj_t;
 typedef struct {
+    type_t obj_type;
+    type_t sub_type;
     void *internal;                     /* Internal data */
     void *sub_data;                     /* Sub data */
-    type_t sub_type;
-    type_t obj_type;
     int8_t rotation;
     struct gobj_t *parent;
     /*
@@ -250,16 +250,22 @@ static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
     return (pixels * 100) / par_pixels;
 }
 
-static inline int32_t set_sub_type(lv_obj_t *lobj, type_t type)
+static inline int32_t set_obj_sub_type(lv_obj_t *lobj, type_t type)
 {
-    gobj_t *gobj;
-
-    gobj = lobj ? get_gobj(lobj) : NULL;
+    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
         return -EINVAL;
-
     gobj->data.sub_type = type;
+    return 0;
+}
 
+/* Set object as base type (non-rotated or root container) */
+static inline int32_t set_obj_base_type(lv_obj_t *lobj)
+{
+    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+    gobj->data.obj_type = OBJ_BASE;
     return 0;
 }
 

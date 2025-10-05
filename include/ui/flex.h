@@ -19,7 +19,6 @@
  *      TYPEDEFS
  **********************/
 typedef struct flex_layout {
-    type_t type;
     lv_flex_flow_t flow;
     lv_flex_align_t main_place;
     lv_flex_align_t cross_place;
@@ -63,7 +62,7 @@ static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
 
 static inline int32_t set_flex_cell_sub_type(lv_obj_t *lobj)
 {
-    return set_sub_type(lobj, OBJ_FLEX_CELL);
+    return set_obj_sub_type(lobj, OBJ_FLEX_CELL);
 }
 /**********************
  *      MACROS

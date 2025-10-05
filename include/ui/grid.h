@@ -52,7 +52,6 @@ typedef struct grid_layout_rc {
 } grid_layout_rc_t;
 
 typedef struct grid_layout {
-    type_t type;
     grid_layout_rc_t row;
     grid_layout_rc_t col;
 } grid_layout_t;
@@ -170,7 +169,7 @@ static inline grid_rc_t *get_cell_col_data(lv_obj_t *lobj)
 
 static inline int32_t set_grid_cell_sub_type(lv_obj_t *lobj)
 {
-    return set_sub_type(lobj, OBJ_GRID_CELL);
+    return set_obj_sub_type(lobj, OBJ_GRID_CELL);
 }
 /**********************
  *      MACROS

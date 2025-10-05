@@ -525,8 +525,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         return ret;
     }
 
-    return rotate_common_post_adjust(gobj, lobj, false, \
-                                     get_grid_layout_data(lobj)->type);
+    return rotate_common_post_adjust(gobj, lobj, false, gobj->data.obj_type);
 }
 
 static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
@@ -594,8 +593,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         return -EIO;
     }
 
-    return rotate_common_post_adjust(gobj, lobj, false, \
-                                     get_flex_layout_data(lobj)->type);
+    return rotate_common_post_adjust(gobj, lobj, false, gobj->data.obj_type);
 }
 
 static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
@@ -644,6 +642,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
     switch (gobj->data.obj_type) {
+        case OBJ_BASE:
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:

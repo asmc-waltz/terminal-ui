@@ -436,7 +436,7 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_center(cont);
 
-    if (set_sub_type(cont, OBJ_LAYOUT_GRID)) {
+    if (set_obj_sub_type(cont, OBJ_LAYOUT_GRID)) {
         LOG_ERROR("Failed to set object sub type");
         goto out_free_col_pad;
     }
