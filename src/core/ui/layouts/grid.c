@@ -427,11 +427,14 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
     if (!conf->col.pad)
         goto out_free_row_pad;
 
-    cont = create_grid_layout(par, name);
+    cont = create_box(par, name);
     if (!cont)
         goto out_free_col_pad;
 
     get_gobj(cont)->data.internal = conf;
+
+    lv_obj_set_layout(cont, LV_LAYOUT_GRID);
+    lv_obj_center(cont);
 
     if (set_sub_type(cont, OBJ_LAYOUT_GRID)) {
         LOG_ERROR("Failed to set object sub type");
