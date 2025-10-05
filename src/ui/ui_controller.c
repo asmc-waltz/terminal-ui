@@ -149,7 +149,7 @@ int32_t ui_main_init(ctx_t *ctx)
     register_obj(NULL, lv_screen_active(), NULL);
     register_obj(NULL, lv_layer_bottom(), NULL);
 
-    com_scr = create_common_screen(ctx, lv_screen_active(), COM_SCR_NAME);
+    com_scr = create_common_screen(ctx, lv_screen_active(), LAYOUT_SETTING);
     if (!com_scr) {
         LOG_ERROR("Failed to create main screen, no content can be displayed");
         return -EIO;

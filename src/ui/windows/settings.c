@@ -29,22 +29,7 @@
 /*********************
  *      DEFINES
  *********************/
-#define SETTING_USED_HEIGHT             (TOP_BAR_PAD_TOP + TOP_BAR_HEIGHT + \
-                                         SETTING_PAD_TOP + \
-                                         SETTING_PAD_BOT) // %
-#define SETTING_CONTAINTER_ALIGN        SETTING_PAD_TOP // %
 
-#define SETTING_MENU_BAR_HOR_WIDTH      30 // %
-#define SETTING_MENU_BAR_VER_WIDTH      40 // %
-
-#define SETTING_MENU_HOR_ALIGN          (SETTING_PAD_TOP + SETTING_PAD_BOT) // %
-#define SETTING_MENU_VER_ALIGN          (SETTING_PAD_TOP + SETTING_PAD_BOT) // %
-
-#define SETTING_CONT_BG_COLOR           0x636D7A
-#define SETTING_MENU_BG_COLOR           0x8F9DB0
-#define SETTING_MENU_BTN_BG_COLOR       0xADBACC
-
-#define SETTING_DETAIL_BG_COLOR         SETTING_MENU_BG_COLOR
 /**********************
  *      TYPEDEFS
  **********************/

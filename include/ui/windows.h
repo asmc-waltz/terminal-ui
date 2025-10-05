@@ -17,17 +17,7 @@
 /*********************
  *      DEFINES
  *********************/
-#define SETTING_PAGE_NAME               "pages.setting"
-#define SETTING_MENU_BAR_HOR_WIDTH      30      // %
-#define SETTING_PAD_TOP                 1       // %
-#define SETTING_PAD_BOT                 1       // %
-#define SETTING_PAD_LEFT                1       // %
-#define SETTING_PAD_MID_HOR             1       // %
-#define SETTING_PAD_MID_VER             2       // %
-#define SETTING_PAD_RIGHT               1       // %
-#define SETTING_WIDTH                   (100 - SETTING_PAD_LEFT - \
-                                         SETTING_PAD_RIGHT)      // %
-#define SETTING_SYM_FONTS               &terminal_icons_20
+#define WINDOW_SETTING                  "window.setting"
 
 /**********************
  *      TYPEDEFS

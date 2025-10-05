@@ -60,7 +60,7 @@ lv_obj_t *create_brightness_setting(lv_obj_t *par)
 {
     lv_obj_t *brightness_box;
 
-    brightness_box = create_box(par, SETTING_PAGE_NAME".detail.brightness");
+    brightness_box = create_box(par, WINDOW_SETTING".detail.brightness");
 
     set_gobj_size_scale(brightness_box, 98, 98);
     set_gobj_align_scale(brightness_box, par, LV_ALIGN_TOP_MID, 0, 1);
