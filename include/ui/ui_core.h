@@ -272,6 +272,11 @@ static inline int32_t set_obj_base_type(lv_obj_t *lobj)
     return 0;
 }
 
+static inline const char *get_name(lv_obj_t *lobj)
+{
+    return lobj ? get_gobj(lobj)->name : NULL;
+}
+
 int32_t ui_main_init(ctx_t *ctx);
 void ui_main_deinit(ctx_t *ctx);
 /**********************
