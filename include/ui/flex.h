@@ -60,9 +60,9 @@ static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
     return lobj ? (flex_layout_t *)get_gobj(lobj)->data.internal : NULL;
 }
 
-static inline int32_t set_flex_cell_sub_type(lv_obj_t *lobj)
+static inline int32_t set_flex_cell_type(lv_obj_t *lobj)
 {
-    return set_obj_sub_type(lobj, OBJ_FLEX_CELL);
+    return set_obj_cell_type(lobj, OBJ_FLEX_CELL);
 }
 /**********************
  *      MACROS

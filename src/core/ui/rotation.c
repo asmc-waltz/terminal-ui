@@ -350,17 +350,29 @@ static int32_t g_obj_rot_calc_align(gobj_t *gobj)
  * Common adjustment handler used after layout rotation.
  * Handles align, size, and positional recalculation for rotated objects.
  */
-static int32_t rotate_common_post_adjust(gobj_t *gobj, lv_obj_t *lobj, \
-                                         bool skip_type_check, int32_t type)
+static int32_t rotate_common_post_adjust(gobj_t *gobj)
 {
-    int32_t ret;
     int32_t par_w, par_h;
+    lv_obj_t *lobj;
+    int32_t ret;
+
+    lobj = gobj ? get_lobj(gobj) : NULL;
+    if (!lobj)
+        return -EINVAL;
 
     /* Ignore size and align adjustment for base (non-rotated) object */
-    if (!skip_type_check) {
-        if (type == OBJ_BASE)
-            return 0;
-    }
+    if (gobj->data.obj_type == OBJ_BASE)
+        return 0;
+
+    /*
+     * For objects that take the role of a layout container (such as flex or grid)
+     * but are themselves a cell of a parent layout, their size and alignment depend
+     * entirely on the parent and cell configurations. Therefore, manual
+     * repositioning mechanisms can be safely skipped.
+     */
+    if (gobj->data.cell_type == OBJ_GRID_CELL || \
+        gobj->data.cell_type == OBJ_FLEX_CELL)
+        return 0;
 
     /* Recalculate alignment values if needed */
     if (gobj->align.value != LV_ALIGN_DEFAULT) {
@@ -430,7 +442,7 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * For base objects, rotation only affects geometric and alignment data.
      * There is no layout type to verify, so skip type check.
      */
-    ret = rotate_common_post_adjust(gobj, lobj, true, 0);
+    ret = rotate_common_post_adjust(gobj);
     if (ret)
         return ret;
 
@@ -525,7 +537,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         return ret;
     }
 
-    return rotate_common_post_adjust(gobj, lobj, false, gobj->data.obj_type);
+    return rotate_common_post_adjust(gobj);
 }
 
 static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
@@ -553,6 +565,8 @@ static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
         LOG_ERROR("Failed to apply new cell object data");
         return -EIO;
     }
+
+    lv_obj_mark_layout_as_dirty(lv_obj_get_parent(lobj));
 
     return 0;
 }
@@ -593,7 +607,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         return -EIO;
     }
 
-    return rotate_common_post_adjust(gobj, lobj, false, gobj->data.obj_type);
+    return rotate_common_post_adjust(gobj);
 }
 
 static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
@@ -620,21 +634,37 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
 
 static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
 {
+    int32_t ret;
+
     if (!gobj)
         return -EINVAL;
 
-    switch (gobj->data.sub_type) {
+    switch (gobj->data.cell_type) {
     case OBJ_GRID_CELL:
-        return rotate_grid_cell_gobj(gobj);
+        ret = rotate_grid_cell_gobj(gobj);
+        break;
     case OBJ_FLEX_CELL:
-        return rotate_flex_cell_gobj(gobj);
+        ret = rotate_flex_cell_gobj(gobj);
+        break;
+    default:
+        break;
+    }
+
+    if (ret) {
+        LOG_WARN("Unable to rotate cell object, ret %d", ret);
+        return ret;
+    }
+
+    switch (gobj->data.layout_type) {
     case OBJ_LAYOUT_GRID:
         return rotate_grid_layout_gobj(gobj);
     case OBJ_LAYOUT_FLEX:
         return rotate_flex_layout_gobj(gobj);
     default:
-        return rotate_base_gobj(gobj);
+        break;
     }
+
+    return rotate_base_gobj(gobj);
 }
 
 static inline int32_t gobj_handle_transform(gobj_t *gobj)
