@@ -526,14 +526,16 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_layout_90(lobj);
         if (ret) {
-            LOG_ERROR("Failed to rotate layout object data at step %d", i);
+            LOG_ERROR("Layout [%s] rotation failed, ret %d", \
+                      get_name(lobj), ret);
             return ret;
         }
     }
 
     ret = apply_grid_layout_config(lobj);
     if (ret) {
-        LOG_ERROR("Failed to apply new layout object data");
+        LOG_ERROR("Layout [%s] apply config failed, ret %d", \
+                  get_name(lobj), ret);
         return ret;
     }
 
@@ -555,14 +557,14 @@ static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_cell_pos_90(lobj);
         if (ret) {
-            LOG_ERROR("Failed to rotate cell object data");
+            LOG_ERROR("Cell [%s] rotation failed, ret %d", get_name(lobj), ret);
             return -EIO;
         }
     }
 
     ret = apply_grid_cell_align_and_pos(lobj);
     if (ret) {
-        LOG_ERROR("Failed to apply new cell object data");
+        LOG_ERROR("Cell [%s] apply config failed, ret %d", get_name(lobj), ret);
         return -EIO;
     }
 

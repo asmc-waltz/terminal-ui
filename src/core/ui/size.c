@@ -264,23 +264,36 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
     gobj_t *gobj;
     int32_t w, h;
 
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
+
+    if (gobj->data.obj_type == OBJ_BASE)
+        return 0;
 
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
 
-    gobj = get_gobj(lobj);
-    if (!gobj)
+    if (w < 0 || h < 0) {
+        LOG_ERROR("Object [%d] get invalid size W[%d] - H[%d]", \
+                  get_name(lobj), w, h);
         return -EIO;
+    }
 
     gobj->size.par_w_pct = px_to_pct(get_par_w(lobj), w);
     gobj->size.w = w;
-    gobj->size.par_h_pct = px_to_pct(get_par_w(lobj), h);
+    gobj->size.par_h_pct = px_to_pct(get_par_h(lobj), h);
     gobj->size.h = h;
 
-    LOG_TRACE("Object size storaged W: %d/%d\% - H:%d/%d\%", \gobj->size.w, \
-              gobj->size.par_w_pct, gobj->size.h, gobj->size.par_h_pct);
+    LOG_TRACE("Update object [%s] size\nParent Width [%d] - Height [%d]\n"\
+             "Storaged size Width [%d or %d\%] - Height [%d or %d\%]", \
+             gobj->name, \
+             get_par_w(lobj), \
+             get_par_h(lobj), \
+             gobj->size.w, \
+             gobj->size.par_w_pct, \
+             gobj->size.h, \
+             gobj->size.par_h_pct);
 
     return 0;
 }

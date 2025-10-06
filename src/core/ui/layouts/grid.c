@@ -59,13 +59,13 @@ static int32_t get_base_size(lv_obj_t *lobj, int32_t *par_w, int32_t *par_h)
     if (par == lv_screen_active()) {
         *par_w = get_scr_width();
         *par_h = get_scr_height();
-        LOG_TRACE("Descriptor based on screen: W[%d] H[%d]",
-                  *par_w, *par_h);
+        LOG_TRACE("Layout [%s] dsc is based on screen size: W[%d] H[%d]", \
+                  get_name(lobj), *par_w, *par_h);
     } else {
         *par_w = get_w(lobj);
         *par_h = get_h(lobj);
-        LOG_TRACE("Descriptor based on parent size: W[%d] H[%d]",
-                  *par_w, *par_h);
+        LOG_TRACE("Layout [%s] dsc are based parent size: W[%d] H[%d]", \
+                  get_name(lobj), *par_w, *par_h);
     }
 
     return 0;
@@ -186,10 +186,12 @@ static void on_size_changed_cb(lv_event_t *e)
 
     ret = store_computed_object_size(lobj);
     if (ret) {
-        LOG_ERROR("Failed to store cell object data");
+        LOG_ERROR("Cell [%s] failed to get and store current size", \
+                  get_name(lobj));
         return;
     }
-    LOG_TRACE("Grid cell object size is updated");
+
+    LOG_TRACE("Cell [%s] size updated", get_name(lobj));
 }
 /**********************
  *   GLOBAL FUNCTIONS
@@ -218,10 +220,10 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
 
     conf = get_cell_data(lobj);
     if (!conf) {
-        LOG_TRACE("Allocating memory for grid cell");
         conf = calloc(1, sizeof(*conf));
         if (!conf)
             return -EIO;
+        LOG_TRACE("Cell [%s] configuration memory allocated", get_name(lobj));
     }
 
     get_gobj(lobj)->data.sub_data = conf;
@@ -343,7 +345,8 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
     if (!r_cell || !c_cell)
         return -EIO;
 
-    LOG_TRACE("Rotating grid cell 90:\tFrom row-col \t[%d][%d]", r_cell->index, c_cell->index);
+    LOG_TRACE("Cell [%s] rotate 90:\tFrom row-col \t[%d][%d]", \
+              get_gobj(lobj)->name, r_cell->index, c_cell->index);
 
     ret = config_grid_cell_align(lobj, \
                                  r_cell->align, \
@@ -356,7 +359,8 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
                                  c_cell->max
                                  );
 
-    LOG_TRACE("Rotating grid cell 90:\tTo row-col \t[%d][%d]", r_cell->index, c_cell->index);
+    LOG_TRACE("Cell [%s] rotate 90:\tTo row-col \t[%d][%d]", \
+              get_gobj(lobj)->name, r_cell->index, c_cell->index);
 
     if (ret)
         return ret;
@@ -417,8 +421,8 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
 
     lv_obj_set_grid_dsc_array(lobj, c_dsc->cell_px, r_dsc->cell_px);
 
-    LOG_DEBUG("Applied grid descriptors: row=%d col=%d",
-              r_dsc->size, c_dsc->size);
+    LOG_DEBUG("Layout [%s] descriptors updated: Row [%d] - Column [%d]", \
+              get_name(lobj), r_dsc->size, c_dsc->size);
 
     return 0;
 }
@@ -769,7 +773,7 @@ int32_t rotate_grid_layout_90(lv_obj_t *lobj)
         return ret;
     }
 
-    LOG_TRACE("Grid layout %s rotated 90 deg", get_gobj(lobj)->name);
+    LOG_TRACE("Layout [%s] configuration is rotated 90 degree", get_name(lobj));
 
     return 0;
 }
@@ -796,7 +800,7 @@ int32_t apply_grid_layout_config(lv_obj_t *lobj)
         return ret;
     }
 
-    LOG_TRACE("Grid layout %s applied", get_gobj(lobj)->name);
+    LOG_TRACE("Layout [%s] configuration is updated", get_name(lobj));
 
     return 0;
 }
