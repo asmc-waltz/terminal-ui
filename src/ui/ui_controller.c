@@ -30,6 +30,7 @@
 /*********************
  *      DEFINES
  *********************/
+int32_t GOBJ_REFRESH_EVENT = 0;
 
 /**********************
  *      TYPEDEFS
@@ -127,6 +128,10 @@ int32_t ui_main_init(ctx_t *ctx)
     if (ctx->scr.drm_disp == NULL) {
         return -EIO;
     }
+
+    GOBJ_REFRESH_EVENT = lv_event_register_id();
+    LOG_INFO("Registered GOBJ_REFRESH_EVENT: %d in LVGL event list", \
+             GOBJ_REFRESH_EVENT);
 
     ctx->scr.touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, \
                                                 ctx->scr.drm_disp);

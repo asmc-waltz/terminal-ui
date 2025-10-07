@@ -25,6 +25,7 @@
 
 #define DIS_SCALE                       0
 #define ENA_SCALE                       1
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -116,6 +117,7 @@ typedef struct gobj_t {
 /**********************
  *  GLOBAL VARIABLES
  **********************/
+extern int32_t GOBJ_REFRESH_EVENT;
 
 /**********************
  * GLOBAL PROTOTYPES
