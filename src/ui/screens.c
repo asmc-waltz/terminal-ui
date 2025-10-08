@@ -25,7 +25,10 @@
 #include "ui/comps.h"
 #include "ui/windows.h"
 #include "ui/screen.h"
+#include "ui/grid.h"
+#include "ui/flex.h"
 #include "main.h"
+#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES
@@ -47,6 +50,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
+static lv_obj_t *keyboard_box = NULL;
 
 /**********************
  *      MACROS
@@ -177,13 +181,16 @@ static void refresh_screen_rotate_layout(lv_obj_t *root)
 
 static void rotate_key_handler(lv_event_t *event)
 {
-    lv_obj_t *lobj = get_obj_by_name(COM_SCR_NAME, \
-                            &get_gobj(lv_screen_active())->child);
+    int32_t ret;
+    ctx_t *ctx = get_ctx();
+    lv_obj_t *kb = get_obj_by_name(COMPS_KEYBOARD, \
+                                   &get_gobj(lv_screen_active())->child);
 
     set_scr_rotation(get_random_3());
 
-    ctx_t *ctx = get_ctx();
-    lv_obj_t *screen = ctx->scr.now.obj;
+    if (kb) {
+        remove_keyboard(ctx);
+    }
 
     // rotate_anim_start(screen,
     //               120, /* phase 1 */
@@ -191,31 +198,30 @@ static void rotate_key_handler(lv_event_t *event)
     //               450, /* phase 3 */
     //               350, /* phase 4 */
     //               refresh_screen_rotate_layout);
-    refresh_obj_tree_layout(get_gobj(screen));
+
+    refresh_obj_tree_layout(get_gobj(ctx->scr.now.obj));
+
+    if (kb) {
+        kb = create_keyboard(keyboard_box);
+        if (!kb)
+            LOG_ERROR("Create keyboard failed");
+    }
 }
 
 static void create_keyboard_handler(lv_event_t *event)
 {
-    ctx_t *ctx = get_ctx();
-    static bool kb_en = false;
     lv_obj_t *kb;
+    ctx_t *ctx = get_ctx();
 
-    if (!ctx) {
-        LOG_ERROR("Runtime context not found");
-        return;
-    }
-
-    if (!kb_en) {
-        kb = create_keyboard(ctx);
-        if (kb)
-            kb_en = true;
+    kb = get_obj_by_name(COMPS_KEYBOARD, \
+                            &get_gobj(lv_screen_active())->child);
+    if (!kb) {
+        kb = create_keyboard(keyboard_box);
+        if (!kb)
+            LOG_ERROR("Create keyboard failed");
     } else {
         remove_keyboard(ctx);
-        kb_en = false;
-
     }
-
-    refresh_obj_tree_layout(get_gobj(ctx->scr.now.obj));
 }
 
 #endif
@@ -223,39 +229,83 @@ static void create_keyboard_handler(lv_event_t *event)
 lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 {
     int32_t obj_w, obj_h;
-    lv_obj_t *screen;
-    lv_obj_t *bg = lv_scr_act();
+    lv_obj_t *base;
+    int32_t ret;
 
-    lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
+    lv_obj_set_style_bg_color(par, lv_color_black(), 0);
 
-    screen = create_base(par, name);
-    if (!screen) {
-        LOG_ERROR("Unable to create common screen");
+    base = create_grid_layout_object(par, LAYOUT_SETTING);
+    if (!base)
         return NULL;
+
+    set_obj_base_type(base);
+    lv_obj_set_style_radius(base, 20, 0);
+    set_gobj_size(base, get_scr_width(), get_scr_height());
+    set_gobj_pos(base, 0, 0);
+    set_grid_layout_gap(base, 0, 0, 0, 8);
+    lv_obj_set_style_pad_all(base, 8, 0);
+    set_grid_layout_align(base, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+    lv_obj_set_style_bg_color(base, lv_color_hex(0xEDCA68), 0);
+
+    /**************************************/
+    ret = add_grid_layout_row_dsc(base, 50);
+    if (ret) {
+        LOG_ERROR("Add descriptor info failed");
     }
-    ctx->scr.now.obj = screen;
+    ret = add_grid_layout_row_dsc(base, LV_GRID_FR(60));
+    if (ret) {
+        LOG_ERROR("Add descriptor info failed");
+    }
+    // ret = add_grid_layout_row_dsc(base, LV_GRID_FR(30));
+    // if (ret) {
+    //     LOG_ERROR("Add descriptor info failed");
+    // }
+    /**************************************/
+    ret = add_grid_layout_col_dsc(base, LV_GRID_FR(98));
+    if (ret) {
+        LOG_ERROR("Add descriptor info failed");
+    }
+    /**************************************/
+    apply_grid_layout_config(base);
+    /**************************************/
 
-    set_gobj_size(screen, get_scr_width(), get_scr_height());
-    set_gobj_pos(screen, 0, 0);
 
-    // TODO: create background
-    lv_obj_set_style_bg_color(screen, lv_color_hex(SCREEN_BG_COLOR), 0);
+    lv_obj_t *top_bar;
+    top_bar = create_box(base, "top space");
+    set_gobj_size_scale_w(top_bar, 98, pct_to_px(get_scr_height(), 8));
+    set_grid_cell_align(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_set_style_radius(top_bar, 16, 0);
+
+    lv_obj_t *setting_container;
+
+    setting_container = create_setting_window(base);
+    set_gobj_size_scale(setting_container, 98, 58);
+    set_grid_cell_align(setting_container, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_STRETCH, 1, 1);
+    lv_obj_set_style_radius(setting_container, 16, 0);
 
 
-    lv_obj_t *top_space = create_top_bar(ctx);
-    lv_obj_t *sym_box = add_top_bar_symbol(top_space, TOP_BAR_NAME".wifi",
-                                                ICON_WIFI_SOLID);
-    set_gobj_align_scale_x(sym_box, top_space, LV_ALIGN_LEFT_MID, TOP_BAR_SYM_ALN, 0);
 
-    // TODO: debug setting screen
-    create_setting_window(ctx);
+    // keyboard_box = create_box(base, "keyboard space");
+    // set_gobj_size_scale(keyboard_box, 98, 30);
+    // set_grid_cell_align(keyboard_box, LV_GRID_ALIGN_STRETCH, 0, 1,
+    //                      LV_GRID_ALIGN_STRETCH, 2, 1);
+    // lv_obj_set_style_radius(keyboard_box, 16, 0);
 
+
+    create_setting_content(setting_container);
+
+    // base = test_screen(lv_scr_act());
+    ctx->scr.now.obj = base;
 
 #if defined(TEST)
     lv_obj_t *btn = create_btn(lv_layer_top(), "common.rotate_btn");
     lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, get_gobj(btn));
     set_gobj_size(btn, 54, 54);
-    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_CENTER, -50, 0);
+    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
 
     lv_obj_t *icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
@@ -263,12 +313,12 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     btn = create_btn(lv_layer_top(), "create keyboard");
     set_gobj_size(btn, 54, 54);
-    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_CENTER, 50, 0);
+    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -50, 0);
     lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
 #endif
 
-    return screen;
+    return base;
 }

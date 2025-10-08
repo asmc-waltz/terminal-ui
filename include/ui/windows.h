@@ -42,7 +42,7 @@ typedef struct ctx ctx_t;
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_setting_window(ctx_t *ctx);
+lv_obj_t *create_setting_window(lv_obj_t *par);
 
 /**********************
  *      MACROS
