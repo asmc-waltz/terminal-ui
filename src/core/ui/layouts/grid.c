@@ -91,66 +91,34 @@ static int32_t alloc_or_extend_dsc(grid_desc_t *dsc)
 {
     void *new_arr;
 
-    new_arr = alloc_or_extend_array(dsc->scale, sizeof(int8_t), dsc->size);
-    if (!new_arr)
-        return -ENOMEM;
-    dsc->scale = new_arr;
-
-    new_arr = alloc_or_extend_array(dsc->cell_pct, sizeof(int8_t), dsc->size);
+    new_arr = alloc_or_extend_array(dsc->cell_pct, sizeof(int32_t), dsc->size);
     if (!new_arr)
         return -ENOMEM;
     dsc->cell_pct = new_arr;
 
-    new_arr = alloc_or_extend_array(dsc->cell_px, sizeof(int32_t), dsc->size);
-    if (!new_arr)
-        return -ENOMEM;
-    dsc->cell_px = new_arr;
-
     return 0;
 }
 
-static void fill_new_slot(grid_desc_t *dsc, int8_t is_row,
-                          int32_t par_w, int32_t par_h,
-                          int8_t scale, int32_t val)
+static void fill_new_slot(grid_desc_t *dsc, int32_t val)
 {
-    dsc->scale[dsc->size] = scale;
-
-    if (scale == ENA_SCALE) {
-        dsc->cell_pct[dsc->size] = val;
-        dsc->cell_px[dsc->size]  = is_row ?
-            pct_to_px(par_h, val) : pct_to_px(par_w, val);
-    } else {
-        dsc->cell_px[dsc->size]  = val;
-        dsc->cell_pct[dsc->size] = is_row ?
-            px_to_pct(par_h, val) : px_to_pct(par_w, val);
-    }
-
+    dsc->cell_pct[dsc->size]  = val;
     dsc->size++;
-
     /* Always keep sentinel */
-    dsc->scale[dsc->size]    = LV_GRID_TEMPLATE_LAST;
     dsc->cell_pct[dsc->size] = LV_GRID_TEMPLATE_LAST;
-    dsc->cell_px[dsc->size]  = LV_GRID_TEMPLATE_LAST;
 }
 
-static int32_t set_dsc_data(lv_obj_t *lobj, grid_desc_t *dsc,
-                     int8_t is_row, int8_t scale, int32_t val)
+static int32_t set_dsc_data(lv_obj_t *lobj, grid_desc_t *dsc, int32_t val)
 {
-    int32_t par_w, par_h;
     int32_t ret;
 
     if (!dsc)
         return -EINVAL;
 
-    ret = get_base_size(lobj, &par_w, &par_h);
-    if (ret)
-        return ret;
-
     ret = alloc_or_extend_dsc(dsc);
     if (ret)
         return ret;
 
-    fill_new_slot(dsc, is_row, par_w, par_h, scale, val);
+    fill_new_slot(dsc, val);
 
     return 0;
 }
@@ -160,19 +128,9 @@ static void free_grid_desc(grid_desc_t *dsc)
     if (!dsc)
         return;
 
-    if (dsc->scale) {
-        free(dsc->scale);
-        dsc->scale = NULL;
-    }
-
     if (dsc->cell_pct) {
         free(dsc->cell_pct);
         dsc->cell_pct = NULL;
-    }
-
-    if (dsc->cell_px) {
-        free(dsc->cell_px);
-        dsc->cell_px = NULL;
     }
 
     dsc->size = 0;
@@ -368,7 +326,7 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
@@ -380,14 +338,14 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!dsc)
         return -EIO;
 
-    ret = set_dsc_data(lobj, dsc, IS_ROW, scale, val);
+    ret = set_dsc_data(lobj, dsc, val);
     if (ret)
         return ret;
 
     return 0;
 }
 
-int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
+int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int32_t val)
 {
     int32_t ret;
     grid_desc_t *dsc;
@@ -399,7 +357,7 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val)
     if (!dsc)
         return -EIO;
 
-    ret = set_dsc_data(lobj, dsc, IS_COL, scale, val);
+    ret = set_dsc_data(lobj, dsc, val);
     if (ret)
         return ret;
 
@@ -419,7 +377,7 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
     if (!r_dsc || !c_dsc)
         return -EIO;
 
-    lv_obj_set_grid_dsc_array(lobj, c_dsc->cell_px, r_dsc->cell_px);
+    lv_obj_set_grid_dsc_array(lobj, c_dsc->cell_pct, r_dsc->cell_pct);
 
     LOG_DEBUG("Layout [%s] descriptors updated: Row [%d] - Column [%d]", \
               get_name(lobj), r_dsc->size, c_dsc->size);
@@ -659,25 +617,13 @@ int32_t rotate_grid_dsc_90(lv_obj_t *lobj)
     }
 
     for (i = 0; i < c_dsc->size; i++) {
-        if (c_dsc->scale[i] == ENA_SCALE)
-            ret = set_dsc_data(lobj, next_r_dsc, IS_ROW, ENA_SCALE, \
-                               c_dsc->cell_pct[i]);
-        else
-            ret = set_dsc_data(lobj, next_r_dsc, IS_ROW, DIS_SCALE, \
-                               c_dsc->cell_px[i]);
-
+        ret = set_dsc_data(lobj, next_r_dsc, c_dsc->cell_pct[i]);
         if (ret)
             goto out_free_c;
     }
 
     for (i = (r_dsc->size - 1); i >= 0; i--) {
-        if (r_dsc->scale[i] == ENA_SCALE)
-            ret = set_dsc_data(lobj, next_c_dsc, IS_COL, ENA_SCALE, \
-                               r_dsc->cell_pct[i]);
-        else
-            ret = set_dsc_data(lobj, next_c_dsc, IS_COL, DIS_SCALE, \
-                               r_dsc->cell_px[i]);
-
+        ret = set_dsc_data(lobj, next_c_dsc, r_dsc->cell_pct[i]);
         if (ret)
             goto out_free_c;
     }

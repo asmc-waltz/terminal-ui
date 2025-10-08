@@ -34,9 +34,7 @@ typedef struct grid_cell {
 
 typedef struct grid_desc {
     int8_t size;
-    int8_t *scale;
-    int8_t *cell_pct;
-    int32_t *cell_px;
+    int32_t *cell_pct;
 } grid_desc_t;
 
 typedef struct grid_pad {
@@ -76,8 +74,8 @@ typedef struct grid_layout {
  *====================*/
 lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name);
 
-int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
-int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int8_t scale, int32_t val);
+int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int32_t val);
+int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val);
 int32_t apply_grid_layout_dsc(lv_obj_t *lobj);
 
 int32_t config_grid_layout_align(lv_obj_t *lobj, \
