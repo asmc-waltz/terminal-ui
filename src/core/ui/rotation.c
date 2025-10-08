@@ -598,18 +598,28 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_flex_layout_90(lobj);
         if (ret) {
-            LOG_ERROR("Failed to rotate layout object data at step %d", i);
+            LOG_ERROR("Layout [%s] rotation failed, ret %d", \
+                      get_name(lobj), ret);
             return -EIO;
         }
     }
 
     ret = apply_flex_layout_flow(lobj);
     if (ret) {
-        LOG_ERROR("Failed to apply new layout object data");
+        LOG_ERROR("Layout [%s] apply config failed, ret %d", \
+                  get_name(lobj), ret);
         return -EIO;
     }
 
-    return rotate_common_post_adjust(gobj);
+    ret = rotate_common_post_adjust(gobj);
+    if (ret) {
+        LOG_ERROR("Failed to rotate layout object position");
+        return -EIO;
+    }
+
+    lv_obj_mark_layout_as_dirty(lobj);
+
+    return 0;
 }
 
 static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
@@ -622,14 +632,20 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
-    ret = calc_gobj_rotated_size(gobj);
-    if (ret) {
-        return -EINVAL;
+    rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
+
+    /* Perform rotation by 90° steps */
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        ret = rotate_flex_cell_90(lobj);
+        if (ret) {
+            LOG_ERROR("Cell [%s] rotation failed, ret %d", get_name(lobj), ret);
+            return -EIO;
+        }
     }
 
-    apply_gobj_size(lobj);
-
-    lv_obj_mark_layout_as_dirty(lv_obj_get_parent(lobj));
+    lv_obj_mark_layout_as_dirty(lobj);
 
     return 0;
 }

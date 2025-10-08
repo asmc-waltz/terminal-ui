@@ -238,3 +238,15 @@ int32_t rotate_flex_layout_90(lv_obj_t *lobj)
 
     return 0;
 }
+
+int32_t rotate_flex_cell_90(lv_obj_t *lobj)
+{
+    int32_t ret;
+
+    if (!lobj )
+        return -EINVAL;
+
+    set_gobj_size(lobj, get_h(lobj), get_w(lobj));
+
+    return 0;
+}
