@@ -247,7 +247,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_grid_layout_align(base, \
                           LV_GRID_ALIGN_SPACE_BETWEEN, \
                           LV_GRID_ALIGN_SPACE_BETWEEN);
-    lv_obj_set_style_bg_color(base, lv_color_hex(0xEDCA68), 0);
+    lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
 
     /**************************************/
     ret = add_grid_layout_row_dsc(base, 50);
@@ -278,6 +278,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_grid_cell_align(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_radius(top_bar, 16, 0);
+    lv_obj_set_style_bg_color(top_bar, lv_color_hex(bg_color(40)), 0);
 
     lv_obj_t *setting_container;
 
@@ -286,6 +287,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_grid_cell_align(setting_container, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_STRETCH, 1, 1);
     lv_obj_set_style_radius(setting_container, 16, 0);
+    lv_obj_set_style_bg_color(setting_container, lv_color_hex(bg_color(40)), 0);
 
 
 
@@ -298,7 +300,6 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     create_setting_content(setting_container);
 
-    // base = test_screen(lv_scr_act());
     ctx->scr.now.obj = base;
 
 #if defined(TEST)
@@ -308,7 +309,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
 
     lv_obj_t *icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
-    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
 
 
     btn = create_btn(lv_layer_top(), "create keyboard");
@@ -317,7 +318,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
-    lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
 #endif
 
     return base;

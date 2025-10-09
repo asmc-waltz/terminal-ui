@@ -14,6 +14,7 @@
 
 #include <lvgl.h>
 #include "list.h"
+#include "ui/color_palette_256.h"
 
 /*********************
  *      DEFINES
@@ -26,6 +27,7 @@
 #define DIS_SCALE                       0
 #define ENA_SCALE                       1
 
+#define bg_color(x)                     color_gray_levels[x]
 /**********************
  *      TYPEDEFS
  **********************/
@@ -284,8 +286,5 @@ void ui_main_deinit(ctx_t *ctx);
 /**********************
  *      MACROS
  **********************/
-
-
-lv_obj_t *test_screen(lv_obj_t *par);
 
 #endif /* G_UI_CORE_H */
