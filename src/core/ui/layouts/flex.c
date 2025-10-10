@@ -52,6 +52,84 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+/*
+ * Flex cell object sometimes is not just a normal object — it could be another
+ * layout, button, or anything depending on the creator. Instead of creating it
+ * in a specific type, we let the creator build it, then attach its flex cell
+ * configuration here. This enables rotation-aware properties and layout
+ * compatibility.
+ */
+int32_t set_flex_cell_data(lv_obj_t *lobj)
+{
+    if (!lobj)
+        return -EINVAL;
+
+    gobj_t *gobj = get_gobj(lobj);
+    if (!gobj)
+        return -EINVAL;
+
+    flex_cell_t *conf = (flex_cell_t *)calloc(1, sizeof(flex_cell_t));
+    if (!conf)
+        return -ENOMEM;
+
+    gobj->data.sub_data = conf;
+
+    int32_t ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
+    if (ret) {
+        free(conf);
+        gobj->data.sub_data = NULL;
+        return ret;
+    }
+
+    return 0;
+}
+
+/*
+ * Configure flex cell border side only (does not apply to LVGL yet).
+ */
+static inline int32_t config_flex_cell_border_side(lv_obj_t *lobj, \
+                                                   int32_t value)
+{
+    if (!lobj)
+        return -EINVAL;
+
+    flex_cell_t *conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    conf->border_side = value;
+
+    return 0;
+}
+
+/*
+ * Apply border side configuration to the LVGL object.
+ */
+int32_t apply_flex_cell_border_side(lv_obj_t *lobj)
+{
+    if (!lobj)
+        return -EINVAL;
+
+    flex_cell_t *conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_style_border_side(lobj, conf->border_side, 0);
+    return 0;
+}
+
+/*
+ * Set and immediately apply border side configuration for a flex cell.
+ */
+int32_t set_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
+{
+    int32_t ret = config_flex_cell_border_side(lobj, value);
+    if (ret)
+        return ret;
+
+    return apply_flex_cell_border_side(lobj);
+}
+
 lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
 {
     lv_obj_t *cont = NULL;
