@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -48,6 +48,44 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+/*
+ * Configure flex cell border side only (does not apply to LVGL yet).
+ */
+static inline int32_t config_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
+{
+    flex_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    conf->border_side = value;
+
+    return 0;
+}
+
+static inline int32_t config_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+                             int32_t pad_left, int32_t pad_right)
+{
+    flex_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    conf->pad_top = pad_top;
+    conf->pad_bot = pad_bot;
+    conf->pad_left = pad_left;
+    conf->pad_right = pad_right;
+
+    return 0;
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -85,25 +123,6 @@ int32_t set_flex_cell_data(lv_obj_t *lobj)
 }
 
 /*
- * Configure flex cell border side only (does not apply to LVGL yet).
- */
-int32_t config_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    conf->border_side = value;
-
-    return 0;
-}
-
-/*
  * Apply border side configuration to the LVGL object.
  */
 int32_t apply_flex_cell_border_side(lv_obj_t *lobj)
@@ -135,26 +154,6 @@ int32_t set_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
     return apply_flex_cell_border_side(lobj);
 }
 
-int32_t config_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
-                             int32_t pad_left, int32_t pad_right)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    conf->pad_top = pad_top;
-    conf->pad_bot = pad_bot;
-    conf->pad_left = pad_left;
-    conf->pad_right = pad_right;
-
-    return 0;
-}
-
 /*
  * Apply border side configuration to the LVGL object.
  */
@@ -182,7 +181,7 @@ int32_t set_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
 {
     int32_t ret;
 
-    ret = set_flex_cell_pad(lobj, pad_top, pad_bot, pad_left, pad_right);
+    ret = config_flex_cell_pad(lobj, pad_top, pad_bot, pad_left, pad_right);
     if (ret)
         return ret;
 
@@ -429,9 +428,24 @@ int32_t rotate_flex_cell_border_side_90(lv_obj_t *lobj)
         return -EINVAL;
     }
 
-    conf->border_side = border_rot_table[current];
+    config_flex_cell_border_side(lobj, border_rot_table[current]);
 
     return 0;
+}
+
+int32_t rotate_flex_cell_pad_90(lv_obj_t *lobj)
+{
+    flex_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EIO;
+
+    return config_flex_cell_pad(lobj, conf->pad_right, conf->pad_left, \
+                             conf->pad_top, conf->pad_bot);
 }
 
 int32_t rotate_flex_cell_90(lv_obj_t *lobj)
@@ -447,6 +461,10 @@ int32_t rotate_flex_cell_90(lv_obj_t *lobj)
     if (ret)
         return ret;
 
+    ret = rotate_flex_cell_pad_90(lobj);
+    if (ret)
+        return ret;
+
     return 0;
 }
 
@@ -455,6 +473,10 @@ int32_t apply_flex_cell_config(lv_obj_t *lobj)
     int32_t ret = 0;
 
     ret = apply_flex_cell_border_side(lobj);
+    if (ret)
+        return ret;
+
+    ret = apply_flex_cell_pad(lobj);
     if (ret)
         return ret;
 

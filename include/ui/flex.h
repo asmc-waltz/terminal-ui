@@ -65,11 +65,8 @@ int32_t set_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow);
 
 int32_t rotate_flex_layout_90(lv_obj_t *lobj);
 
-int32_t config_flex_cell_border_side(lv_obj_t *lobj, int32_t value);
 int32_t apply_flex_cell_border_side(lv_obj_t *lobj);
 int32_t set_flex_cell_border_side(lv_obj_t *lobj, int32_t value);
-int32_t config_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
-                             int32_t pad_left, int32_t pad_right);
 int32_t apply_flex_cell_pad(lv_obj_t *lobj);
 int32_t set_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
                           int32_t pad_left, int32_t pad_right);
