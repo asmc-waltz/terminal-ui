@@ -93,6 +93,27 @@ static int32_t rotate_gobj_alignment(gobj_t *gobj)
     return 0;
 }
 
+int32_t rotate_gobj_size(gobj_t *gobj)
+{
+    int32_t scr_rot, cur_rot;
+    int32_t rot_cnt;
+
+    if (!gobj) {
+        return -EINVAL;
+    }
+
+    rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
+
+    /* Perform rotation by 90° steps */
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        rotate_gobj_size_90(gobj);
+    }
+
+    return 0;
+}
+
 /*
  * Common adjustment handler used after layout rotation.
  * Handles align, size, and positional recalculation for rotated objects.
@@ -133,7 +154,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
      * Since the root coordinate does not change, the width and height
      * will be adjusted according to the logical rotation.
      */
-    ret = calc_gobj_rotated_size(gobj);
+    ret = rotate_gobj_size(gobj);
     if (ret)
         return -EINVAL;
 
@@ -204,7 +225,7 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
-    ret = calc_gobj_rotated_size(gobj);
+    ret = rotate_gobj_size(gobj);
     if (ret) {
         return -EINVAL;
     }

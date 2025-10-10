@@ -207,11 +207,11 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(gobj_t *gobj);
-int32_t calc_gobj_rotated_size(gobj_t *gobj);
 int32_t rotate_gobj_border_side_90(gobj_t *gobj);
 int32_t rotate_gobj_padding_90(gobj_t *gobj);
 int32_t rotate_gobj_alignment_90(gobj_t *gobj);
 void rotate_alignment_offset_90(gobj_t *gobj);
+int32_t rotate_gobj_size_90(gobj_t *gobj);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {

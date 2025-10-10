@@ -48,11 +48,19 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void swap_w_h_size(gobj_t *gobj)
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+int32_t rotate_gobj_size_90(gobj_t *gobj)
 {
     int32_t tmp_w;
     int32_t tmp_par_w_pct;
     int32_t tmp_w_scale;
+
+    if (!gobj) {
+        return -EINVAL;
+    }
 
     tmp_w = gobj->size.w;
     tmp_par_w_pct = gobj->size.par_w_pct;
@@ -65,32 +73,6 @@ static void swap_w_h_size(gobj_t *gobj)
     gobj->size.h = tmp_w;
     gobj->size.par_h_pct = tmp_par_w_pct;
     gobj->size.scale_h = tmp_w_scale;
-}
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-int32_t calc_gobj_rotated_size(gobj_t *gobj)
-{
-    int32_t scr_rot, cur_rot;
-    int32_t rot_cnt;
-
-    if (!gobj) {
-        LOG_ERROR("Invalid g object");
-        return -EINVAL;
-    }
-
-    scr_rot = get_scr_rotation();  /* returns 0-3 */
-    cur_rot = gobj->data.rotation;        /* stored as 0-3 */
-
-    if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
-        scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
-        return -EINVAL;
-
-    rot_cnt = (scr_rot - cur_rot + 4) % 4;
-
-    if (rot_cnt == 1 || rot_cnt == 3)
-        swap_w_h_size(gobj);
 
     return 0;
 }
