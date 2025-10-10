@@ -94,16 +94,20 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
         return NULL;
 
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
-    set_flex_cell_type(item);
+    set_flex_cell_data(item);
     set_gobj_size(item, LV_PCT(100), 50);
     lv_obj_set_style_pad_column(item, 8, 0);
-    lv_obj_set_style_pad_left(item, 20, 0);
-    lv_obj_set_style_pad_right(item, 20, 0);
+    // lv_obj_set_style_pad_left(item, 20, 0);
+    // lv_obj_set_style_pad_right(item, 20, 0);
+
+    set_flex_cell_pad(item, 0, 0, 20, 20);
 
     /*----------------------------------
      * Style
      *----------------------------------*/
-    lv_obj_set_style_border_side(item, LV_BORDER_SIDE_BOTTOM, 0);
+    // lv_obj_set_style_border_side(item, LV_BORDER_SIDE_BOTTOM, 0);
+
+    set_flex_cell_border_side(item, LV_BORDER_SIDE_BOTTOM);
     lv_obj_set_style_border_width(item, 2, 0);
     lv_obj_set_style_border_color(item, lv_color_black(), 0);
 
@@ -124,11 +128,11 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
      *----------------------------------*/
     sym = create_symbol_box(item, NULL, &terminal_icons_20, sym_index);
     if (sym)
-        set_flex_cell_type(sym);
+        set_flex_cell_data(sym);
 
     label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
     if (label)
-        set_flex_cell_type(label);
+        set_flex_cell_data(label);
 
     return item;
 }
@@ -153,13 +157,14 @@ static lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
      * Layout configuration
      *-----------------------------*/
     set_flex_layout_flow(group, LV_FLEX_FLOW_COLUMN);
-    set_flex_cell_type(group);
+    set_flex_cell_data(group);
 
     /*------------------------------
      * Sizing and spacing
      *-----------------------------*/
     set_gobj_size(group, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_pad_all(group, 20, 0);
+    // lv_obj_set_style_pad_all(group, 20, 0);
+    set_flex_cell_pad(group, 20, 20, 20, 20);
 
     /*------------------------------
      * Flex alignment

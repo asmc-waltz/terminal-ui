@@ -645,6 +645,12 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
         }
     }
 
+    ret = apply_flex_cell_config(lobj);
+    if (ret) {
+        LOG_ERROR("Cell [%s] apply config failed, ret %d", get_name(lobj), ret);
+        return -EIO;
+    }
+
     lv_obj_mark_layout_as_dirty(lobj);
 
     return 0;
