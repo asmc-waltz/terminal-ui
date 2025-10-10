@@ -176,6 +176,7 @@ int32_t get_scr_width(void);
 int32_t get_scr_height(void);
 void *get_gobj_internal_data(lv_obj_t *lobj);
 int32_t store_computed_object_size(lv_obj_t *lobj);
+int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h);
 
 /*=====================
  * Other functions
@@ -209,6 +210,8 @@ int32_t refresh_obj_tree_layout(gobj_t *gobj);
 int32_t calc_gobj_rotated_size(gobj_t *gobj);
 int32_t rotate_gobj_border_side_90(gobj_t *gobj);
 int32_t rotate_gobj_padding_90(gobj_t *gobj);
+int32_t rotate_gobj_alignment_90(gobj_t *gobj);
+void rotate_alignment_offset_90(gobj_t *gobj);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {
