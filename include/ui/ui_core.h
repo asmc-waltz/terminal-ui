@@ -70,12 +70,7 @@ typedef struct {
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    int32_t (*pre_rot_redraw_cb)(lv_obj_t *lobj);
-    /*
-     * Resize callback will be called to overwrite the calculated size data
-     * To keep the previous size for the original object is some situation.
-     */
-    void (*post_rot_resize_adjust_cb)(lv_obj_t *lobj);
+    int32_t (*prerotate_cb)(lv_obj_t *lobj);
 } obj_data_t;
 
 typedef struct {

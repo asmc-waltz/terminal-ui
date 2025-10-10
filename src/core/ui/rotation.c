@@ -390,10 +390,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
     if (ret)
         return -EINVAL;
 
-    if (gobj->data.post_rot_resize_adjust_cb)
-        gobj->data.post_rot_resize_adjust_cb(lobj);
-    else
-        apply_gobj_size(lobj);
+    apply_gobj_size(lobj);
 
     /*
      * For an object placed inside a parent, its new center point must be
@@ -435,8 +432,8 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    if (gobj->data.pre_rot_redraw_cb)
-        gobj->data.pre_rot_redraw_cb(lobj);
+    if (gobj->data.prerotate_cb)
+        gobj->data.prerotate_cb(lobj);
 
     /*
      * For base objects, rotation only affects geometric and alignment data.
@@ -509,8 +506,8 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
-    if (gobj->data.pre_rot_redraw_cb) {
-        ret = gobj->data.pre_rot_redraw_cb(lobj);
+    if (gobj->data.prerotate_cb) {
+        ret = gobj->data.prerotate_cb(lobj);
         if (ret) {
             LOG_ERROR("Failed to execute redraw callback for object %s", \
                       gobj->name);
@@ -587,8 +584,8 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
-    if (gobj->data.pre_rot_redraw_cb)
-        gobj->data.pre_rot_redraw_cb(lobj);
+    if (gobj->data.prerotate_cb)
+        gobj->data.prerotate_cb(lobj);
 
     rot_cnt = calc_rotation_turn(gobj);
     if (rot_cnt <= 0)

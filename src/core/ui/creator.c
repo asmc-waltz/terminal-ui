@@ -285,7 +285,7 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name)
     lv_obj_t *lobj = create_gobj(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
 
-    get_gobj(lobj)->data.pre_rot_redraw_cb = redraw_slider_layout;
+    get_gobj(lobj)->data.prerotate_cb = redraw_slider_layout;
 
     return lobj;
 }
