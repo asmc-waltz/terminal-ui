@@ -74,7 +74,9 @@ int32_t apply_flex_cell_pad(lv_obj_t *lobj);
 int32_t set_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
                           int32_t pad_left, int32_t pad_right);
 
+int32_t rotate_flex_cell_border_side_90(lv_obj_t *lobj);
 int32_t rotate_flex_cell_90(lv_obj_t *lobj);
+int32_t apply_flex_cell_config(lv_obj_t *lobj);
 
 static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
 {

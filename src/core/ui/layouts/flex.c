@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -376,6 +376,64 @@ int32_t rotate_flex_layout_90(lv_obj_t *lobj)
     return 0;
 }
 
+/*
+ * Rotate flex cell border sides by 90° clockwise.
+ * Uses a lookup table for all 16 combinations of LV_BORDER_SIDE_* flags.
+ */
+int32_t rotate_flex_cell_border_side_90(lv_obj_t *lobj)
+{
+    if (!lobj)
+        return -EINVAL;
+
+    flex_cell_t *conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    static const lv_border_side_t border_rot_table[16] = {
+        [LV_BORDER_SIDE_NONE] = LV_BORDER_SIDE_NONE,
+        [LV_BORDER_SIDE_TOP] = LV_BORDER_SIDE_RIGHT,
+        [LV_BORDER_SIDE_BOTTOM] = LV_BORDER_SIDE_LEFT,
+        [LV_BORDER_SIDE_LEFT] = LV_BORDER_SIDE_TOP,
+        [LV_BORDER_SIDE_RIGHT] = LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT] =
+                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT,
+        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT] =
+                                LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP,
+        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP] =
+                                LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_TOP,
+        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM |
+                                LV_BORDER_SIDE_RIGHT,
+        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT] =
+                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT |
+                                LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT |
+                                LV_BORDER_SIDE_BOTTOM,
+        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM] =
+                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP |
+                                LV_BORDER_SIDE_RIGHT,
+        [LV_BORDER_SIDE_FULL] = LV_BORDER_SIDE_FULL,
+    };
+
+    lv_border_side_t current = conf->border_side;
+    if (current >= 16) {
+        LOG_ERROR("Flex cell %s has invalid border mask %d",
+              get_name(lobj), current);
+        return -EINVAL;
+    }
+
+    conf->border_side = border_rot_table[current];
+
+    return 0;
+}
+
 int32_t rotate_flex_cell_90(lv_obj_t *lobj)
 {
     int32_t ret;
@@ -384,6 +442,21 @@ int32_t rotate_flex_cell_90(lv_obj_t *lobj)
         return -EINVAL;
 
     set_gobj_size(lobj, get_h(lobj), get_w(lobj));
+
+    ret = rotate_flex_cell_border_side_90(lobj);
+    if (ret)
+        return ret;
+
+    return 0;
+}
+
+int32_t apply_flex_cell_config(lv_obj_t *lobj)
+{
+    int32_t ret = 0;
+
+    ret = apply_flex_cell_border_side(lobj);
+    if (ret)
+        return ret;
 
     return 0;
 }
