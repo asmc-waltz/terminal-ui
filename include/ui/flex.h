@@ -23,8 +23,6 @@ typedef struct flex_layout {
     lv_flex_align_t main_place;
     lv_flex_align_t cross_place;
     lv_flex_align_t track_place;
-    int32_t pad_row;
-    int32_t pad_column;
 } flex_layout_t;
 
 /**********************
