@@ -557,6 +557,11 @@ static int32_t gobj_refresh_child(gobj_t *gobj)
             LOG_ERROR("Child object %d (%s) rotation failed", gobj->id, gobj->name);
             return ret;
         }
+
+        // TODO:
+        if (p_obj->data.layout_type == OBJ_LAYOUT_FLEX) {
+            scroll_to_first_child(get_lobj(p_obj));
+        }
     }
 
     return 0;
