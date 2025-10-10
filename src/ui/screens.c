@@ -239,15 +239,6 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
         return NULL;
 
     set_obj_base_type(base);
-    lv_obj_set_style_radius(base, 20, 0);
-    set_gobj_size(base, get_scr_width(), get_scr_height());
-    set_gobj_pos(base, 0, 0);
-    set_grid_layout_gap(base, 0, 0, 0, 8);
-    lv_obj_set_style_pad_all(base, 8, 0);
-    set_grid_layout_align(base, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-    lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
 
     /**************************************/
     ret = add_grid_layout_row_dsc(base, 50);
@@ -269,7 +260,18 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     }
     /**************************************/
     apply_grid_layout_config(base);
+    set_grid_layout_align(base, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+
     /**************************************/
+
+    lv_obj_set_style_radius(base, 20, 0);
+    set_gobj_size(base, get_scr_width(), get_scr_height());
+    set_gobj_pos(base, 0, 0);
+    set_gobj_row_padding(base, 8);
+    set_gobj_padding(base, 8, 8, 8, 8);
+    lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
 
 
     lv_obj_t *top_bar;

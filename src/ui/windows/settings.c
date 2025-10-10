@@ -96,18 +96,12 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
     set_flex_cell_data(item);
     set_gobj_size(item, LV_PCT(100), 50);
-    lv_obj_set_style_pad_column(item, 8, 0);
-    // lv_obj_set_style_pad_left(item, 20, 0);
-    // lv_obj_set_style_pad_right(item, 20, 0);
-
-    set_flex_cell_pad(item, 0, 0, 20, 20);
+    set_gobj_padding(item, 0, 0, 20, 20);
 
     /*----------------------------------
      * Style
      *----------------------------------*/
-    // lv_obj_set_style_border_side(item, LV_BORDER_SIDE_BOTTOM, 0);
-
-    set_flex_cell_border_side(item, LV_BORDER_SIDE_BOTTOM);
+    set_gobj_border_side(item, LV_BORDER_SIDE_BOTTOM);
     lv_obj_set_style_border_width(item, 2, 0);
     lv_obj_set_style_border_color(item, lv_color_black(), 0);
 
@@ -126,7 +120,7 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     /*----------------------------------
      * Create children: symbol + title
      *----------------------------------*/
-    sym = create_symbol_box(item, NULL, &terminal_icons_20, sym_index);
+    sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
     if (sym)
         set_flex_cell_data(sym);
 
@@ -163,8 +157,7 @@ static lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
      * Sizing and spacing
      *-----------------------------*/
     set_gobj_size(group, LV_PCT(100), LV_SIZE_CONTENT);
-    // lv_obj_set_style_pad_all(group, 20, 0);
-    set_flex_cell_pad(group, 20, 20, 20, 20);
+    set_gobj_padding(group, 20, 20, 20, 20);
 
     /*------------------------------
      * Flex alignment
@@ -259,6 +252,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     if (!menu_bar)
         return NULL;
 
+    create_menu_bar_items(menu_bar);
     /*------------------------------
      * Layout configuration
      *-----------------------------*/
@@ -270,9 +264,9 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     /*------------------------------
      * Padding and spacing
      *-----------------------------*/
-    lv_obj_set_style_pad_all(menu_bar, 4, 0);
-    lv_obj_set_style_pad_row(menu_bar, 20, 0);
-    lv_obj_set_style_pad_column(menu_bar, 20, 0);
+
+    set_gobj_padding(menu_bar, 4, 4, 4, 4);
+    set_gobj_row_padding(menu_bar, 20);
 
     /*------------------------------
      * Visual style
@@ -286,7 +280,7 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     lv_obj_set_style_pad_all(menu_bar, 0, LV_PART_SCROLLBAR);
     lv_obj_set_style_margin_all(menu_bar, 0, LV_PART_SCROLLBAR);
 
-    create_menu_bar_items(menu_bar);
+    // create_menu_bar_items(menu_bar);
     return menu_bar;
 }
 
@@ -317,13 +311,6 @@ int32_t create_setting_content(lv_obj_t *window)
     if (!window)
         return -EINVAL;
 
-    set_grid_layout_gap(window, 0, 5, 0, 0);
-    set_grid_layout_align(window, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-    lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
-    lv_obj_set_style_pad_all(window, 20, 0);
-
     /**************************************/
     ret = add_grid_layout_row_dsc(window, LV_GRID_FR(98));
     if (ret) {
@@ -340,10 +327,17 @@ int32_t create_setting_content(lv_obj_t *window)
         LOG_ERROR("Add descriptor info failed");
     }
     /**************************************/
-
     apply_grid_layout_config(window);
+    set_grid_layout_align(window, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
 
+    /**************************************/
+    set_gobj_column_padding(window, 8);
+    lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
+    set_gobj_padding(window, 20, 20, 20, 20);
 
+    /**************************************/
     lv_obj_t *menu_bar;
     menu_bar = create_menu_bar(window, "menu_bar");
     set_grid_cell_align(menu_bar, LV_GRID_ALIGN_STRETCH, 0, 1, \
