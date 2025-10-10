@@ -37,16 +37,9 @@ typedef struct grid_desc {
     int32_t *cell_pct;
 } grid_desc_t;
 
-typedef struct grid_pad {
-    int8_t scale;
-    int8_t pct;
-    int32_t px;
-} grid_pad_t;
-
 typedef struct grid_layout_rc {
     grid_desc_t *dsc;
     lv_grid_align_t align;
-    grid_pad_t *pad;
 } grid_layout_rc_t;
 
 typedef struct grid_layout {
@@ -84,12 +77,6 @@ int32_t apply_grid_layout_align(lv_obj_t *lobj);
 int32_t set_grid_layout_align(lv_obj_t *lobj, \
                         lv_grid_align_t col_align, lv_grid_align_t row_align);
 
-int32_t config_grid_layout_pad_col(lv_obj_t *lobj, int8_t scale, int32_t val);
-int32_t config_grid_layout_pad_row(lv_obj_t *lobj, int8_t scale, int32_t val);
-int32_t apply_grid_layout_gap(lv_obj_t *lobj);
-int32_t set_grid_layout_gap(lv_obj_t *lobj, int8_t scale_col, int32_t pad_col, \
-                            int8_t scale_row, int32_t pad_row);
-
 int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
                                int8_t col_pos, int8_t col_span, \
                                int8_t col_max, lv_grid_align_t row_align, \
@@ -103,25 +90,12 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj);
 
 int32_t rotate_grid_dsc_90(lv_obj_t *lobj);
 int32_t rotate_grid_align_90(lv_obj_t *lobj);
-int32_t rotate_grid_rc_pad_90(lv_obj_t *lobj);
 int32_t rotate_grid_layout_90(lv_obj_t *lobj);
 int32_t apply_grid_layout_config(lv_obj_t *lobj);
 
 static inline grid_layout_t *get_grid_layout_data(lv_obj_t *lobj)
 {
     return lobj ? (grid_layout_t *)get_gobj(lobj)->data.internal : NULL;
-}
-
-static inline grid_pad_t *get_layout_row_pad_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_grid_layout_data(lobj);
-    return layout ? layout->row.pad : NULL;
-}
-
-static inline grid_pad_t *get_layout_col_pad_data(lv_obj_t *lobj)
-{
-    grid_layout_t *layout = get_grid_layout_data(lobj);
-    return layout ? layout->col.pad : NULL;
 }
 
 static inline grid_desc_t *get_layout_row_dsc_data(lv_obj_t *lobj)
