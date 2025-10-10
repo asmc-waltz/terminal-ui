@@ -48,44 +48,6 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-/*
- * Configure flex cell border side only (does not apply to LVGL yet).
- */
-static inline int32_t config_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    conf->border_side = value;
-
-    return 0;
-}
-
-static inline int32_t config_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
-                             int32_t pad_left, int32_t pad_right)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    conf->pad_top = pad_top;
-    conf->pad_bot = pad_bot;
-    conf->pad_left = pad_left;
-    conf->pad_right = pad_right;
-
-    return 0;
-}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -102,90 +64,12 @@ int32_t set_flex_cell_data(lv_obj_t *lobj)
     if (!lobj)
         return -EINVAL;
 
-    gobj_t *gobj = get_gobj(lobj);
-    if (!gobj)
-        return -EINVAL;
-
-    flex_cell_t *conf = (flex_cell_t *)calloc(1, sizeof(flex_cell_t));
-    if (!conf)
-        return -ENOMEM;
-
-    gobj->data.sub_data = conf;
-
     int32_t ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
     if (ret) {
-        free(conf);
-        gobj->data.sub_data = NULL;
         return ret;
     }
 
     return 0;
-}
-
-/*
- * Apply border side configuration to the LVGL object.
- */
-int32_t apply_flex_cell_border_side(lv_obj_t *lobj)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    lv_obj_set_style_border_side(lobj, conf->border_side, 0);
-    return 0;
-}
-
-/*
- * Set and immediately apply border side configuration for a flex cell.
- */
-int32_t set_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
-{
-    int32_t ret;
-
-    ret = config_flex_cell_border_side(lobj, value);
-    if (ret)
-        return ret;
-
-    return apply_flex_cell_border_side(lobj);
-}
-
-/*
- * Apply border side configuration to the LVGL object.
- */
-int32_t apply_flex_cell_pad(lv_obj_t *lobj)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    lv_obj_set_style_pad_top(lobj, conf->pad_top, 0);
-    lv_obj_set_style_pad_bottom(lobj, conf->pad_bot, 0);
-    lv_obj_set_style_pad_left(lobj, conf->pad_left, 0);
-    lv_obj_set_style_pad_right(lobj, conf->pad_right, 0);
-
-    return 0;
-}
-
-int32_t set_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
-                          int32_t pad_left, int32_t pad_right)
-{
-    int32_t ret;
-
-    ret = config_flex_cell_pad(lobj, pad_top, pad_bot, pad_left, pad_right);
-    if (ret)
-        return ret;
-
-    return apply_flex_cell_pad(lobj);
 }
 
 lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
@@ -371,81 +255,21 @@ int32_t rotate_flex_layout_90(lv_obj_t *lobj)
     ret = config_flex_layout_flow(lobj, next_flow);
     LOG_TRACE("Flex layout %s rotated 90 deg: flow %d -> %d", \
               get_gobj(lobj)->name, pre_flow, next_flow);
+    if (ret)
+        return ret;
 
     return 0;
 }
 
-/*
- * Rotate flex cell border sides by 90° clockwise.
- * Uses a lookup table for all 16 combinations of LV_BORDER_SIDE_* flags.
- */
-int32_t rotate_flex_cell_border_side_90(lv_obj_t *lobj)
+int32_t apply_flex_layout_config(lv_obj_t *lobj)
 {
-    if (!lobj)
-        return -EINVAL;
+    int32_t ret;
 
-    flex_cell_t *conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EINVAL;
-
-    static const lv_border_side_t border_rot_table[16] = {
-        [LV_BORDER_SIDE_NONE] = LV_BORDER_SIDE_NONE,
-        [LV_BORDER_SIDE_TOP] = LV_BORDER_SIDE_RIGHT,
-        [LV_BORDER_SIDE_BOTTOM] = LV_BORDER_SIDE_LEFT,
-        [LV_BORDER_SIDE_LEFT] = LV_BORDER_SIDE_TOP,
-        [LV_BORDER_SIDE_RIGHT] = LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT] =
-                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT,
-        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT] =
-                                LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP,
-        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP] =
-                                LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_TOP,
-        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM |
-                                LV_BORDER_SIDE_RIGHT,
-        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT] =
-                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_RIGHT |
-                                LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT |
-                                LV_BORDER_SIDE_BOTTOM,
-        [LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_BOTTOM] =
-                                LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_TOP |
-                                LV_BORDER_SIDE_RIGHT,
-        [LV_BORDER_SIDE_FULL] = LV_BORDER_SIDE_FULL,
-    };
-
-    lv_border_side_t current = conf->border_side;
-    if (current >= 16) {
-        LOG_ERROR("Flex cell %s has invalid border mask %d",
-              get_name(lobj), current);
-        return -EINVAL;
-    }
-
-    config_flex_cell_border_side(lobj, border_rot_table[current]);
+    ret = apply_flex_layout_flow(lobj);
+    if (ret)
+        return ret;
 
     return 0;
-}
-
-int32_t rotate_flex_cell_pad_90(lv_obj_t *lobj)
-{
-    flex_cell_t *conf;
-
-    if (!lobj)
-        return -EINVAL;
-
-    conf = get_flex_cell_data(lobj);
-    if (!conf)
-        return -EIO;
-
-    return config_flex_cell_pad(lobj, conf->pad_right, conf->pad_left, \
-                             conf->pad_top, conf->pad_bot);
 }
 
 int32_t rotate_flex_cell_90(lv_obj_t *lobj)
@@ -457,28 +281,10 @@ int32_t rotate_flex_cell_90(lv_obj_t *lobj)
 
     set_gobj_size(lobj, get_h(lobj), get_w(lobj));
 
-    ret = rotate_flex_cell_border_side_90(lobj);
-    if (ret)
-        return ret;
-
-    ret = rotate_flex_cell_pad_90(lobj);
-    if (ret)
-        return ret;
-
     return 0;
 }
 
 int32_t apply_flex_cell_config(lv_obj_t *lobj)
 {
-    int32_t ret = 0;
-
-    ret = apply_flex_cell_border_side(lobj);
-    if (ret)
-        return ret;
-
-    ret = apply_flex_cell_pad(lobj);
-    if (ret)
-        return ret;
-
     return 0;
 }
