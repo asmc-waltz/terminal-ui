@@ -27,7 +27,7 @@
 #define DIS_SCALE                       0
 #define ENA_SCALE                       1
 
-#define bg_color(x)                     color_gray_levels[x]
+#define bg_color(x)                     color_gray_levels_inv[x]
 /**********************
  *      TYPEDEFS
  **********************/
