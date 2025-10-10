@@ -105,6 +105,14 @@ typedef struct {
     int8_t scale_h;
 } obj_size_t;
 
+typedef struct {
+    lv_border_side_t border_side;
+    int32_t pad_top;
+    int32_t pad_bot;
+    int32_t pad_left;
+    int32_t pad_right;
+} obj_layout_t;
+
 typedef struct gobj_t {
     struct list_head node;
     struct list_head child;
@@ -113,6 +121,7 @@ typedef struct gobj_t {
     char *name;
     obj_size_t size;
     obj_align_t align;
+    obj_layout_t layout;
     obj_data_t data;
 } gobj_t;
 
@@ -147,6 +156,9 @@ void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
 void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
 void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
 void apply_gobj_size(lv_obj_t *lobj);
+
+int32_t set_gobj_border_side(lv_obj_t *lobj, int32_t value);
+int32_t apply_gobj_border_side(lv_obj_t *lobj);
 
 void set_gobj_data(lv_obj_t *lobj, void *data);
 
@@ -191,6 +203,7 @@ lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(gobj_t *gobj);
 int32_t calc_gobj_rotated_size(gobj_t *gobj);
+int32_t rotate_gobj_border_side_90(gobj_t *gobj);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {
