@@ -87,13 +87,14 @@ int32_t set_flex_cell_data(lv_obj_t *lobj)
 /*
  * Configure flex cell border side only (does not apply to LVGL yet).
  */
-static inline int32_t config_flex_cell_border_side(lv_obj_t *lobj, \
-                                                   int32_t value)
+int32_t config_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
 {
+    flex_cell_t *conf;
+
     if (!lobj)
         return -EINVAL;
 
-    flex_cell_t *conf = get_flex_cell_data(lobj);
+    conf = get_flex_cell_data(lobj);
     if (!conf)
         return -EINVAL;
 
@@ -107,10 +108,12 @@ static inline int32_t config_flex_cell_border_side(lv_obj_t *lobj, \
  */
 int32_t apply_flex_cell_border_side(lv_obj_t *lobj)
 {
+    flex_cell_t *conf;
+
     if (!lobj)
         return -EINVAL;
 
-    flex_cell_t *conf = get_flex_cell_data(lobj);
+    conf = get_flex_cell_data(lobj);
     if (!conf)
         return -EINVAL;
 
@@ -123,11 +126,67 @@ int32_t apply_flex_cell_border_side(lv_obj_t *lobj)
  */
 int32_t set_flex_cell_border_side(lv_obj_t *lobj, int32_t value)
 {
-    int32_t ret = config_flex_cell_border_side(lobj, value);
+    int32_t ret;
+
+    ret = config_flex_cell_border_side(lobj, value);
     if (ret)
         return ret;
 
     return apply_flex_cell_border_side(lobj);
+}
+
+int32_t config_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+                             int32_t pad_left, int32_t pad_right)
+{
+    flex_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    conf->pad_top = pad_top;
+    conf->pad_bot = pad_bot;
+    conf->pad_left = pad_left;
+    conf->pad_right = pad_right;
+
+    return 0;
+}
+
+/*
+ * Apply border side configuration to the LVGL object.
+ */
+int32_t apply_flex_cell_pad(lv_obj_t *lobj)
+{
+    flex_cell_t *conf;
+
+    if (!lobj)
+        return -EINVAL;
+
+    conf = get_flex_cell_data(lobj);
+    if (!conf)
+        return -EINVAL;
+
+    lv_obj_set_style_pad_top(lobj, conf->pad_top, 0);
+    lv_obj_set_style_pad_bottom(lobj, conf->pad_bot, 0);
+    lv_obj_set_style_pad_left(lobj, conf->pad_left, 0);
+    lv_obj_set_style_pad_right(lobj, conf->pad_right, 0);
+
+    return 0;
+}
+
+int32_t set_flex_cell_pad(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+                          int32_t pad_left, int32_t pad_right)
+{
+    int32_t ret;
+
+    ret = set_flex_cell_pad(lobj, pad_top, pad_bot, pad_left, pad_right);
+    if (ret)
+        return ret;
+
+    return apply_flex_cell_pad(lobj);
 }
 
 lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
