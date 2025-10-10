@@ -350,15 +350,14 @@ int32_t create_setting_content(lv_obj_t *window)
                         LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_bg_color(setting_detail, lv_color_hex(bg_color(100)), 0);
 
-    lv_obj_t *test = create_box(setting_detail, "HAHA");
-    set_gobj_size(test, 200, 250);
-       set_gobj_align(test, setting_detail, LV_ALIGN_TOP_MID,
-                        20, 20);
+    lv_obj_t *test_obj1 = create_box(setting_detail, "test_obj1");
+    set_gobj_size(test_obj1, LV_PCT(98), LV_PCT(50));
+    set_gobj_align(test_obj1, setting_detail, LV_ALIGN_TOP_MID, 0, 20);
 
-    lv_obj_t *test2 = create_box(test, "HAHA2");
-    set_gobj_size(test2, 50, 50);
-    set_gobj_pos(test2, 20, 20);
-    lv_obj_set_style_bg_color(test2, lv_color_hex(bg_color(150)), 0);
+    lv_obj_t *test_obj2 = create_box(test_obj1, "HAHA2");
+    set_gobj_size(test_obj2, LV_PCT(50), LV_PCT(50));
+    set_gobj_align(test_obj2, test_obj1, LV_ALIGN_TOP_MID, 0, 20);
+    lv_obj_set_style_bg_color(test_obj2, lv_color_hex(bg_color(150)), 0);
 
     return 0;
 }
