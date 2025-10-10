@@ -274,18 +274,16 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     lv_obj_t *top_bar;
     top_bar = create_box(base, "top space");
-    set_gobj_size_scale_w(top_bar, 98, pct_to_px(get_scr_height(), 8));
     set_grid_cell_align(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
-                         LV_GRID_ALIGN_STRETCH, 0, 1);
+                        LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_radius(top_bar, 16, 0);
     lv_obj_set_style_bg_color(top_bar, lv_color_hex(bg_color(40)), 0);
 
     lv_obj_t *setting_container;
 
     setting_container = create_setting_window(base);
-    set_gobj_size_scale(setting_container, 98, 58);
     set_grid_cell_align(setting_container, LV_GRID_ALIGN_STRETCH, 0, 1,
-                         LV_GRID_ALIGN_STRETCH, 1, 1);
+                        LV_GRID_ALIGN_STRETCH, 1, 1);
     lv_obj_set_style_radius(setting_container, 16, 0);
     lv_obj_set_style_bg_color(setting_container, lv_color_hex(bg_color(40)), 0);
 
