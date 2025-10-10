@@ -71,7 +71,7 @@ static int8_t calc_rotation_turn(gobj_t *gobj)
     return rot_cnt;
 }
 
-static int32_t g_obj_rot_calc_align(gobj_t *gobj)
+static int32_t rotate_gobj_alignment(gobj_t *gobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
@@ -80,15 +80,11 @@ static int32_t g_obj_rot_calc_align(gobj_t *gobj)
     if (!gobj)
         return -EINVAL;
 
-    cur_rot = gobj->data.rotation;
-    scr_rot = get_scr_rotation();
+    rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
 
-    if (cur_rot < ROTATION_0 || cur_rot > ROTATION_270 ||
-        scr_rot < ROTATION_0 || scr_rot > ROTATION_270)
-        return -EINVAL;
-
-    rot_cnt = (scr_rot - cur_rot + 4) % 4;
-
+    /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
         rotate_gobj_alignment_90(gobj);
         rotate_alignment_offset_90(gobj);
@@ -127,7 +123,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
 
     /* Recalculate alignment values if needed */
     if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = g_obj_rot_calc_align(gobj);
+        ret = rotate_gobj_alignment(gobj);
         if (ret)
             return -EINVAL;
     }
