@@ -128,6 +128,34 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
     if (!lobj)
         return -EINVAL;
 
+
+    int32_t rot_cnt = calc_rotation_turn(gobj);
+    if (rot_cnt <= 0)
+        return 0;
+
+    /* Perform rotation by 90° steps */
+    for (int8_t i = 0; i < rot_cnt; i++) {
+        ret = rotate_gobj_border_side_90(gobj);
+        if (ret)
+            return ret;
+
+        ret = rotate_gobj_padding_90(gobj);
+        if (ret)
+            return ret;
+    }
+
+    ret = apply_gobj_border_side(lobj);
+    if (ret)
+        return ret;
+
+    ret = apply_gobj_padding(lobj);
+    if (ret)
+        return ret;
+
+    ret = apply_gobj_rc_padding(lobj);
+    if (ret)
+        return ret;
+
     /* Ignore size and align adjustment for base (non-rotated) object */
     if (gobj->data.obj_type == OBJ_BASE)
         return 0;
@@ -369,7 +397,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         }
     }
 
-    ret = apply_flex_layout_flow(lobj);
+    ret = apply_flex_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \
                   get_name(lobj), ret);
