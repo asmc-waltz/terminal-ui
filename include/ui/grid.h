@@ -14,8 +14,8 @@
 /*********************
  *      DEFINES
  *********************/
-#define IS_COL                          0
-#define IS_ROW                          1
+#define TYPE_COLUMN                     0
+#define TYPE_ROW                        1
 
 /**********************
  *      TYPEDEFS
