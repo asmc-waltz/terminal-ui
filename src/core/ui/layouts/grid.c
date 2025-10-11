@@ -128,6 +128,42 @@ static void on_size_changed_cb(lv_event_t *e)
 
     LOG_TRACE("Cell [%s] size updated", get_name(lobj));
 }
+
+/*
+ * Update cell configuration according to the current state of layout.
+ */
+static inline int32_t refresh_grid_cell_configuration(lv_obj_t *lobj)
+{
+    grid_desc_t *r_dsc, *c_dsc;
+    grid_cell_t *conf;
+    lv_obj_t *par;
+
+    if (!lobj)
+        return -EINVAL;
+
+    par = lv_obj_get_parent(lobj);
+    if (!par)
+        return -EINVAL;
+
+    r_dsc = get_layout_row_dsc_data(par);
+    c_dsc = get_layout_col_dsc_data(par);
+    if (!r_dsc || !c_dsc)
+        return -EIO;
+
+    conf = get_cell_data(lobj);
+    if (!conf)
+        return -EIO;
+
+    if (r_dsc->size <= 0 || c_dsc->size <= 0)
+        return -ERANGE;
+
+    /* Update maximum valid indices based on layout descriptor sizes */
+    conf->row.max = r_dsc->size - 1;
+    conf->col.max = c_dsc->size - 1;
+
+    return 0;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -267,6 +303,39 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     return 0;
 }
 
+/*
+ * Refresh configuration of all grid cells when grid layout descriptors
+ * (row/column definitions) are updated.
+ */
+int32_t refresh_grid_layout_cells_configuration(lv_obj_t *lobj)
+{
+    gobj_t *gobj, *p_obj;
+    int32_t ret;
+
+    if (!lobj)
+        return -EINVAL;
+
+    gobj = get_gobj(lobj);
+    if (!gobj)
+        return -EINVAL;
+
+    if (list_empty(&gobj->child))
+        return 0;
+
+    list_for_each_entry(p_obj, &gobj->child, node) {
+        if (p_obj->data.cell_type != OBJ_GRID_CELL)
+            continue;
+
+        ret = refresh_grid_cell_configuration(get_lobj(p_obj));
+        if (ret) {
+            LOG_WARN("Cell [%s] configuration refresh failed, ret %d",
+                     get_name(get_lobj(p_obj)), ret);
+        }
+    }
+
+    return 0;
+}
+
 int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
 {
     grid_rc_t *r_cell, *c_cell;
@@ -319,6 +388,10 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val)
     if (ret)
         return ret;
 
+    ret = refresh_grid_layout_cells_configuration(lobj);
+    if (ret)
+        return ret;
+
     return 0;
 }
 
@@ -335,6 +408,10 @@ int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int32_t val)
         return -EIO;
 
     ret = set_dsc_data(lobj, dsc, val);
+    if (ret)
+        return ret;
+
+    ret = refresh_grid_layout_cells_configuration(lobj);
     if (ret)
         return ret;
 
