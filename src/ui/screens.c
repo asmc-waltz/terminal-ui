@@ -201,6 +201,33 @@ static void rotate_key_handler(lv_event_t *event)
 
     refresh_obj_tree_layout(get_gobj(ctx->scr.now.obj));
 
+    lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
+                                   &get_gobj(lv_screen_active())->child);
+
+    static bool added = true;
+    int32_t scr_rot = get_scr_rotation();
+    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        if (added) {
+            ret = remove_grid_layout_last_row_dsc(win_setting);
+            if (ret) {
+                LOG_ERROR("Remove setting detail info failed, ret %d", ret);
+            } else {
+                added = false;
+            }
+        }
+    } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+        if (!added) {
+            ret = add_grid_layout_col_dsc(win_setting, LV_GRID_FR(65));
+            if (ret) {
+                LOG_ERROR("Add setting detail info failed, ret %d", ret);
+            } else {
+                added = true;
+            }
+        }
+    }
+    apply_grid_layout_config(win_setting);
+
+
     if (kb) {
         kb = create_keyboard(keyboard_box);
         if (!kb)
@@ -210,11 +237,35 @@ static void rotate_key_handler(lv_event_t *event)
 
 static void create_keyboard_handler(lv_event_t *event)
 {
-    lv_obj_t *kb;
+    static bool added;
+    lv_obj_t *kb, *top_layout;
     ctx_t *ctx = get_ctx();
+    int32_t ret, scr_rot;
+    bool is_vert;
+
+    top_layout = get_obj_by_name(LAYOUT_SETTING, \
+                    &get_gobj(lv_screen_active())->child);
+    scr_rot = get_scr_rotation();
+    is_vert = (scr_rot == ROTATION_0 || scr_rot == ROTATION_180);
+
+    if (!added) {
+        ret = is_vert ? add_grid_layout_row_dsc(top_layout, LV_GRID_FR(30))
+                      : add_grid_layout_col_dsc(top_layout, LV_GRID_FR(30));
+    } else {
+        ret = is_vert ? remove_grid_layout_last_row_dsc(top_layout)
+                      : remove_grid_layout_last_column_dsc(top_layout);
+    }
+
+    if (ret)
+        LOG_ERROR("%s descriptor failed, ret %d", added ? "Remove" : "Add", ret);
+    else
+        added = !added;
+
+    apply_grid_layout_config(top_layout);
 
     kb = get_obj_by_name(COMPS_KEYBOARD, \
-                            &get_gobj(lv_screen_active())->child);
+            &get_gobj(lv_screen_active())->child);
+
     if (!kb) {
         kb = create_keyboard(keyboard_box);
         if (!kb)
