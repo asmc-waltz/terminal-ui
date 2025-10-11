@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include <lvgl.h>
 #include "list.h"
@@ -152,6 +153,147 @@ static inline int32_t refresh_grid_cell_position(lv_obj_t *lobj, \
     conf->row.index = conf->row.index + (r_index_ofs);
     conf->col.max = c_index_max;
     conf->col.index = conf->col.index + (c_index_ofs);
+
+    return 0;
+}
+
+/*
+ * Determine whether the new cell should be appended (normal direction)
+ * based on current screen rotation and descriptor type.
+ */
+static inline bool is_append_direction(int32_t scr_rot, int8_t dsc_type)
+{
+    if (dsc_type == TYPE_ROW)
+        return (scr_rot == ROTATION_0 || scr_rot == ROTATION_90);
+    return (scr_rot == ROTATION_0 || scr_rot == ROTATION_270);
+}
+
+/*
+ * Append new cell descriptor value to existing layout descriptor.
+ */
+static inline int32_t append_normal_dsc(lv_obj_t *lobj, grid_desc_t *dsc, \
+                                        int32_t value)
+{
+    int32_t ret;
+
+    ret = set_dsc_data(lobj, dsc, value);
+    if (ret) {
+        LOG_ERROR("Layout %s append new cell failed, ret %d", \
+                  get_name(lobj), ret);
+        return ret;
+    }
+
+    return 0;
+}
+
+/*
+ * Insert new cell descriptor as a new layout descriptor, cloning
+ * the previous one into the new descriptor with new value as first entry.
+ */
+static int32_t insert_new_grid_dsc(lv_obj_t *lobj, grid_desc_t *dsc, \
+                                   int32_t value, int8_t dsc_type)
+{
+    grid_desc_t *next_dsc;
+    grid_layout_t *conf;
+    int32_t ret;
+    int32_t i;
+
+    next_dsc = calloc(1, sizeof(*next_dsc));
+    if (!next_dsc)
+        return -ENOMEM;
+
+    ret = set_dsc_data(lobj, next_dsc, value);
+    if (ret) {
+        LOG_ERROR("Layout %s insert new cell failed, ret %d", \
+                  get_name(lobj), ret);
+        goto out_free;
+    }
+
+    for (i = 0; i < dsc->size; i++) {
+        ret = set_dsc_data(lobj, next_dsc, dsc->cell_pct[i]);
+        if (ret)
+            goto out_free;
+    }
+
+    conf = get_grid_layout_data(lobj);
+    if (!conf) {
+        ret = -EIO;
+        goto out_free;
+    }
+
+    if (dsc_type == TYPE_ROW)
+        conf->row.dsc = next_dsc;
+    else
+        conf->col.dsc = next_dsc;
+
+    free_grid_desc(dsc);
+    return 0;
+
+out_free:
+    free_grid_desc(next_dsc);
+    return ret;
+}
+
+/*
+ * Refresh configuration of all grid cells when grid layout descriptors
+ * (row/column definitions) are updated.
+ */
+static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
+                                                  int8_t added_type)
+{
+    grid_desc_t *r_dsc, *c_dsc;
+    grid_cell_t *conf;
+    gobj_t *gobj, *p_obj;
+    int8_t r_index_ofs = 0, c_index_ofs = 0;
+    int32_t ret, scr_rot;
+
+    if (!lobj)
+        return -EINVAL;
+
+    gobj = get_gobj(lobj);
+    if (!gobj)
+        return -EINVAL;
+
+    if (list_empty(&gobj->child))
+        return 0;
+
+    r_dsc = get_layout_row_dsc_data(lobj);
+    c_dsc = get_layout_col_dsc_data(lobj);
+    if (!r_dsc || !c_dsc)
+        return -EIO;
+
+    if (r_dsc->size <= 0 || c_dsc->size <= 0)
+        return -ERANGE;
+
+    scr_rot = get_scr_rotation();
+    if (!is_append_direction(scr_rot, added_type)) {
+        if (added_type == TYPE_ROW)
+            r_index_ofs = 1;
+        else
+            c_index_ofs = 1;
+    }
+
+    list_for_each_entry(p_obj, &gobj->child, node) {
+        if (p_obj->data.cell_type != OBJ_GRID_CELL)
+            continue;
+
+        ret = refresh_grid_cell_position(get_lobj(p_obj), \
+                                              r_dsc->size - 1, \
+                                              r_index_ofs, \
+                                              c_dsc->size - 1, \
+                                              c_index_ofs \
+                                              );
+        if (ret) {
+            LOG_WARN("Cell [%s] configuration refresh failed, ret %d",
+                     get_name(get_lobj(p_obj)), ret);
+        }
+
+        ret = apply_grid_cell_align_and_pos(get_lobj(p_obj));
+        if (ret) {
+            LOG_WARN("Cell [%s] configuration apply failed, ret %d",
+                     get_name(get_lobj(p_obj)), ret);
+        }
+    }
 
     return 0;
 }
@@ -295,85 +437,6 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     return 0;
 }
 
-/*
- * Refresh configuration of all grid cells when grid layout descriptors
- * (row/column definitions) are updated.
- */
-int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, int8_t added_type)
-{
-    grid_desc_t *r_dsc, *c_dsc;
-    grid_cell_t *conf;
-    gobj_t *gobj, *p_obj;
-    int8_t r_index_ofs = 0, c_index_ofs = 0;
-    int32_t ret;
-
-    if (!lobj)
-        return -EINVAL;
-
-    gobj = get_gobj(lobj);
-    if (!gobj)
-        return -EINVAL;
-
-    if (list_empty(&gobj->child))
-        return 0;
-
-    r_dsc = get_layout_row_dsc_data(lobj);
-    c_dsc = get_layout_col_dsc_data(lobj);
-    if (!r_dsc || !c_dsc)
-        return -EIO;
-
-    if (r_dsc->size <= 0 || c_dsc->size <= 0)
-        return -ERANGE;
-
-
-    int32_t scr_rot = get_scr_rotation();
-    if (added_type == TYPE_ROW) {
-        if (scr_rot == ROTATION_0) {
-            r_index_ofs = 0;
-        } else if (scr_rot == ROTATION_90) {
-            r_index_ofs = 0;
-        } else if (scr_rot == ROTATION_180) {
-            r_index_ofs = 1;
-        } else if (scr_rot == ROTATION_270) {
-            r_index_ofs = 1;
-        }
-    } else {
-        if (scr_rot == ROTATION_0) {
-            c_index_ofs = 0;
-        } else if (scr_rot == ROTATION_90) {
-            c_index_ofs = 1;
-        } else if (scr_rot == ROTATION_180) {
-            c_index_ofs = 1;
-        } else if (scr_rot == ROTATION_270) {
-            c_index_ofs = 0;
-        }
-    }
-
-    list_for_each_entry(p_obj, &gobj->child, node) {
-        if (p_obj->data.cell_type != OBJ_GRID_CELL)
-            continue;
-
-        ret = refresh_grid_cell_position(get_lobj(p_obj), \
-                                              r_dsc->size - 1, \
-                                              r_index_ofs, \
-                                              c_dsc->size - 1, \
-                                              c_index_ofs \
-                                              );
-        if (ret) {
-            LOG_WARN("Cell [%s] configuration refresh failed, ret %d",
-                     get_name(get_lobj(p_obj)), ret);
-        }
-
-        ret = apply_grid_cell_align_and_pos(get_lobj(p_obj));
-        if (ret) {
-            LOG_WARN("Cell [%s] configuration apply failed, ret %d",
-                     get_name(get_lobj(p_obj)), ret);
-        }
-    }
-
-    return 0;
-}
-
 int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
 {
     grid_rc_t *r_cell, *c_cell;
@@ -410,96 +473,32 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
     return 0;
 }
 
+/*
+ * Append grid layout descriptor.
+ * Depending on the rotation and descriptor type (row/col),
+ * the operation will either append to current descriptor or
+ * create a new one and clone the previous configuration.
+ */
 int32_t append_grid_layout_dsc(lv_obj_t *lobj, grid_desc_t *dsc, \
                                int32_t value, int8_t dsc_type)
 {
-    grid_desc_t *next_dsc = NULL;
-    grid_layout_t *conf;
-    int32_t i, scr_rot, ret;
-    int8_t append = 0;
+    int32_t scr_rot;
 
-    if (!lobj | !dsc)
+    if (!lobj || !dsc)
         return -EINVAL;
-
-    next_dsc = calloc(1, sizeof(grid_desc_t));
-    if (!next_dsc) {
-        return -ENOMEM;
-    }
 
     scr_rot = get_scr_rotation();
 
-    if (dsc_type == TYPE_ROW) {
-        if (scr_rot == ROTATION_0) {
-            // Row is append
-            append = 1;
-        } else if (scr_rot == ROTATION_90) {
-            // Row is append
-            append = 1;
-        } else if (scr_rot == ROTATION_180) {
-            // Row is insert
-            ret = set_dsc_data(lobj, next_dsc, value);
-        } else if (scr_rot == ROTATION_270) {
-            // Row is insert
-            ret = set_dsc_data(lobj, next_dsc, value);
-        }
-    } else {
-        if (scr_rot == ROTATION_0) {
-            // Column is append
-            append = 1;
-        } else if (scr_rot == ROTATION_90) {
-            // Column is insert 
-            ret = set_dsc_data(lobj, next_dsc, value);
-        } else if (scr_rot == ROTATION_180) {
-            // Column is insert 
-            ret = set_dsc_data(lobj, next_dsc, value);
-        } else if (scr_rot == ROTATION_270) {
-            // Column is append
-            append = 1;
-        }
-    }
+    if (is_append_direction(scr_rot, dsc_type))
+        return append_normal_dsc(lobj, dsc, value);
 
-    if (ret) {
-        LOG_ERROR("Layout %s insert new cell failed, ret %d", \
-                  get_name(lobj), ret);
-        goto out_free_next_dsc;
-    }
-
-
-    for (i = 0; i < dsc->size; i++) {
-        ret = set_dsc_data(lobj, next_dsc, dsc->cell_pct[i]);
-        if (ret)
-            goto out_free_next_dsc;
-    }
-
-    if (append) {
-        ret = set_dsc_data(lobj, next_dsc, value);
-        if (ret) {
-            LOG_ERROR("Layout %s append new cell failed, ret %d", \
-                    get_name(lobj), ret);
-            goto out_free_next_dsc;
-        }
-    }
-
-    conf = get_grid_layout_data(lobj);
-    if (!conf) {
-        ret = -EIO;
-        goto out_free_next_dsc;
-    }
-
-    if (dsc_type == TYPE_ROW)
-        conf->row.dsc = next_dsc;
-    else
-        conf->col.dsc = next_dsc;
-
-    free_grid_desc(dsc);
-
-    return 0;
-
-out_free_next_dsc:
-    free_grid_desc(next_dsc);
-    return ret;
+    return insert_new_grid_dsc(lobj, dsc, value, dsc_type);
 }
 
+/*
+ * The newly added row descriptor will always remain at the bottom
+ * of the logical screen.
+ */
 int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val)
 {
     int32_t ret;
@@ -512,9 +511,6 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val)
     if (!dsc)
         return -EIO;
 
-    // ret = set_dsc_data(lobj, dsc, val);
-    // if (ret)
-    //     return ret;
     ret = append_grid_layout_dsc(lobj, dsc, val, TYPE_ROW);
     if (ret)
         return ret;
@@ -526,6 +522,10 @@ int32_t add_grid_layout_row_dsc(lv_obj_t *lobj, int32_t val)
     return 0;
 }
 
+/*
+ * The newly added column descriptor will always remain at the right
+ * side of the logical screen.
+ */
 int32_t add_grid_layout_col_dsc(lv_obj_t *lobj, int32_t val)
 {
     int32_t ret;
