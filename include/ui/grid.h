@@ -14,8 +14,12 @@
 /*********************
  *      DEFINES
  *********************/
-#define TYPE_COLUMN                     0
-#define TYPE_ROW                        1
+typedef enum {
+    ADD_COLUMN,
+    ADD_ROW,
+    REMOVE_COLUMN,
+    REMOVE_ROW,
+} dsc_op_t;
 
 /**********************
  *      TYPEDEFS
