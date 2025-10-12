@@ -389,6 +389,16 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     if (!lobj)
         return -EINVAL;
 
+    if (row_pos < 0 || row_pos > row_max) {
+        LOG_WARN("Cell [%s] invalid row index: %d", get_name(lobj), row_pos);
+        return -EINVAL;
+    }
+
+    if (col_pos < 0 || col_pos > col_max) {
+        LOG_WARN("Cell [%s] invalid column index: %d", get_name(lobj), col_pos);
+        return -EINVAL;
+    }
+
     conf = get_cell_data(lobj);
     if (!conf) {
         conf = calloc(1, sizeof(*conf));
