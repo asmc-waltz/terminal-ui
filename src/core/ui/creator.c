@@ -229,9 +229,42 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
 
 lv_obj_t *create_switch(lv_obj_t *par, const char *name)
 {
+    int32_t w, h;
     lv_obj_t *lobj = create_gobj(par, OBJ_SWITCH, name);
     LV_ASSERT_NULL(lobj);
+    lv_obj_update_layout(lobj);
+    w = lv_obj_get_width(lobj);
+    h = lv_obj_get_height(lobj);
+    set_gobj_size(lobj, w, h);
+    set_gobj_pos_center(lobj);
     return lobj;
+}
+
+lv_obj_t *create_switch_box(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *box, *swit;
+
+    box = create_box(par, name);
+    if (!box) {
+        return NULL;
+    }
+
+    lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(box, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);
+    // lv_obj_set_style_bg_color(box, \
+    //                           lv_color_hex(0x00AA00), 0);
+
+    swit = create_switch(box, NULL);
+    if (!swit) {
+        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
+        return NULL;
+    }
+
+    set_gobj_size(box, get_w(swit), get_h(swit));
+    set_gobj_pos_center(swit);
+
+    return box;
 }
 
 lv_obj_t *create_textarea(lv_obj_t *par, const char *name)

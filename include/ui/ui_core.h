@@ -200,6 +200,7 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
                             const lv_font_t *font, const char *index);
 
 lv_obj_t *create_switch(lv_obj_t *par, const char *name);
+lv_obj_t *create_switch_box(lv_obj_t *par, const char *name);
 lv_obj_t *create_textarea(lv_obj_t *par, const char *name);
 lv_obj_t *create_btn(lv_obj_t *par, const char *name);
 lv_obj_t *create_slider(lv_obj_t *par, const char *name);
