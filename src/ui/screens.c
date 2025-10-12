@@ -277,96 +277,118 @@ static void create_keyboard_handler(lv_event_t *event)
 
 #endif
 
+/*
+ * create_common_screen - Initialize the main setting screen container.
+ *
+ * This function builds the base layout of the screen including:
+ *   - A grid-based container layout (root)
+ *   - A top bar section
+ *   - A setting container (content area)
+ *
+ * The screen layout:
+ *   ---------------------------
+ *   |        Top bar          |  (fixed height)
+ *   ---------------------------
+ *   |   Setting container     |  (expandable area)
+ *   ---------------------------
+ *
+ * The layout is intentionally simple and flexible, allowing dynamic
+ * rebuild of the child layout when rotation or display configuration
+ * changes.
+ *
+ * Return:
+ *   Pointer to the created base LVGL object, or NULL if creation failed.
+ */
 lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 {
-    int32_t obj_w, obj_h;
-    lv_obj_t *base;
+    lv_obj_t *base, *top_bar, *setting_container;
     int32_t ret;
 
+    if (!ctx || !par)
+        return NULL;
+
+    /*-----------------------------------------
+     * Background initialization
+     *----------------------------------------*/
     lv_obj_set_style_bg_color(par, lv_color_black(), 0);
 
+    /*-----------------------------------------
+     * Create root container using grid layout
+     *----------------------------------------*/
     base = create_grid_layout_object(par, LAYOUT_SETTING);
     if (!base)
         return NULL;
 
     set_obj_base_type(base);
 
-    /**************************************/
-    ret = add_grid_layout_row_dsc(base, 50);
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
-    ret = add_grid_layout_row_dsc(base, LV_GRID_FR(60));
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
-    // ret = add_grid_layout_row_dsc(base, LV_GRID_FR(30));
-    // if (ret) {
-    //     LOG_ERROR("Add descriptor info failed");
-    // }
-    /**************************************/
-    ret = add_grid_layout_col_dsc(base, LV_GRID_FR(98));
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
-    /**************************************/
+    /* Grid rows: [top bar: 50px | content: flexible 60%] */
+    if (add_grid_layout_row_dsc(base, 50) ||
+        add_grid_layout_row_dsc(base, LV_GRID_FR(60)))
+        LOG_ERROR("Add row descriptor failed");
+
+    /* Single column layout occupying 98% of width */
+    if (add_grid_layout_col_dsc(base, LV_GRID_FR(98)))
+        LOG_ERROR("Add col descriptor failed");
+
     apply_grid_layout_config(base);
-    set_grid_layout_align(base, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
+    set_grid_layout_align(base, LV_GRID_ALIGN_SPACE_BETWEEN,
+                               LV_GRID_ALIGN_SPACE_BETWEEN);
 
-    /**************************************/
-
-    lv_obj_set_style_radius(base, 20, 0);
+    /*-----------------------------------------
+     * Base style setup
+     *----------------------------------------*/
     set_gobj_size(base, get_scr_width(), get_scr_height());
     set_gobj_pos(base, 0, 0);
-    set_gobj_row_padding(base, 8);
     set_gobj_padding(base, 8, 8, 8, 8);
+    set_gobj_row_padding(base, 8);
+    lv_obj_set_style_radius(base, 20, 0);
     lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
 
-
-    lv_obj_t *top_bar;
-    top_bar = create_box(base, "top space");
+    /*-----------------------------------------
+     * Create top bar section
+     *----------------------------------------*/
+    top_bar = create_box(base, "top_bar");
     set_grid_cell_align(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
-                        LV_GRID_ALIGN_STRETCH, 0, 1);
+                                   LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_radius(top_bar, 16, 0);
     lv_obj_set_style_bg_color(top_bar, lv_color_hex(bg_color(40)), 0);
 
-    lv_obj_t *setting_container;
-
+    /*-----------------------------------------
+     * Create setting container section
+     *----------------------------------------*/
     setting_container = create_setting_window(base);
-    set_grid_cell_align(setting_container, LV_GRID_ALIGN_STRETCH, 0, 1,
+    set_grid_cell_align(setting_container,
+                        LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 1, 1);
-    lv_obj_set_style_radius(setting_container, 16, 0);
-    lv_obj_set_style_bg_color(setting_container, lv_color_hex(bg_color(40)), 0);
 
-
-
-    // keyboard_box = create_box(base, "keyboard space");
-    // set_gobj_size_scale(keyboard_box, 98, 30);
-    // set_grid_cell_align(keyboard_box, LV_GRID_ALIGN_STRETCH, 0, 1,
-    //                      LV_GRID_ALIGN_STRETCH, 2, 1);
-    // lv_obj_set_style_radius(keyboard_box, 16, 0);
-
-
+    /* Build the setting content into the container */
     create_setting_content(setting_container);
 
+    /*-----------------------------------------
+     * Save context for future reference
+     *----------------------------------------*/
     ctx->scr.now.obj = base;
 
 #if defined(TEST)
-    lv_obj_t *btn = create_btn(lv_layer_top(), "common.rotate_btn");
+    /*-----------------------------------------
+     * Debug/test utilities
+     *----------------------------------------*/
+    lv_obj_t *btn, *icon;
+
+    /* Rotate test button */
+    btn = create_btn(lv_layer_top(), "btn.rotate");
     lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, get_gobj(btn));
     set_gobj_size(btn, 54, 54);
     set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
 
-    lv_obj_t *icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
+    icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
     lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
 
-
-    btn = create_btn(lv_layer_top(), "create keyboard");
+    /* Keyboard test button */
+    btn = create_btn(lv_layer_top(), "btn.keyboard");
+    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
     set_gobj_size(btn, 54, 54);
     set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -50, 0);
-    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
     lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
