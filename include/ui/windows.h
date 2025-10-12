@@ -42,6 +42,9 @@ typedef struct ctx ctx_t;
 /*=====================
  * Other functions
  *====================*/
+lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name);
+lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
+
 lv_obj_t *create_setting_window(lv_obj_t *par);
 
 /**********************
