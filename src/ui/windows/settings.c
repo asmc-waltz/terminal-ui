@@ -82,6 +82,7 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     lv_obj_t *item;
     lv_obj_t *sym;
     lv_obj_t *label;
+    lv_obj_t *first_child;
 
     if (!par)
         return NULL;
@@ -101,9 +102,12 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     /*----------------------------------
      * Style
      *----------------------------------*/
-    set_gobj_border_side(item, LV_BORDER_SIDE_BOTTOM);
-    lv_obj_set_style_border_width(item, 2, 0);
-    lv_obj_set_style_border_color(item, lv_color_black(), 0);
+    first_child = lv_obj_get_child(par, 0);
+    if (first_child != item) {
+        set_gobj_border_side(item, LV_BORDER_SIDE_TOP);
+        lv_obj_set_style_border_width(item, 2, 0);
+        lv_obj_set_style_border_color(item, lv_color_black(), 0);
+    }
 
     lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
     lv_obj_add_flag(item, LV_OBJ_FLAG_CLICKABLE);
@@ -349,7 +353,6 @@ int32_t create_setting_content(lv_obj_t *window)
     set_grid_cell_align(setting_detail, LV_GRID_ALIGN_STRETCH, 1, 1,
                         LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_bg_color(setting_detail, lv_color_hex(bg_color(100)), 0);
-
     lv_obj_t *test_obj1 = create_box(setting_detail, "test_obj1");
     set_gobj_size(test_obj1, LV_PCT(98), LV_PCT(50));
     set_gobj_align(test_obj1, setting_detail, LV_ALIGN_TOP_MID, 0, 20);
