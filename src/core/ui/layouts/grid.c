@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -297,6 +297,62 @@ out_free:
     return ret;
 }
 
+static int32_t check_and_delete_invalid_cell_object(lv_obj_t *lobj, dsc_op_t type)
+{
+    grid_desc_t *r_dsc, *c_dsc;
+    grid_cell_t *conf;
+    lv_obj_t *par;
+    bool del = false;
+    int32_t scr_rot, ret = 0;
+
+    if (!lobj)
+        return -EINVAL;
+
+    par = lv_obj_get_parent(lobj);
+    if (!par)
+        return -EIO;
+
+    r_dsc = get_layout_row_dsc_data(par);
+    c_dsc = get_layout_col_dsc_data(par);
+    conf  = get_cell_data(lobj);
+    if (!r_dsc || !c_dsc || !conf)
+        return -EIO;
+
+    scr_rot = get_scr_rotation();
+
+    switch (type) {
+    case REMOVE_ROW:
+        del = is_append_direction(scr_rot, type) ?
+              (conf->row.index == conf->row.max) :
+              (conf->row.index == 0);
+        break;
+    case REMOVE_COLUMN:
+        del = is_append_direction(scr_rot, type) ?
+              (conf->col.index == conf->col.max) :
+              (conf->col.index == 0);
+        break;
+    default:
+        return -ENOTSUP;
+    }
+
+    if (!del)
+        return 0;
+
+    LOG_TRACE("Delete cell [%s] row:%d/%d col:%d/%d",
+              get_name(lobj),
+              conf->row.index, conf->row.max,
+              conf->col.index, conf->col.max);
+
+    ret = remove_obj_and_child_by_name(get_name(lobj), &get_gobj(par)->child);
+    if (ret) {
+        LOG_WARN("Cell [%s] remove failed, ret %d", get_name(lobj), ret);
+        return ret;
+    }
+
+    /* return semantic: “object was deleted” */
+    return -ENOENT;
+}
+
 /*
  * Refresh configuration of all grid cells when grid layout descriptors
  * (row/column definitions) are updated.
@@ -306,7 +362,7 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
 {
     grid_desc_t *r_dsc, *c_dsc;
     grid_cell_t *conf;
-    gobj_t *gobj, *p_obj;
+    gobj_t *gobj, *p_obj, *n;
     int8_t r_index_ofs = 0, c_index_ofs = 0;
     int32_t ret, scr_rot;
 
@@ -343,9 +399,13 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
             c_index_ofs = -1;
     }
 
-    list_for_each_entry(p_obj, &gobj->child, node) {
+    list_for_each_entry_safe(p_obj, n, &gobj->child, node) {
         if (p_obj->data.cell_type != OBJ_GRID_CELL)
             continue;
+
+        ret = check_and_delete_invalid_cell_object(get_lobj(p_obj), type);
+        if (ret == -ENOENT)
+            continue; /* No problem, object was removed */
 
         ret = config_grid_cell_position(get_lobj(p_obj), \
                                               r_dsc->size - 1, \
