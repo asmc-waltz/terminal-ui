@@ -88,6 +88,23 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (swit)
         set_flex_cell_data(swit);
 
+    /* Section: Auto brightness toggle */
+    group = create_horizontal_flex_group(par, "BRIGHTNESS-MANUAL");
+    if (!group)
+        return -ENOMEM;
+    set_flex_cell_data(group);
+
+    label = create_text_box(group, NULL, &lv_font_montserrat_24, "Manual");
+    if (label)
+        set_flex_cell_data(label);
+
+    swit = create_slider(group, NULL);
+    if (swit) {
+        set_flex_cell_data(swit);
+        set_gobj_size(swit, LV_PCT(70), 20);
+    }
+
+
     /* Section: Spacer (flex filler) */
     lv_obj_t *filler = create_box(par, "BRIGHTNESS-FILLER");
     if (filler) {
