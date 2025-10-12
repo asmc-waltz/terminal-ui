@@ -63,6 +63,11 @@ static void menu_item_event_handler(lv_event_t *e)
         break;
     case LV_EVENT_RELEASED:
         lv_obj_set_style_bg_color(obj, lv_color_hex(bg_color(1)), 0);
+        lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
+                                       &get_gobj(lv_screen_active())->child);
+        lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
+
+        refresh_obj_tree_layout(get_gobj(set));
         break;
     case LV_EVENT_CLICKED:
         LV_LOG_USER("Box clicked!");
@@ -87,21 +92,23 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     if (!par)
         return NULL;
 
-    /*----------------------------------
-     * Create container (menu item)
-     *----------------------------------*/
+    /* Create container (menu item) */
     item = create_flex_layout_object(par, name);
     if (!item)
         return NULL;
 
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
     set_flex_cell_data(item);
+
     set_gobj_size(item, LV_PCT(100), 50);
     set_gobj_padding(item, 0, 0, 20, 20);
+    lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
 
-    /*----------------------------------
-     * Style
-     *----------------------------------*/
+    lv_obj_add_flag(item, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(item, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
+
+    /* Style */
     first_child = lv_obj_get_child(par, 0);
     if (first_child != item) {
         set_gobj_border_side(item, LV_BORDER_SIDE_TOP);
@@ -109,21 +116,13 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
         lv_obj_set_style_border_color(item, lv_color_black(), 0);
     }
 
-    lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
-    lv_obj_add_flag(item, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(item, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
+    /* Flex alignment */
+    set_flex_layout_align(item, \
+                          LV_FLEX_ALIGN_SPACE_BETWEEN, \
+                          LV_FLEX_ALIGN_CENTER, \
+                          LV_FLEX_ALIGN_CENTER);
 
-    /*----------------------------------
-     * Flex alignment
-     *----------------------------------*/
-    lv_obj_set_style_flex_main_place(item, LV_FLEX_ALIGN_SPACE_BETWEEN, 0);
-    lv_obj_set_style_flex_cross_place(item, LV_FLEX_ALIGN_CENTER, 0);
-    lv_obj_set_style_flex_track_place(item, LV_FLEX_ALIGN_CENTER, 0);
-
-    /*----------------------------------
-     * Create children: symbol + title
-     *----------------------------------*/
+    /* Create children: symbol + title */
     sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
     if (sym)
         set_flex_cell_data(sym);
@@ -151,24 +150,23 @@ static lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
     if (!group)
         return NULL;
 
-    /*------------------------------
-     * Layout configuration
-     *-----------------------------*/
-    set_flex_layout_flow(group, LV_FLEX_FLOW_COLUMN);
     set_flex_cell_data(group);
 
-    /*------------------------------
-     * Sizing and spacing
-     *-----------------------------*/
+    /* Visual style */
     set_gobj_size(group, LV_PCT(100), LV_SIZE_CONTENT);
+    /* Padding and spacing */
     set_gobj_padding(group, 20, 20, 20, 20);
+    /* Layout configuration */
+    set_flex_layout_flow(group, LV_FLEX_FLOW_COLUMN);
+
 
     /*------------------------------
      * Flex alignment
      *-----------------------------*/
-    // lv_obj_set_style_flex_main_place(group, LV_FLEX_ALIGN_CENTER, 0);
-    lv_obj_set_style_flex_cross_place(group, LV_FLEX_ALIGN_CENTER, 0);
-    lv_obj_set_style_flex_track_place(group, LV_FLEX_ALIGN_CENTER, 0);
+    set_flex_layout_align(group, \
+                          LV_FLEX_ALIGN_START, \
+                          LV_FLEX_ALIGN_CENTER, \
+                          LV_FLEX_ALIGN_CENTER);
 
     return group;
 }
@@ -256,35 +254,27 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     if (!menu_bar)
         return NULL;
 
-    create_menu_bar_items(menu_bar);
-    /*------------------------------
-     * Layout configuration
-     *-----------------------------*/
-    set_flex_layout_flow(menu_bar, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_flex_cross_place(menu_bar, LV_FLEX_ALIGN_CENTER, 0);
-    lv_obj_set_style_flex_track_place(menu_bar, LV_FLEX_ALIGN_CENTER, 0);
-    // lv_obj_set_style_flex_main_place(menu_bar, LV_FLEX_ALIGN_CENTER, 0);
-
-    /*------------------------------
-     * Padding and spacing
-     *-----------------------------*/
-
+    /* Visual style */
+    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(120)), 0);
+    /* Padding and spacing */
     set_gobj_padding(menu_bar, 4, 4, 4, 4);
     set_gobj_row_padding(menu_bar, 20);
-
-    /*------------------------------
-     * Visual style
-     *-----------------------------*/
-    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(120)), 0);
-
-    /*------------------------------
-     * Scrollbar cleanup
-     *-----------------------------*/
+    /* Scrollbar cleanup */
     lv_obj_set_style_width(menu_bar, 1, LV_PART_SCROLLBAR);
     lv_obj_set_style_pad_all(menu_bar, 0, LV_PART_SCROLLBAR);
     lv_obj_set_style_margin_all(menu_bar, 0, LV_PART_SCROLLBAR);
 
-    // create_menu_bar_items(menu_bar);
+    /* Layout configuration */
+    set_flex_layout_flow(menu_bar, LV_FLEX_FLOW_COLUMN);
+
+    /* Flex alignment */
+    set_flex_layout_align(menu_bar, \
+                          LV_FLEX_ALIGN_START, \
+                          LV_FLEX_ALIGN_CENTER, \
+                          LV_FLEX_ALIGN_CENTER);
+
+    create_menu_bar_items(menu_bar);
+
     return menu_bar;
 }
 
@@ -294,73 +284,71 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
 
 lv_obj_t *create_setting_window(lv_obj_t *par)
 {
-    lv_obj_t *setting;
+    lv_obj_t *lobj;
+    int32_t ret;
 
     if (!par)
-        return -EINVAL;
+        return NULL;
 
-    setting = create_grid_layout_object(par, WINDOW_SETTING);
-    if (!setting)
-        return -EIO;
+    lobj = create_grid_layout_object(par, WINDOW_SETTING);
+    if (!lobj)
+        return NULL;
 
-    lv_obj_set_style_pad_all(setting, 20, 0);
+    lv_obj_set_style_radius(lobj, 16, 0);
+    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(40)), 0);
 
-    return setting;
+    ret = set_gobj_padding(lobj, 20, 20, 20, 20);
+    if (ret)
+        LOG_WARN("Layout [%s] set padding failed, ret %d", \
+                 get_gobj(lobj), ret);
+
+    return lobj;
 }
 
 int32_t create_setting_content(lv_obj_t *window)
 {
     int32_t ret;
+    lv_obj_t *menu, *detail;
 
     if (!window)
         return -EINVAL;
 
-    /**************************************/
     ret = add_grid_layout_row_dsc(window, LV_GRID_FR(98));
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
-    /**************************************/
+    if (ret)
+        LOG_ERROR("Layout [%s] Row descriptor failed", get_gobj(window));
+
     ret = add_grid_layout_col_dsc(window, LV_GRID_FR(35));
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
+    if (ret)
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_gobj(window));
 
     ret = add_grid_layout_col_dsc(window, LV_GRID_FR(65));
-    if (ret) {
-        LOG_ERROR("Add descriptor info failed");
-    }
-    /**************************************/
+    if (ret)
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_gobj(window));
+
     apply_grid_layout_config(window);
     set_grid_layout_align(window, \
                           LV_GRID_ALIGN_SPACE_BETWEEN, \
                           LV_GRID_ALIGN_SPACE_BETWEEN);
-
-    /**************************************/
     set_gobj_column_padding(window, 8);
-    lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
     set_gobj_padding(window, 20, 20, 20, 20);
+    lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
 
-    /**************************************/
-    lv_obj_t *menu_bar;
-    menu_bar = create_menu_bar(window, "menu_bar");
-    set_grid_cell_align(menu_bar, LV_GRID_ALIGN_STRETCH, 0, 1, \
+
+    menu = create_menu_bar(window, WINDOW_SETTING".menu");
+    set_grid_cell_align(menu, \
+                        LV_GRID_ALIGN_STRETCH, 0, 1, \
                         LV_GRID_ALIGN_STRETCH, 0, 1);
-    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(100)), 0);
+    lv_obj_set_style_bg_color(menu, lv_color_hex(bg_color(100)), 0);
 
-    lv_obj_t *setting_detail;
-    setting_detail = create_box(window, "detail");
-    set_grid_cell_align(setting_detail, LV_GRID_ALIGN_STRETCH, 1, 1,
+    detail = create_box(window, WINDOW_SETTING".detail");
+    set_grid_cell_align(detail, \
+                        LV_GRID_ALIGN_STRETCH, 1, 1,
                         LV_GRID_ALIGN_STRETCH, 0, 1);
-    lv_obj_set_style_bg_color(setting_detail, lv_color_hex(bg_color(100)), 0);
-    lv_obj_t *test_obj1 = create_box(setting_detail, "test_obj1");
-    set_gobj_size(test_obj1, LV_PCT(98), LV_PCT(50));
-    set_gobj_align(test_obj1, setting_detail, LV_ALIGN_TOP_MID, 0, 20);
+    lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
 
-    lv_obj_t *test_obj2 = create_box(test_obj1, "HAHA2");
-    set_gobj_size(test_obj2, LV_PCT(50), LV_PCT(50));
-    set_gobj_align(test_obj2, test_obj1, LV_ALIGN_TOP_MID, 0, 20);
-    lv_obj_set_style_bg_color(test_obj2, lv_color_hex(bg_color(150)), 0);
+    // TEST
+    create_brightness_detail_setting(detail,
+                                     WINDOW_SETTING".detail.brightness");
 
     return 0;
 }
