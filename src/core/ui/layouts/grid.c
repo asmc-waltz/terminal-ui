@@ -133,7 +133,7 @@ static void on_size_changed_cb(lv_event_t *e)
 /*
  * Update cell configuration according to the current state of layout.
  */
-static inline int32_t refresh_grid_cell_position(lv_obj_t *lobj, \
+static inline int32_t config_grid_cell_position(lv_obj_t *lobj, \
                                                       int8_t r_index_max, \
                                                       int8_t r_index_ofs, \
                                                       int8_t c_index_max, \
@@ -153,6 +153,10 @@ static inline int32_t refresh_grid_cell_position(lv_obj_t *lobj, \
     conf->row.index = conf->row.index + (r_index_ofs);
     conf->col.max = c_index_max;
     conf->col.index = conf->col.index + (c_index_ofs);
+
+    LOG_TRACE("Cell [%s] new pos row [%d] max [%d] - column [%d] max [%d]", \
+              get_name(lobj), \
+              conf->row.index, conf->row.max, conf->col.index, conf->col.max);
 
     return 0;
 }
@@ -343,7 +347,7 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
         if (p_obj->data.cell_type != OBJ_GRID_CELL)
             continue;
 
-        ret = refresh_grid_cell_position(get_lobj(p_obj), \
+        ret = config_grid_cell_position(get_lobj(p_obj), \
                                               r_dsc->size - 1, \
                                               r_index_ofs, \
                                               c_dsc->size - 1, \
