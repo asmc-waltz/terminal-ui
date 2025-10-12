@@ -397,6 +397,13 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         }
     }
 
+    ret = rotate_flex_align_one(lobj);
+    if (ret) {
+        LOG_ERROR("Layout [%s] rotation align failed, ret %d", \
+                  get_name(lobj), ret);
+        return -EIO;
+    }
+
     ret = apply_flex_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \

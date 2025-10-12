@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include <lvgl.h>
 #include "list.h"
@@ -48,6 +49,39 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static bool is_rotation_same_group(lv_obj_t *lobj)
+{
+    gobj_t *gobj;
+    int32_t scr_rot, cur_rot;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return false;
+
+    cur_rot = gobj->data.rotation;
+    scr_rot = get_scr_rotation();
+
+    bool cur_positive = (cur_rot == ROTATION_0 || cur_rot == ROTATION_270);
+    bool scr_positive = (scr_rot == ROTATION_0 || scr_rot == ROTATION_270);
+
+    return cur_positive == scr_positive;
+}
+
+static int32_t swap_align_value(lv_obj_t *lobj, lv_flex_align_t align)
+{
+    const char *name = get_name(lobj);
+
+    if (align == LV_FLEX_ALIGN_START) {
+        LOG_TRACE("Flex [%s] align START (%d) -> END", name, align);
+        return LV_FLEX_ALIGN_END;
+    } else if (align == LV_FLEX_ALIGN_END) {
+        LOG_TRACE("Flex [%s] align END (%d) -> START", name, align);
+        return LV_FLEX_ALIGN_START;
+    }
+
+    LOG_TRACE("Flex [%s] normal align (%d)", name, align);
+    return align;
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -140,7 +174,6 @@ int32_t apply_flex_layout_align(lv_obj_t *lobj)
     return 0;
 }
 
-
 int32_t set_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
                                  lv_flex_align_t cross_place, \
                                  lv_flex_align_t track_cross_place)
@@ -161,6 +194,46 @@ int32_t set_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
         return ret;
 
     return 0;
+}
+
+/*
+ * Alignment is not swapped consistently across each 90-degree rotation,
+ * so we cannot reuse the same rule to produce a rotate-90 function for all cases.
+ */
+int32_t rotate_flex_align_one(lv_obj_t *lobj)
+{
+    flex_layout_t *conf = NULL;
+    lv_flex_align_t main_place, cross_place, track_cross_place;
+    int32_t ret;
+
+    if (is_rotation_same_group(lobj)) {
+        return 0;
+    }
+
+    conf = lobj ? get_flex_layout_data(lobj) : NULL;
+    if (!conf)
+        return -EINVAL;
+
+    /*
+     * Due to the limitation of the LVGL flex engine, when the main place \
+     * alignment rotates and matches case START -> END, it aligns objects from \
+     * the end of the parent. From that point, all relative calculations based \
+     * on parent size and scroll become incorrect. Therefore, we must keep the \
+     * original configuration for this value.
+     * NOTE: Please be careful when selecting LV_FLEX_ALIGN_END for the main \
+     * place alignment.
+     */
+    main_place = conf->main_place;
+    if (main_place == LV_FLEX_ALIGN_END) {
+        LOG_WARN("Flex [%s] align main place LV_FLEX_ALIGN_END (%d)", \
+                 get_name(lobj), main_place);
+    }
+
+    cross_place = swap_align_value(lobj, conf->cross_place);
+    track_cross_place = swap_align_value(lobj, conf->track_place);
+
+    return config_flex_layout_align(lobj, main_place, cross_place, \
+                                   track_cross_place);
 }
 
 int32_t config_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow)
@@ -266,6 +339,10 @@ int32_t apply_flex_layout_config(lv_obj_t *lobj)
     int32_t ret;
 
     ret = apply_flex_layout_flow(lobj);
+    if (ret)
+        return ret;
+
+    ret = apply_flex_layout_align(lobj);
     if (ret)
         return ret;
 
