@@ -297,7 +297,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par)
     ret = set_padding(lobj, 20, 20, 20, 20);
     if (ret)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
-                 get_gobj(lobj), ret);
+                 get_name(lobj), ret);
 
     return lobj;
 }
@@ -312,15 +312,15 @@ int32_t create_setting_content(lv_obj_t *window)
 
     ret = add_grid_layout_row_dsc(window, LV_GRID_FR(98));
     if (ret)
-        LOG_ERROR("Layout [%s] Row descriptor failed", get_gobj(window));
+        LOG_ERROR("Layout [%s] Row descriptor failed", get_name(window));
 
     ret = add_grid_layout_col_dsc(window, LV_GRID_FR(35));
     if (ret)
-        LOG_ERROR("Layout [%s] Column descriptor failed", get_gobj(window));
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(window));
 
     ret = add_grid_layout_col_dsc(window, LV_GRID_FR(65));
     if (ret)
-        LOG_ERROR("Layout [%s] Column descriptor failed", get_gobj(window));
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(window));
 
     apply_grid_layout_config(window);
     set_grid_layout_align(window, \
@@ -344,7 +344,7 @@ int32_t create_setting_content(lv_obj_t *window)
     lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
 
     // TEST
-    create_brightness_detail_setting(detail,
+    create_brightness_detail_setting(detail, \
                                      WINDOW_SETTING".detail.brightness");
 
     return 0;
