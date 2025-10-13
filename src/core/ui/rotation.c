@@ -166,8 +166,8 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
      * entirely on the parent and cell configurations. Therefore, manual
      * repositioning mechanisms can be safely skipped.
      */
-    if (gobj->data.cell_type == OBJ_GRID_CELL || \
-        gobj->data.cell_type == OBJ_FLEX_CELL)
+    if (get_gobj_cell_type(gobj) == OBJ_GRID_CELL || \
+        get_gobj_cell_type(gobj) == OBJ_FLEX_CELL)
         return 0;
 
     /* Recalculate alignment values if needed */
@@ -467,7 +467,7 @@ static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
     if (!gobj)
         return -EINVAL;
 
-    switch (gobj->data.cell_type) {
+    switch (get_gobj_cell_type(gobj)) {
     case OBJ_GRID_CELL:
         ret = rotate_grid_cell_gobj(gobj);
         break;

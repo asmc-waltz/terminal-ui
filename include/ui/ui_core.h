@@ -52,7 +52,6 @@ typedef enum {
 struct gobj_t;
 typedef struct {
     type_t obj_type;
-    type_t cell_type;
     void *internal;                     /* Internal data */
     void *sub_data;                     /* Sub data */
     int8_t rotation;
@@ -93,6 +92,7 @@ typedef struct {
 
 typedef struct {
     type_t type;
+    type_t cell_type;
     lv_border_side_t border_side;
     int32_t pad_top;
     int32_t pad_bot;
@@ -262,6 +262,16 @@ static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
     return (pixels * 100) / par_pixels;
 }
 
+static inline type_t get_obj_layout_type(lv_obj_t *lobj)
+{
+    return lobj ? get_gobj(lobj)->layout.type : OBJ_NONE;
+}
+
+static inline type_t get_gobj_layout_type(gobj_t *gobj)
+{
+    return gobj ? gobj->layout.type : OBJ_NONE;
+}
+
 static inline int32_t set_obj_layout_type(lv_obj_t *lobj, type_t type)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
@@ -276,8 +286,21 @@ static inline int32_t set_obj_cell_type(lv_obj_t *lobj, type_t type)
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
         return -EINVAL;
-    gobj->data.cell_type = type;
+    gobj->layout.cell_type = type;
     return 0;
+}
+
+static inline int32_t get_obj_cell_type(lv_obj_t *lobj)
+{
+    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+    return gobj ? gobj->layout.cell_type : -EIO;
+}
+
+static inline int32_t get_gobj_cell_type(gobj_t *gobj)
+{
+    return gobj ? gobj->layout.cell_type : -EIO;
 }
 
 /* Set object as base type (non-rotated or root container) */
@@ -298,16 +321,6 @@ static inline const char *get_obj_name(lv_obj_t *lobj)
 static inline const char *get_gobj_name(gobj_t *gobj)
 {
     return gobj ? gobj->name : NULL;
-}
-
-static inline type_t get_obj_layout_type(lv_obj_t *lobj)
-{
-    return lobj ? get_gobj(lobj)->layout.type : OBJ_NONE;
-}
-
-static inline type_t get_gobj_layout_type(gobj_t *gobj)
-{
-    return gobj ? gobj->layout.type : OBJ_NONE;
 }
 
 int32_t ui_main_init(ctx_t *ctx);

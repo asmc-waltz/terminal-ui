@@ -401,7 +401,7 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
     }
 
     list_for_each_entry_safe(p_obj, n, &gobj->child, node) {
-        if (p_obj->data.cell_type != OBJ_GRID_CELL)
+        if (get_gobj_cell_type(p_obj) != OBJ_GRID_CELL)
             continue;
 
         ret = check_and_delete_invalid_cell_object(get_lobj(p_obj), type);
