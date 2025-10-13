@@ -546,28 +546,18 @@ static int32_t gobj_refresh(gobj_t *gobj)
 
 static int32_t gobj_refresh_child(gobj_t *gobj)
 {
-    gobj_t *p_obj;
+    gobj_t *gobj_child;
     int32_t ret;
     struct list_head *par_list;
 
     par_list = &gobj->child;
 
-    list_for_each_entry(p_obj, par_list, node) {
-        ret = gobj_refresh(p_obj);
+    list_for_each_entry(gobj_child, par_list, node) {
+        ret = refresh_obj_tree_layout(gobj_child);
         if (ret < 0) {
-            LOG_ERROR("Object %d (%s) rotation failed", gobj->id, gobj->name);
+            LOG_ERROR("List: Object %d (%s) rotation failed", \
+                      gobj_child->id, gobj_child->name);
             return ret;
-        }
-
-        ret = gobj_refresh_child(p_obj);
-        if (ret < 0) {
-            LOG_ERROR("Child object %d (%s) rotation failed", gobj->id, gobj->name);
-            return ret;
-        }
-
-        // TODO:
-        if (p_obj->data.layout_type == OBJ_LAYOUT_FLEX) {
-            scroll_to_first_child(get_lobj(p_obj));
         }
     }
 
@@ -609,12 +599,23 @@ int32_t refresh_obj_tree_layout(gobj_t *gobj)
     int32_t ret;
 
     ret = gobj_refresh(gobj);
-    if (ret < 0)
+    if (ret < 0) {
+        LOG_ERROR("Object [%s] id %d rotation failed", gobj->name, gobj->id);
         return ret;
+    }
 
     ret = gobj_refresh_child(gobj);
-    if (ret < 0)
+    if (ret < 0) {
+        LOG_ERROR("Object [%s] id %d: child rotation failed", \
+                  gobj->name, gobj->id);
         return ret;
+    }
+
+    if (gobj->data.layout_type == OBJ_LAYOUT_FLEX) {
+        ret = scroll_to_first_child(get_lobj(gobj));
+        if (ret)
+            LOG_WARN("Scroll [%s] to first child failed", gobj->name);
+    }
 
     return 0;
 }

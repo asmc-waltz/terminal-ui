@@ -78,7 +78,11 @@ static inline int32_t scroll_to_first_child(lv_obj_t *par)
     if (!lv_obj_has_flag(child, LV_OBJ_FLAG_HIDDEN) && lv_obj_is_valid(child)) {
         lv_obj_scroll_to_view(child, LV_ANIM_OFF);
     } else {
-        LOG_ERROR("First child is hidden or invalid");
+        LOG_TRACE("First child is hidden or invalid -> try the next child");
+        child = lv_obj_get_child(par, 1);
+        if (child) {
+            lv_obj_scroll_to_view(child, LV_ANIM_OFF);
+        }
     }
 
     return 0;
