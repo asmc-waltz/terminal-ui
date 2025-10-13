@@ -88,7 +88,7 @@ static int32_t rotate_gobj_alignment(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_gobj_alignment_90(lobj);
+        rotate_alignment_90(lobj);
         rotate_alignment_offset_90(lobj);
     }
 
@@ -109,7 +109,7 @@ static int32_t rotate_gobj_size(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_gobj_size_90(lobj);
+        rotate_size_90(lobj);
     }
 
     return 0;
@@ -135,29 +135,29 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        ret = rotate_gobj_border_side_90(lobj);
+        ret = rotate_border_side_90(lobj);
         if (ret)
             return ret;
 
-        ret = rotate_gobj_padding_90(lobj);
+        ret = rotate_padding_90(lobj);
         if (ret)
             return ret;
     }
 
-    ret = apply_gobj_border_side(lobj);
+    ret = apply_border_side(lobj);
     if (ret)
         return ret;
 
-    ret = apply_gobj_padding(lobj);
+    ret = apply_padding(lobj);
     if (ret)
         return ret;
 
-    ret = apply_gobj_rc_padding(lobj);
+    ret = apply_row_column_padding(lobj);
     if (ret)
         return ret;
 
     /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_gobj_type(gobj) == OBJ_BASE)
+    if (get_type(lobj) == OBJ_BASE)
         return 0;
 
     /*
@@ -166,8 +166,8 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
      * entirely on the parent and cell configurations. Therefore, manual
      * repositioning mechanisms can be safely skipped.
      */
-    if (get_gobj_cell_type(gobj) == OBJ_GRID_CELL || \
-        get_gobj_cell_type(gobj) == OBJ_FLEX_CELL)
+    if (get_cell_type(lobj) == OBJ_GRID_CELL || \
+        get_cell_type(lobj) == OBJ_FLEX_CELL)
         return 0;
 
     /* Recalculate alignment values if needed */
@@ -186,7 +186,7 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
     if (ret)
         return -EINVAL;
 
-    apply_gobj_size(lobj);
+    apply_size(lobj);
 
     /*
      * For an object placed inside a parent, its new center point must be
@@ -320,7 +320,7 @@ static int32_t rotate_grid_layout_gobj(lv_obj_t *lobj)
         ret = rotate_grid_layout_90(lobj);
         if (ret) {
             LOG_ERROR("Layout [%s] rotation failed, ret %d", \
-                      get_obj_name(lobj), ret);
+                      get_name(lobj), ret);
             return ret;
         }
     }
@@ -328,7 +328,7 @@ static int32_t rotate_grid_layout_gobj(lv_obj_t *lobj)
     ret = apply_grid_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return ret;
     }
 
@@ -349,7 +349,7 @@ static int32_t rotate_grid_cell_gobj(lv_obj_t *lobj)
         ret = rotate_grid_cell_pos_90(lobj);
         if (ret) {
             LOG_ERROR("Cell [%s] rotation failed, ret %d", \
-                      get_obj_name(lobj), ret);
+                      get_name(lobj), ret);
             return -EIO;
         }
     }
@@ -357,7 +357,7 @@ static int32_t rotate_grid_cell_gobj(lv_obj_t *lobj)
     ret = apply_grid_cell_align_and_pos(lobj);
     if (ret) {
         LOG_ERROR("Cell [%s] apply config failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return -EIO;
     }
 
@@ -392,7 +392,7 @@ static int32_t rotate_flex_layout_gobj(lv_obj_t *lobj)
         ret = rotate_flex_layout_90(lobj);
         if (ret) {
             LOG_ERROR("Layout [%s] rotation failed, ret %d", \
-                      get_obj_name(lobj), ret);
+                      get_name(lobj), ret);
             return -EIO;
         }
     }
@@ -400,14 +400,14 @@ static int32_t rotate_flex_layout_gobj(lv_obj_t *lobj)
     ret = rotate_flex_align_one(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] rotation align failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return -EIO;
     }
 
     ret = apply_flex_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return -EIO;
     }
 
@@ -439,7 +439,7 @@ static int32_t rotate_flex_cell_gobj(lv_obj_t *lobj)
         ret = rotate_flex_cell_90(lobj);
         if (ret) {
             LOG_ERROR("Cell [%s] rotation failed, ret %d", \
-                      get_obj_name(lobj), ret);
+                      get_name(lobj), ret);
             return -EIO;
         }
     }
@@ -447,7 +447,7 @@ static int32_t rotate_flex_cell_gobj(lv_obj_t *lobj)
     ret = apply_flex_cell_config(lobj);
     if (ret) {
         LOG_ERROR("Cell [%s] apply config failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return -EIO;
     }
 
@@ -463,7 +463,7 @@ static inline int32_t handle_gobj_layout_rotation(lv_obj_t *lobj)
     if (!lobj)
         return -EINVAL;
 
-    switch (get_obj_cell_type(lobj)) {
+    switch (get_cell_type(lobj)) {
     case OBJ_GRID_CELL:
         ret = rotate_grid_cell_gobj(lobj);
         break;
@@ -479,7 +479,7 @@ static inline int32_t handle_gobj_layout_rotation(lv_obj_t *lobj)
         return ret;
     }
 
-    switch (get_obj_layout_type(lobj)) {
+    switch (get_layout_type(lobj)) {
     case OBJ_LAYOUT_GRID:
         return rotate_grid_layout_gobj(lobj);
     case OBJ_LAYOUT_FLEX:
@@ -493,13 +493,10 @@ static inline int32_t handle_gobj_layout_rotation(lv_obj_t *lobj)
 
 static inline int32_t gobj_handle_transform(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
-
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    if (!lobj)
         return -EINVAL;
 
-    switch (get_gobj_type(gobj)) {
+    switch (get_type(lobj)) {
         case OBJ_BASE:
         case OBJ_BOX:
         case OBJ_BTN:
@@ -514,7 +511,7 @@ static inline int32_t gobj_handle_transform(lv_obj_t *lobj)
 
         default:
             LOG_WARN("Unhandled object type %d, skipping transform", \
-                     get_gobj_type(gobj));
+                     get_type(lobj));
             return -EINVAL;
     }
 }
@@ -614,21 +611,21 @@ int32_t refresh_obj_tree_layout(lv_obj_t *lobj)
     ret = gobj_refresh(lobj);
     if (ret < 0) {
         LOG_ERROR("Object [%s] id %d rotation failed", \
-                  get_obj_name(lobj), gobj->id);
+                  get_name(lobj), gobj->id);
         return ret;
     }
 
     ret = gobj_refresh_child(lobj);
     if (ret < 0) {
         LOG_ERROR("Object [%s] id %d: child rotation failed", \
-                  get_obj_name(lobj), gobj->id);
+                  get_name(lobj), gobj->id);
         return ret;
     }
 
-    if (get_obj_layout_type(lobj) == OBJ_LAYOUT_FLEX) {
+    if (get_layout_type(lobj) == OBJ_LAYOUT_FLEX) {
         ret = scroll_to_first_child(lobj);
         if (ret)
-            LOG_WARN("Scroll [%s] to first child failed", get_obj_name(lobj));
+            LOG_WARN("Scroll [%s] to first child failed", get_name(lobj));
     }
 
     return 0;

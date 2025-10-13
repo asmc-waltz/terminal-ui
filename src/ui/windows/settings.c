@@ -99,8 +99,8 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
 
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
 
-    set_gobj_size(item, LV_PCT(100), 50);
-    set_gobj_padding(item, 0, 0, 20, 20);
+    set_size(item, LV_PCT(100), 50);
+    set_padding(item, 0, 0, 20, 20);
     lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
 
     lv_obj_add_flag(item, LV_OBJ_FLAG_CLICKABLE);
@@ -110,7 +110,7 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     /* Style */
     first_child = lv_obj_get_child(par, 0);
     if (first_child != item) {
-        set_gobj_border_side(item, LV_BORDER_SIDE_TOP);
+        set_border_side(item, LV_BORDER_SIDE_TOP);
         lv_obj_set_style_border_width(item, 2, 0);
         lv_obj_set_style_border_color(item, lv_color_black(), 0);
     }
@@ -150,9 +150,9 @@ static lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
         return NULL;
 
     /* Visual style */
-    set_gobj_size(group, LV_PCT(100), LV_SIZE_CONTENT);
+    set_size(group, LV_PCT(100), LV_SIZE_CONTENT);
     /* Padding and spacing */
-    set_gobj_padding(group, 20, 20, 20, 20);
+    set_padding(group, 20, 20, 20, 20);
     /* Layout configuration */
     set_flex_layout_flow(group, LV_FLEX_FLOW_COLUMN);
 
@@ -254,8 +254,8 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     /* Visual style */
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(120)), 0);
     /* Padding and spacing */
-    set_gobj_padding(menu_bar, 4, 4, 4, 4);
-    set_gobj_row_padding(menu_bar, 20);
+    set_padding(menu_bar, 4, 4, 4, 4);
+    set_row_padding(menu_bar, 20);
     /* Scrollbar cleanup */
     lv_obj_set_style_width(menu_bar, 1, LV_PART_SCROLLBAR);
     lv_obj_set_style_pad_all(menu_bar, 0, LV_PART_SCROLLBAR);
@@ -294,7 +294,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par)
     lv_obj_set_style_radius(lobj, 16, 0);
     lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(40)), 0);
 
-    ret = set_gobj_padding(lobj, 20, 20, 20, 20);
+    ret = set_padding(lobj, 20, 20, 20, 20);
     if (ret)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
                  get_gobj(lobj), ret);
@@ -326,8 +326,8 @@ int32_t create_setting_content(lv_obj_t *window)
     set_grid_layout_align(window, \
                           LV_GRID_ALIGN_SPACE_BETWEEN, \
                           LV_GRID_ALIGN_SPACE_BETWEEN);
-    set_gobj_column_padding(window, 8);
-    set_gobj_padding(window, 20, 20, 20, 20);
+    set_column_padding(window, 8);
+    set_padding(window, 20, 20, 20, 20);
     lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
 
 

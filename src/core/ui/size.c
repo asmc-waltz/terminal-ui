@@ -52,7 +52,7 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t rotate_gobj_size_90(lv_obj_t *lobj)
+int32_t rotate_size_90(lv_obj_t *lobj)
 {
     int32_t tmp_w;
     int32_t tmp_par_w_pct;
@@ -111,7 +111,7 @@ int32_t get_scr_height(void)
 /*
  * Set fix size for object based on input values.
  */
-void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
+void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -124,14 +124,14 @@ void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     gobj->size.scale_w = DIS_SCALE;
     gobj->size.scale_h = DIS_SCALE;
 
-    apply_gobj_size(lobj);
+    apply_size(lobj);
 }
 
 /*
  * Set dynamic size for object based on parent size.
  * Only the Width is resized; Height remains default.
  */
-void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
+void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -146,14 +146,14 @@ void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     gobj->size.scale_w = ENA_SCALE;
     gobj->size.scale_h = DIS_SCALE;
 
-    apply_gobj_size(lobj);
+    apply_size(lobj);
 }
 
 /*
  * Set dynamic size for object based on parent size.
  * Only the Height is resized; Width remains default.
  */
-void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
+void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -168,14 +168,14 @@ void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     gobj->size.scale_w = DIS_SCALE;
     gobj->size.scale_h = ENA_SCALE;
 
-    apply_gobj_size(lobj);
+    apply_size(lobj);
 }
 
 /*
  * Set dynamic size for object based on parent size.
  * Both of Width and Height coordinate are resized.
  */
-void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
+void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -190,7 +190,7 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     gobj->size.scale_w = ENA_SCALE;
     gobj->size.scale_h = ENA_SCALE;
 
-    apply_gobj_size(lobj);
+    apply_size(lobj);
 }
 
 /*
@@ -199,7 +199,7 @@ void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
  * whenever size is updated or applied. This synchronization also helps sibling
  * objects calculate the remaining parent space more easily.
  */
-void apply_gobj_size(lv_obj_t *lobj)
+void apply_size(lv_obj_t *lobj)
 {
     gobj_t *gobj = NULL;
 
@@ -242,7 +242,7 @@ void apply_gobj_size(lv_obj_t *lobj)
  * This utility retrieves the current object size after layout updates and stores
  * it into the gobj data in both percent and pixel units for later synchronization.
  */
-int32_t store_computed_object_size(lv_obj_t *lobj)
+int32_t store_computed_size(lv_obj_t *lobj)
 {
     gobj_t *gobj;
     int32_t w, h;
@@ -251,7 +251,7 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
     if (!gobj)
         return -EINVAL;
 
-    if (get_gobj_type(gobj) == OBJ_BASE)
+    if (get_type(lobj) == OBJ_BASE)
         return 0;
 
     w = lv_obj_get_width(lobj);
@@ -259,7 +259,7 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
 
     if (w < 0 || h < 0) {
         LOG_ERROR("Object [%d] get invalid size W[%d] - H[%d]", \
-                  get_obj_name(lobj), w, h);
+                  get_name(lobj), w, h);
         return -EIO;
     }
 

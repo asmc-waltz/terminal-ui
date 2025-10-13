@@ -69,7 +69,7 @@ static inline int32_t config_gobj_border_side(lv_obj_t *lobj, int32_t value)
  * Rotate object border sides by 90° clockwise.
  * Uses a lookup table for all 16 combinations of LV_BORDER_SIDE_* flags.
  */
-int32_t rotate_gobj_border_side_90(lv_obj_t *lobj)
+int32_t rotate_border_side_90(lv_obj_t *lobj)
 {
     gobj_t *gobj;
     lv_border_side_t current;
@@ -114,7 +114,7 @@ int32_t rotate_gobj_border_side_90(lv_obj_t *lobj)
     current = gobj->layout.border_side;
     if (current >= 16) {
         LOG_ERROR("Object %s has invalid border mask %d",
-                  get_obj_name(lobj), current);
+                  get_name(lobj), current);
         return -EINVAL;
     }
 
@@ -123,7 +123,7 @@ int32_t rotate_gobj_border_side_90(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t apply_gobj_border_side(lv_obj_t *lobj)
+int32_t apply_border_side(lv_obj_t *lobj)
 {
     gobj_t *gobj;
 
@@ -138,7 +138,7 @@ int32_t apply_gobj_border_side(lv_obj_t *lobj)
 /*
  * Set and immediately apply border side configuration for an object
  */
-int32_t set_gobj_border_side(lv_obj_t *lobj, int32_t value)
+int32_t set_border_side(lv_obj_t *lobj, int32_t value)
 {
     int32_t ret;
 
@@ -146,5 +146,5 @@ int32_t set_gobj_border_side(lv_obj_t *lobj, int32_t value)
     if (ret)
         return ret;
 
-    return apply_gobj_border_side(lobj);
+    return apply_border_side(lobj);
 }

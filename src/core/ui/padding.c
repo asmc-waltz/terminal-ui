@@ -120,7 +120,7 @@ static inline int32_t apply_gobj_column_padding(lv_obj_t *lobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t rotate_gobj_padding_90(lv_obj_t *lobj)
+int32_t rotate_padding_90(lv_obj_t *lobj)
 {
     gobj_t *gobj;
     int32_t tmp_pad = 0;
@@ -149,7 +149,7 @@ int32_t rotate_gobj_padding_90(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t apply_gobj_padding(lv_obj_t *lobj)
+int32_t apply_padding(lv_obj_t *lobj)
 {
     gobj_t *gobj;
 
@@ -165,7 +165,7 @@ int32_t apply_gobj_padding(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t apply_gobj_rc_padding(lv_obj_t *lobj)
+int32_t apply_row_column_padding(lv_obj_t *lobj)
 {
     gobj_t *gobj;
 
@@ -179,7 +179,7 @@ int32_t apply_gobj_rc_padding(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t set_gobj_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+int32_t set_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
                           int32_t pad_left, int32_t pad_right)
 {
     int32_t ret;
@@ -188,10 +188,10 @@ int32_t set_gobj_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
     if (ret)
         return ret;
 
-    return apply_gobj_padding(lobj);
+    return apply_padding(lobj);
 }
 
-int32_t set_gobj_row_padding(lv_obj_t *lobj, int32_t pad)
+int32_t set_row_padding(lv_obj_t *lobj, int32_t pad)
 {
     int32_t ret;
 
@@ -202,7 +202,7 @@ int32_t set_gobj_row_padding(lv_obj_t *lobj, int32_t pad)
     return apply_gobj_row_padding(lobj);
 }
 
-int32_t set_gobj_column_padding(lv_obj_t *lobj, int32_t pad)
+int32_t set_column_padding(lv_obj_t *lobj, int32_t pad)
 {
     int32_t ret;
 

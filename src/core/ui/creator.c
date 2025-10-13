@@ -101,19 +101,19 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     gobj->align.value = LV_ALIGN_DEFAULT;
     ret = set_obj_type(lobj, type);
     if (ret) {
-        LOG_ERROR("Object [%s] set type failed", get_obj_name(lobj));
+        LOG_ERROR("Object [%s] set type failed", get_name(lobj));
         goto out_err;
     }
 
     /* Assign correct cell type based on parent layout */
-    par_type = get_obj_layout_type(par);
+    par_type = get_layout_type(par);
     if (par_type == OBJ_LAYOUT_FLEX)
-        ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
+        ret = set_cell_type(lobj, OBJ_FLEX_CELL);
     else if (par_type == OBJ_LAYOUT_GRID)
-        ret = set_obj_cell_type(lobj, OBJ_GRID_CELL);
+        ret = set_cell_type(lobj, OBJ_GRID_CELL);
 
     if (ret)
-        LOG_ERROR("Object [%s] set cell type failed", get_obj_name(lobj));
+        LOG_ERROR("Object [%s] set cell type failed", get_name(lobj));
 
     return get_lobj(gobj);
 
@@ -170,8 +170,8 @@ lv_obj_t *create_text(lv_obj_t *par, const char *name, \
     lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
-    set_gobj_size(lobj, w, h);
-    set_gobj_pos_center(lobj);
+    set_size(lobj, w, h);
+    set_pos_center(lobj);
     return lobj;
 }
 
@@ -197,8 +197,8 @@ lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
         return NULL;
     }
 
-    set_gobj_size(box, get_w(text), get_h(text));
-    set_gobj_pos_center(text);
+    set_size(box, get_w(text), get_h(text));
+    set_pos_center(text);
     lv_obj_add_flag(text, LV_OBJ_FLAG_EVENT_BUBBLE);
     lv_obj_clear_flag(text, LV_OBJ_FLAG_CLICKABLE);
 
@@ -217,8 +217,8 @@ lv_obj_t *create_sym(lv_obj_t *par, const char *name, \
     lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
-    set_gobj_size(lobj, w, h);
-    set_gobj_pos_center(lobj);
+    set_size(lobj, w, h);
+    set_pos_center(lobj);
     return lobj;
 }
 
@@ -237,7 +237,7 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
     //                           lv_color_hex(0x00AA00), 0);
     lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_flag(box, LV_OBJ_FLAG_EVENT_BUBBLE);
-    set_gobj_size(box, pct_to_px(get_h(par), 80), \
+    set_size(box, pct_to_px(get_h(par), 80), \
                      pct_to_px(get_h(par), 80));
 
     icon = create_sym(box, NULL, font, index);
@@ -246,8 +246,8 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
         return NULL;
     }
 
-    set_gobj_size(box, get_w(icon), get_h(icon));
-    set_gobj_pos_center(icon);
+    set_size(box, get_w(icon), get_h(icon));
+    set_pos_center(icon);
     lv_obj_add_flag(icon, LV_OBJ_FLAG_EVENT_BUBBLE);
     lv_obj_clear_flag(icon, LV_OBJ_FLAG_CLICKABLE);
 
@@ -262,8 +262,8 @@ lv_obj_t *create_switch(lv_obj_t *par, const char *name)
     lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
     h = lv_obj_get_height(lobj);
-    set_gobj_size(lobj, w, h);
-    set_gobj_pos_center(lobj);
+    set_size(lobj, w, h);
+    set_pos_center(lobj);
     return lobj;
 }
 
@@ -288,8 +288,8 @@ lv_obj_t *create_switch_box(lv_obj_t *par, const char *name)
         return NULL;
     }
 
-    set_gobj_size(box, get_w(swit), get_h(swit));
-    set_gobj_pos_center(swit);
+    set_size(box, get_w(swit), get_h(swit));
+    set_pos_center(swit);
 
     return box;
 }

@@ -69,7 +69,7 @@ static bool is_rotation_same_group(lv_obj_t *lobj)
 
 static int32_t swap_align_value(lv_obj_t *lobj, lv_flex_align_t align)
 {
-    const char *name = get_obj_name(lobj);
+    const char *name = get_name(lobj);
 
     if (align == LV_FLEX_ALIGN_START) {
         LOG_TRACE("Flex [%s] align START (%d) -> END", name, align);
@@ -107,7 +107,7 @@ lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
     lv_obj_set_layout(cont, LV_LAYOUT_FLEX);
     lv_obj_center(cont);
 
-    if (set_obj_layout_type(cont, OBJ_LAYOUT_FLEX)) {
+    if (set_layout_type(cont, OBJ_LAYOUT_FLEX)) {
         LOG_ERROR("Failed to set object sub type");
         goto out_free_conf;
     }
@@ -206,7 +206,7 @@ int32_t rotate_flex_align_one(lv_obj_t *lobj)
     main_place = conf->main_place;
     if (main_place == LV_FLEX_ALIGN_END) {
         LOG_WARN("Flex [%s] align main place LV_FLEX_ALIGN_END (%d)", \
-                 get_obj_name(lobj), main_place);
+                 get_name(lobj), main_place);
     }
 
     cross_place = swap_align_value(lobj, conf->cross_place);
@@ -336,7 +336,7 @@ int32_t rotate_flex_cell_90(lv_obj_t *lobj)
     if (!lobj )
         return -EINVAL;
 
-    set_gobj_size(lobj, get_h(lobj), get_w(lobj));
+    set_size(lobj, get_h(lobj), get_w(lobj));
 
     return 0;
 }

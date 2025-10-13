@@ -126,38 +126,38 @@ extern int32_t GOBJ_REFRESH_EVENT;
 /*=====================
  * Setter functions
  *====================*/
-void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
-void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_pct, int32_t y_ofs_px);
-void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct);
-void set_gobj_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct);
 void apply_gobj_align(lv_obj_t *lobj);
 
-void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
-void set_gobj_pos_center(lv_obj_t *lobj);
+void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
+void set_pos_center(lv_obj_t *lobj);
 
 int32_t set_scr_rotation(int32_t rot_dir);
 int32_t set_scr_size(int32_t width, int32_t height);
-void set_gobj_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
-void set_gobj_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
-void set_gobj_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
-void set_gobj_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
-void apply_gobj_size(lv_obj_t *lobj);
+void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
+void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
+void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
+void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
+void apply_size(lv_obj_t *lobj);
 
-int32_t apply_gobj_border_side(lv_obj_t *lobj);
-int32_t set_gobj_border_side(lv_obj_t *lobj, int32_t value);
+int32_t apply_border_side(lv_obj_t *lobj);
+int32_t set_border_side(lv_obj_t *lobj, int32_t value);
 
-int32_t apply_gobj_padding(lv_obj_t *lobj);
-int32_t apply_gobj_rc_padding(lv_obj_t *lobj);
-int32_t set_gobj_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+int32_t apply_padding(lv_obj_t *lobj);
+int32_t apply_row_column_padding(lv_obj_t *lobj);
+int32_t set_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
                           int32_t pad_left, int32_t pad_right);
-int32_t set_gobj_row_padding(lv_obj_t *lobj, int32_t pad);
-int32_t set_gobj_column_padding(lv_obj_t *lobj, int32_t pad);
+int32_t set_row_padding(lv_obj_t *lobj, int32_t pad);
+int32_t set_column_padding(lv_obj_t *lobj, int32_t pad);
 
-void set_gobj_data(lv_obj_t *lobj, void *data);
+void set_internal_data(lv_obj_t *lobj, void *data);
 
 /*=====================
  * Getter functions
@@ -167,8 +167,8 @@ lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
 int32_t get_scr_rotation();
 int32_t get_scr_width(void);
 int32_t get_scr_height(void);
-void *get_gobj_internal_data(lv_obj_t *lobj);
-int32_t store_computed_object_size(lv_obj_t *lobj);
+void *get_internal_data(lv_obj_t *lobj);
+int32_t store_computed_size(lv_obj_t *lobj);
 int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h);
 
 /*=====================
@@ -201,11 +201,11 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
 int32_t refresh_obj_tree_layout(lv_obj_t *lobj);
-int32_t rotate_gobj_border_side_90(lv_obj_t *lobj);
-int32_t rotate_gobj_padding_90(lv_obj_t *lobj);
-int32_t rotate_gobj_alignment_90(lv_obj_t *lobj);
+int32_t rotate_border_side_90(lv_obj_t *lobj);
+int32_t rotate_padding_90(lv_obj_t *lobj);
+int32_t rotate_alignment_90(lv_obj_t *lobj);
 int32_t rotate_alignment_offset_90(lv_obj_t *lobj);
-int32_t rotate_gobj_size_90(lv_obj_t *lobj);
+int32_t rotate_size_90(lv_obj_t *lobj);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {
@@ -217,14 +217,9 @@ static inline lv_obj_t *get_lobj(gobj_t *gobj)
     return gobj ? (lv_obj_t *)gobj->obj : NULL;
 }
 
-static inline gobj_t *l_to_par_gobj(lv_obj_t *lobj)
+static inline gobj_t *get_par_gobj(lv_obj_t *lobj)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    return gobj ? (gobj_t *)gobj->data.parent : NULL;
-}
-
-static inline gobj_t *g_to_par_gobj(gobj_t *gobj)
-{
     return gobj ? (gobj_t *)gobj->data.parent : NULL;
 }
 
@@ -240,12 +235,12 @@ static inline int32_t get_w(lv_obj_t *lobj)
 
 static inline int32_t get_par_w(lv_obj_t *lobj)
 {
-    return lobj ? (int32_t)l_to_par_gobj(lobj)->size.w : 0;
+    return lobj ? (int32_t)get_par_gobj(lobj)->size.w : 0;
 }
 
 static inline int32_t get_par_h(lv_obj_t *lobj)
 {
-    return lobj ? (int32_t)l_to_par_gobj(lobj)->size.h : 0;
+    return lobj ? (int32_t)get_par_gobj(lobj)->size.h : 0;
 }
 
 static inline int32_t avail_px(int32_t par_size, int32_t percent)
@@ -263,7 +258,7 @@ static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
     return (pixels * 100) / par_pixels;
 }
 
-static inline type_t get_obj_layout_type(lv_obj_t *lobj)
+static inline type_t get_layout_type(lv_obj_t *lobj)
 {
     return lobj ? get_gobj(lobj)->layout.type : OBJ_NONE;
 }
@@ -273,7 +268,7 @@ static inline type_t get_gobj_layout_type(gobj_t *gobj)
     return gobj ? gobj->layout.type : OBJ_NONE;
 }
 
-static inline int32_t set_obj_layout_type(lv_obj_t *lobj, type_t type)
+static inline int32_t set_layout_type(lv_obj_t *lobj, type_t type)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
@@ -282,7 +277,7 @@ static inline int32_t set_obj_layout_type(lv_obj_t *lobj, type_t type)
     return 0;
 }
 
-static inline int32_t set_obj_cell_type(lv_obj_t *lobj, type_t type)
+static inline int32_t set_cell_type(lv_obj_t *lobj, type_t type)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
@@ -291,17 +286,17 @@ static inline int32_t set_obj_cell_type(lv_obj_t *lobj, type_t type)
     return 0;
 }
 
-static inline int32_t get_obj_cell_type(lv_obj_t *lobj)
+static inline type_t get_cell_type(lv_obj_t *lobj)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
-        return -EINVAL;
-    return gobj ? gobj->layout.cell_type : -EIO;
+        return OBJ_NONE;
+    return gobj ? gobj->layout.cell_type : OBJ_NONE;
 }
 
-static inline int32_t get_gobj_cell_type(gobj_t *gobj)
+static inline type_t get_gobj_cell_type(gobj_t *gobj)
 {
-    return gobj ? gobj->layout.cell_type : -EIO;
+    return gobj ? gobj->layout.cell_type : OBJ_NONE;
 }
 
 /* Set object as base type (non-rotated or root container) */
@@ -314,12 +309,12 @@ static inline int32_t set_obj_type(lv_obj_t *lobj, type_t type)
     return 0;
 }
 
-static inline int32_t get_gobj_type(gobj_t *gobj)
+static inline int32_t get_type(lv_obj_t *lobj)
 {
-    return gobj ? gobj->data.obj_type : OBJ_NONE;
+    return lobj ? get_gobj(lobj)->data.obj_type : OBJ_NONE;
 }
 
-static inline const char *get_obj_name(lv_obj_t *lobj)
+static inline const char *get_name(lv_obj_t *lobj)
 {
     return lobj ? get_gobj(lobj)->name : NULL;
 }

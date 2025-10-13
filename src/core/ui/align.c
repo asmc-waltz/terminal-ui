@@ -206,7 +206,7 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
     return 0;
 }
 
-void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
+void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 {
     gobj_t *gobj = NULL;
     LV_ASSERT_NULL(lobj);
@@ -222,7 +222,7 @@ void set_gobj_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
     gobj->align.mid_y = y_ofs + (gobj->size.h / 2);
 }
 
-void set_gobj_pos_center(lv_obj_t *lobj)
+void set_pos_center(lv_obj_t *lobj)
 {
     gobj_t *gobj = NULL;
     lv_obj_t *par;
@@ -235,10 +235,10 @@ void set_gobj_pos_center(lv_obj_t *lobj)
     x_ofs = (get_w(par) - lv_obj_get_width(lobj)) / 2;
     y_ofs = (get_h(par) - lv_obj_get_height(lobj)) / 2;
 
-    set_gobj_pos(lobj, x_ofs, y_ofs);
+    set_pos(lobj, x_ofs, y_ofs);
 }
 
-void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs_px, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
@@ -256,7 +256,7 @@ void set_gobj_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_pct, int32_t y_ofs_px)
 {
     gobj_t *gobj = NULL;
@@ -275,7 +275,7 @@ void set_gobj_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct)
 {
     gobj_t *gobj = NULL;
@@ -294,7 +294,7 @@ void set_gobj_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     apply_gobj_align(lobj);
 }
 
-void set_gobj_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct)
 {
     gobj_t *gobj = NULL;
@@ -340,7 +340,7 @@ void apply_gobj_align(lv_obj_t *lobj)
  * Rotate object alignment by 90° clockwise.
  * Uses lookup table instead of switch-case for O(1) performance.
  */
-int32_t rotate_gobj_alignment_90(lv_obj_t *lobj)
+int32_t rotate_alignment_90(lv_obj_t *lobj)
 {
     int8_t align;
     gobj_t *gobj;
@@ -379,7 +379,7 @@ int32_t rotate_gobj_alignment_90(lv_obj_t *lobj)
 
     if (align < 0 || align >= 21 || align_rot90_map[align] == 0) {
         LOG_ERROR("Invalid alignment (%d) for object %s", align, \
-                  get_obj_name(lobj));
+                  get_name(lobj));
         return -EIO;
     }
 

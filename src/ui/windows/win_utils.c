@@ -86,10 +86,10 @@ lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name)
         return NULL;
 
     /* Visual style */
-    set_gobj_size(lobj, LV_PCT(100), LV_SIZE_CONTENT);
+    set_size(lobj, LV_PCT(100), LV_SIZE_CONTENT);
     /* Padding and spacing */
-    set_gobj_padding(lobj, 20, 20, 20, 20);
-    set_gobj_row_padding(lobj, 20);
+    set_padding(lobj, 20, 20, 20, 20);
+    set_row_padding(lobj, 20);
     /* Scrollbar cleanup */
     lv_obj_set_style_width(lobj, 1, LV_PART_SCROLLBAR);
     lv_obj_set_style_pad_all(lobj, 0, LV_PART_SCROLLBAR);
@@ -117,10 +117,10 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name)
         return NULL;
 
     /* Visual style */
-    set_gobj_size(lobj, LV_PCT(100), LV_SIZE_CONTENT);
+    set_size(lobj, LV_PCT(100), LV_SIZE_CONTENT);
     /* Padding and spacing */
-    set_gobj_padding(lobj, 20, 20, 20, 20);
-    set_gobj_row_padding(lobj, 20);
+    set_padding(lobj, 20, 20, 20, 20);
+    set_row_padding(lobj, 20);
     /* Scrollbar cleanup */
     lv_obj_set_style_width(lobj, 1, LV_PART_SCROLLBAR);
     lv_obj_set_style_pad_all(lobj, 0, LV_PART_SCROLLBAR);
@@ -159,7 +159,7 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
         return NULL;
 
     /** Basic configuration */
-    set_gobj_padding(lobj, 10, 10, 10, 10);
+    set_padding(lobj, 10, 10, 10, 10);
     lv_obj_add_flag(lobj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(lobj, LV_OBJ_FLAG_SCROLLABLE);
 

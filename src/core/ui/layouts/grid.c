@@ -120,14 +120,14 @@ static void on_size_changed_cb(lv_event_t *e)
     lv_obj_t *lobj = lv_event_get_target(e);
     int32_t ret;
 
-    ret = store_computed_object_size(lobj);
+    ret = store_computed_size(lobj);
     if (ret) {
         LOG_ERROR("Cell [%s] failed to get and store current size", \
-                  get_obj_name(lobj));
+                  get_name(lobj));
         return;
     }
 
-    LOG_TRACE("Cell [%s] size updated", get_obj_name(lobj));
+    LOG_TRACE("Cell [%s] size updated", get_name(lobj));
 }
 
 /*
@@ -155,7 +155,7 @@ static inline int32_t config_grid_cell_position(lv_obj_t *lobj, \
     conf->col.index = conf->col.index + (c_index_ofs);
 
     LOG_TRACE("Cell [%s] new pos row [%d] max [%d] - column [%d] max [%d]", \
-              get_obj_name(lobj), \
+              get_name(lobj), \
               conf->row.index, conf->row.max, conf->col.index, conf->col.max);
 
     return 0;
@@ -188,7 +188,7 @@ static inline int32_t append_normal_dsc(lv_obj_t *lobj, grid_desc_t *dsc, \
     ret = set_dsc_data(lobj, dsc, value);
     if (ret) {
         LOG_ERROR("Layout %s append new cell failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         return ret;
     }
 
@@ -214,7 +214,7 @@ static int32_t insert_new_grid_dsc(lv_obj_t *lobj, grid_desc_t *dsc, \
     ret = set_dsc_data(lobj, next_dsc, value);
     if (ret) {
         LOG_ERROR("Layout %s insert new cell failed, ret %d", \
-                  get_obj_name(lobj), ret);
+                  get_name(lobj), ret);
         goto out_free;
     }
 
@@ -339,14 +339,14 @@ static int32_t check_and_delete_invalid_cell_object(lv_obj_t *lobj, dsc_op_t typ
         return 0;
 
     LOG_TRACE("Delete cell [%s] row:%d/%d col:%d/%d",
-              get_obj_name(lobj),
+              get_name(lobj),
               conf->row.index, conf->row.max,
               conf->col.index, conf->col.max);
 
-    ret = remove_obj_and_child_by_name(get_obj_name(lobj), \
+    ret = remove_obj_and_child_by_name(get_name(lobj), \
                                        &get_gobj(par)->child);
     if (ret) {
-        LOG_WARN("Cell [%s] remove failed, ret %d", get_obj_name(lobj), ret);
+        LOG_WARN("Cell [%s] remove failed, ret %d", get_name(lobj), ret);
         return ret;
     }
 
@@ -384,7 +384,7 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
 
     if (r_dsc->size <= 0 || c_dsc->size <= 0) {
         LOG_ERROR("Layout [%s] dsc invalid: Row size [%d] - Column size [%d]", \
-                  get_obj_name(lobj), r_dsc->size, c_dsc->size);
+                  get_name(lobj), r_dsc->size, c_dsc->size);
         return -ERANGE;
     }
 
@@ -456,13 +456,13 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
 
     if (row_pos < 0 || row_pos > row_max) {
         LOG_WARN("Cell [%s] invalid row index: %d", \
-                 get_obj_name(lobj), row_pos);
+                 get_name(lobj), row_pos);
         return -EINVAL;
     }
 
     if (col_pos < 0 || col_pos > col_max) {
         LOG_WARN("Cell [%s] invalid column index: %d", \
-                 get_obj_name(lobj), col_pos);
+                 get_name(lobj), col_pos);
         return -EINVAL;
     }
 
@@ -472,7 +472,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
         if (!conf)
             return -EIO;
         LOG_TRACE("Cell [%s] configuration memory allocated", \
-                  get_obj_name(lobj));
+                  get_name(lobj));
     }
 
     get_gobj(lobj)->layout.cell_data = conf;
@@ -749,7 +749,7 @@ int32_t apply_grid_layout_dsc(lv_obj_t *lobj)
     lv_obj_set_grid_dsc_array(lobj, c_dsc->cell_pct, r_dsc->cell_pct);
 
     LOG_DEBUG("Layout [%s] descriptors updated: Row [%d] - Column [%d]", \
-              get_obj_name(lobj), r_dsc->size, c_dsc->size);
+              get_name(lobj), r_dsc->size, c_dsc->size);
 
     return 0;
 }
@@ -783,7 +783,7 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_center(cont);
 
-    if (set_obj_layout_type(cont, OBJ_LAYOUT_GRID)) {
+    if (set_layout_type(cont, OBJ_LAYOUT_GRID)) {
         LOG_ERROR("Failed to set object sub type");
         goto out_free_col_dsc;
     }
@@ -959,7 +959,7 @@ int32_t rotate_grid_layout_90(lv_obj_t *lobj)
     }
 
     LOG_TRACE("Layout [%s] configuration is rotated 90 degree", \
-              get_obj_name(lobj));
+              get_name(lobj));
 
     return 0;
 }
@@ -980,7 +980,7 @@ int32_t apply_grid_layout_config(lv_obj_t *lobj)
         return ret;
     }
 
-    LOG_TRACE("Layout [%s] configuration is updated", get_obj_name(lobj));
+    LOG_TRACE("Layout [%s] configuration is updated", get_name(lobj));
 
     return 0;
 }

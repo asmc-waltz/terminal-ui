@@ -114,19 +114,19 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
  * Add first symbol: signal icon
  *      lv_obj_t *sym = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".signal",
  *                                         ICON_SIGNAL_SOLID);
- *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_LEFT,
+ *      set_align(sym, top_bar, LV_ALIGN_TOP_LEFT,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add second symbol: WiFi icon, aligned to the right of signal icon
  *      lv_obj_t *sub = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".wifi",
  *                                         ICON_WIFI_SOLID);
- *      set_gobj_align(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
+ *      set_align(sub, sym, LV_ALIGN_OUT_RIGHT_MID,
  *                       TOP_BAR_SYM_ALN, 0);
 
  * Add third symbol: alert (bell) icon, centered on top bar
  *      sym = add_top_bar_symbol(top_bar, COMPS_TOP_BAR".alert",
  *                               ICON_BELL_SOLID);
- *      set_gobj_align(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
+ *      set_align(sym, top_bar, LV_ALIGN_TOP_MID, 0, 0);
 
  * Replace alert symbol with "bell slash" version
  *      replace_top_bar_symbol(top_bar, COMPS_TOP_BAR".alert",
@@ -149,11 +149,10 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
         return NULL;
 
     // Keep the default top bar height, and scale width
-    set_gobj_size_scale_w(top_bar, TOP_BAR_WIDTH, \
+    set_size_scale_w(top_bar, TOP_BAR_WIDTH, \
                           pct_to_px(get_h(par), TOP_BAR_HEIGHT));
 
-    set_gobj_align_scale(top_bar, par, LV_ALIGN_TOP_MID, \
-                         0, TOP_BAR_PAD_TOP);
+    set_align_scale(top_bar, par, LV_ALIGN_TOP_MID, 0, TOP_BAR_PAD_TOP);
 
     lv_obj_set_style_bg_color(top_bar, lv_color_hex(TOP_BAR_BG_COLOR), 0);
     lv_obj_clear_flag(top_bar, LV_OBJ_FLAG_SCROLLABLE);

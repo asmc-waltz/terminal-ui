@@ -123,7 +123,7 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!swit)
         return -EIO;
 
-    set_gobj_size(swit, LV_PCT(70), 20);
+    set_size(swit, LV_PCT(70), 20);
 
 
     /* Section: Spacer (flex filler) */
@@ -131,7 +131,7 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!filler)
         return -EIO;
 
-    set_gobj_size(filler, LV_PCT(100), LV_PCT(100));
+    set_size(filler, LV_PCT(100), LV_PCT(100));
 
     LOG_DEBUG("Brightness setting items created");
     return 0;
@@ -153,11 +153,11 @@ lv_obj_t *create_brightness_detail_setting(lv_obj_t *par, const char *name)
 
     /* Visual style */
     lv_obj_set_style_bg_color(brightness_box, lv_color_hex(bg_color(120)), 0);
-    set_gobj_size(brightness_box, LV_PCT(98), LV_PCT(98));
-    set_gobj_align(brightness_box, par, LV_ALIGN_CENTER, 0, 0);
+    set_size(brightness_box, LV_PCT(98), LV_PCT(98));
+    set_align(brightness_box, par, LV_ALIGN_CENTER, 0, 0);
     /* Padding and spacing */
-    set_gobj_padding(brightness_box, 4, 4, 4, 4);
-    set_gobj_row_padding(brightness_box, 20);
+    set_padding(brightness_box, 4, 4, 4, 4);
+    set_row_padding(brightness_box, 20);
     /* Scrollbar cleanup */
     lv_obj_set_style_width(brightness_box, 1, LV_PART_SCROLLBAR);
     lv_obj_set_style_pad_all(brightness_box, 0, LV_PART_SCROLLBAR);

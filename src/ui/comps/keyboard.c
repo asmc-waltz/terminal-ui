@@ -357,7 +357,7 @@ static void kb_key_cb(lv_event_t *event)
     int32_t ret;
     bool haptic_req = false;
 
-    key_data = (const key_def *)get_gobj_internal_data(btn);
+    key_data = (const key_def *)get_internal_data(btn);
     if (!key_data) {
         LOG_ERROR("Unable to get key internal data");
         return;
@@ -436,7 +436,7 @@ static void set_key_size(lv_obj_t *lobj, const key_def *key, kb_size_ctx *size)
         break;
     }
 
-    set_gobj_size(lobj, key_w, size->key_com_h);
+    set_size(lobj, key_w, size->key_com_h);
 }
 
 static void set_key_color(lv_obj_t *lobj, const key_def *key)
@@ -519,7 +519,7 @@ void set_line_box_size(lv_obj_t *par, lv_obj_t *line_box, kb_size_ctx *size, \
     int32_t obj_h = 0;
 
     obj_h = size->l_pad_top + size->key_com_h + size->l_pad_bot;
-    set_gobj_size(line_box, line_w, obj_h);
+    set_size(line_box, line_w, obj_h);
 }
 
 lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
@@ -558,7 +558,7 @@ static lv_obj_t *create_key(lv_obj_t *par, const key_def *key, kb_size_ctx *size
 
     lbl = create_text(btn, NULL, KEYBOARD_CHAR_FONTS, key->label);
     if (!lbl) {
-        remove_obj_and_child_by_name(key->label, &l_to_par_gobj(par)->child);
+        remove_obj_and_child_by_name(key->label, &get_par_gobj(par)->child);
         return NULL;
     }
 
@@ -592,7 +592,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
             set_line_box_size(par, line_box, &size, line_w);
             line_w = 0;
             // Align the current line box before create the next one
-            set_gobj_align(line_box, par, LV_ALIGN_TOP_LEFT, \
+            set_align(line_box, par, LV_ALIGN_TOP_LEFT, \
                              line_x_ofs, line_y_ofs);
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
                       line_x_ofs, line_y_ofs);
@@ -617,10 +617,10 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         if (new_line) {
             new_line = false;
-            set_gobj_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
+            set_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
                              size.k_pad_left, size.l_pad_top);
         } else {
-            set_gobj_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+            set_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
         }
 
@@ -628,7 +628,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
         btn_aln = btn;
         /* set_key_size(btn, &map->key[i], &size); */
         set_key_color(btn, &map->key[i]);
-        set_gobj_data(btn, (void *)&map->key[i]);
+        set_internal_data(btn, (void *)&map->key[i]);
         line_w += size.k_pad_left + get_gobj(btn)->size.w + size.k_pad_right;
     }
 
@@ -662,7 +662,7 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
             set_line_box_size(par, line_box, &size, line_w);
             line_w = 0;
             // Align the current line box before create the next one
-            set_gobj_align(line_box, par, LV_ALIGN_TOP_LEFT, \
+            set_align(line_box, par, LV_ALIGN_TOP_LEFT, \
                              line_x_ofs, line_y_ofs);
 
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
@@ -697,10 +697,10 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         if (new_line) {
             new_line = false;
-            set_gobj_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
+            set_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
                              size.k_pad_left, size.l_pad_top);
         } else {
-            set_gobj_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+            set_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
         }
 
@@ -713,7 +713,7 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         // Update button label configurations to the horizontal map.
         btn_lbl = lv_obj_get_child(btn, 0);
-        set_gobj_pos_center(btn_lbl);
+        set_pos_center(btn_lbl);
 
         // Reset key configurations to the horizontal map.
         get_gobj(btn)->data.rotation = ROTATION_0;
@@ -812,7 +812,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
         set_key_color(btn, &next_map->key[i]);
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         lv_label_set_text_fmt(label, "%s", next_map->key[i].label);
-        set_gobj_data(btn, (void *)&next_map->key[i]);
+        set_internal_data(btn, (void *)&next_map->key[i]);
     }
 
     act_map = next_map;
@@ -867,9 +867,9 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
     }
 
     // Reset all keyboard configurations to the horizontal layout.
-    set_gobj_size(kb, obj_w, obj_h);
+    set_size(kb, obj_w, obj_h);
     get_gobj(kb)->data.rotation = ROTATION_0;
-    set_gobj_align_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
+    set_align_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     // TODO: map?
     const keyboard_def *map = &kb_maps[0];
@@ -896,9 +896,9 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     obj_w = pct_to_px(get_w(par), KEYBOARD_WIDTH);
     obj_h = pct_to_px(get_h(par), KEYBOARD_HEIGHT);
 
-    set_gobj_size(cont, obj_w, obj_h);
+    set_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
-    set_gobj_align_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
+    set_align_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     get_gobj(cont)->data.prerotate_cb = pre_rotation_redraw_kb_layout;
 

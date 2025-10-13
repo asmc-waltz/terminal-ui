@@ -369,7 +369,7 @@ void destroy_ui_object_ctx(ctx_t *ctx)
     ctx->objs.next_id = 1;
 }
 
-void set_gobj_data(lv_obj_t *lobj, void *data)
+void set_internal_data(lv_obj_t *lobj, void *data)
 {
     gobj_t *gobj;
 
@@ -387,7 +387,7 @@ void set_gobj_data(lv_obj_t *lobj, void *data)
     gobj->data.internal = data;
 }
 
-void *get_gobj_internal_data(lv_obj_t *lobj)
+void *get_internal_data(lv_obj_t *lobj)
 {
     gobj_t *gobj;
 

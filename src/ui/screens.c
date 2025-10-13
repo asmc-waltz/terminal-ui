@@ -364,10 +364,10 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /*-----------------------------------------
      * Base style setup
      *----------------------------------------*/
-    set_gobj_size(base, get_scr_width(), get_scr_height());
-    set_gobj_pos(base, 0, 0);
-    set_gobj_padding(base, 8, 8, 8, 8);
-    set_gobj_row_padding(base, 8);
+    set_size(base, get_scr_width(), get_scr_height());
+    set_pos(base, 0, 0);
+    set_padding(base, 8, 8, 8, 8);
+    set_row_padding(base, 8);
     lv_obj_set_style_radius(base, 20, 0);
     lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
 
@@ -405,8 +405,8 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /* Rotate test button */
     btn = create_btn(lv_layer_top(), "btn.rotate");
     lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, get_gobj(btn));
-    set_gobj_size(btn, 54, 54);
-    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
+    set_size(btn, 54, 54);
+    set_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_ROTATE_SOLID);
     lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
@@ -414,8 +414,8 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /* Keyboard test button */
     btn = create_btn(lv_layer_top(), "btn.keyboard");
     lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
-    set_gobj_size(btn, 54, 54);
-    set_gobj_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -50, 0);
+    set_size(btn, 54, 54);
+    set_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -50, 0);
 
     icon = create_sym(btn, NULL, TOP_BAR_SYM_FONTS, ICON_KEYBOARD);
     lv_obj_set_style_text_color(icon, lv_color_hex(bg_color(60)), 0);
