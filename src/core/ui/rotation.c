@@ -157,7 +157,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
         return ret;
 
     /* Ignore size and align adjustment for base (non-rotated) object */
-    if (gobj->data.obj_type == OBJ_BASE)
+    if (get_gobj_type(gobj) == OBJ_BASE)
         return 0;
 
     /*
@@ -500,7 +500,7 @@ static inline int32_t gobj_handle_transform(gobj_t *gobj)
     if (!gobj)
         return -EINVAL;
 
-    switch (gobj->data.obj_type) {
+    switch (get_gobj_type(gobj)) {
         case OBJ_BASE:
         case OBJ_BOX:
         case OBJ_BTN:
@@ -515,7 +515,7 @@ static inline int32_t gobj_handle_transform(gobj_t *gobj)
 
         default:
             LOG_WARN("Unhandled object type %d, skipping transform", \
-                     gobj->data.obj_type);
+                     get_gobj_type(gobj));
             return -EINVAL;
     }
 }

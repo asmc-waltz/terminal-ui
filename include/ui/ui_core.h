@@ -304,13 +304,18 @@ static inline int32_t get_gobj_cell_type(gobj_t *gobj)
 }
 
 /* Set object as base type (non-rotated or root container) */
-static inline int32_t set_obj_base_type(lv_obj_t *lobj)
+static inline int32_t set_obj_type(lv_obj_t *lobj, type_t type)
 {
     gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
         return -EINVAL;
-    gobj->data.obj_type = OBJ_BASE;
+    gobj->data.obj_type = type;
     return 0;
+}
+
+static inline int32_t get_gobj_type(gobj_t *gobj)
+{
+    return gobj ? gobj->data.obj_type : OBJ_NONE;
 }
 
 static inline const char *get_obj_name(lv_obj_t *lobj)

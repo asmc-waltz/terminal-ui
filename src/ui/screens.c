@@ -346,7 +346,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     if (!base)
         return NULL;
 
-    set_obj_base_type(base);
+    set_obj_type(base, OBJ_BASE);
 
     /* Grid rows: [top bar: 50px | content: flexible 60%] */
     if (add_grid_layout_row_dsc(base, 50) ||

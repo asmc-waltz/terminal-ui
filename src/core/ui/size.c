@@ -250,7 +250,7 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
     if (!gobj)
         return -EINVAL;
 
-    if (gobj->data.obj_type == OBJ_BASE)
+    if (get_gobj_type(gobj) == OBJ_BASE)
         return 0;
 
     w = lv_obj_get_width(lobj);
