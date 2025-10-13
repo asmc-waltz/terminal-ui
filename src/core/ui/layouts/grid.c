@@ -145,7 +145,7 @@ static inline int32_t config_grid_cell_position(lv_obj_t *lobj, \
     if (!lobj)
         return -EINVAL;
 
-    conf = get_cell_data(lobj);
+    conf = get_grid_cell_data(lobj);
     if (!conf)
         return -EIO;
 
@@ -314,7 +314,7 @@ static int32_t check_and_delete_invalid_cell_object(lv_obj_t *lobj, dsc_op_t typ
 
     r_dsc = get_layout_row_dsc_data(par);
     c_dsc = get_layout_col_dsc_data(par);
-    conf  = get_cell_data(lobj);
+    conf  = get_grid_cell_data(lobj);
     if (!r_dsc || !c_dsc || !conf)
         return -EIO;
 
@@ -466,7 +466,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
         return -EINVAL;
     }
 
-    conf = get_cell_data(lobj);
+    conf = get_grid_cell_data(lobj);
     if (!conf) {
         conf = calloc(1, sizeof(*conf));
         if (!conf)
@@ -475,7 +475,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
                   get_obj_name(lobj));
     }
 
-    get_gobj(lobj)->data.sub_data = conf;
+    get_gobj(lobj)->layout.cell_data = conf;
 
     conf->col.index = col_pos;
     conf->col.max = col_max;
@@ -495,7 +495,7 @@ int32_t apply_grid_cell_align_and_pos(lv_obj_t * lobj)
     grid_cell_t *conf;
     int32_t ret;
 
-    conf = lobj ? get_cell_data(lobj) : NULL;
+    conf = lobj ? get_grid_cell_data(lobj) : NULL;
     if (!conf)
         return -EINVAL;
 

@@ -51,9 +51,8 @@ typedef enum {
 
 struct gobj_t;
 typedef struct {
-    type_t obj_type;
+    type_t obj_type;                    /* Main object type */
     void *internal;                     /* Internal data */
-    void *sub_data;                     /* Sub data */
     int8_t rotation;
     struct gobj_t *parent;
     /*
@@ -91,9 +90,10 @@ typedef struct {
 } obj_size_t;
 
 typedef struct {
-    type_t type;
+    type_t type;                        /* Layout type */
     void *data;
-    type_t cell_type;
+    type_t cell_type;                   /* Layout cell type */
+    void *cell_data;
     lv_border_side_t border_side;
     int32_t pad_top;
     int32_t pad_bot;
