@@ -91,7 +91,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     gobj->data.rotation = ROTATION_0;
     gobj->align.value = LV_ALIGN_DEFAULT;
 
-    layout_type = get_gobj(par)->data.layout_type;
+    layout_type = get_obj_layout_type(par);
     if (layout_type == OBJ_LAYOUT_FLEX) {
         ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
     } else if (layout_type == OBJ_LAYOUT_GRID) {

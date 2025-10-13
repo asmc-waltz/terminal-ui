@@ -479,7 +479,7 @@ static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
         return ret;
     }
 
-    switch (gobj->data.layout_type) {
+    switch (get_gobj_layout_type(gobj)) {
     case OBJ_LAYOUT_GRID:
         return rotate_grid_layout_gobj(gobj);
     case OBJ_LAYOUT_FLEX:
@@ -611,7 +611,7 @@ int32_t refresh_obj_tree_layout(gobj_t *gobj)
         return ret;
     }
 
-    if (gobj->data.layout_type == OBJ_LAYOUT_FLEX) {
+    if (get_gobj_layout_type(gobj) == OBJ_LAYOUT_FLEX) {
         ret = scroll_to_first_child(get_lobj(gobj));
         if (ret)
             LOG_WARN("Scroll [%s] to first child failed", gobj->name);
