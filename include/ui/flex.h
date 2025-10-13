@@ -35,8 +35,6 @@ typedef struct flex_layout {
 /*=====================
  * Setter functions
  *====================*/
-int32_t set_flex_cell_data(lv_obj_t *lobj);
-
 int32_t config_flex_layout_align(lv_obj_t *lobj, lv_flex_align_t main_place, \
                                  lv_flex_align_t cross_place, \
                                  lv_flex_align_t track_cross_place);
@@ -52,10 +50,6 @@ int32_t set_flex_layout_flow(lv_obj_t *lobj, lv_flex_flow_t flow);
 int32_t apply_flex_layout_config(lv_obj_t *lobj);
 int32_t apply_flex_cell_config(lv_obj_t *lobj);
 
-static inline int32_t set_flex_cell_type(lv_obj_t *lobj)
-{
-    return set_obj_cell_type(lobj, OBJ_FLEX_CELL);
-}
 /*=====================
  * Getter functions
  *====================*/

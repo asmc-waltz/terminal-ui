@@ -164,8 +164,6 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
     lv_obj_clear_flag(lobj, LV_OBJ_FLAG_SCROLLABLE);
 
     /** Register prerotate callback for redrawing after rotation */
-    if (get_gobj(par)->data.layout_type == OBJ_LAYOUT_FLEX)
-        set_flex_cell_data(lobj);
     get_gobj(lobj)->data.prerotate_cb = redraw_window_control_bar;
     lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
 
@@ -185,9 +183,7 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
         lv_obj_clear_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
     }
 
-    if (back_btn)
-        set_flex_cell_data(back_btn);
-    else
+    if (!back_btn)
         LOG_WARN("Object [%s]: Create BACK button failed", name);
 
     /** Create "More" button */
@@ -206,9 +202,7 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
         lv_obj_clear_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
     }
 
-    if (more_btn)
-        set_flex_cell_data(more_btn);
-    else
+    if (!more_btn)
         LOG_WARN("Object [%s]: Create MORE button failed", name);
 
     /** Return the completed control bar */

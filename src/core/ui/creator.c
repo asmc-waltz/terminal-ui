@@ -52,6 +52,8 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 {
     gobj_t *gobj = NULL;
     lv_obj_t *lobj = NULL;
+    type_t layout_type;
+    int32_t ret = 0;
 
     LV_ASSERT_NULL(par);
 
@@ -89,6 +91,17 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     gobj->data.rotation = ROTATION_0;
     gobj->align.value = LV_ALIGN_DEFAULT;
     gobj->align.list = LIST_NONE;
+
+    layout_type = get_gobj(par)->data.layout_type;
+    if (layout_type == OBJ_LAYOUT_FLEX) {
+        ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
+    } else if (layout_type == OBJ_LAYOUT_GRID) {
+        ret = set_obj_cell_type(lobj, OBJ_GRID_CELL);
+    }
+
+    if (ret) {
+        LOG_WARN("Failed to set object sub type");
+    }
 
     LV_ASSERT_NULL(gobj);
 

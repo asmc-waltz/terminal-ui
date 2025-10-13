@@ -63,11 +63,11 @@ static void menu_item_event_handler(lv_event_t *e)
         break;
     case LV_EVENT_RELEASED:
         lv_obj_set_style_bg_color(obj, lv_color_hex(bg_color(1)), 0);
-        lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-                                       &get_gobj(lv_screen_active())->child);
-        lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
-
-        refresh_obj_tree_layout(get_gobj(set));
+        // lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
+        //                                &get_gobj(lv_screen_active())->child);
+        // lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
+        //
+        // refresh_obj_tree_layout(get_gobj(set));
         break;
     case LV_EVENT_CLICKED:
         LV_LOG_USER("Box clicked!");
@@ -98,7 +98,6 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
         return NULL;
 
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
-    set_flex_cell_data(item);
 
     set_gobj_size(item, LV_PCT(100), 50);
     set_gobj_padding(item, 0, 0, 20, 20);
@@ -124,12 +123,12 @@ static lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
 
     /* Create children: symbol + title */
     sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
-    if (sym)
-        set_flex_cell_data(sym);
+    if (!sym)
+        LOG_ERROR("Create symbol failed");
 
     label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
-    if (label)
-        set_flex_cell_data(label);
+    if (!label)
+        LOG_ERROR("Create label failed");
 
     return item;
 }
@@ -149,8 +148,6 @@ static lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
     group = create_flex_layout_object(par, name);
     if (!group)
         return NULL;
-
-    set_flex_cell_data(group);
 
     /* Visual style */
     set_gobj_size(group, LV_PCT(100), LV_SIZE_CONTENT);

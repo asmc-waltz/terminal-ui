@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -567,12 +567,6 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
 
     lv_obj_add_event_cb(lobj, on_size_changed_cb, \
                         LV_EVENT_SIZE_CHANGED, NULL);
-
-    ret = set_grid_cell_type(lobj);
-    if (ret) {
-        LOG_ERROR("Failed to set object sub type");
-        return ret;
-    }
 
     return 0;
 }

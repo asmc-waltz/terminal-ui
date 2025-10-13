@@ -86,26 +86,6 @@ static int32_t swap_align_value(lv_obj_t *lobj, lv_flex_align_t align)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-/*
- * Flex cell object sometimes is not just a normal object — it could be another
- * layout, button, or anything depending on the creator. Instead of creating it
- * in a specific type, we let the creator build it, then attach its flex cell
- * configuration here. This enables rotation-aware properties and layout
- * compatibility.
- */
-int32_t set_flex_cell_data(lv_obj_t *lobj)
-{
-    if (!lobj)
-        return -EINVAL;
-
-    int32_t ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
-    if (ret) {
-        return ret;
-    }
-
-    return 0;
-}
-
 lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
 {
     lv_obj_t *cont = NULL;

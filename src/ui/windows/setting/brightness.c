@@ -76,62 +76,62 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!par)
         return -EINVAL;
 
+    group = create_window_control_bar(par, "BRIGHTNESS-BACK", true, false);
+    if (!group)
+        return -ENOMEM;
+
     /* Section: Brightness description */
     group = create_vertical_flex_group(par, "BRIGHTNESS-ABOUT");
     if (!group)
         return -ENOMEM;
-    set_flex_cell_data(group);
 
     sym = create_symbol_box(group, NULL, &terminal_icons_48, \
                             ICON_CIRCLE_HALF_STROKE_SOLID);
-    if (sym)
-        set_flex_cell_data(sym);
+    if (!sym)
+        return -EIO;
 
     label = create_text_box(group, NULL, &lv_font_montserrat_24, desc);
-    if (label)
-        set_flex_cell_data(label);
+    if (!label)
+        return -EIO;
 
     /* Section: Auto brightness toggle */
     group = create_horizontal_flex_group(par, "BRIGHTNESS-AUTO");
     if (!group)
         return -ENOMEM;
-    set_flex_cell_data(group);
 
     label = create_text_box(group, NULL, &lv_font_montserrat_24, "Auto");
-    if (label)
-        set_flex_cell_data(label);
+    if (!label)
+        return -EIO;
 
     swit = create_switch_box(group, NULL);
-    if (swit) {
-        set_flex_cell_data(swit);
-        lv_obj_add_event_cb(get_box_child(swit), \
-                            switch_auto_brightness_event_handler, \
-                            LV_EVENT_ALL, NULL);
-    }
+    if (!swit)
+        return -EIO;
+    lv_obj_add_event_cb(get_box_child(swit), \
+                        switch_auto_brightness_event_handler, \
+                        LV_EVENT_ALL, NULL);
 
     /* Section: Auto brightness toggle */
     group = create_horizontal_flex_group(par, "BRIGHTNESS-MANUAL");
     if (!group)
         return -ENOMEM;
-    set_flex_cell_data(group);
 
     label = create_text_box(group, NULL, &lv_font_montserrat_24, "Manual");
-    if (label)
-        set_flex_cell_data(label);
+    if (!label)
+        return -EIO;
 
     swit = create_slider(group, NULL);
-    if (swit) {
-        set_flex_cell_data(swit);
-        set_gobj_size(swit, LV_PCT(70), 20);
-    }
+    if (!swit)
+        return -EIO;
+
+    set_gobj_size(swit, LV_PCT(70), 20);
 
 
     /* Section: Spacer (flex filler) */
     lv_obj_t *filler = create_box(par, "BRIGHTNESS-FILLER");
-    if (filler) {
-        set_gobj_size(filler, LV_PCT(100), LV_PCT(100));
-        set_flex_cell_data(filler);
-    }
+    if (!filler)
+        return -EIO;
+
+    set_gobj_size(filler, LV_PCT(100), LV_PCT(100));
 
     LOG_DEBUG("Brightness setting items created");
     return 0;
