@@ -102,7 +102,7 @@ lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
     if (!cont)
         goto out_free_conf;
 
-    get_gobj(cont)->data.internal = conf;
+    get_gobj(cont)->layout.data = conf;
 
     lv_obj_set_layout(cont, LV_LAYOUT_FLEX);
     lv_obj_center(cont);

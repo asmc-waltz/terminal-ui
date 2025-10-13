@@ -778,7 +778,7 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
     if (!cont)
         goto out_free_col_dsc;
 
-    get_gobj(cont)->data.internal = conf;
+    get_gobj(cont)->layout.data = conf;
 
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_center(cont);

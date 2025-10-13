@@ -92,6 +92,7 @@ typedef struct {
 
 typedef struct {
     type_t type;
+    void *data;
     type_t cell_type;
     lv_border_side_t border_side;
     int32_t pad_top;
