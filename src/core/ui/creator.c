@@ -52,10 +52,12 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
 {
     gobj_t *gobj = NULL;
     lv_obj_t *lobj = NULL;
-    type_t layout_type;
-    int32_t ret = 0;
+    type_t par_type = OBJ_NONE;
+    int32_t ret = -EINVAL;
 
-    LV_ASSERT_NULL(par);
+    if (!par) {
+        return NULL;
+    }
 
     switch (type) {
         case OBJ_BOX:
@@ -78,34 +80,46 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
             lobj = lv_textarea_create(par);
             break;
         default:
-            LOG_ERROR("G Object type %d - name %s invalid", type, name);
+            LOG_ERROR("Object name [%s] - type [%d] is invalid", name, type);
             lobj = NULL;
             break;
 
     }
 
-    LV_ASSERT_NULL(lobj);
+    if (!lobj) {
+        LOG_ERROR("Object [%s] create failed", name);
+        return NULL;
+    }
 
     gobj = register_obj(par, lobj, name);
-    if (set_obj_type(lobj, type))
-        LOG_ERROR("Object [%s] set type failed", get_obj_name(lobj));
+    if (!gobj) {
+        LOG_ERROR("Object [%s] register gobj failed", name);
+        goto out_err;
+    }
+
     gobj->data.rotation = ROTATION_0;
     gobj->align.value = LV_ALIGN_DEFAULT;
-
-    layout_type = get_obj_layout_type(par);
-    if (layout_type == OBJ_LAYOUT_FLEX) {
-        ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
-    } else if (layout_type == OBJ_LAYOUT_GRID) {
-        ret = set_obj_cell_type(lobj, OBJ_GRID_CELL);
-    }
-
+    ret = set_obj_type(lobj, type);
     if (ret) {
-        LOG_WARN("Failed to set object sub type");
+        LOG_ERROR("Object [%s] set type failed", get_obj_name(lobj));
+        goto out_err;
     }
 
-    LV_ASSERT_NULL(gobj);
+    /* Assign correct cell type based on parent layout */
+    par_type = get_obj_layout_type(par);
+    if (par_type == OBJ_LAYOUT_FLEX)
+        ret = set_obj_cell_type(lobj, OBJ_FLEX_CELL);
+    else if (par_type == OBJ_LAYOUT_GRID)
+        ret = set_obj_cell_type(lobj, OBJ_GRID_CELL);
+
+    if (ret)
+        LOG_ERROR("Object [%s] set cell type failed", get_obj_name(lobj));
 
     return get_lobj(gobj);
+
+out_err:
+    // TODO: clean mem
+    return NULL;
 }
 
 /**********************
