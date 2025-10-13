@@ -49,13 +49,6 @@ typedef enum {
     OBJ_TEXTAREA,
 } type_t;
 
-typedef enum {
-    LIST_NONE = 0,
-    LIST_ROW,
-    LIST_COLUMN,
-    LIST_END,
-} list_t;
-
 struct gobj_t;
 typedef struct {
     type_t obj_type;
@@ -83,7 +76,6 @@ typedef struct {
     int32_t x;
     int32_t y;
     lv_obj_t *base;
-    list_t list;
     int8_t value;
     int8_t scale_x;
     int8_t scale_y;
