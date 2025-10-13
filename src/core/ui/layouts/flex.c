@@ -69,7 +69,7 @@ static bool is_rotation_same_group(lv_obj_t *lobj)
 
 static int32_t swap_align_value(lv_obj_t *lobj, lv_flex_align_t align)
 {
-    const char *name = get_name(lobj);
+    const char *name = get_obj_name(lobj);
 
     if (align == LV_FLEX_ALIGN_START) {
         LOG_TRACE("Flex [%s] align START (%d) -> END", name, align);
@@ -206,7 +206,7 @@ int32_t rotate_flex_align_one(lv_obj_t *lobj)
     main_place = conf->main_place;
     if (main_place == LV_FLEX_ALIGN_END) {
         LOG_WARN("Flex [%s] align main place LV_FLEX_ALIGN_END (%d)", \
-                 get_name(lobj), main_place);
+                 get_obj_name(lobj), main_place);
     }
 
     cross_place = swap_align_value(lobj, conf->cross_place);

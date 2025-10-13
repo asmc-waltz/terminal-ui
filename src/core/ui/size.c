@@ -258,7 +258,7 @@ int32_t store_computed_object_size(lv_obj_t *lobj)
 
     if (w < 0 || h < 0) {
         LOG_ERROR("Object [%d] get invalid size W[%d] - H[%d]", \
-                  get_name(lobj), w, h);
+                  get_obj_name(lobj), w, h);
         return -EIO;
     }
 

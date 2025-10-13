@@ -114,7 +114,7 @@ int32_t rotate_gobj_border_side_90(gobj_t *gobj)
     current = gobj->layout.border_side;
     if (current >= 16) {
         LOG_ERROR("Object %s has invalid border mask %d",
-                  get_name(lobj), current);
+                  get_obj_name(lobj), current);
         return -EINVAL;
     }
 

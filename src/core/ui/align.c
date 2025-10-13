@@ -377,7 +377,7 @@ int32_t rotate_gobj_alignment_90(gobj_t *gobj)
 
     if (align < 0 || align >= 21 || align_rot90_map[align] == 0) {
         LOG_ERROR("Invalid alignment (%d) for object %s", align, \
-                  get_name(lobj));
+                  get_obj_name(lobj));
         return -EIO;
     }
 

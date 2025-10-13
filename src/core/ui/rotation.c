@@ -320,7 +320,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         ret = rotate_grid_layout_90(lobj);
         if (ret) {
             LOG_ERROR("Layout [%s] rotation failed, ret %d", \
-                      get_name(lobj), ret);
+                      get_obj_name(lobj), ret);
             return ret;
         }
     }
@@ -328,7 +328,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
     ret = apply_grid_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \
-                  get_name(lobj), ret);
+                  get_obj_name(lobj), ret);
         return ret;
     }
 
@@ -350,14 +350,16 @@ static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_cell_pos_90(lobj);
         if (ret) {
-            LOG_ERROR("Cell [%s] rotation failed, ret %d", get_name(lobj), ret);
+            LOG_ERROR("Cell [%s] rotation failed, ret %d", \
+                      get_obj_name(lobj), ret);
             return -EIO;
         }
     }
 
     ret = apply_grid_cell_align_and_pos(lobj);
     if (ret) {
-        LOG_ERROR("Cell [%s] apply config failed, ret %d", get_name(lobj), ret);
+        LOG_ERROR("Cell [%s] apply config failed, ret %d", \
+                  get_obj_name(lobj), ret);
         return -EIO;
     }
 
@@ -392,7 +394,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         ret = rotate_flex_layout_90(lobj);
         if (ret) {
             LOG_ERROR("Layout [%s] rotation failed, ret %d", \
-                      get_name(lobj), ret);
+                      get_obj_name(lobj), ret);
             return -EIO;
         }
     }
@@ -400,14 +402,14 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     ret = rotate_flex_align_one(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] rotation align failed, ret %d", \
-                  get_name(lobj), ret);
+                  get_obj_name(lobj), ret);
         return -EIO;
     }
 
     ret = apply_flex_layout_config(lobj);
     if (ret) {
         LOG_ERROR("Layout [%s] apply config failed, ret %d", \
-                  get_name(lobj), ret);
+                  get_obj_name(lobj), ret);
         return -EIO;
     }
 
@@ -440,14 +442,16 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_flex_cell_90(lobj);
         if (ret) {
-            LOG_ERROR("Cell [%s] rotation failed, ret %d", get_name(lobj), ret);
+            LOG_ERROR("Cell [%s] rotation failed, ret %d", \
+                      get_obj_name(lobj), ret);
             return -EIO;
         }
     }
 
     ret = apply_flex_cell_config(lobj);
     if (ret) {
-        LOG_ERROR("Cell [%s] apply config failed, ret %d", get_name(lobj), ret);
+        LOG_ERROR("Cell [%s] apply config failed, ret %d", \
+                  get_obj_name(lobj), ret);
         return -EIO;
     }
 

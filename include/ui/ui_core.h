@@ -290,9 +290,14 @@ static inline int32_t set_obj_base_type(lv_obj_t *lobj)
     return 0;
 }
 
-static inline const char *get_name(lv_obj_t *lobj)
+static inline const char *get_obj_name(lv_obj_t *lobj)
 {
     return lobj ? get_gobj(lobj)->name : NULL;
+}
+
+static inline const char *get_gobj_name(gobj_t *gobj)
+{
+    return gobj ? gobj->name : NULL;
 }
 
 static inline type_t get_obj_layout_type(lv_obj_t *lobj)
