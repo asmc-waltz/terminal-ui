@@ -329,12 +329,15 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  *   >=0 → number of objects deleted
  *   -1  → error (invalid parent or context)
  */
-int32_t remove_children(gobj_t *par)
+int32_t remove_children(lv_obj_t *par)
 {
-    if (!par)
-        return -1;
+    gobj_t *gobj_par;
 
-    return remove_obj_and_child(ID_NOID, &par->child);
+    gobj_par = par ? get_gobj(par) : NULL;
+    if (!gobj_par)
+        return -EINVAL;
+
+    return remove_obj_and_child(ID_NOID, &gobj_par->child);
 }
 
 /**

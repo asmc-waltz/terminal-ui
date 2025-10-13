@@ -176,7 +176,7 @@ static void refresh_screen_rotate_layout(lv_obj_t *root)
     ctx_t *ctx = get_ctx();
     lv_obj_t *screen = ctx->scr.now.obj;
 
-    refresh_obj_tree_layout(get_gobj(screen));
+    refresh_obj_tree_layout(screen);
 }
 
 static void rotate_key_handler(lv_event_t *event)
@@ -202,7 +202,7 @@ static void rotate_key_handler(lv_event_t *event)
     //               350, /* phase 4 */
     //               refresh_screen_rotate_layout);
 
-    refresh_obj_tree_layout(get_gobj(ctx->scr.now.obj));
+    refresh_obj_tree_layout(ctx->scr.now.obj);
 
     lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
                                    &get_gobj(lv_screen_active())->child);
@@ -251,7 +251,7 @@ static void rotate_key_handler(lv_event_t *event)
         lv_obj_t *brightness_win = create_brightness_detail_setting(detail,
                                          WINDOW_SETTING".detail.brightness");
 
-        refresh_obj_tree_layout(get_gobj(brightness_win));
+        refresh_obj_tree_layout(brightness_win);
         new_window = false;
     }
 

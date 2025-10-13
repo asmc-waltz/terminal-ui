@@ -71,7 +71,7 @@
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
-int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
+int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
 {
     int32_t new_x_mid = -1;
     int32_t new_y_mid = -1;
@@ -83,7 +83,9 @@ int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h)
     int32_t T; /* distance from old top edge  to object's center */
     int32_t R; /* distance from old right edge to object's center */
     int32_t B; /* distance from old bottom edge to object's center */
+    gobj_t *gobj;
 
+    gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj) {
         LOG_ERROR("null gobj");
         return -EINVAL;
@@ -338,13 +340,13 @@ void apply_gobj_align(lv_obj_t *lobj)
  * Rotate object alignment by 90° clockwise.
  * Uses lookup table instead of switch-case for O(1) performance.
  */
-int32_t rotate_gobj_alignment_90(gobj_t *gobj)
+int32_t rotate_gobj_alignment_90(lv_obj_t *lobj)
 {
-    lv_obj_t *lobj;
     int8_t align;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
     static const int8_t align_rot90_map[] = {
@@ -386,10 +388,15 @@ int32_t rotate_gobj_alignment_90(gobj_t *gobj)
     return 0;
 }
 
-void rotate_alignment_offset_90(gobj_t *gobj)
+int32_t rotate_alignment_offset_90(lv_obj_t *lobj)
 {
     int32_t tmp_x_aln;
     int32_t tmp_scale_x;
+    gobj_t *gobj;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
 
     tmp_x_aln = gobj->align.x;
     tmp_scale_x = gobj->align.scale_x;
@@ -399,5 +406,7 @@ void rotate_alignment_offset_90(gobj_t *gobj)
 
     gobj->align.y = tmp_x_aln;
     gobj->align.scale_y = tmp_scale_x;
+
+    return 0;
 }
 

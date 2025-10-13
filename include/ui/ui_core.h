@@ -169,7 +169,7 @@ int32_t get_scr_width(void);
 int32_t get_scr_height(void);
 void *get_gobj_internal_data(lv_obj_t *lobj);
 int32_t store_computed_object_size(lv_obj_t *lobj);
-int32_t gobj_get_center(gobj_t *gobj, uint32_t par_w, uint32_t par_h);
+int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h);
 
 /*=====================
  * Other functions
@@ -178,7 +178,7 @@ gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
 int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
 int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
-int32_t remove_children(gobj_t *par);
+int32_t remove_children(lv_obj_t *par);
 int32_t init_ui_object_ctx(ctx_t *ctx);
 void destroy_ui_object_ctx(ctx_t *ctx);
 
@@ -200,12 +200,12 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
-int32_t refresh_obj_tree_layout(gobj_t *gobj);
-int32_t rotate_gobj_border_side_90(gobj_t *gobj);
-int32_t rotate_gobj_padding_90(gobj_t *gobj);
-int32_t rotate_gobj_alignment_90(gobj_t *gobj);
-void rotate_alignment_offset_90(gobj_t *gobj);
-int32_t rotate_gobj_size_90(gobj_t *gobj);
+int32_t refresh_obj_tree_layout(lv_obj_t *lobj);
+int32_t rotate_gobj_border_side_90(lv_obj_t *lobj);
+int32_t rotate_gobj_padding_90(lv_obj_t *lobj);
+int32_t rotate_gobj_alignment_90(lv_obj_t *lobj);
+int32_t rotate_alignment_offset_90(lv_obj_t *lobj);
+int32_t rotate_gobj_size_90(lv_obj_t *lobj);
 
 static inline gobj_t *get_gobj(lv_obj_t *lobj)
 {

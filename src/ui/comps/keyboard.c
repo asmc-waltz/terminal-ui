@@ -934,7 +934,7 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     act_map = map;
 
     if (get_scr_rotation() != ROTATION_0) {
-        refresh_obj_tree_layout(get_gobj(kb));
+        refresh_obj_tree_layout(kb);
     }
 
     return kb;
@@ -958,7 +958,7 @@ void remove_keyboard(ctx_t *ctx)
     if (ret)
         LOG_WARN("Keyboard object not found");
 
-    ret = refresh_obj_tree_layout(get_gobj(par));
+    ret = refresh_obj_tree_layout(par);
     if (ret)
         LOG_WARN("Unable to refresh after remove keyboard");
 }

@@ -69,13 +69,13 @@ static inline int32_t config_gobj_border_side(lv_obj_t *lobj, int32_t value)
  * Rotate object border sides by 90° clockwise.
  * Uses a lookup table for all 16 combinations of LV_BORDER_SIDE_* flags.
  */
-int32_t rotate_gobj_border_side_90(gobj_t *gobj)
+int32_t rotate_gobj_border_side_90(lv_obj_t *lobj)
 {
-    lv_obj_t *lobj;
+    gobj_t *gobj;
     lv_border_side_t current;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
     static const lv_border_side_t border_rot_table[16] = {

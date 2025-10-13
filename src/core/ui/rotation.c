@@ -49,12 +49,14 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static int8_t calc_rotation_turn(gobj_t *gobj)
+static int8_t calc_rotation_turn(lv_obj_t *lobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
     int8_t rot_cnt;
+    gobj_t *gobj;
 
+    gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
         return -EINVAL;
 
@@ -71,44 +73,43 @@ static int8_t calc_rotation_turn(gobj_t *gobj)
     return rot_cnt;
 }
 
-static int32_t rotate_gobj_alignment(gobj_t *gobj)
+static int32_t rotate_gobj_alignment(lv_obj_t *lobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
     int8_t rot_cnt;
 
-    if (!gobj)
+    if (!lobj)
         return -EINVAL;
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_gobj_alignment_90(gobj);
-        rotate_alignment_offset_90(gobj);
+        rotate_gobj_alignment_90(lobj);
+        rotate_alignment_offset_90(lobj);
     }
 
     return 0;
 }
 
-int32_t rotate_gobj_size(gobj_t *gobj)
+static int32_t rotate_gobj_size(lv_obj_t *lobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
 
-    if (!gobj) {
+    if (!lobj)
         return -EINVAL;
-    }
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_gobj_size_90(gobj);
+        rotate_gobj_size_90(lobj);
     }
 
     return 0;
@@ -118,28 +119,27 @@ int32_t rotate_gobj_size(gobj_t *gobj)
  * Common adjustment handler used after layout rotation.
  * Handles align, size, and positional recalculation for rotated objects.
  */
-static int32_t rotate_common_post_adjust(gobj_t *gobj)
+static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
 {
     int32_t par_w, par_h;
-    lv_obj_t *lobj;
     int32_t ret;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
-
-    int32_t rot_cnt = calc_rotation_turn(gobj);
+    int32_t rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        ret = rotate_gobj_border_side_90(gobj);
+        ret = rotate_gobj_border_side_90(lobj);
         if (ret)
             return ret;
 
-        ret = rotate_gobj_padding_90(gobj);
+        ret = rotate_gobj_padding_90(lobj);
         if (ret)
             return ret;
     }
@@ -172,7 +172,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
 
     /* Recalculate alignment values if needed */
     if (gobj->align.value != LV_ALIGN_DEFAULT) {
-        ret = rotate_gobj_alignment(gobj);
+        ret = rotate_gobj_alignment(lobj);
         if (ret)
             return -EINVAL;
     }
@@ -182,7 +182,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
      * Since the root coordinate does not change, the width and height
      * will be adjusted according to the logical rotation.
      */
-    ret = rotate_gobj_size(gobj);
+    ret = rotate_gobj_size(lobj);
     if (ret)
         return -EINVAL;
 
@@ -197,7 +197,7 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
         par_w = get_par_w(lobj);
         par_h = get_par_h(lobj);
 
-        ret = gobj_get_center(gobj, par_w, par_h);
+        ret = get_center(lobj, par_w, par_h);
         if (ret)
             return -EINVAL;
 
@@ -214,13 +214,13 @@ static int32_t rotate_common_post_adjust(gobj_t *gobj)
  * Rotate a base object (non-layout) such as keyboard or standalone widget.
  * The size and alignment logic depends on its ratio and orientation mode.
  */
-static int32_t rotate_base_gobj(gobj_t *gobj)
+static int32_t rotate_base_gobj(lv_obj_t *lobj)
 {
-    lv_obj_t *lobj;
     int32_t ret;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
     /*
@@ -235,30 +235,30 @@ static int32_t rotate_base_gobj(gobj_t *gobj)
      * For base objects, rotation only affects geometric and alignment data.
      * There is no layout type to verify, so skip type check.
      */
-    ret = rotate_common_post_adjust(gobj);
+    ret = rotate_common_post_adjust(lobj);
     if (ret)
         return ret;
 
     return 0;
 }
 
-static int32_t rotate_transform_gobj(gobj_t *gobj)
+static int32_t rotate_transform_gobj(lv_obj_t *lobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
     int32_t rot_val = 0;
-    lv_obj_t *lobj;
+    gobj_t *gobj;
 
-    lobj = get_lobj(gobj);
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
-    ret = rotate_gobj_size(gobj);
+    ret = rotate_gobj_size(lobj);
     if (ret) {
         return -EINVAL;
     }
 
-    ret = gobj_get_center(gobj, get_par_w(lobj), get_par_h(lobj));
+    ret = get_center(lobj, get_par_w(lobj), get_par_h(lobj));
     if (ret) {
         return -EINVAL;
     }
@@ -292,14 +292,14 @@ static int32_t rotate_transform_gobj(gobj_t *gobj)
  * Rotate grid layout object based on current and target screen rotation.
  * Handles pre/post redraw, layout config reapply, and post-adjust steps.
  */
-static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
+static int32_t rotate_grid_layout_gobj(lv_obj_t *lobj)
 {
     int32_t ret;
     int8_t rot_cnt;
-    lv_obj_t *lobj;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
     if (gobj->data.prerotate_cb) {
@@ -311,7 +311,7 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         }
     }
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
@@ -332,20 +332,18 @@ static int32_t rotate_grid_layout_gobj(gobj_t *gobj)
         return ret;
     }
 
-    return rotate_common_post_adjust(gobj);
+    return rotate_common_post_adjust(lobj);
 }
 
-static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
+static int32_t rotate_grid_cell_gobj(lv_obj_t *lobj)
 {
     int32_t ret;
     int8_t rot_cnt;
-    lv_obj_t *lobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
     if (!lobj)
         return -EINVAL;
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
 
     for (int8_t i = 0; i < rot_cnt; i++) {
         ret = rotate_grid_cell_pos_90(lobj);
@@ -372,20 +370,20 @@ static int32_t rotate_grid_cell_gobj(gobj_t *gobj)
  * Rotate flex layout object based on current and target screen rotation.
  * Includes pre/post rotation callbacks, flow update, and geometry adjust.
  */
-static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
+static int32_t rotate_flex_layout_gobj(lv_obj_t *lobj)
 {
     int32_t ret;
     int8_t rot_cnt;
-    lv_obj_t *lobj;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
     if (gobj->data.prerotate_cb)
         gobj->data.prerotate_cb(lobj);
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
@@ -413,7 +411,7 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
         return -EIO;
     }
 
-    ret = rotate_common_post_adjust(gobj);
+    ret = rotate_common_post_adjust(lobj);
     if (ret) {
         LOG_ERROR("Failed to rotate layout object position");
         return -EIO;
@@ -424,17 +422,15 @@ static int32_t rotate_flex_layout_gobj(gobj_t *gobj)
     return 0;
 }
 
-static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
+static int32_t rotate_flex_cell_gobj(lv_obj_t *lobj)
 {
     int32_t ret;
     int8_t rot_cnt;
-    lv_obj_t *lobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
     if (!lobj)
         return -EINVAL;
 
-    rot_cnt = calc_rotation_turn(gobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
@@ -460,19 +456,19 @@ static int32_t rotate_flex_cell_gobj(gobj_t *gobj)
     return 0;
 }
 
-static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
+static inline int32_t handle_gobj_layout_rotation(lv_obj_t *lobj)
 {
     int32_t ret;
 
-    if (!gobj)
+    if (!lobj)
         return -EINVAL;
 
-    switch (get_gobj_cell_type(gobj)) {
+    switch (get_obj_cell_type(lobj)) {
     case OBJ_GRID_CELL:
-        ret = rotate_grid_cell_gobj(gobj);
+        ret = rotate_grid_cell_gobj(lobj);
         break;
     case OBJ_FLEX_CELL:
-        ret = rotate_flex_cell_gobj(gobj);
+        ret = rotate_flex_cell_gobj(lobj);
         break;
     default:
         break;
@@ -483,20 +479,23 @@ static inline int32_t handle_gobj_layout_rotation(gobj_t *gobj)
         return ret;
     }
 
-    switch (get_gobj_layout_type(gobj)) {
+    switch (get_obj_layout_type(lobj)) {
     case OBJ_LAYOUT_GRID:
-        return rotate_grid_layout_gobj(gobj);
+        return rotate_grid_layout_gobj(lobj);
     case OBJ_LAYOUT_FLEX:
-        return rotate_flex_layout_gobj(gobj);
+        return rotate_flex_layout_gobj(lobj);
     default:
         break;
     }
 
-    return rotate_base_gobj(gobj);
+    return rotate_base_gobj(lobj);
 }
 
-static inline int32_t gobj_handle_transform(gobj_t *gobj)
+static inline int32_t gobj_handle_transform(lv_obj_t *lobj)
 {
+    gobj_t *gobj;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
     if (!gobj)
         return -EINVAL;
 
@@ -505,13 +504,13 @@ static inline int32_t gobj_handle_transform(gobj_t *gobj)
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            return handle_gobj_layout_rotation(gobj);
+            return handle_gobj_layout_rotation(lobj);
 
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
         case OBJ_TEXTAREA:
-            return rotate_transform_gobj(gobj);
+            return rotate_transform_gobj(lobj);
 
         default:
             LOG_WARN("Unhandled object type %d, skipping transform", \
@@ -520,13 +519,13 @@ static inline int32_t gobj_handle_transform(gobj_t *gobj)
     }
 }
 
-static int32_t gobj_refresh(gobj_t *gobj)
+static int32_t gobj_refresh(lv_obj_t *lobj)
 {
     int32_t ret;
-    lv_obj_t *lobj;
+    gobj_t *gobj;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
-    if (!lobj)
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
 
 
@@ -537,7 +536,7 @@ static int32_t gobj_refresh(gobj_t *gobj)
     // TODO: check obj type and update list flow, scale...
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
-    ret = gobj_handle_transform(gobj);
+    ret = gobj_handle_transform(lobj);
     if (ret) {
         LOG_ERROR("Failed to handle object refresh event, ret %d", ret);
         return ret;
@@ -548,19 +547,24 @@ static int32_t gobj_refresh(gobj_t *gobj)
     return 0;
 }
 
-static int32_t gobj_refresh_child(gobj_t *gobj)
+static int32_t gobj_refresh_child(lv_obj_t *lobj)
 {
-    gobj_t *gobj_child;
     int32_t ret;
     struct list_head *par_list;
+    gobj_t *gobj;
+    gobj_t *gobj_child;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
 
     par_list = &gobj->child;
 
     list_for_each_entry(gobj_child, par_list, node) {
-        ret = refresh_obj_tree_layout(gobj_child);
+        ret = refresh_obj_tree_layout(get_lobj(gobj_child));
         if (ret < 0) {
             LOG_ERROR("List: Object %d (%s) rotation failed", \
-                      gobj_child->id, gobj_child->name);
+                      gobj_child->id, get_gobj_name(gobj_child));
             return ret;
         }
     }
@@ -598,27 +602,33 @@ int32_t get_scr_rotation()
  * Although primarily used for rotation checks and updates, it may trigger
  * broader layout adjustments.
  */
-int32_t refresh_obj_tree_layout(gobj_t *gobj)
+int32_t refresh_obj_tree_layout(lv_obj_t *lobj)
 {
     int32_t ret;
+    gobj_t *gobj;
 
-    ret = gobj_refresh(gobj);
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+
+    ret = gobj_refresh(lobj);
     if (ret < 0) {
-        LOG_ERROR("Object [%s] id %d rotation failed", gobj->name, gobj->id);
+        LOG_ERROR("Object [%s] id %d rotation failed", \
+                  get_obj_name(lobj), gobj->id);
         return ret;
     }
 
-    ret = gobj_refresh_child(gobj);
+    ret = gobj_refresh_child(lobj);
     if (ret < 0) {
         LOG_ERROR("Object [%s] id %d: child rotation failed", \
-                  gobj->name, gobj->id);
+                  get_obj_name(lobj), gobj->id);
         return ret;
     }
 
-    if (get_gobj_layout_type(gobj) == OBJ_LAYOUT_FLEX) {
-        ret = scroll_to_first_child(get_lobj(gobj));
+    if (get_obj_layout_type(lobj) == OBJ_LAYOUT_FLEX) {
+        ret = scroll_to_first_child(lobj);
         if (ret)
-            LOG_WARN("Scroll [%s] to first child failed", gobj->name);
+            LOG_WARN("Scroll [%s] to first child failed", get_obj_name(lobj));
     }
 
     return 0;

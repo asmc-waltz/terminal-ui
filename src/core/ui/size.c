@@ -52,15 +52,16 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t rotate_gobj_size_90(gobj_t *gobj)
+int32_t rotate_gobj_size_90(lv_obj_t *lobj)
 {
     int32_t tmp_w;
     int32_t tmp_par_w_pct;
     int32_t tmp_w_scale;
+    gobj_t *gobj;
 
-    if (!gobj) {
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
         return -EINVAL;
-    }
 
     tmp_w = gobj->size.w;
     tmp_par_w_pct = gobj->size.par_w_pct;

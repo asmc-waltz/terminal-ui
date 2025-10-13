@@ -75,7 +75,7 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
         return -1;
     }
 
-    ret = remove_children(get_gobj(box));
+    ret = remove_children(box);
     if (ret <= 0) {
         LOG_ERROR("Unable to remove children of %s, ret %d", name, ret);
         return -1;

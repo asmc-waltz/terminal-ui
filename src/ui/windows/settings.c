@@ -67,7 +67,7 @@ static void menu_item_event_handler(lv_event_t *e)
         //                                &get_gobj(lv_screen_active())->child);
         // lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
         //
-        // refresh_obj_tree_layout(get_gobj(set));
+        // refresh_obj_tree_layout(set);
         break;
     case LV_EVENT_CLICKED:
         LV_LOG_USER("Box clicked!");

@@ -120,13 +120,13 @@ static inline int32_t apply_gobj_column_padding(lv_obj_t *lobj)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t rotate_gobj_padding_90(gobj_t *gobj)
+int32_t rotate_gobj_padding_90(lv_obj_t *lobj)
 {
-    lv_obj_t *lobj;
+    gobj_t *gobj;
     int32_t tmp_pad = 0;
     int32_t ret = 0;
 
-    lobj = gobj ? get_lobj(gobj) : NULL;
+    gobj = lobj ? get_gobj(lobj) : NULL;
     if (!lobj)
         return -EINVAL;
 
