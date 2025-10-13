@@ -53,6 +53,26 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static int32_t redraw_window_control_bar(lv_obj_t *lobj)
+{
+    gobj_t *gobj;
+    int32_t scr_rot, cur_rot;
+
+    gobj = lobj ? get_gobj(lobj) : NULL;
+    if (!gobj)
+        return -EINVAL;
+
+    cur_rot = gobj->data.rotation;
+    scr_rot = get_scr_rotation();
+
+    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    return 0;
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -119,3 +139,78 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name)
     return lobj;
 }
 
+/*
+ * Create the top control bar for a window.
+ * When the new window covers its parent, this bar may show
+ * a "Back" button and an optional "More" button.
+ */
+lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
+                                    bool back_btn_ena, bool more_btn_ena)
+{
+    lv_obj_t *lobj, *back_btn, *more_btn;
+
+    /** Validate input */
+    if (!par)
+        return NULL;
+
+    /** Create a horizontal flex group container */
+    lobj = create_horizontal_flex_group(par, name);
+    if (!lobj)
+        return NULL;
+
+    /** Basic configuration */
+    set_gobj_padding(lobj, 10, 10, 10, 10);
+    lv_obj_add_flag(lobj, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(lobj, LV_OBJ_FLAG_SCROLLABLE);
+
+    /** Register prerotate callback for redrawing after rotation */
+    if (get_gobj(par)->data.layout_type == OBJ_LAYOUT_FLEX)
+        set_flex_cell_data(lobj);
+    get_gobj(lobj)->data.prerotate_cb = redraw_window_control_bar;
+    lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+
+    /** Create "Back" button */
+    if (back_btn_ena) {
+        back_btn = create_text_box(lobj, \
+                                   NULL, \
+                                   &lv_font_montserrat_24, \
+                                   "< Back");
+        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000FF), 0);
+    } else {
+        back_btn = create_text_box(lobj, \
+                                   NULL, \
+                                   &lv_font_montserrat_24, \
+                                   " ");
+        lv_obj_clear_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
+    }
+
+    if (back_btn)
+        set_flex_cell_data(back_btn);
+    else
+        LOG_WARN("Object [%s]: Create BACK button failed", name);
+
+    /** Create "More" button */
+    if (more_btn_ena) {
+        more_btn = create_text_box(lobj, \
+                                   NULL, \
+                                   &lv_font_montserrat_24, \
+                                   "...");
+        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000FF), 0);
+    } else {
+        more_btn = create_text_box(lobj, \
+                                   NULL, \
+                                   &lv_font_montserrat_24, \
+                                   " ");
+        lv_obj_clear_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
+    }
+
+    if (more_btn)
+        set_flex_cell_data(more_btn);
+    else
+        LOG_WARN("Object [%s]: Create MORE button failed", name);
+
+    /** Return the completed control bar */
+    return lobj;
+}
