@@ -48,9 +48,26 @@
 /**********************
  *      MACROS
  **********************/
+
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static void switch_auto_brightness_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *lobj = lv_event_get_target(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        lv_obj_t *manual_brightness = get_obj_by_name("BRIGHTNESS-MANUAL", \
+                                       &get_gobj(lv_screen_active())->child);
+        LV_LOG_USER("State: %s\n", lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
+        if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
+            lv_obj_add_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_clear_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+}
+
 static int32_t create_brightness_setting_items(lv_obj_t *par)
 {
     lv_obj_t *group, *sym, *label, *swit;
@@ -85,8 +102,12 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
         set_flex_cell_data(label);
 
     swit = create_switch_box(group, NULL);
-    if (swit)
+    if (swit) {
         set_flex_cell_data(swit);
+        lv_obj_add_event_cb(get_box_child(swit), \
+                            switch_auto_brightness_event_handler, \
+                            LV_EVENT_ALL, NULL);
+    }
 
     /* Section: Auto brightness toggle */
     group = create_horizontal_flex_group(par, "BRIGHTNESS-MANUAL");
