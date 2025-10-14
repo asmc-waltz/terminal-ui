@@ -109,6 +109,7 @@ int32_t ui_main_init(ctx_t *ctx)
 {
     lv_timer_t *task_timer = NULL;
     lv_obj_t *com_scr = NULL;
+    obj_meta_t *meta = NULL;
     int32_t ret;
 
     ret = init_ui_object_ctx(ctx);
@@ -144,10 +145,37 @@ int32_t ui_main_init(ctx_t *ctx)
     lv_timer_ready(task_timer);
 
     // Initialize LVGL layers as base components
-    register_obj(NULL, lv_layer_sys(), NULL);
-    register_obj(NULL, lv_layer_top(), NULL);
-    register_obj(NULL, lv_screen_active(), NULL);
-    register_obj(NULL, lv_layer_bottom(), NULL);
+    meta = register_obj(NULL, lv_layer_sys(), NULL);
+    if (meta) {
+        meta->theme.level = 0;
+    } else {
+        LOG_FATAL("Register system layout metadata failed");
+        return -ENOMEM;
+    }
+
+    meta = register_obj(NULL, lv_layer_top(), NULL);
+    if (meta) {
+        meta->theme.level = 0;
+    } else {
+        LOG_FATAL("Register top layer metadata failed");
+        return -ENOMEM;
+    }
+
+    meta = register_obj(NULL, lv_screen_active(), NULL);
+    if (meta) {
+        meta->theme.level = 0;
+    } else {
+        LOG_FATAL("Register screen active metadata failed");
+        return -ENOMEM;
+    }
+
+    meta = register_obj(NULL, lv_layer_bottom(), NULL);
+    if (meta) {
+        meta->theme.level = 0;
+    } else {
+        LOG_FATAL("Register bottom layer metadata failed");
+        return -ENOMEM;
+    }
 
     com_scr = create_common_screen(ctx, lv_screen_active(), LAYOUT_SETTING);
     if (!com_scr) {

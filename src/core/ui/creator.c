@@ -99,6 +99,8 @@ static lv_obj_t *create_meta(lv_obj_t *par, int32_t type, \
 
     meta->data.rotation = ROTATION_0;
     meta->align.value = LV_ALIGN_DEFAULT;
+    // Each child object will have a level increased by one from its parent
+    meta->theme.level = get_meta(par)->theme.level + 1;
     ret = set_obj_type(lobj, type);
     if (ret) {
         LOG_ERROR("Object [%s] set type failed", get_name(lobj));
