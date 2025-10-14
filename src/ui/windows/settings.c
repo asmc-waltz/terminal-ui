@@ -32,6 +32,12 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct {
+    lv_obj_t *menu_ctn;
+    lv_obj_t *detail_ctn;
+    bool hid_detail;            // Hide detail setting in vertical screen;
+    lv_obj_t *act_menu_item;
+} widget_menu_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -334,7 +340,6 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
 lv_obj_t *create_setting_window(lv_obj_t *par)
 {
     lv_obj_t *lobj;
@@ -343,13 +348,37 @@ lv_obj_t *create_setting_window(lv_obj_t *par)
     if (!par)
         return NULL;
 
+    /*-----------------------------------------
+     * Create menu container using grid layout
+     *----------------------------------------*/
     lobj = create_grid_layout_object(par, WINDOW_SETTING);
     if (!lobj)
         return NULL;
 
-    lv_obj_set_style_radius(lobj, 16, 0);
-    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(40)), 0);
+    ret = add_grid_layout_row_dsc(lobj, LV_GRID_FR(98));
+    if (ret)
+        LOG_ERROR("Layout [%s] Row descriptor failed", get_name(lobj));
 
+    ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(35));
+    if (ret)
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(lobj));
+
+    ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(65));
+    if (ret)
+        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(lobj));
+
+    apply_grid_layout_config(lobj);
+
+    set_grid_layout_align(lobj, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+
+    /*-----------------------------------------
+     * Base style setup
+     *----------------------------------------*/
+    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(80)), 0);
+    lv_obj_set_style_radius(lobj, 16, 0);
+    set_column_padding(lobj, 8);
     ret = set_padding(lobj, 20, 20, 20, 20);
     if (ret)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
@@ -367,27 +396,6 @@ int32_t create_setting_content(lv_obj_t *window)
 
     if (!window)
         return -EINVAL;
-
-    ret = add_grid_layout_row_dsc(window, LV_GRID_FR(98));
-    if (ret)
-        LOG_ERROR("Layout [%s] Row descriptor failed", get_name(window));
-
-    ret = add_grid_layout_col_dsc(window, LV_GRID_FR(35));
-    if (ret)
-        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(window));
-
-    ret = add_grid_layout_col_dsc(window, LV_GRID_FR(65));
-    if (ret)
-        LOG_ERROR("Layout [%s] Column descriptor failed", get_name(window));
-
-    apply_grid_layout_config(window);
-    set_grid_layout_align(window, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-    set_column_padding(window, 8);
-    set_padding(window, 20, 20, 20, 20);
-    lv_obj_set_style_bg_color(window, lv_color_hex(bg_color(80)), 0);
-
 
     menu = create_menu_bar(window, WINDOW_SETTING".menu");
     set_grid_cell_align(menu, \
