@@ -47,10 +47,10 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
+static lv_obj_t *create_meta(lv_obj_t *par, int32_t type, \
                                      const char *name)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     lv_obj_t *lobj = NULL;
     type_t par_type = OBJ_NONE;
     int32_t ret = -EINVAL;
@@ -91,14 +91,14 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
         return NULL;
     }
 
-    gobj = register_obj(par, lobj, name);
-    if (!gobj) {
-        LOG_ERROR("Object [%s] register gobj failed", name);
+    meta = register_obj(par, lobj, name);
+    if (!meta) {
+        LOG_ERROR("Object [%s] register meta failed", name);
         goto out_err;
     }
 
-    gobj->data.rotation = ROTATION_0;
-    gobj->align.value = LV_ALIGN_DEFAULT;
+    meta->data.rotation = ROTATION_0;
+    meta->align.value = LV_ALIGN_DEFAULT;
     ret = set_obj_type(lobj, type);
     if (ret) {
         LOG_ERROR("Object [%s] set type failed", get_name(lobj));
@@ -115,7 +115,7 @@ static lv_obj_t *create_gobj(lv_obj_t *par, int32_t type, \
     if (ret)
         LOG_ERROR("Object [%s] set cell type failed", get_name(lobj));
 
-    return get_lobj(gobj);
+    return get_lobj(meta);
 
 out_err:
     // TODO: clean mem
@@ -127,7 +127,7 @@ out_err:
  **********************/
 lv_obj_t *create_box(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *lobj = create_gobj(par, OBJ_BOX, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_BOX, name);
     lv_obj_set_style_pad_all(lobj, 0, 0);
     lv_obj_set_style_pad_gap(lobj, 0, 0);
     lv_obj_set_style_border_width(lobj, 0, 0);
@@ -163,7 +163,7 @@ lv_obj_t *create_text(lv_obj_t *par, const char *name, \
                           const lv_font_t *font, const char *txt_str)
 {
     int32_t w, h;
-    lv_obj_t *lobj = create_gobj(par, OBJ_LABEL, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_LABEL, name);
     LV_ASSERT_NULL(lobj);
     lv_obj_set_style_text_font(lobj, font, 0);
     lv_label_set_text_fmt(lobj, "%s", txt_str);
@@ -193,7 +193,7 @@ lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
 
     text = create_text(box, NULL, font, str);
     if (!text) {
-        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_meta(par)->child);
         return NULL;
     }
 
@@ -210,7 +210,7 @@ lv_obj_t *create_sym(lv_obj_t *par, const char *name, \
 {
 
     int32_t w, h;
-    lv_obj_t *lobj = create_gobj(par, OBJ_ICON, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_ICON, name);
     LV_ASSERT_NULL(lobj);
     lv_obj_set_style_text_font(lobj, font, 0);
     lv_label_set_text(lobj, index);
@@ -242,7 +242,7 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
 
     icon = create_sym(box, NULL, font, index);
     if (!icon) {
-        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_meta(par)->child);
         return NULL;
     }
 
@@ -257,7 +257,7 @@ lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
 lv_obj_t *create_switch(lv_obj_t *par, const char *name)
 {
     int32_t w, h;
-    lv_obj_t *lobj = create_gobj(par, OBJ_SWITCH, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_SWITCH, name);
     LV_ASSERT_NULL(lobj);
     lv_obj_update_layout(lobj);
     w = lv_obj_get_width(lobj);
@@ -284,7 +284,7 @@ lv_obj_t *create_switch_box(lv_obj_t *par, const char *name)
 
     swit = create_switch(box, NULL);
     if (!swit) {
-        remove_obj_and_child_by_name(name, &get_gobj(par)->child);
+        remove_obj_and_child_by_name(name, &get_meta(par)->child);
         return NULL;
     }
 
@@ -296,14 +296,14 @@ lv_obj_t *create_switch_box(lv_obj_t *par, const char *name)
 
 lv_obj_t *create_textarea(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *lobj = create_gobj(par, OBJ_TEXTAREA, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_TEXTAREA, name);
     LV_ASSERT_NULL(lobj);
     return lobj;
 }
 
 lv_obj_t *create_btn(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *lobj = create_gobj(par, OBJ_BTN, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_BTN, name);
     LV_ASSERT_NULL(lobj);
 
     lv_obj_set_style_pad_all(lobj, 0, 0);
@@ -316,15 +316,15 @@ lv_obj_t *create_btn(lv_obj_t *par, const char *name)
 
 int32_t redraw_slider_layout(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
     int32_t scr_rot, cur_rot;
     int32_t min, max;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
-    cur_rot = gobj->data.rotation;
+    cur_rot = meta->data.rotation;
     scr_rot = get_scr_rotation();
 
     if (((scr_rot == ROTATION_0 || scr_rot == ROTATION_270) &&
@@ -342,10 +342,10 @@ int32_t redraw_slider_layout(lv_obj_t *lobj)
 
 lv_obj_t *create_slider(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *lobj = create_gobj(par, OBJ_SLIDER, name);
+    lv_obj_t *lobj = create_meta(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
 
-    get_gobj(lobj)->data.prerotate_cb = redraw_slider_layout;
+    get_meta(lobj)->data.prerotate_cb = redraw_slider_layout;
 
     return lobj;
 }

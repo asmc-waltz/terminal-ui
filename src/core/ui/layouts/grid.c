@@ -344,7 +344,7 @@ static int32_t check_and_delete_invalid_cell_object(lv_obj_t *lobj, dsc_op_t typ
               conf->col.index, conf->col.max);
 
     ret = remove_obj_and_child_by_name(get_name(lobj), \
-                                       &get_gobj(par)->child);
+                                       &get_meta(par)->child);
     if (ret) {
         LOG_WARN("Cell [%s] remove failed, ret %d", get_name(lobj), ret);
         return ret;
@@ -363,18 +363,18 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
 {
     grid_desc_t *r_dsc, *c_dsc;
     grid_cell_t *conf;
-    gobj_t *gobj, *p_obj, *n;
+    obj_meta_t *meta, *child_meta, *tmp;
     int8_t r_index_ofs = 0, c_index_ofs = 0;
     int32_t ret, scr_rot;
 
     if (!lobj)
         return -EINVAL;
 
-    gobj = get_gobj(lobj);
-    if (!gobj)
+    meta = get_meta(lobj);
+    if (!meta)
         return -EINVAL;
 
-    if (list_empty(&gobj->child))
+    if (list_empty(&meta->child))
         return 0;
 
     r_dsc = get_layout_row_dsc_data(lobj);
@@ -400,15 +400,15 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
             c_index_ofs = -1;
     }
 
-    list_for_each_entry_safe(p_obj, n, &gobj->child, node) {
-        if (get_gobj_cell_type(p_obj) != OBJ_GRID_CELL)
+    list_for_each_entry_safe(child_meta, tmp, &meta->child, node) {
+        if (get_meta_cell_type(child_meta) != OBJ_GRID_CELL)
             continue;
 
-        ret = check_and_delete_invalid_cell_object(get_lobj(p_obj), type);
+        ret = check_and_delete_invalid_cell_object(get_lobj(child_meta), type);
         if (ret == -ENOENT)
             continue; /* No problem, object was removed */
 
-        ret = config_grid_cell_position(get_lobj(p_obj), \
+        ret = config_grid_cell_position(get_lobj(child_meta), \
                                               r_dsc->size - 1, \
                                               r_index_ofs, \
                                               c_dsc->size - 1, \
@@ -416,13 +416,13 @@ static int32_t refresh_grid_layout_cells_position(lv_obj_t *lobj, \
                                               );
         if (ret) {
             LOG_WARN("Cell [%s] configuration refresh failed, ret %d",
-                     get_gobj_name(p_obj), ret);
+                     get_meta_name(child_meta), ret);
         }
 
-        ret = apply_grid_cell_align_and_pos(get_lobj(p_obj));
+        ret = apply_grid_cell_align_and_pos(get_lobj(child_meta));
         if (ret) {
             LOG_WARN("Cell [%s] configuration apply failed, ret %d",
-                     get_gobj_name(p_obj), ret);
+                     get_meta_name(child_meta), ret);
         }
     }
 
@@ -475,7 +475,7 @@ int32_t config_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
                   get_name(lobj));
     }
 
-    get_gobj(lobj)->layout.cell_data = conf;
+    get_meta(lobj)->layout.cell_data = conf;
 
     conf->col.index = col_pos;
     conf->col.max = col_max;
@@ -589,7 +589,7 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
         return -EIO;
 
     LOG_TRACE("Cell [%s] rotate 90:\tFrom row-col \t[%d][%d]", \
-              get_gobj(lobj)->name, r_cell->index, c_cell->index);
+              get_meta(lobj)->name, r_cell->index, c_cell->index);
 
     ret = config_grid_cell_align(lobj, \
                                  r_cell->align, \
@@ -603,7 +603,7 @@ int32_t rotate_grid_cell_pos_90(lv_obj_t *lobj)
                                  );
 
     LOG_TRACE("Cell [%s] rotate 90:\tTo row-col \t[%d][%d]", \
-              get_gobj(lobj)->name, r_cell->index, c_cell->index);
+              get_meta(lobj)->name, r_cell->index, c_cell->index);
 
     if (ret)
         return ret;
@@ -778,7 +778,7 @@ lv_obj_t *create_grid_layout_object(lv_obj_t *par, const char *name)
     if (!cont)
         goto out_free_col_dsc;
 
-    get_gobj(cont)->layout.data = conf;
+    get_meta(cont)->layout.data = conf;
 
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_center(cont);

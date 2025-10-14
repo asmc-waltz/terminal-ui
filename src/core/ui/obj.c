@@ -65,44 +65,44 @@
  * root level; otherwise, it is added as a child of @par. The user_data of
  * @obj is set to point to the created g_obj.
  *
- * Return: Pointer to the created gobj_t on success, NULL on failure.
+ * Return: Pointer to the created obj_meta_t on success, NULL on failure.
  */
-gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
+obj_meta_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 {
     struct list_head *parent_list;
-    gobj_t *new_obj;
+    obj_meta_t *meta;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!obj)
         return NULL;
 
-    new_obj = calloc(1, sizeof(gobj_t));
-    if (!new_obj)
+    meta = calloc(1, sizeof(obj_meta_t));
+    if (!meta)
         return NULL;
 
     if (name) {
-        new_obj->name = strdup(name);
-        if (!new_obj->name) {
-            free(new_obj);
+        meta->name = strdup(name);
+        if (!meta->name) {
+            free(meta);
             return NULL;
         }
     } else {
-        new_obj->name = NULL;
+        meta->name = NULL;
     }
 
-    new_obj->id = obj_ctx->next_id++;
-    new_obj->obj = obj;
-    obj->user_data = new_obj;
-    new_obj->data.parent = (!par) ? NULL : get_gobj(par);
+    meta->id = obj_ctx->next_id++;
+    meta->obj = obj;
+    obj->user_data = meta;
+    meta->data.par_meta = (!par) ? NULL : get_meta(par);
 
 
-    INIT_LIST_HEAD(&new_obj->child);
+    INIT_LIST_HEAD(&meta->child);
 
-    parent_list = (!par) ? &obj_ctx->list : &get_gobj(par)->child;
+    parent_list = (!par) ? &obj_ctx->list : &get_meta(par)->child;
 
-    list_add_tail(&new_obj->node, parent_list);
+    list_add_tail(&meta->node, parent_list);
 
-    return new_obj;
+    return meta;
 }
 
 /*
@@ -119,7 +119,7 @@ gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    gobj_t *obj;
+    obj_meta_t *meta;
     lv_obj_t *found = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
@@ -129,14 +129,14 @@ lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
         return NULL;
     }
 
-    list_for_each_entry(obj, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry(meta, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->id == req_id)
-            return obj->obj;
+        if (meta->id == req_id)
+            return meta->obj;
 
-        found = get_obj_by_id(req_id, &obj->child);
+        found = get_obj_by_id(req_id, &meta->child);
         if (found)
             return found;
     }
@@ -148,7 +148,7 @@ lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    gobj_t *obj;
+    obj_meta_t *meta;
     lv_obj_t *found = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
@@ -161,25 +161,25 @@ lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
         return NULL;
     }
 
-    list_for_each_entry(obj, scan_list, node) {
-        LOG_TRACE("Finding name %s: checking %d %s", name, obj->id, obj->name);
-        if (!obj->id) {
+    list_for_each_entry(meta, scan_list, node) {
+        LOG_TRACE("Finding name %s: checking %d %s", name, meta->id, meta->name);
+        if (!meta->id) {
             LOG_TRACE("Finding name %s: check %d %s: CONTINUE", \
-                      name, obj->id, obj->name);
+                      name, meta->id, meta->name);
             continue;
         }
 
-        if (obj->name && strcmp(obj->name, name) == 0) {
+        if (meta->name && strcmp(meta->name, name) == 0) {
 
             LOG_TRACE("Finding name %s: check %d %s: OBJ FOUND", \
-                      name, obj->id, obj->name);
-            return get_lobj(obj);
+                      name, meta->id, meta->name);
+            return get_lobj(meta);
         }
 
-        found = get_obj_by_name(name, &obj->child);
+        found = get_obj_by_name(name, &meta->child);
         if (found) {
             LOG_TRACE("Finding name %s: check list %d %s: OBJ FROM DEEPER LEVEL", \
-                      name, get_gobj(found)->id, get_gobj(found)->name);
+                      name, get_meta(found)->id, get_meta(found)->name);
             return found;
         }
     }
@@ -203,7 +203,7 @@ int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    gobj_t *obj;
+    obj_meta_t *meta;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!name)
@@ -215,16 +215,16 @@ int32_t remove_obj_and_child_by_name(const char *name, \
         return -1;
     }
 
-    list_for_each_entry(obj, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry(meta, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->name && strcmp(obj->name, name) == 0) {
-            LOG_TRACE("Removing object by name: %s (ID %u)", name, obj->id);
-            return remove_obj_and_child(obj->id, scan_list);
+        if (meta->name && strcmp(meta->name, name) == 0) {
+            LOG_TRACE("Removing object by name: %s (ID %u)", name, meta->id);
+            return remove_obj_and_child(meta->id, scan_list);
         }
 
-        int32_t ret = remove_obj_and_child_by_name(name, &obj->child);
+        int32_t ret = remove_obj_and_child_by_name(name, &meta->child);
         if (ret == 0)   /* found and deleted by name */
             return 0;
     }
@@ -255,8 +255,8 @@ int32_t remove_obj_and_child_by_name(const char *name, \
 int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
-    gobj_t *obj = NULL;
-    gobj_t *tmp = NULL;
+    obj_meta_t *meta = NULL;
+    obj_meta_t *tmp = NULL;
     obj_ctx_t *obj_ctx = &get_ctx()->objs;
     int32_t removed = 0;
 
@@ -267,33 +267,32 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
     }
 
     LOG_TRACE("Removing object%s",
-        head_lst ? " (scan from parent)" : " (scan from root)");
+              head_lst ? " (scan from parent)" : " (scan from root)");
 
-    list_for_each_entry_safe(obj, tmp, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry_safe(meta, tmp, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->id == req_id || req_id == ID_NOID) {
-            if (obj->id == req_id)
-                LOG_TRACE("ID %u: found, deleting...", obj->id);
+        if (meta->id == req_id || req_id == ID_NOID) {
+            if (meta->id == req_id)
+                LOG_TRACE("ID %u: found, deleting...", meta->id);
 
             /* Remove all children first */
-            int32_t child_removed = remove_obj_and_child(ID_NOID,
-                &obj->child);
+            int32_t child_removed = remove_obj_and_child(ID_NOID, &meta->child);
             if (child_removed > 0)
                 removed += child_removed;
 
-            if (lv_obj_is_valid(get_lobj(obj))) {
-                LOG_TRACE("ID %u: deleting LVGL object", obj->id);
-                lv_obj_delete(get_lobj(obj));
+            if (lv_obj_is_valid(get_lobj(meta))) {
+                LOG_TRACE("ID %u: deleting LVGL object", meta->id);
+                lv_obj_delete(get_lobj(meta));
             }
 
-            LOG_TRACE("DELETE obj ID %d - name %s", obj->id,
-                obj->name ? obj->name : "(null)");
-            list_del(&obj->node);
-            if (obj->name)
-                free(obj->name);
-            free(obj);
+            LOG_TRACE("DELETE obj ID %d - name %s", meta->id,
+                      meta->name ? meta->name : "(null)");
+            list_del(&meta->node);
+            if (meta->name)
+                free(meta->name);
+            free(meta);
 
             removed++;
 
@@ -306,7 +305,7 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
         }
 
         /* Recursive search in children */
-        int32_t ret = remove_obj_and_child(req_id, &obj->child);
+        int32_t ret = remove_obj_and_child(req_id, &meta->child);
         if (req_id != ID_NOID && ret == 0)
             return 0;       /* Found and deleted by ID */
         if (req_id == ID_NOID && ret > 0)
@@ -331,13 +330,13 @@ int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  */
 int32_t remove_children(lv_obj_t *par)
 {
-    gobj_t *gobj_par;
+    obj_meta_t *par_meta;
 
-    gobj_par = par ? get_gobj(par) : NULL;
-    if (!gobj_par)
+    par_meta = par ? get_meta(par) : NULL;
+    if (!par_meta)
         return -EINVAL;
 
-    return remove_obj_and_child(ID_NOID, &gobj_par->child);
+    return remove_obj_and_child(ID_NOID, &par_meta->child);
 }
 
 /**
@@ -371,32 +370,32 @@ void destroy_ui_object_ctx(ctx_t *ctx)
 
 void set_internal_data(lv_obj_t *lobj, void *data)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
     if (!lobj) {
         LOG_ERROR("lv_obj_t object invalid");
         return;
     }
 
-    gobj = get_gobj(lobj);
-    if (!gobj) {
-        LOG_ERROR("gobj_t object invalid");
+    meta = get_meta(lobj);
+    if (!meta) {
+        LOG_ERROR("Metadata is invalid");
         return;
     }
 
-    gobj->data.internal = data;
+    meta->data.internal = data;
 }
 
 void *get_internal_data(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
     if (!lobj)
         return NULL;
 
-    gobj = get_gobj(lobj);
-    if (!gobj)
+    meta = get_meta(lobj);
+    if (!meta)
         return NULL;
 
-    return gobj->data.internal;
+    return meta->data.internal;
 }

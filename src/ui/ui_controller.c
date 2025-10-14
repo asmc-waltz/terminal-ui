@@ -160,7 +160,7 @@ int32_t ui_main_init(ctx_t *ctx)
         return -EIO;
     }
 
-    LOG_DEBUG("size of gobj_t: %d", sizeof(gobj_t));
+    LOG_DEBUG("size of obj_meta_t: %d", sizeof(obj_meta_t));
     LOG_DEBUG("size of ctx_t: %d", sizeof(ctx_t));
 
     return 0;

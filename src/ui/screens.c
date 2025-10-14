@@ -187,7 +187,7 @@ static void rotate_key_handler(lv_event_t *event)
     static bool new_window = false;
 
     lv_obj_t *kb = get_obj_by_name(COMPS_KEYBOARD, \
-                                   &get_gobj(lv_screen_active())->child);
+                                   &get_meta(lv_screen_active())->child);
 
     set_scr_rotation(get_random_3());
 
@@ -205,7 +205,7 @@ static void rotate_key_handler(lv_event_t *event)
     refresh_obj_tree_layout(ctx->scr.now.obj);
 
     lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-                                   &get_gobj(lv_screen_active())->child);
+                                   &get_meta(lv_screen_active())->child);
 
     int32_t scr_rot = get_scr_rotation();
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
@@ -243,7 +243,7 @@ static void rotate_key_handler(lv_event_t *event)
                             LV_GRID_ALIGN_STRETCH, 0, 1,
                             LV_GRID_ALIGN_STRETCH, 0, 1);
             // TODO: cheating for wrapper
-            get_gobj(detail)->data.rotation = ROTATION_180;
+            get_meta(detail)->data.rotation = ROTATION_180;
         }
 
         lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
@@ -271,7 +271,7 @@ static void create_keyboard_handler(lv_event_t *event)
     bool is_vert;
 
     top_layout = get_obj_by_name(LAYOUT_SETTING, \
-                    &get_gobj(lv_screen_active())->child);
+                    &get_meta(lv_screen_active())->child);
     scr_rot = get_scr_rotation();
     is_vert = (scr_rot == ROTATION_0 || scr_rot == ROTATION_180);
 
@@ -291,7 +291,7 @@ static void create_keyboard_handler(lv_event_t *event)
     apply_grid_layout_config(top_layout);
 
     kb = get_obj_by_name(COMPS_KEYBOARD, \
-            &get_gobj(lv_screen_active())->child);
+            &get_meta(lv_screen_active())->child);
 
     if (!kb) {
         kb = create_keyboard(keyboard_box);
@@ -404,7 +404,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     /* Rotate test button */
     btn = create_btn(lv_layer_top(), "btn.rotate");
-    lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, get_gobj(btn));
+    lv_obj_add_event_cb(btn, rotate_key_handler, LV_EVENT_CLICKED, get_meta(btn));
     set_size(btn, 54, 54);
     set_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -150, 0);
 
@@ -413,7 +413,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
 
     /* Keyboard test button */
     btn = create_btn(lv_layer_top(), "btn.keyboard");
-    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_gobj(btn));
+    lv_obj_add_event_cb(btn, create_keyboard_handler, LV_EVENT_CLICKED, get_meta(btn));
     set_size(btn, 54, 54);
     set_align(btn, lv_layer_top(), LV_ALIGN_TOP_RIGHT, -50, 0);
 

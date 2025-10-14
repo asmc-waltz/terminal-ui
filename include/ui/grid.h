@@ -99,7 +99,7 @@ int32_t apply_grid_layout_config(lv_obj_t *lobj);
 
 static inline grid_layout_t *get_grid_layout_data(lv_obj_t *lobj)
 {
-    return lobj ? (grid_layout_t *)get_gobj(lobj)->layout.data : NULL;
+    return lobj ? (grid_layout_t *)get_meta(lobj)->layout.data : NULL;
 }
 
 static inline grid_desc_t *get_layout_row_dsc_data(lv_obj_t *lobj)
@@ -128,7 +128,7 @@ static inline lv_grid_align_t *get_layout_col_align(lv_obj_t *lobj)
 
 static inline grid_cell_t *get_grid_cell_data(lv_obj_t *lobj)
 {
-    return lobj ? (grid_cell_t *)get_gobj(lobj)->layout.cell_data : NULL;
+    return lobj ? (grid_cell_t *)get_meta(lobj)->layout.cell_data : NULL;
 }
 
 static inline grid_rc_t *get_cell_row_data(lv_obj_t *lobj)

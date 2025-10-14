@@ -63,11 +63,11 @@
  *  - covers all old_rot -> scr_rot combinations (12 mappings),
  *  - validates inputs,
  *  - computes new midpoint using local variables,
- *  - validates result before updating gobj state (atomic update),
+ *  - validates result before updating meta state (atomic update),
  *  - logs clearly.
  *
  * Returns:
- *  0        -> success (gobj updated)
+ *  0        -> success (meta updated)
  *  -EINVAL  -> bad input
  *  -ERANGE  -> computed midpoint is out of new parent bounds
  */
@@ -83,16 +83,16 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
     int32_t T; /* distance from old top edge  to object's center */
     int32_t R; /* distance from old right edge to object's center */
     int32_t B; /* distance from old bottom edge to object's center */
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj) {
-        LOG_ERROR("null gobj");
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta) {
+        LOG_ERROR("null meta");
         return -EINVAL;
     }
 
     scr_rot = get_scr_rotation();
-    old_rot = gobj->data.rotation;
+    old_rot = meta->data.rotation;
 
     /* nothing to do if rotation unchanged */
     if (scr_rot == old_rot)
@@ -107,16 +107,16 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
     }
 
     /* cache old parent geometry and gaps */
-    old_pw = gobj->align.par_w;
-    old_ph = gobj->align.par_h;
-    L = gobj->align.mid_x;
-    T = gobj->align.mid_y;
+    old_pw = meta->align.par_w;
+    old_ph = meta->align.par_h;
+    L = meta->align.mid_x;
+    T = meta->align.mid_y;
     R = old_pw - L;
     B = old_ph - T;
 
     LOG_TRACE("obj id=%d %s - old_rot=%d -> scr_rot=%d, "
               "old_pw=%d old_ph=%d, L=%d T=%d R=%d B=%d, "
-              "new_par=(%d,%d)", gobj->id, gobj->name,
+              "new_par=(%d,%d)", meta->id, meta->name,
               old_rot, scr_rot, old_pw, old_ph, L, T, R, B, par_w, par_h);
 
     /* === mapping table: old_rot -> scr_rot ===
@@ -193,12 +193,12 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
         return -ERANGE;
     }
 
-    /* Atomic update of gobj position state */
-    gobj->align.mid_x = new_x_mid;
-    gobj->align.mid_y = new_y_mid;
-    gobj->align.par_w = par_w;
-    gobj->align.par_h = par_h;
-    gobj->data.rotation = scr_rot;
+    /* Atomic update of meta position state */
+    meta->align.mid_x = new_x_mid;
+    meta->align.mid_y = new_y_mid;
+    meta->align.par_w = par_w;
+    meta->align.par_h = par_h;
+    meta->data.rotation = scr_rot;
 
     LOG_TRACE("success new_mid=(%d,%d) new_par=(%d,%d) rot=%d",
               new_x_mid, new_y_mid, par_w, par_h, scr_rot);
@@ -208,23 +208,23 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h)
 
 void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
     lv_obj_set_pos(lobj, x_ofs, y_ofs);
 
-    gobj = get_gobj(lobj);
-    if (!gobj->size.w)
+    meta = get_meta(lobj);
+    if (!meta->size.w)
         LOG_WARN("Cannot calculate the center x");
-    if (!gobj->size.h)
+    if (!meta->size.h)
         LOG_WARN("Cannot calculate the center y");
-    gobj->align.mid_x = x_ofs + (gobj->size.w / 2);
-    gobj->align.mid_y = y_ofs + (gobj->size.h / 2);
+    meta->align.mid_x = x_ofs + (meta->size.w / 2);
+    meta->align.mid_y = y_ofs + (meta->size.h / 2);
 }
 
 void set_pos_center(lv_obj_t *lobj)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     lv_obj_t *par;
     int32_t x_ofs, y_ofs;
 
@@ -241,99 +241,99 @@ void set_pos_center(lv_obj_t *lobj)
 void set_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs_px, int32_t y_ofs_px)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
-    gobj->align.value = align;
-    gobj->align.base = base;
-    gobj->align.x = x_ofs_px;
-    gobj->align.y = y_ofs_px;
-    gobj->align.scale_x = DIS_SCALE;
-    gobj->align.scale_y = DIS_SCALE;
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
+    meta->align.value = align;
+    meta->align.base = base;
+    meta->align.x = x_ofs_px;
+    meta->align.y = y_ofs_px;
+    meta->align.scale_x = DIS_SCALE;
+    meta->align.scale_y = DIS_SCALE;
 
-    apply_gobj_align(lobj);
+    apply_meta_align(lobj);
 }
 
 void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_pct, int32_t y_ofs_px)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->align.value = align;
-    gobj->align.base = base;
-    gobj->align.x = x_ofs_pct;
-    gobj->align.y = y_ofs_px;
-    gobj->align.scale_x = ENA_SCALE;
-    gobj->align.scale_y = DIS_SCALE;
+    meta->align.value = align;
+    meta->align.base = base;
+    meta->align.x = x_ofs_pct;
+    meta->align.y = y_ofs_px;
+    meta->align.scale_x = ENA_SCALE;
+    meta->align.scale_y = DIS_SCALE;
 
-    apply_gobj_align(lobj);
+    apply_meta_align(lobj);
 }
 
 void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->align.value = align;
-    gobj->align.base = base;
-    gobj->align.x = x_ofs_px;
-    gobj->align.y = y_ofs_pct;
-    gobj->align.scale_x = DIS_SCALE;
-    gobj->align.scale_y = ENA_SCALE;
+    meta->align.value = align;
+    meta->align.base = base;
+    meta->align.x = x_ofs_px;
+    meta->align.y = y_ofs_pct;
+    meta->align.scale_x = DIS_SCALE;
+    meta->align.scale_y = ENA_SCALE;
 
-    apply_gobj_align(lobj);
+    apply_meta_align(lobj);
 }
 
 void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->align.value = align;
-    gobj->align.base = base;
-    gobj->align.x = x_ofs_pct;
-    gobj->align.y = y_ofs_pct;
-    gobj->align.scale_x = ENA_SCALE;
-    gobj->align.scale_y = ENA_SCALE;
+    meta->align.value = align;
+    meta->align.base = base;
+    meta->align.x = x_ofs_pct;
+    meta->align.y = y_ofs_pct;
+    meta->align.scale_x = ENA_SCALE;
+    meta->align.scale_y = ENA_SCALE;
 
-    apply_gobj_align(lobj);
+    apply_meta_align(lobj);
 }
 
-void apply_gobj_align(lv_obj_t *lobj)
+void apply_meta_align(lv_obj_t *lobj)
 {
     int32_t x_ofs_px;
     int32_t y_ofs_px;
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    if (gobj->align.scale_x == ENA_SCALE)
-        x_ofs_px = pct_to_px(get_par_w(lobj), gobj->align.x);
+    if (meta->align.scale_x == ENA_SCALE)
+        x_ofs_px = pct_to_px(get_par_w(lobj), meta->align.x);
     else
-        x_ofs_px = gobj->align.x;
+        x_ofs_px = meta->align.x;
 
-    if (gobj->align.scale_y == ENA_SCALE)
-        y_ofs_px = pct_to_px(get_par_h(lobj), gobj->align.y);
+    if (meta->align.scale_y == ENA_SCALE)
+        y_ofs_px = pct_to_px(get_par_h(lobj), meta->align.y);
     else
-        y_ofs_px = gobj->align.y;
+        y_ofs_px = meta->align.y;
 
-    lv_obj_align_to(lobj, gobj->align.base, gobj->align.value, x_ofs_px, y_ofs_px);
+    lv_obj_align_to(lobj, meta->align.base, meta->align.value, x_ofs_px, y_ofs_px);
 }
 
 /*
@@ -343,10 +343,10 @@ void apply_gobj_align(lv_obj_t *lobj)
 int32_t rotate_alignment_90(lv_obj_t *lobj)
 {
     int8_t align;
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
     static const int8_t align_rot90_map[] = {
@@ -375,7 +375,7 @@ int32_t rotate_alignment_90(lv_obj_t *lobj)
         [LV_ALIGN_OUT_RIGHT_BOTTOM]  = LV_ALIGN_OUT_BOTTOM_LEFT,
     };
 
-    align = gobj->align.value;
+    align = meta->align.value;
 
     if (align < 0 || align >= 21 || align_rot90_map[align] == 0) {
         LOG_ERROR("Invalid alignment (%d) for object %s", align, \
@@ -383,7 +383,7 @@ int32_t rotate_alignment_90(lv_obj_t *lobj)
         return -EIO;
     }
 
-    gobj->align.value = align_rot90_map[align];
+    meta->align.value = align_rot90_map[align];
 
     return 0;
 }
@@ -392,20 +392,20 @@ int32_t rotate_alignment_offset_90(lv_obj_t *lobj)
 {
     int32_t tmp_x_aln;
     int32_t tmp_scale_x;
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
-    tmp_x_aln = gobj->align.x;
-    tmp_scale_x = gobj->align.scale_x;
+    tmp_x_aln = meta->align.x;
+    tmp_scale_x = meta->align.scale_x;
 
-    gobj->align.x = -(gobj->align.y);
-    gobj->align.scale_x = gobj->align.scale_y;
+    meta->align.x = -(meta->align.y);
+    meta->align.scale_x = meta->align.scale_y;
 
-    gobj->align.y = tmp_x_aln;
-    gobj->align.scale_y = tmp_scale_x;
+    meta->align.y = tmp_x_aln;
+    meta->align.scale_y = tmp_scale_x;
 
     return 0;
 }

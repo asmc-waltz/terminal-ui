@@ -55,14 +55,14 @@
  **********************/
 static int32_t redraw_window_control_bar(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
     int32_t scr_rot, cur_rot;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
-    cur_rot = gobj->data.rotation;
+    cur_rot = meta->data.rotation;
     scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
@@ -164,7 +164,7 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
     lv_obj_clear_flag(lobj, LV_OBJ_FLAG_SCROLLABLE);
 
     /** Register prerotate callback for redrawing after rotation */
-    get_gobj(lobj)->data.prerotate_cb = redraw_window_control_bar;
+    get_meta(lobj)->data.prerotate_cb = redraw_window_control_bar;
     lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
 
     /** Create "Back" button */

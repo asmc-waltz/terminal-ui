@@ -55,7 +55,7 @@ int32_t apply_flex_cell_config(lv_obj_t *lobj);
  *====================*/
 static inline flex_layout_t *get_flex_layout_data(lv_obj_t *lobj)
 {
-    return lobj ? (flex_layout_t *)get_gobj(lobj)->layout.data : NULL;
+    return lobj ? (flex_layout_t *)get_meta(lobj)->layout.data : NULL;
 }
 
 /*=====================

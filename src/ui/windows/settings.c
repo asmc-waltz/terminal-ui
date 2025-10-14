@@ -64,7 +64,7 @@ static void menu_item_event_handler(lv_event_t *e)
     case LV_EVENT_RELEASED:
         lv_obj_set_style_bg_color(obj, lv_color_hex(bg_color(1)), 0);
         // lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-        //                                &get_gobj(lv_screen_active())->child);
+        //                                &get_meta(lv_screen_active())->child);
         // lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
         //
         // refresh_obj_tree_layout(set);

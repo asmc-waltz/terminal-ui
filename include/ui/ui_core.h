@@ -49,12 +49,12 @@ typedef enum {
     OBJ_TEXTAREA,
 } type_t;
 
-struct gobj_t;
+struct obj_meta_t;
 typedef struct {
     type_t obj_type;                    /* Main object type */
     void *internal;                     /* Internal data */
     int8_t rotation;
-    struct gobj_t *parent;
+    struct obj_meta_t *par_meta;
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the
@@ -103,7 +103,7 @@ typedef struct {
     int32_t pad_column;
 } obj_layout_t;
 
-typedef struct gobj_t {
+typedef struct obj_meta_t {
     struct list_head node;
     struct list_head child;
     uint32_t id;
@@ -113,12 +113,12 @@ typedef struct gobj_t {
     obj_align_t align;
     obj_layout_t layout;
     obj_data_t data;
-} gobj_t;
+} obj_meta_t;
 
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern int32_t GOBJ_REFRESH_EVENT;
+extern int32_t meta_REFRESH_EVENT;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -134,7 +134,7 @@ void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct);
 void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct);
-void apply_gobj_align(lv_obj_t *lobj);
+void apply_meta_align(lv_obj_t *lobj);
 
 void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
 void set_pos_center(lv_obj_t *lobj);
@@ -174,7 +174,7 @@ int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h);
 /*=====================
  * Other functions
  *====================*/
-gobj_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
+obj_meta_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
 int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
 int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
@@ -207,40 +207,40 @@ int32_t rotate_alignment_90(lv_obj_t *lobj);
 int32_t rotate_alignment_offset_90(lv_obj_t *lobj);
 int32_t rotate_size_90(lv_obj_t *lobj);
 
-static inline gobj_t *get_gobj(lv_obj_t *lobj)
+static inline obj_meta_t *get_meta(lv_obj_t *lobj)
 {
-    return lobj ? (gobj_t *)lobj->user_data : NULL;
+    return lobj ? (obj_meta_t *)lobj->user_data : NULL;
 }
 
-static inline lv_obj_t *get_lobj(gobj_t *gobj)
+static inline lv_obj_t *get_lobj(obj_meta_t *meta)
 {
-    return gobj ? (lv_obj_t *)gobj->obj : NULL;
+    return meta ? (lv_obj_t *)meta->obj : NULL;
 }
 
-static inline gobj_t *get_par_gobj(lv_obj_t *lobj)
+static inline obj_meta_t *get_par_meta(lv_obj_t *lobj)
 {
-    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    return gobj ? (gobj_t *)gobj->data.parent : NULL;
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    return meta ? (obj_meta_t *)meta->data.par_meta : NULL;
 }
 
 static inline int32_t get_h(lv_obj_t *lobj)
 {
-    return (int32_t)get_gobj(lobj)->size.h;
+    return (int32_t)get_meta(lobj)->size.h;
 }
 
 static inline int32_t get_w(lv_obj_t *lobj)
 {
-    return (int32_t)get_gobj(lobj)->size.w;
+    return (int32_t)get_meta(lobj)->size.w;
 }
 
 static inline int32_t get_par_w(lv_obj_t *lobj)
 {
-    return lobj ? (int32_t)get_par_gobj(lobj)->size.w : 0;
+    return lobj ? (int32_t)get_par_meta(lobj)->size.w : 0;
 }
 
 static inline int32_t get_par_h(lv_obj_t *lobj)
 {
-    return lobj ? (int32_t)get_par_gobj(lobj)->size.h : 0;
+    return lobj ? (int32_t)get_par_meta(lobj)->size.h : 0;
 }
 
 static inline int32_t avail_px(int32_t par_size, int32_t percent)
@@ -260,68 +260,68 @@ static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
 
 static inline type_t get_layout_type(lv_obj_t *lobj)
 {
-    return lobj ? get_gobj(lobj)->layout.type : OBJ_NONE;
+    return lobj ? get_meta(lobj)->layout.type : OBJ_NONE;
 }
 
-static inline type_t get_gobj_layout_type(gobj_t *gobj)
+static inline type_t get_meta_layout_type(obj_meta_t *meta)
 {
-    return gobj ? gobj->layout.type : OBJ_NONE;
+    return meta ? meta->layout.type : OBJ_NONE;
 }
 
 static inline int32_t set_layout_type(lv_obj_t *lobj, type_t type)
 {
-    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
-    gobj->layout.type = type;
+    meta->layout.type = type;
     return 0;
 }
 
 static inline int32_t set_cell_type(lv_obj_t *lobj, type_t type)
 {
-    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
-    gobj->layout.cell_type = type;
+    meta->layout.cell_type = type;
     return 0;
 }
 
 static inline type_t get_cell_type(lv_obj_t *lobj)
 {
-    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return OBJ_NONE;
-    return gobj ? gobj->layout.cell_type : OBJ_NONE;
+    return meta ? meta->layout.cell_type : OBJ_NONE;
 }
 
-static inline type_t get_gobj_cell_type(gobj_t *gobj)
+static inline type_t get_meta_cell_type(obj_meta_t *meta)
 {
-    return gobj ? gobj->layout.cell_type : OBJ_NONE;
+    return meta ? meta->layout.cell_type : OBJ_NONE;
 }
 
 /* Set object as base type (non-rotated or root container) */
 static inline int32_t set_obj_type(lv_obj_t *lobj, type_t type)
 {
-    gobj_t *gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
-    gobj->data.obj_type = type;
+    meta->data.obj_type = type;
     return 0;
 }
 
 static inline int32_t get_type(lv_obj_t *lobj)
 {
-    return lobj ? get_gobj(lobj)->data.obj_type : OBJ_NONE;
+    return lobj ? get_meta(lobj)->data.obj_type : OBJ_NONE;
 }
 
 static inline const char *get_name(lv_obj_t *lobj)
 {
-    return lobj ? get_gobj(lobj)->name : NULL;
+    return lobj ? get_meta(lobj)->name : NULL;
 }
 
-static inline const char *get_gobj_name(gobj_t *gobj)
+static inline const char *get_meta_name(obj_meta_t *meta)
 {
-    return gobj ? gobj->name : NULL;
+    return meta ? meta->name : NULL;
 }
 
 int32_t ui_main_init(ctx_t *ctx);

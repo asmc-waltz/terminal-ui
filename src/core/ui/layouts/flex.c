@@ -51,14 +51,14 @@
  **********************/
 static bool is_rotation_same_group(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
     int32_t scr_rot, cur_rot;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return false;
 
-    cur_rot = gobj->data.rotation;
+    cur_rot = meta->data.rotation;
     scr_rot = get_scr_rotation();
 
     bool cur_positive = (cur_rot == ROTATION_0 || cur_rot == ROTATION_270);
@@ -102,7 +102,7 @@ lv_obj_t *create_flex_layout_object(lv_obj_t *par, const char *name)
     if (!cont)
         goto out_free_conf;
 
-    get_gobj(cont)->layout.data = conf;
+    get_meta(cont)->layout.data = conf;
 
     lv_obj_set_layout(cont, LV_LAYOUT_FLEX);
     lv_obj_center(cont);
@@ -307,7 +307,7 @@ int32_t rotate_flex_layout_90(lv_obj_t *lobj)
 
     ret = config_flex_layout_flow(lobj, next_flow);
     LOG_TRACE("Flex layout %s rotated 90 deg: flow %d -> %d", \
-              get_gobj(lobj)->name, pre_flow, next_flow);
+              get_meta(lobj)->name, pre_flow, next_flow);
     if (ret)
         return ret;
 

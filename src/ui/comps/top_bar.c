@@ -65,11 +65,11 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
                                const char *index)
 {
     lv_obj_t *box, *icon;
-    gobj_t *gobj_par;
+    obj_meta_t *par_meta;
     int32_t ret;
 
-    gobj_par = get_gobj(par);
-    box = get_obj_by_name(name, &gobj_par->child);
+    par_meta = get_meta(par);
+    box = get_obj_by_name(name, &par_meta->child);
     if (!box) {
         LOG_ERROR("Symbol box %s not found", name);
         return -1;
@@ -84,7 +84,7 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
     icon = create_sym(box, NULL, TOP_BAR_SYM_FONTS, index);
     if (!icon) {
         LOG_ERROR("Unable to add symbol %s", name);
-        remove_obj_and_child_by_name(name, &gobj_par->child);
+        remove_obj_and_child_by_name(name, &par_meta->child);
         return -1;
     }
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFFFFFF), 0);
@@ -95,7 +95,6 @@ int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
 lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, const char *index)
 {
     lv_obj_t *box, *icon;
-    gobj_t *gobj_par;
 
     box = create_symbol_box(par, name, TOP_BAR_SYM_FONTS, index);
     lv_obj_set_style_bg_opa(box, LV_OPA_0, 0);

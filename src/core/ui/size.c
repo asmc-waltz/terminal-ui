@@ -57,23 +57,23 @@ int32_t rotate_size_90(lv_obj_t *lobj)
     int32_t tmp_w;
     int32_t tmp_par_w_pct;
     int32_t tmp_w_scale;
-    gobj_t *gobj;
+    obj_meta_t *meta;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
-    tmp_w = gobj->size.w;
-    tmp_par_w_pct = gobj->size.par_w_pct;
-    tmp_w_scale = gobj->size.scale_w;
+    tmp_w = meta->size.w;
+    tmp_par_w_pct = meta->size.par_w_pct;
+    tmp_w_scale = meta->size.scale_w;
 
-    gobj->size.w = gobj->size.h;
-    gobj->size.par_w_pct = gobj->size.par_h_pct;
-    gobj->size.scale_w = gobj->size.scale_h;
+    meta->size.w = meta->size.h;
+    meta->size.par_w_pct = meta->size.par_h_pct;
+    meta->size.scale_w = meta->size.scale_h;
 
-    gobj->size.h = tmp_w;
-    gobj->size.par_h_pct = tmp_par_w_pct;
-    gobj->size.scale_h = tmp_w_scale;
+    meta->size.h = tmp_w;
+    meta->size.par_h_pct = tmp_par_w_pct;
+    meta->size.scale_h = tmp_w_scale;
 
     return 0;
 }
@@ -113,16 +113,16 @@ int32_t get_scr_height(void)
  */
 void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
-    gobj->size.w = px_x;
-    gobj->size.h = px_y;
-    gobj->size.par_w_pct = 0;
-    gobj->size.par_h_pct = 0;
-    gobj->size.scale_w = DIS_SCALE;
-    gobj->size.scale_h = DIS_SCALE;
+    meta = get_meta(lobj);
+    meta->size.w = px_x;
+    meta->size.h = px_y;
+    meta->size.par_w_pct = 0;
+    meta->size.par_h_pct = 0;
+    meta->size.scale_w = DIS_SCALE;
+    meta->size.scale_h = DIS_SCALE;
 
     apply_size(lobj);
 }
@@ -133,18 +133,18 @@ void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
  */
 void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->size.w = 0;
-    gobj->size.h = px_y;
-    gobj->size.par_w_pct = pct_x;
-    gobj->size.par_h_pct = 0;
-    gobj->size.scale_w = ENA_SCALE;
-    gobj->size.scale_h = DIS_SCALE;
+    meta->size.w = 0;
+    meta->size.h = px_y;
+    meta->size.par_w_pct = pct_x;
+    meta->size.par_h_pct = 0;
+    meta->size.scale_w = ENA_SCALE;
+    meta->size.scale_h = DIS_SCALE;
 
     apply_size(lobj);
 }
@@ -155,18 +155,18 @@ void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
  */
 void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->size.w = px_x;
-    gobj->size.h = 0;
-    gobj->size.par_w_pct = 0;
-    gobj->size.par_h_pct = pct_y;
-    gobj->size.scale_w = DIS_SCALE;
-    gobj->size.scale_h = ENA_SCALE;
+    meta->size.w = px_x;
+    meta->size.h = 0;
+    meta->size.par_w_pct = 0;
+    meta->size.par_h_pct = pct_y;
+    meta->size.scale_w = DIS_SCALE;
+    meta->size.scale_h = ENA_SCALE;
 
     apply_size(lobj);
 }
@@ -177,18 +177,18 @@ void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
  */
 void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
     LV_ASSERT_NULL(lobj);
 
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    gobj->size.w = 0;
-    gobj->size.h = 0;
-    gobj->size.par_w_pct = pct_x;
-    gobj->size.par_h_pct = pct_y;
-    gobj->size.scale_w = ENA_SCALE;
-    gobj->size.scale_h = ENA_SCALE;
+    meta->size.w = 0;
+    meta->size.h = 0;
+    meta->size.par_w_pct = pct_x;
+    meta->size.par_h_pct = pct_y;
+    meta->size.scale_w = ENA_SCALE;
+    meta->size.scale_h = ENA_SCALE;
 
     apply_size(lobj);
 }
@@ -201,36 +201,36 @@ void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
  */
 void apply_size(lv_obj_t *lobj)
 {
-    gobj_t *gobj = NULL;
+    obj_meta_t *meta = NULL;
 
     LV_ASSERT_NULL(lobj);
-    gobj = get_gobj(lobj);
-    LV_ASSERT_NULL(gobj);
+    meta = get_meta(lobj);
+    LV_ASSERT_NULL(meta);
 
-    if (gobj->size.scale_w == ENA_SCALE) {
+    if (meta->size.scale_w == ENA_SCALE) {
         // percent to pixel
-        gobj->size.w = pct_to_px(get_par_w(lobj), gobj->size.par_w_pct);
+        meta->size.w = pct_to_px(get_par_w(lobj), meta->size.par_w_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
-        gobj->size.par_w_pct =  px_to_pct(get_par_w(lobj), get_w(lobj));
+        meta->size.par_w_pct =  px_to_pct(get_par_w(lobj), get_w(lobj));
         LOG_TRACE("Update obj W size [%d] -> percent [%d]", \
-                  get_w(lobj), gobj->size.par_w_pct);
+                  get_w(lobj), meta->size.par_w_pct);
     }
 
 
-    if (gobj->size.scale_h == ENA_SCALE) {
+    if (meta->size.scale_h == ENA_SCALE) {
         // percent to pixel
-        gobj->size.h = pct_to_px(get_par_h(lobj), gobj->size.par_h_pct);
+        meta->size.h = pct_to_px(get_par_h(lobj), meta->size.par_h_pct);
     } else {
         // Update object size in percent-based scaling
         // Pixel to percent
-        gobj->size.par_h_pct =  px_to_pct(get_par_h(lobj), get_h(lobj));
+        meta->size.par_h_pct =  px_to_pct(get_par_h(lobj), get_h(lobj));
         LOG_TRACE("Update obj H size [%d] -> percent [%d]", \
-                  get_h(lobj), gobj->size.par_h_pct);
+                  get_h(lobj), meta->size.par_h_pct);
     }
 
-    lv_obj_set_size(lobj, gobj->size.w, gobj->size.h);
+    lv_obj_set_size(lobj, meta->size.w, meta->size.h);
 }
 
 /*
@@ -240,15 +240,15 @@ void apply_size(lv_obj_t *lobj)
  * their own sizes relative to the cell.
  *
  * This utility retrieves the current object size after layout updates and stores
- * it into the gobj data in both percent and pixel units for later synchronization.
+ * it into the meta data in both percent and pixel units for later synchronization.
  */
 int32_t store_computed_size(lv_obj_t *lobj)
 {
-    gobj_t *gobj;
+    obj_meta_t *meta;
     int32_t w, h;
 
-    gobj = lobj ? get_gobj(lobj) : NULL;
-    if (!gobj)
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
 
     if (get_type(lobj) == OBJ_BASE)
@@ -263,20 +263,20 @@ int32_t store_computed_size(lv_obj_t *lobj)
         return -EIO;
     }
 
-    gobj->size.par_w_pct = px_to_pct(get_par_w(lobj), w);
-    gobj->size.w = w;
-    gobj->size.par_h_pct = px_to_pct(get_par_h(lobj), h);
-    gobj->size.h = h;
+    meta->size.par_w_pct = px_to_pct(get_par_w(lobj), w);
+    meta->size.w = w;
+    meta->size.par_h_pct = px_to_pct(get_par_h(lobj), h);
+    meta->size.h = h;
 
     LOG_TRACE("Update object [%s] size\nParent Width [%d] - Height [%d]\n"\
              "Storaged size Width [%d or %d\%] - Height [%d or %d\%]", \
-             gobj->name, \
+             meta->name, \
              get_par_w(lobj), \
              get_par_h(lobj), \
-             gobj->size.w, \
-             gobj->size.par_w_pct, \
-             gobj->size.h, \
-             gobj->size.par_h_pct);
+             meta->size.w, \
+             meta->size.par_w_pct, \
+             meta->size.h, \
+             meta->size.par_h_pct);
 
     return 0;
 }

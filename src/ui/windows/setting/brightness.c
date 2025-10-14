@@ -58,7 +58,7 @@ static void switch_auto_brightness_event_handler(lv_event_t *e)
     lv_obj_t *lobj = lv_event_get_target(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
         lv_obj_t *manual_brightness = get_obj_by_name("BRIGHTNESS-MANUAL", \
-                                       &get_gobj(lv_screen_active())->child);
+                                       &get_meta(lv_screen_active())->child);
         LV_LOG_USER("State: %s\n", lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
         if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
             lv_obj_add_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
