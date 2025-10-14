@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include <lvgl.h>
 #include "list.h"
@@ -103,6 +104,12 @@ typedef struct {
     int32_t pad_column;
 } obj_layout_t;
 
+typedef struct {
+    int32_t level;
+    bool dark_mode;
+    bool follow_system;
+} obj_theme_t;
+
 typedef struct obj_meta_t {
     struct list_head node;
     struct list_head child;
@@ -113,6 +120,7 @@ typedef struct obj_meta_t {
     obj_align_t align;
     obj_layout_t layout;
     obj_data_t data;
+    obj_theme_t theme;
 } obj_meta_t;
 
 /**********************
