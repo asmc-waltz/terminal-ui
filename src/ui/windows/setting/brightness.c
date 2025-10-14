@@ -140,7 +140,7 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_brightness_detail_setting(lv_obj_t *par, const char *name)
+lv_obj_t *create_brightness_setting(lv_obj_t *par, const char *name)
 {
     lv_obj_t *brightness_box;
 

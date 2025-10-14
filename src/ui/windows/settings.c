@@ -34,10 +34,11 @@
  **********************/
 typedef struct {
     lv_obj_t *menu_ctn;
-    lv_obj_t *detail_ctn;
-    bool hid_detail;            // Hide detail setting in vertical screen;
     lv_obj_t *act_menu_item;
-} widget_menu_t;
+    lv_obj_t *page_ctn;
+    lv_obj_t *act_page;
+    bool hid_detail;            // Hide detail setting in vertical screen;
+} menu_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -69,11 +70,17 @@ static void menu_item_event_handler(lv_event_t *e)
         break;
     case LV_EVENT_RELEASED:
         lv_obj_set_style_bg_color(obj, lv_color_hex(bg_color(1)), 0);
-        // lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-        //                                &get_meta(lv_screen_active())->child);
-        // lv_obj_t *set = create_brightness_detail_setting(win_setting, "NEW");
+        lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
+                                       &get_meta(lv_screen_active())->child);
+        // lv_obj_t *set = create_brightness_setting(win_setting, "NEW");
         //
         // refresh_object_tree_layout(set);
+
+        menu_ctx_t *menu_ctx = get_internal_data(win_setting);
+        set_menu_page_active(win_setting, WINDOW_SETTING".detail.brightness", create_brightness_setting);
+
+        // refresh_object_tree_layout(brightness_win);
+        refresh_object_tree_layout(menu_ctx->act_page);
         break;
     case LV_EVENT_CLICKED:
         LV_LOG_USER("Box clicked!");
@@ -88,6 +95,8 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
     int32_t ret = 0;
     static bool detail_visible = true;
     static bool pending_detail_create = false;
+    menu_ctx_t *menu_ctx = get_internal_data(lobj);
+
     int32_t scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
@@ -98,6 +107,8 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
             } else {
                 detail_visible = false;
                 pending_detail_create = true;
+                menu_ctx->page_ctn = NULL;
+                menu_ctx->act_page = NULL;
             }
         }
     } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
@@ -108,6 +119,14 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
             } else {
                 detail_visible = true;
             }
+
+            // User access menu or rotate from 0/180
+            // TODO: remove before rotation -> fix parent size issue
+            if (menu_ctx->act_page) {
+                remove_obj_and_child_by_name(get_name(menu_ctx->act_page), \
+                                             &get_meta(lobj)->child);
+            }
+            menu_ctx->act_page = NULL;
         }
     }
 
@@ -115,6 +134,9 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
 
     if (detail_visible && pending_detail_create) {
         lv_obj_t *detail = create_box(lobj, WINDOW_SETTING ".detail");
+        if (detail) {
+            menu_ctx->page_ctn = detail;
+        }
 
         if (scr_rot == ROTATION_0)
             set_grid_cell_align(detail,
@@ -129,10 +151,13 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
 
         lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
 
-        lv_obj_t *brightness_win = create_brightness_detail_setting(detail,
-                                         WINDOW_SETTING ".detail.brightness");
+        // lv_obj_t *brightness_win = create_brightness_setting(detail,
+        //                                  WINDOW_SETTING ".detail.brightness");
+        //
+        set_menu_page_active(lobj, WINDOW_SETTING".detail.brightness", create_brightness_setting);
 
-        refresh_object_tree_layout(brightness_win);
+        // refresh_object_tree_layout(brightness_win);
+        refresh_object_tree_layout(menu_ctx->act_page);
         pending_detail_create = false;
     }
 
@@ -315,6 +340,8 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
 
     /* Visual style */
     lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(120)), 0);
+    set_size(menu_bar, LV_PCT(98), LV_PCT(98));
+    set_align(menu_bar, par, LV_ALIGN_CENTER, 0, 0);
     /* Padding and spacing */
     set_padding(menu_bar, 4, 4, 4, 4);
     set_row_padding(menu_bar, 20);
@@ -337,21 +364,69 @@ static lv_obj_t *create_menu_bar(lv_obj_t *par, const char *name)
     return menu_bar;
 }
 
+static int32_t create_menu_content(lv_obj_t *window, menu_ctx_t *menu_ctx)
+{
+    int32_t ret;
+    lv_obj_t *menu_ctn, *page_ctn;
+    lv_obj_t *menu, *page;
+
+    if (!window)
+        return -EINVAL;
+
+    /* Create the default menu bar as the left side colum */
+
+    menu_ctn = create_box(window, WINDOW_SETTING".menu_cnt");
+    if (!menu_ctn)
+        return -EINVAL;
+
+    menu_ctx->menu_ctn = menu_ctn;
+    set_grid_cell_align(menu_ctn, \
+                        LV_GRID_ALIGN_STRETCH, 0, 1, \
+                        LV_GRID_ALIGN_STRETCH, 0, 1);
+    // lv_obj_set_style_bg_color(menu_ctn, lv_color_hex(bg_color(100)), 0);
+
+    /* Create the default page_ctn space as the right side colum */
+    page_ctn = create_box(window, WINDOW_SETTING".page_ctn");
+    if (!page_ctn)
+        return -EINVAL;
+
+    menu_ctx->page_ctn = page_ctn;
+    set_grid_cell_align(page_ctn, \
+                        LV_GRID_ALIGN_STRETCH, 1, 1,
+                        LV_GRID_ALIGN_STRETCH, 0, 1);
+    // lv_obj_set_style_bg_color(page_ctn, lv_color_hex(bg_color(100)), 0);
+
+
+
+
+
+    menu = create_menu_bar(menu_ctn, WINDOW_SETTING".menu");
+    if (!menu)
+        return -EINVAL;
+    return 0;
+}
+
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_setting_window(lv_obj_t *par)
+lv_obj_t *create_menu(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj;
     int32_t ret;
+    menu_ctx_t *menu_ctx;
 
     if (!par)
+        return NULL;
+
+    menu_ctx = (menu_ctx_t *)calloc(1, sizeof(menu_ctx_t));
+    if (!menu_ctx)
         return NULL;
 
     /*-----------------------------------------
      * Create menu container using grid layout
      *----------------------------------------*/
-    lobj = create_grid_layout_object(par, WINDOW_SETTING);
+    lobj = create_grid_layout_object(par, name);
     if (!lobj)
         return NULL;
 
@@ -384,34 +459,46 @@ lv_obj_t *create_setting_window(lv_obj_t *par)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
                  get_name(lobj), ret);
 
+    create_menu_content(lobj, menu_ctx);
+
+    set_internal_data(lobj, menu_ctx);
     get_meta(lobj)->data.post_children_rotate_cb = show_and_hide_detail_cb;
 
     return lobj;
 }
 
-int32_t create_setting_content(lv_obj_t *window)
+int32_t set_menu_page_active(lv_obj_t *lobj, const char *name, \
+                                    lv_obj_t *(*create_page_cb)(lv_obj_t *, \
+                                                                const char *))
 {
-    int32_t ret;
-    lv_obj_t *menu, *detail;
+    menu_ctx_t *menu_ctx;
+    lv_obj_t *page;
 
-    if (!window)
+    if (!lobj)
         return -EINVAL;
 
-    menu = create_menu_bar(window, WINDOW_SETTING".menu");
-    set_grid_cell_align(menu, \
-                        LV_GRID_ALIGN_STRETCH, 0, 1, \
-                        LV_GRID_ALIGN_STRETCH, 0, 1);
-    lv_obj_set_style_bg_color(menu, lv_color_hex(bg_color(100)), 0);
+    menu_ctx = get_internal_data(lobj);
+    if (!menu_ctx)
+        return -EIO;
 
-    detail = create_box(window, WINDOW_SETTING".detail");
-    set_grid_cell_align(detail, \
-                        LV_GRID_ALIGN_STRETCH, 1, 1,
-                        LV_GRID_ALIGN_STRETCH, 0, 1);
-    lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
+    if (menu_ctx->act_page) {
+        LOG_WARN("Menu page [%s] is activating. ignore the current request", \
+                 get_name(menu_ctx->act_page));
+        return 0;
+    }
 
-    // TEST
-    create_brightness_detail_setting(detail, \
-                                     WINDOW_SETTING".detail.brightness");
+    if (menu_ctx->page_ctn) {
+        page = create_page_cb(menu_ctx->page_ctn, name);
+        if (!page)
+            return -EIO;
+    } else {
+        LOG_WARN("Reuse the menu bar space");
+        page = create_page_cb(menu_ctx->menu_ctn, name);
+        if (!page)
+            return -EIO;
+    }
+
+    menu_ctx->act_page = page;
 
     return 0;
 }

@@ -45,8 +45,12 @@ typedef struct ctx ctx_t;
 lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 
-lv_obj_t *create_setting_window(lv_obj_t *par);
+lv_obj_t *create_menu(lv_obj_t *par, const char *name);
+int32_t set_menu_page_active(lv_obj_t *lobj, const char *name, \
+                                    lv_obj_t *(*create_page_cb)(lv_obj_t *, \
+                                                                const char *));
 
+lv_obj_t *create_brightness_setting(lv_obj_t *par, const char *name);
 /**********************
  *      MACROS
  **********************/
