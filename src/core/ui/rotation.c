@@ -73,7 +73,7 @@ static int8_t calc_rotation_turn(lv_obj_t *lobj)
     return rot_cnt;
 }
 
-static int32_t rotate_meta_alignment(lv_obj_t *lobj)
+static int32_t rotate_alignment_meta(lv_obj_t *lobj)
 {
     int8_t cur_rot;
     int8_t scr_rot;
@@ -88,14 +88,14 @@ static int32_t rotate_meta_alignment(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_alignment_90(lobj);
-        rotate_alignment_offset_90(lobj);
+        rotate_alignment_meta_90(lobj);
+        rotate_alignment_offset_meta_90(lobj);
     }
 
     return 0;
 }
 
-static int32_t rotate_meta_size(lv_obj_t *lobj)
+static int32_t rotate_size_meta(lv_obj_t *lobj)
 {
     int32_t scr_rot, cur_rot;
     int32_t rot_cnt;
@@ -109,7 +109,7 @@ static int32_t rotate_meta_size(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        rotate_size_90(lobj);
+        rotate_size_meta_90(lobj);
     }
 
     return 0;
@@ -135,24 +135,24 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
 
     /* Perform rotation by 90° steps */
     for (int8_t i = 0; i < rot_cnt; i++) {
-        ret = rotate_border_side_90(lobj);
+        ret = rotate_border_side_meta_90(lobj);
         if (ret)
             return ret;
 
-        ret = rotate_padding_90(lobj);
+        ret = rotate_padding_meta_90(lobj);
         if (ret)
             return ret;
     }
 
-    ret = apply_border_side(lobj);
+    ret = apply_border_side_meta(lobj);
     if (ret)
         return ret;
 
-    ret = apply_padding(lobj);
+    ret = apply_padding_meta(lobj);
     if (ret)
         return ret;
 
-    ret = apply_row_column_padding(lobj);
+    ret = apply_row_column_padding_meta(lobj);
     if (ret)
         return ret;
 
@@ -172,7 +172,7 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
 
     /* Recalculate alignment values if needed */
     if (meta->align.value != LV_ALIGN_DEFAULT) {
-        ret = rotate_meta_alignment(lobj);
+        ret = rotate_alignment_meta(lobj);
         if (ret)
             return -EINVAL;
     }
@@ -182,11 +182,11 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
      * Since the root coordinate does not change, the width and height
      * will be adjusted according to the logical rotation.
      */
-    ret = rotate_meta_size(lobj);
+    ret = rotate_size_meta(lobj);
     if (ret)
         return -EINVAL;
 
-    apply_size(lobj);
+    apply_size_meta(lobj);
 
     /*
      * For an object placed inside a parent, its new center point must be
@@ -204,7 +204,7 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
         lv_obj_set_pos(lobj, meta->align.mid_x - (get_w(lobj) / 2), \
                        meta->align.mid_y - (get_h(lobj) / 2));
     } else {
-        apply_meta_align(lobj);
+        apply_align_meta(lobj);
     }
 
     return 0;
@@ -242,7 +242,7 @@ static int32_t rotate_base_meta(lv_obj_t *lobj)
     return 0;
 }
 
-static int32_t rotate_transform_meta(lv_obj_t *lobj)
+static int32_t rotate_visual_object(lv_obj_t *lobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
@@ -253,7 +253,7 @@ static int32_t rotate_transform_meta(lv_obj_t *lobj)
     if (!meta)
         return -EINVAL;
 
-    ret = rotate_meta_size(lobj);
+    ret = rotate_size_meta(lobj);
     if (ret) {
         return -EINVAL;
     }
@@ -456,7 +456,7 @@ static int32_t rotate_flex_cell_meta(lv_obj_t *lobj)
     return 0;
 }
 
-static inline int32_t handle_meta_layout_rotation(lv_obj_t *lobj)
+static inline int32_t rotate_logical_object(lv_obj_t *lobj)
 {
     int32_t ret;
 
@@ -491,7 +491,7 @@ static inline int32_t handle_meta_layout_rotation(lv_obj_t *lobj)
     return rotate_base_meta(lobj);
 }
 
-static inline int32_t meta_handle_transform(lv_obj_t *lobj)
+static inline int32_t handle_object_transform(lv_obj_t *lobj)
 {
     if (!lobj)
         return -EINVAL;
@@ -501,13 +501,13 @@ static inline int32_t meta_handle_transform(lv_obj_t *lobj)
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            return handle_meta_layout_rotation(lobj);
+            return rotate_logical_object(lobj);
 
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
         case OBJ_TEXTAREA:
-            return rotate_transform_meta(lobj);
+            return rotate_visual_object(lobj);
 
         default:
             LOG_WARN("Unhandled object type %d, skipping transform", \
@@ -516,7 +516,7 @@ static inline int32_t meta_handle_transform(lv_obj_t *lobj)
     }
 }
 
-static int32_t meta_refresh(lv_obj_t *lobj)
+static int32_t refresh_object(lv_obj_t *lobj)
 {
     int32_t ret;
     obj_meta_t *meta;
@@ -533,7 +533,7 @@ static int32_t meta_refresh(lv_obj_t *lobj)
     // TODO: check obj type and update list flow, scale...
     // Text, icon, switch will be rotate
     // Frame, button, slider will be resize and relocation
-    ret = meta_handle_transform(lobj);
+    ret = handle_object_transform(lobj);
     if (ret) {
         LOG_ERROR("Failed to handle object refresh event, ret %d", ret);
         return ret;
@@ -544,7 +544,7 @@ static int32_t meta_refresh(lv_obj_t *lobj)
     return 0;
 }
 
-static int32_t meta_refresh_child(lv_obj_t *lobj)
+static int32_t refresh_object_child(lv_obj_t *lobj)
 {
     int32_t ret;
     struct list_head *par_list;
@@ -558,7 +558,7 @@ static int32_t meta_refresh_child(lv_obj_t *lobj)
     par_list = &meta->child;
 
     list_for_each_entry(child_meta, par_list, node) {
-        ret = refresh_obj_tree_layout(get_lobj(child_meta));
+        ret = refresh_object_tree_layout(get_lobj(child_meta));
         if (ret < 0) {
             LOG_ERROR("List: Object %d (%s) rotation failed", \
                       child_meta->id, get_meta_name(child_meta));
@@ -599,7 +599,7 @@ int32_t get_scr_rotation()
  * Although primarily used for rotation checks and updates, it may trigger
  * broader layout adjustments.
  */
-int32_t refresh_obj_tree_layout(lv_obj_t *lobj)
+int32_t refresh_object_tree_layout(lv_obj_t *lobj)
 {
     int32_t ret;
     obj_meta_t *meta;
@@ -608,14 +608,14 @@ int32_t refresh_obj_tree_layout(lv_obj_t *lobj)
     if (!meta)
         return -EINVAL;
 
-    ret = meta_refresh(lobj);
+    ret = refresh_object(lobj);
     if (ret < 0) {
         LOG_ERROR("Object [%s] id %d rotation failed", \
                   get_name(lobj), meta->id);
         return ret;
     }
 
-    ret = meta_refresh_child(lobj);
+    ret = refresh_object_child(lobj);
     if (ret < 0) {
         LOG_ERROR("Object [%s] id %d: child rotation failed", \
                   get_name(lobj), meta->id);

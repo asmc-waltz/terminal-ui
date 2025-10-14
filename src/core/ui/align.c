@@ -253,7 +253,7 @@ void set_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     meta->align.scale_x = DIS_SCALE;
     meta->align.scale_y = DIS_SCALE;
 
-    apply_meta_align(lobj);
+    apply_align_meta(lobj);
 }
 
 void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
@@ -272,7 +272,7 @@ void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     meta->align.scale_x = ENA_SCALE;
     meta->align.scale_y = DIS_SCALE;
 
-    apply_meta_align(lobj);
+    apply_align_meta(lobj);
 }
 
 void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
@@ -291,7 +291,7 @@ void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     meta->align.scale_x = DIS_SCALE;
     meta->align.scale_y = ENA_SCALE;
 
-    apply_meta_align(lobj);
+    apply_align_meta(lobj);
 }
 
 void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
@@ -310,10 +310,10 @@ void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
     meta->align.scale_x = ENA_SCALE;
     meta->align.scale_y = ENA_SCALE;
 
-    apply_meta_align(lobj);
+    apply_align_meta(lobj);
 }
 
-void apply_meta_align(lv_obj_t *lobj)
+void apply_align_meta(lv_obj_t *lobj)
 {
     int32_t x_ofs_px;
     int32_t y_ofs_px;
@@ -340,7 +340,7 @@ void apply_meta_align(lv_obj_t *lobj)
  * Rotate object alignment by 90° clockwise.
  * Uses lookup table instead of switch-case for O(1) performance.
  */
-int32_t rotate_alignment_90(lv_obj_t *lobj)
+int32_t rotate_alignment_meta_90(lv_obj_t *lobj)
 {
     int8_t align;
     obj_meta_t *meta;
@@ -388,7 +388,7 @@ int32_t rotate_alignment_90(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t rotate_alignment_offset_90(lv_obj_t *lobj)
+int32_t rotate_alignment_offset_meta_90(lv_obj_t *lobj)
 {
     int32_t tmp_x_aln;
     int32_t tmp_scale_x;

@@ -48,7 +48,7 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static inline int32_t config_meta_border_side(lv_obj_t *lobj, int32_t value)
+static inline int32_t config_border_side_meta(lv_obj_t *lobj, int32_t value)
 {
     obj_meta_t *meta;
 
@@ -69,7 +69,7 @@ static inline int32_t config_meta_border_side(lv_obj_t *lobj, int32_t value)
  * Rotate object border sides by 90° clockwise.
  * Uses a lookup table for all 16 combinations of LV_BORDER_SIDE_* flags.
  */
-int32_t rotate_border_side_90(lv_obj_t *lobj)
+int32_t rotate_border_side_meta_90(lv_obj_t *lobj)
 {
     obj_meta_t *meta;
     lv_border_side_t current;
@@ -118,12 +118,12 @@ int32_t rotate_border_side_90(lv_obj_t *lobj)
         return -EINVAL;
     }
 
-    config_meta_border_side(lobj, border_rot_table[current]);
+    config_border_side_meta(lobj, border_rot_table[current]);
 
     return 0;
 }
 
-int32_t apply_border_side(lv_obj_t *lobj)
+int32_t apply_border_side_meta(lv_obj_t *lobj)
 {
     obj_meta_t *meta;
 
@@ -142,9 +142,9 @@ int32_t set_border_side(lv_obj_t *lobj, int32_t value)
 {
     int32_t ret;
 
-    ret = config_meta_border_side(lobj, value);
+    ret = config_border_side_meta(lobj, value);
     if (ret)
         return ret;
 
-    return apply_border_side(lobj);
+    return apply_border_side_meta(lobj);
 }

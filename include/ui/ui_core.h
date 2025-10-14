@@ -118,7 +118,6 @@ typedef struct obj_meta_t {
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern int32_t meta_REFRESH_EVENT;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -134,7 +133,7 @@ void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                             int32_t x_ofs_px, int32_t y_ofs_pct);
 void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                              int32_t x_ofs_pct, int32_t y_ofs_pct);
-void apply_meta_align(lv_obj_t *lobj);
+void apply_align_meta(lv_obj_t *lobj);
 
 void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
 void set_pos_center(lv_obj_t *lobj);
@@ -145,13 +144,13 @@ void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
 void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
 void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
 void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
-void apply_size(lv_obj_t *lobj);
+void apply_size_meta(lv_obj_t *lobj);
 
-int32_t apply_border_side(lv_obj_t *lobj);
+int32_t apply_border_side_meta(lv_obj_t *lobj);
 int32_t set_border_side(lv_obj_t *lobj, int32_t value);
 
-int32_t apply_padding(lv_obj_t *lobj);
-int32_t apply_row_column_padding(lv_obj_t *lobj);
+int32_t apply_padding_meta(lv_obj_t *lobj);
+int32_t apply_row_column_padding_meta(lv_obj_t *lobj);
 int32_t set_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
                           int32_t pad_left, int32_t pad_right);
 int32_t set_row_padding(lv_obj_t *lobj, int32_t pad);
@@ -200,12 +199,12 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 
 lv_obj_t *get_box_child(lv_obj_t *lobj);
 
-int32_t refresh_obj_tree_layout(lv_obj_t *lobj);
-int32_t rotate_border_side_90(lv_obj_t *lobj);
-int32_t rotate_padding_90(lv_obj_t *lobj);
-int32_t rotate_alignment_90(lv_obj_t *lobj);
-int32_t rotate_alignment_offset_90(lv_obj_t *lobj);
-int32_t rotate_size_90(lv_obj_t *lobj);
+int32_t refresh_object_tree_layout(lv_obj_t *lobj);
+int32_t rotate_border_side_meta_90(lv_obj_t *lobj);
+int32_t rotate_padding_meta_90(lv_obj_t *lobj);
+int32_t rotate_alignment_meta_90(lv_obj_t *lobj);
+int32_t rotate_alignment_offset_meta_90(lv_obj_t *lobj);
+int32_t rotate_size_meta_90(lv_obj_t *lobj);
 
 static inline obj_meta_t *get_meta(lv_obj_t *lobj)
 {

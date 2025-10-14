@@ -52,7 +52,7 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t rotate_size_90(lv_obj_t *lobj)
+int32_t rotate_size_meta_90(lv_obj_t *lobj)
 {
     int32_t tmp_w;
     int32_t tmp_par_w_pct;
@@ -124,7 +124,7 @@ void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y)
     meta->size.scale_w = DIS_SCALE;
     meta->size.scale_h = DIS_SCALE;
 
-    apply_size(lobj);
+    apply_size_meta(lobj);
 }
 
 /*
@@ -146,7 +146,7 @@ void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y)
     meta->size.scale_w = ENA_SCALE;
     meta->size.scale_h = DIS_SCALE;
 
-    apply_size(lobj);
+    apply_size_meta(lobj);
 }
 
 /*
@@ -168,7 +168,7 @@ void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y)
     meta->size.scale_w = DIS_SCALE;
     meta->size.scale_h = ENA_SCALE;
 
-    apply_size(lobj);
+    apply_size_meta(lobj);
 }
 
 /*
@@ -190,7 +190,7 @@ void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
     meta->size.scale_w = ENA_SCALE;
     meta->size.scale_h = ENA_SCALE;
 
-    apply_size(lobj);
+    apply_size_meta(lobj);
 }
 
 /*
@@ -199,7 +199,7 @@ void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y)
  * whenever size is updated or applied. This synchronization also helps sibling
  * objects calculate the remaining parent space more easily.
  */
-void apply_size(lv_obj_t *lobj)
+void apply_size_meta(lv_obj_t *lobj)
 {
     obj_meta_t *meta = NULL;
 
