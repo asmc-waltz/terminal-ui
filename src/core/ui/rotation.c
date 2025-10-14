@@ -504,8 +504,8 @@ static inline int32_t handle_object_transform(lv_obj_t *lobj)
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    if (meta->data.prerotate_cb) {
-        ret = meta->data.prerotate_cb(lobj);
+    if (meta->data.pre_rotate_cb) {
+        ret = meta->data.pre_rotate_cb(lobj);
         if (ret) {
             LOG_ERROR("Failed to execute redraw callback for object %s", \
                       get_name(lobj));

@@ -347,7 +347,7 @@ lv_obj_t *create_slider(lv_obj_t *par, const char *name)
     lv_obj_t *lobj = create_meta(par, OBJ_SLIDER, name);
     LV_ASSERT_NULL(lobj);
 
-    get_meta(lobj)->data.prerotate_cb = redraw_slider_layout;
+    get_meta(lobj)->data.pre_rotate_cb = redraw_slider_layout;
 
     return lobj;
 }

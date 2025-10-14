@@ -61,7 +61,8 @@ typedef struct {
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    int32_t (*prerotate_cb)(lv_obj_t *lobj);
+    int32_t (*pre_rotate_cb)(lv_obj_t *lobj);
+    int32_t (*post_rotate_cb)(lv_obj_t *lobj);
 } obj_data_t;
 
 typedef struct {
