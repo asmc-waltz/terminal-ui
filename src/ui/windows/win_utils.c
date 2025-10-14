@@ -164,7 +164,7 @@ lv_obj_t *create_window_control_bar(lv_obj_t *par, const char *name, \
     lv_obj_clear_flag(lobj, LV_OBJ_FLAG_SCROLLABLE);
 
     /** Register prerotate callback for redrawing after rotation */
-    get_meta(lobj)->data.prerotate_cb = redraw_window_control_bar;
+    get_meta(lobj)->data.pre_rotate_cb = redraw_window_control_bar;
     lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
 
     /** Create "Back" button */

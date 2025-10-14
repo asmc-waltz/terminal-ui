@@ -900,7 +900,7 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
     set_align_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
-    get_meta(cont)->data.prerotate_cb = pre_rotation_redraw_kb_layout;
+    get_meta(cont)->data.pre_rotate_cb = pre_rotation_redraw_kb_layout;
 
     return cont;
 }
