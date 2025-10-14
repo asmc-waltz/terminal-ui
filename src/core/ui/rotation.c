@@ -115,21 +115,16 @@ static int32_t rotate_size_meta(lv_obj_t *lobj)
     return 0;
 }
 
-/*
- * Common adjustment handler used after layout rotation.
- * Handles align, size, and positional recalculation for rotated objects.
- */
-static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
+static int32_t rotate_generic_style_meta(lv_obj_t *lobj)
 {
-    int32_t par_w, par_h;
-    int32_t ret;
+    int32_t ret, rot_cnt;
     obj_meta_t *meta;
 
     meta = lobj ? get_meta(lobj) : NULL;
     if (!meta)
         return -EINVAL;
 
-    int32_t rot_cnt = calc_rotation_turn(lobj);
+    rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
         return 0;
 
@@ -156,19 +151,22 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
     if (ret)
         return ret;
 
-    /* Ignore size and align adjustment for base (non-rotated) object */
-    if (get_type(lobj) == OBJ_BASE)
-        return 0;
+    return 0;
+}
 
-    /*
-     * For objects that take the role of a layout container (such as flex or grid)
-     * but are themselves a cell of a parent layout, their size and alignment depend
-     * entirely on the parent and cell configurations. Therefore, manual
-     * repositioning mechanisms can be safely skipped.
-     */
-    if (get_cell_type(lobj) == OBJ_GRID_CELL || \
-        get_cell_type(lobj) == OBJ_FLEX_CELL)
-        return 0;
+/*
+ * Common adjustment handler used after layout rotation.
+ * Handles align, size, and positional recalculation for rotated objects.
+ */
+static inline int32_t rotate_common_post_adjust(lv_obj_t *lobj)
+{
+    int32_t par_w, par_h;
+    int32_t ret;
+    obj_meta_t *meta;
+
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return -EINVAL;
 
     /* Recalculate alignment values if needed */
     if (meta->align.value != LV_ALIGN_DEFAULT) {
@@ -211,25 +209,29 @@ static int32_t rotate_common_post_adjust(lv_obj_t *lobj)
 }
 
 /*
- * Rotate a base object (non-layout) such as keyboard or standalone widget.
+ * Rotate an object (non-layout cell) such as keyboard or standalone widget.
  * The size and alignment logic depends on its ratio and orientation mode.
  */
-static int32_t rotate_base_meta(lv_obj_t *lobj)
+static int32_t rotate_generic_geometry_meta(lv_obj_t *lobj)
 {
     int32_t ret;
-    obj_meta_t *meta;
 
-    meta = lobj ? get_meta(lobj) : NULL;
-    if (!meta)
+    if (!lobj)
         return -EINVAL;
 
+    /* Ignore size and align adjustment for base (non-rotated) object */
+    if (get_type(lobj) == OBJ_BASE)
+        return 0;
+
     /*
-     * For some objects like the keyboard, the size and ratio are different
-     * between horizontal and vertical modes. Therefore, we must redraw the
-     * object to a compatible ratio before performing the component rotation.
+     * For objects that take the role of a layout container (such as flex or grid)
+     * but are themselves a cell of a parent layout, their size and alignment depend
+     * entirely on the parent and cell configurations. Therefore, manual
+     * repositioning mechanisms can be safely skipped.
      */
-    if (meta->data.prerotate_cb)
-        meta->data.prerotate_cb(lobj);
+    if (get_cell_type(lobj) == OBJ_GRID_CELL || \
+        get_cell_type(lobj) == OBJ_FLEX_CELL)
+        return 0;
 
     /*
      * For base objects, rotation only affects geometric and alignment data.
@@ -242,7 +244,7 @@ static int32_t rotate_base_meta(lv_obj_t *lobj)
     return 0;
 }
 
-static int32_t rotate_visual_object(lv_obj_t *lobj)
+static inline int32_t rotate_visual_object(lv_obj_t *lobj)
 {
     int32_t ret;
     int32_t scr_rot = get_scr_rotation();
@@ -296,20 +298,9 @@ static int32_t rotate_grid_layout_meta(lv_obj_t *lobj)
 {
     int32_t ret;
     int8_t rot_cnt;
-    obj_meta_t *meta;
 
-    meta = lobj ? get_meta(lobj) : NULL;
-    if (!meta)
+    if (!lobj)
         return -EINVAL;
-
-    if (meta->data.prerotate_cb) {
-        ret = meta->data.prerotate_cb(lobj);
-        if (ret) {
-            LOG_ERROR("Failed to execute redraw callback for object %s", \
-                      meta->name);
-            return ret;
-        }
-    }
 
     rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
@@ -332,7 +323,7 @@ static int32_t rotate_grid_layout_meta(lv_obj_t *lobj)
         return ret;
     }
 
-    return rotate_common_post_adjust(lobj);
+    return 0;
 }
 
 static int32_t rotate_grid_cell_meta(lv_obj_t *lobj)
@@ -361,8 +352,6 @@ static int32_t rotate_grid_cell_meta(lv_obj_t *lobj)
         return -EIO;
     }
 
-    lv_obj_mark_layout_as_dirty(lv_obj_get_parent(lobj));
-
     return 0;
 }
 
@@ -379,9 +368,6 @@ static int32_t rotate_flex_layout_meta(lv_obj_t *lobj)
     meta = lobj ? get_meta(lobj) : NULL;
     if (!meta)
         return -EINVAL;
-
-    if (meta->data.prerotate_cb)
-        meta->data.prerotate_cb(lobj);
 
     rot_cnt = calc_rotation_turn(lobj);
     if (rot_cnt <= 0)
@@ -410,14 +396,6 @@ static int32_t rotate_flex_layout_meta(lv_obj_t *lobj)
                   get_name(lobj), ret);
         return -EIO;
     }
-
-    ret = rotate_common_post_adjust(lobj);
-    if (ret) {
-        LOG_ERROR("Failed to rotate layout object position");
-        return -EIO;
-    }
-
-    lv_obj_mark_layout_as_dirty(lobj);
 
     return 0;
 }
@@ -451,8 +429,6 @@ static int32_t rotate_flex_cell_meta(lv_obj_t *lobj)
         return -EIO;
     }
 
-    lv_obj_mark_layout_as_dirty(lobj);
-
     return 0;
 }
 
@@ -464,56 +440,108 @@ static inline int32_t rotate_logical_object(lv_obj_t *lobj)
         return -EINVAL;
 
     switch (get_cell_type(lobj)) {
-    case OBJ_GRID_CELL:
-        ret = rotate_grid_cell_meta(lobj);
-        break;
-    case OBJ_FLEX_CELL:
-        ret = rotate_flex_cell_meta(lobj);
-        break;
-    default:
-        break;
+        case OBJ_GRID_CELL:
+            ret = rotate_grid_cell_meta(lobj);
+            break;
+        case OBJ_FLEX_CELL:
+            ret = rotate_flex_cell_meta(lobj);
+            break;
+        default:
+            break;
     }
 
     if (ret) {
-        LOG_WARN("Unable to rotate cell object, ret %d", ret);
+        LOG_ERROR("Object [%s] rotate cell metadata failed, ret %d", \
+                  get_name(lobj), ret);
         return ret;
     }
 
     switch (get_layout_type(lobj)) {
-    case OBJ_LAYOUT_GRID:
-        return rotate_grid_layout_meta(lobj);
-    case OBJ_LAYOUT_FLEX:
-        return rotate_flex_layout_meta(lobj);
-    default:
-        break;
+        case OBJ_LAYOUT_GRID:
+            ret = rotate_grid_layout_meta(lobj);
+            break;
+        case OBJ_LAYOUT_FLEX:
+            ret = rotate_flex_layout_meta(lobj);
+            break;
+        default:
+            break;
     }
 
-    return rotate_base_meta(lobj);
+    if (ret) {
+        LOG_ERROR("Object [%s] rotate layout metadata failed, ret %d", \
+                  get_name(lobj), ret);
+        return ret;
+    }
+
+    ret = rotate_generic_style_meta(lobj);
+    if (ret) {
+        LOG_ERROR("Object [%s] rotate generic style metadata failed, ret %d", \
+                  get_name(lobj), ret);
+        return ret;
+    }
+
+    ret = rotate_generic_geometry_meta(lobj);
+    if (ret) {
+        LOG_ERROR("Object [%s] rotate basic metadata failed, ret %d", \
+                  get_name(lobj), ret);
+        return ret;
+    }
+
+    return 0;
 }
 
 static inline int32_t handle_object_transform(lv_obj_t *lobj)
 {
-    if (!lobj)
+    int32_t ret = 0;
+    obj_meta_t *meta;
+
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
         return -EINVAL;
+
+    /*
+     * For some objects like the slider, the size and ratio are different
+     * between horizontal and vertical modes. Therefore, we must redraw the
+     * object to a compatible ratio before performing the component rotation.
+     */
+    if (meta->data.prerotate_cb) {
+        ret = meta->data.prerotate_cb(lobj);
+        if (ret) {
+            LOG_ERROR("Failed to execute redraw callback for object %s", \
+                      get_name(lobj));
+            return ret;
+        }
+    }
 
     switch (get_type(lobj)) {
         case OBJ_BASE:
         case OBJ_BOX:
         case OBJ_BTN:
         case OBJ_SLIDER:
-            return rotate_logical_object(lobj);
+            ret = rotate_logical_object(lobj);
+            break;
 
         case OBJ_LABEL:
         case OBJ_SWITCH:
         case OBJ_ICON:
         case OBJ_TEXTAREA:
-            return rotate_visual_object(lobj);
+            ret = rotate_visual_object(lobj);
+            break;
 
         default:
             LOG_WARN("Unhandled object type %d, skipping transform", \
                      get_type(lobj));
             return -EINVAL;
     }
+
+    if (ret) {
+        LOG_ERROR("Object [%s] transform failed, ret %d", get_name(lobj), ret);
+        return ret;
+    }
+
+    lv_obj_mark_layout_as_dirty(lobj);
+
+    return 0;
 }
 
 static int32_t refresh_object(lv_obj_t *lobj)
