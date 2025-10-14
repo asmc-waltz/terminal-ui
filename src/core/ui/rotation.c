@@ -507,7 +507,7 @@ static inline int32_t handle_object_transform(lv_obj_t *lobj)
     if (meta->data.pre_rotate_cb) {
         ret = meta->data.pre_rotate_cb(lobj);
         if (ret) {
-            LOG_ERROR("Failed to execute redraw callback for object %s", \
+            LOG_ERROR("Object [%s] pre-rotation callback execution failed", \
                       get_name(lobj));
             return ret;
         }
@@ -537,6 +537,15 @@ static inline int32_t handle_object_transform(lv_obj_t *lobj)
     if (ret) {
         LOG_ERROR("Object [%s] transform failed, ret %d", get_name(lobj), ret);
         return ret;
+    }
+
+    if (meta->data.post_rotate_cb) {
+        ret = meta->data.post_rotate_cb(lobj);
+        if (ret) {
+            LOG_ERROR("Object [%s] post-rotation callback execution failed", \
+                      get_name(lobj));
+            return ret;
+        }
     }
 
     lv_obj_mark_layout_as_dirty(lobj);
@@ -648,6 +657,15 @@ int32_t refresh_object_tree_layout(lv_obj_t *lobj)
         LOG_ERROR("Object [%s] id %d: child rotation failed", \
                   get_name(lobj), meta->id);
         return ret;
+    }
+
+    if (meta->data.post_children_rotate_cb) {
+        ret = meta->data.post_children_rotate_cb(lobj);
+        if (ret) {
+            LOG_ERROR("Object [%s] post-children rotation callback failed", \
+                      get_name(lobj));
+            return ret;
+        }
     }
 
     if (get_layout_type(lobj) == OBJ_LAYOUT_FLEX) {

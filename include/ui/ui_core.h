@@ -63,6 +63,7 @@ typedef struct {
      */
     int32_t (*pre_rotate_cb)(lv_obj_t *lobj);
     int32_t (*post_rotate_cb)(lv_obj_t *lobj);
+    int32_t (*post_children_rotate_cb)(lv_obj_t *lobj);
 } obj_data_t;
 
 typedef struct {
