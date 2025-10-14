@@ -204,57 +204,6 @@ static void rotate_key_handler(lv_event_t *event)
 
     refresh_object_tree_layout(ctx->scr.now.obj);
 
-    lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-                                   &get_meta(lv_screen_active())->child);
-
-    int32_t scr_rot = get_scr_rotation();
-    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        if (detail_window_added) {
-            ret = remove_grid_layout_last_row_dsc(win_setting);
-            if (ret) {
-                LOG_ERROR("Remove setting detail info failed, ret %d", ret);
-            } else {
-                detail_window_added = false;
-                new_window = true;
-            }
-        }
-    } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        if (!detail_window_added) {
-            ret = add_grid_layout_col_dsc(win_setting, LV_GRID_FR(65));
-            if (ret) {
-                LOG_ERROR("Add setting detail info failed, ret %d", ret);
-            } else {
-                detail_window_added = true;
-            }
-        }
-    }
-
-    apply_grid_layout_config(win_setting);
-
-    if (detail_window_added == true && new_window == true) {
-        lv_obj_t *detail = create_box(win_setting, WINDOW_SETTING".detail");
-
-        if (scr_rot == ROTATION_0)
-            set_grid_cell_align(detail, \
-                            LV_GRID_ALIGN_STRETCH, 1, 1,
-                            LV_GRID_ALIGN_STRETCH, 0, 1);
-        else {
-            set_grid_cell_align(detail, \
-                            LV_GRID_ALIGN_STRETCH, 0, 1,
-                            LV_GRID_ALIGN_STRETCH, 0, 1);
-            // TODO: cheating for wrapper
-            get_meta(detail)->data.rotation = ROTATION_180;
-        }
-
-        lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
-
-        lv_obj_t *brightness_win = create_brightness_detail_setting(detail,
-                                         WINDOW_SETTING".detail.brightness");
-
-        refresh_object_tree_layout(brightness_win);
-        new_window = false;
-    }
-
     if (kb) {
         kb = create_keyboard(keyboard_box);
         if (!kb)

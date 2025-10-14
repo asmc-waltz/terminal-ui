@@ -77,6 +77,62 @@ static void menu_item_event_handler(lv_event_t *e)
     }
 }
 
+int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
+{
+    int32_t ret = 0;
+    static bool detail_visible = true;
+    static bool pending_detail_create = false;
+    int32_t scr_rot = get_scr_rotation();
+
+    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
+        if (detail_visible) {
+            ret = remove_grid_layout_last_row_dsc(lobj);
+            if (ret) {
+                LOG_ERROR("Remove detail layout failed, ret %d", ret);
+            } else {
+                detail_visible = false;
+                pending_detail_create = true;
+            }
+        }
+    } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
+        if (!detail_visible) {
+            ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(65));
+            if (ret) {
+                LOG_ERROR("Add detail layout failed, ret %d", ret);
+            } else {
+                detail_visible = true;
+            }
+        }
+    }
+
+    apply_grid_layout_config(lobj);
+
+    if (detail_visible && pending_detail_create) {
+        lv_obj_t *detail = create_box(lobj, WINDOW_SETTING ".detail");
+
+        if (scr_rot == ROTATION_0)
+            set_grid_cell_align(detail,
+                                LV_GRID_ALIGN_STRETCH, 1, 1,
+                                LV_GRID_ALIGN_STRETCH, 0, 1);
+        else {
+            set_grid_cell_align(detail,
+                                LV_GRID_ALIGN_STRETCH, 0, 1,
+                                LV_GRID_ALIGN_STRETCH, 0, 1);
+            get_meta(detail)->data.rotation = ROTATION_180;
+        }
+
+        lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
+
+        lv_obj_t *brightness_win = create_brightness_detail_setting(detail,
+                                         WINDOW_SETTING ".detail.brightness");
+
+        refresh_object_tree_layout(brightness_win);
+        pending_detail_create = false;
+    }
+
+    return 0;
+}
+
 /*
  * Menu item: an entry to open a specific setting window.
  * Each menu item consists of a symbol (icon) and a title label.
@@ -298,6 +354,8 @@ lv_obj_t *create_setting_window(lv_obj_t *par)
     if (ret)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
                  get_name(lobj), ret);
+
+    get_meta(lobj)->data.post_children_rotate_cb = show_and_hide_detail_cb;
 
     return lobj;
 }
