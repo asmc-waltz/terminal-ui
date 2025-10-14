@@ -37,6 +37,7 @@ typedef struct {
     lv_obj_t *act_menu_item;
     lv_obj_t *page_ctn;
     lv_obj_t *act_page;
+    lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *);
     bool hid_detail;            // Hide detail setting in vertical screen;
 } menu_ctx_t;
 
@@ -77,7 +78,7 @@ static void menu_item_event_handler(lv_event_t *e)
         // refresh_object_tree_layout(set);
 
         menu_ctx_t *menu_ctx = get_internal_data(win_setting);
-        set_menu_page_active(win_setting, WINDOW_SETTING".detail.brightness", create_brightness_setting);
+        set_active_menu_page(win_setting, WINDOW_SETTING".detail.brightness", create_brightness_setting);
 
         // refresh_object_tree_layout(brightness_win);
         refresh_object_tree_layout(menu_ctx->act_page);
@@ -151,12 +152,8 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
 
         lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
 
-        // lv_obj_t *brightness_win = create_brightness_setting(detail,
-        //                                  WINDOW_SETTING ".detail.brightness");
-        //
-        set_menu_page_active(lobj, WINDOW_SETTING".detail.brightness", create_brightness_setting);
+        load_active_menu_page(lobj);
 
-        // refresh_object_tree_layout(brightness_win);
         refresh_object_tree_layout(menu_ctx->act_page);
         pending_detail_create = false;
     }
@@ -467,33 +464,25 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-int32_t set_menu_page_active(lv_obj_t *lobj, const char *name, \
-                                    lv_obj_t *(*create_page_cb)(lv_obj_t *, \
-                                                                const char *))
+int32_t load_active_menu_page(lv_obj_t *lobj)
 {
     menu_ctx_t *menu_ctx;
     lv_obj_t *page;
 
-    if (!lobj)
+    menu_ctx = lobj ? get_internal_data(lobj) : NULL;
+    if (!menu_ctx)
         return -EINVAL;
 
-    menu_ctx = get_internal_data(lobj);
-    if (!menu_ctx)
+    if (!menu_ctx->create_page_cb)
         return -EIO;
 
-    if (menu_ctx->act_page) {
-        LOG_WARN("Menu page [%s] is activating. ignore the current request", \
-                 get_name(menu_ctx->act_page));
-        return 0;
-    }
-
     if (menu_ctx->page_ctn) {
-        page = create_page_cb(menu_ctx->page_ctn, name);
+        page = menu_ctx->create_page_cb(menu_ctx->page_ctn, "TODO");
         if (!page)
             return -EIO;
     } else {
         LOG_WARN("Reuse the menu bar space");
-        page = create_page_cb(menu_ctx->menu_ctn, name);
+        page = menu_ctx->create_page_cb(menu_ctx->menu_ctn, "TODO");
         if (!page)
             return -EIO;
     }
@@ -502,3 +491,25 @@ int32_t set_menu_page_active(lv_obj_t *lobj, const char *name, \
 
     return 0;
 }
+
+int32_t set_active_menu_page(lv_obj_t *lobj, const char *name, \
+                                    lv_obj_t *(*create_page_cb)(lv_obj_t *, \
+                                                                const char *))
+{
+    menu_ctx_t *menu_ctx;
+
+    menu_ctx = lobj ? get_internal_data(lobj) : NULL;
+    if (!menu_ctx)
+        return -EINVAL;
+
+    if (menu_ctx->act_page) {
+        LOG_WARN("Menu page [%s] is activating -> ignore request", \
+                 get_name(menu_ctx->act_page));
+        return 0;
+    }
+
+    menu_ctx->create_page_cb = create_page_cb;
+
+    return load_active_menu_page(lobj);
+}
+

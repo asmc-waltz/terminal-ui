@@ -337,7 +337,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
                         LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    set_menu_page_active(setting_container, "BRIGHTNESS", create_brightness_setting);
+    set_active_menu_page(setting_container, "BRIGHTNESS", create_brightness_setting);
     /*-----------------------------------------
      * Save context for future reference
      *----------------------------------------*/
