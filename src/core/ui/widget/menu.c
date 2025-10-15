@@ -482,6 +482,51 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
     return menu_bar;
 }
 
+/*
+ * Create a menu page under the given parent.
+ * Each page uses a flex column layout with a control bar on top.
+ */
+lv_obj_t *create_menu_page(lv_obj_t *par, const char *name)
+{
+    lv_obj_t *page;
+    lv_obj_t *control;
+    char name_buf[64];
+    int32_t ret;
+
+    if (!par)
+        return NULL;
+
+    page = create_flex_layout_object(par, name);
+    if (!page)
+        return NULL;
+
+    lv_obj_set_style_bg_color(page, lv_color_hex(bg_color(120)), 0);
+    set_size(page, LV_PCT(100), LV_PCT(100));
+    set_align(page, par, LV_ALIGN_CENTER, 0, 0);
+
+    ret = set_padding(page, 4, 4, 4, 4);
+    if (ret)
+        LOG_WARN("Page [%s] set padding failed (%d)", get_name(page), ret);
+
+    set_row_padding(page, 20);
+    set_flex_layout_flow(page, LV_FLEX_FLOW_COLUMN);
+    set_flex_layout_align(page, \
+                          LV_FLEX_ALIGN_START, \
+                          LV_FLEX_ALIGN_CENTER, \
+                          LV_FLEX_ALIGN_CENTER);
+
+    lv_obj_set_style_width(page, 1, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_all(page, 0, LV_PART_SCROLLBAR);
+    lv_obj_set_style_margin_all(page, 0, LV_PART_SCROLLBAR);
+
+    snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
+    control = create_page_control(page, name_buf, true, false);
+    if (!control)
+        return NULL;
+
+    return page;
+}
+
 int32_t set_active_menu_page(lv_obj_t *lobj, \
                              lv_obj_t *(*create_page_cb)(lv_obj_t *, \
                                                          const char *))

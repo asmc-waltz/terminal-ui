@@ -48,6 +48,7 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
                            const char *sym_index, const char *title,\
                            lv_obj_t *(* create_page_cb)(lv_obj_t *, const char *));
+lv_obj_t *create_menu_page(lv_obj_t *par, const char *name);
 
 /**********************
  *      MACROS
