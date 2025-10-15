@@ -42,8 +42,8 @@ typedef struct {
 } menu_ctx_t;
 
 typedef struct {
-    menu_ctx_t *menu_ctx;
-    lv_obj_t *(*page_cb)(lv_obj_t *, const char *);
+    lv_obj_t *menu;
+    lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *);
 } item_ctx_t;
 
 /**********************
@@ -65,6 +65,42 @@ typedef struct {
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+int32_t load_menu_item_page(lv_obj_t *lobj)
+{
+    lv_obj_t *menu;
+    menu_ctx_t *menu_ctx;
+    item_ctx_t *item_ctx;
+    int32_t ret = 0;
+
+    item_ctx = lobj ? (item_ctx_t *)get_internal_data(lobj) : NULL;
+    if (!item_ctx)
+        return -EINVAL;
+
+    menu = item_ctx->menu;
+    if (!menu)
+        return -EIO;
+
+
+    menu_ctx = get_internal_data(item_ctx->menu);
+    if (!menu_ctx)
+        return -EIO;
+
+    if (menu_ctx->act_menu_item != lobj && menu_ctx->act_page) {
+        remove_obj_and_child(get_meta(menu_ctx->act_page)->id, \
+                                     &get_meta(menu)->child);
+
+        menu_ctx->act_page = NULL;
+    }
+
+    ret = set_active_menu_page(menu, item_ctx->create_page_cb);
+    if (ret)
+        return ret; 
+
+    menu_ctx->act_menu_item = lobj;
+    
+    return refresh_object_tree_layout(menu_ctx->act_page);
+}
+
 static void menu_item_event_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -76,13 +112,7 @@ static void menu_item_event_handler(lv_event_t *e)
         break;
     case LV_EVENT_RELEASED:
         lv_obj_set_style_bg_color(obj, lv_color_hex(bg_color(1)), 0);
-        lv_obj_t *win_setting = get_obj_by_name(WINDOW_SETTING, \
-                                       &get_meta(lv_screen_active())->child);
-
-        menu_ctx_t *menu_ctx = get_internal_data(win_setting);
-        set_active_menu_page(win_setting, create_brightness_setting);
-
-        refresh_object_tree_layout(menu_ctx->act_page);
+        load_menu_item_page(obj);
         break;
     case LV_EVENT_CLICKED:
         LV_LOG_USER("Box clicked!");
@@ -137,16 +167,16 @@ int32_t create_page_ctn(lv_obj_t *menu)
     return 0;
 }
 
-int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
+int32_t show_and_hide_detail_cb(lv_obj_t *menu)
 {
     int32_t ret = 0;
-    menu_ctx_t *menu_ctx = get_internal_data(lobj);
+    menu_ctx_t *menu_ctx = get_internal_data(menu);
 
     int32_t scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
         if (menu_ctx->page_visible) {
-            ret = remove_grid_layout_last_row_dsc(lobj);
+            ret = remove_grid_layout_last_row_dsc(menu);
             if (ret) {
                 LOG_ERROR("Remove detail layout failed, ret %d", ret);
             } else {
@@ -157,7 +187,7 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
         }
     } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
         if (!menu_ctx->page_visible) {
-            ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(65));
+            ret = add_grid_layout_col_dsc(menu, LV_GRID_FR(65));
             if (ret) {
                 LOG_ERROR("Add detail layout failed, ret %d", ret);
             } else {
@@ -169,17 +199,17 @@ int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
              * state and parent will be the menu bar container instead of page
              */
             if (menu_ctx->act_page) {
-                remove_obj_and_child_by_name(get_name(menu_ctx->act_page), \
-                                             &get_meta(lobj)->child);
+                remove_obj_and_child(get_meta(menu_ctx->act_page)->id, \
+                                     &get_meta(menu)->child);
                 menu_ctx->act_page = NULL;
             }
         }
     }
 
-    apply_grid_layout_config(lobj);
+    apply_grid_layout_config(menu);
 
     if (menu_ctx->page_visible && !menu_ctx->page_ctn) {
-        if (create_page_ctn(lobj) || load_active_menu_page(lobj)) {
+        if (create_page_ctn(menu) || load_active_menu_page(menu)) {
             return -EIO;
         }
         refresh_object_tree_layout(menu_ctx->act_page);
@@ -249,21 +279,22 @@ static int32_t initial_menu_views(lv_obj_t *menu)
  * Menu item: an entry to open a specific setting window.
  * Each menu item consists of a symbol (icon) and a title label.
  */
-lv_obj_t *create_menu_item(lv_obj_t *par, \
-                           const char *sym_index, const char *title)
+lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
+                           const char *sym_index, const char *title,\
+                           lv_obj_t *(* create_page_cb)(lv_obj_t *, const char *))
 {
     lv_obj_t *item, *sym, *label;
     lv_obj_t *first_child;
     item_ctx_t *item_ctx;
     char name_buf[100];
 
-    if (!par)
+    if (!menu || !menu_bar)
         return NULL;
 
-    sprintf(name_buf, "%s.%s", get_name(par), title);
+    sprintf(name_buf, "%s.%s", get_name(menu_bar), title);
 
     /* Create container (menu item) */
-    item = create_flex_layout_object(par, name_buf);
+    item = create_flex_layout_object(menu_bar, name_buf);
     if (!item)
         return NULL;
 
@@ -282,7 +313,7 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
     lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
 
     /* Style */
-    first_child = lv_obj_get_child(par, 0);
+    first_child = lv_obj_get_child(menu_bar, 0);
     if (first_child != item) {
         set_border_side(item, LV_BORDER_SIDE_TOP);
         lv_obj_set_style_border_width(item, 2, 0);
@@ -305,6 +336,8 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
         LOG_ERROR("Menu label [%s] create symbol failed", name_buf);
 
     set_internal_data(item, item_ctx);
+    item_ctx->create_page_cb = create_page_cb;
+    item_ctx->menu = menu;
 
     return item;
 }
