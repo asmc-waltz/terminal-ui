@@ -332,12 +332,11 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /*-----------------------------------------
      * Create setting container section
      *----------------------------------------*/
-    setting_container = create_menu(base, WINDOW_SETTING);
+    setting_container = create_setting_window(base, WINDOW_SETTING);
     set_grid_cell_align(setting_container,
                         LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    set_active_menu_page(setting_container, "BRIGHTNESS", create_brightness_setting);
     /*-----------------------------------------
      * Save context for future reference
      *----------------------------------------*/

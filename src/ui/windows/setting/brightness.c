@@ -24,6 +24,7 @@
 #include "ui/fonts.h"
 #include "ui/comps.h"
 #include "ui/windows.h"
+#include "ui/widget.h"
 
 /*********************
  *      DEFINES
@@ -75,10 +76,6 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 
     if (!par)
         return -EINVAL;
-
-    group = create_window_control_bar(par, "BRIGHTNESS-BACK", true, false);
-    if (!group)
-        return -ENOMEM;
 
     /* Section: Brightness description */
     group = create_vertical_flex_group(par, "BRIGHTNESS-ABOUT");
@@ -140,37 +137,26 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_brightness_setting(lv_obj_t *par, const char *name)
+lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
 {
-    lv_obj_t *brightness_box;
+    lv_obj_t *page;
 
-    if (!par)
+    page = create_menu_page(menu, par, name);
+    if (!page)
         return NULL;
 
-    brightness_box = create_flex_layout_object(par, name);
-    if (!brightness_box)
+    create_brightness_setting_items(page);
+
+    return page;
+}
+
+lv_obj_t *create_brightness2_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
+{
+    lv_obj_t *page;
+
+    page = create_menu_page(menu, par, name);
+    if (!page)
         return NULL;
 
-    /* Visual style */
-    lv_obj_set_style_bg_color(brightness_box, lv_color_hex(bg_color(120)), 0);
-    set_size(brightness_box, LV_PCT(98), LV_PCT(98));
-    set_align(brightness_box, par, LV_ALIGN_CENTER, 0, 0);
-    /* Padding and spacing */
-    set_padding(brightness_box, 4, 4, 4, 4);
-    set_row_padding(brightness_box, 20);
-    /* Scrollbar cleanup */
-    lv_obj_set_style_width(brightness_box, 1, LV_PART_SCROLLBAR);
-    lv_obj_set_style_pad_all(brightness_box, 0, LV_PART_SCROLLBAR);
-    lv_obj_set_style_margin_all(brightness_box, 0, LV_PART_SCROLLBAR);
-
-    create_brightness_setting_items(brightness_box);
-
-    /* Layout configuration */
-    set_flex_layout_flow(brightness_box, LV_FLEX_FLOW_COLUMN);
-    set_flex_layout_align(brightness_box, \
-                          LV_FLEX_ALIGN_START, \
-                          LV_FLEX_ALIGN_CENTER, \
-                          LV_FLEX_ALIGN_CENTER);
-
-    return brightness_box;
+    return page;
 }
