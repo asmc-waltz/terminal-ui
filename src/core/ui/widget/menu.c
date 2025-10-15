@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -38,8 +38,13 @@ typedef struct {
     lv_obj_t *page_ctn;
     lv_obj_t *act_page;
     lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *);
-    bool hid_detail;            // Hide detail setting in vertical screen;
+    bool page_visible;
 } menu_ctx_t;
+
+typedef struct {
+    menu_ctx_t *menu_ctx;
+    lv_obj_t *(*page_cb)(lv_obj_t *, const char *);
+} item_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -75,7 +80,7 @@ static void menu_item_event_handler(lv_event_t *e)
                                        &get_meta(lv_screen_active())->child);
 
         menu_ctx_t *menu_ctx = get_internal_data(win_setting);
-        set_active_menu_page(win_setting, WINDOW_SETTING".detail.brightness", create_brightness_setting);
+        set_active_menu_page(win_setting, create_brightness_setting);
 
         refresh_object_tree_layout(menu_ctx->act_page);
         break;
@@ -87,71 +92,97 @@ static void menu_item_event_handler(lv_event_t *e)
     }
 }
 
+int32_t create_page_ctn(lv_obj_t *menu)
+{
+    lv_obj_t *page_ctn;
+    int32_t scr_rot, ret;
+    char name_buf[100];
+    menu_ctx_t *menu_ctx;
+
+    menu_ctx = menu ? get_internal_data(menu) : NULL;
+    if (!menu_ctx)
+        return -EINVAL;
+
+    sprintf(name_buf, "%s.%s", get_name(menu), "PAGE_CTN");
+    /* Create the default page_ctn space as the right side colum */
+    page_ctn = create_box(menu, name_buf);
+    if (!page_ctn)
+        return -EINVAL;
+
+    scr_rot = get_scr_rotation();
+    if (scr_rot == ROTATION_0)
+        set_grid_cell_align(page_ctn,
+                            LV_GRID_ALIGN_STRETCH, 1, 1,
+                            LV_GRID_ALIGN_STRETCH, 0, 1);
+        // The object rotation is set as ROTATION_0 by default
+    else {
+        set_grid_cell_align(page_ctn,
+                            LV_GRID_ALIGN_STRETCH, 0, 1,
+                            LV_GRID_ALIGN_STRETCH, 0, 1);
+        /*
+         * If the object is created while screen is rotated to 180.
+         * We must set this value to correct the next rotation turn.
+         */
+        get_meta(page_ctn)->data.rotation = ROTATION_180;
+    }
+
+    /*
+     * Page container will contain the detail information or configuration depend
+     * on the activated item in menu bar. As know as the container of user interative
+     * configuration.
+     */
+
+    menu_ctx->page_ctn = page_ctn;
+
+    return 0;
+}
+
 int32_t show_and_hide_detail_cb(lv_obj_t *lobj)
 {
     int32_t ret = 0;
-    static bool detail_visible = true;
-    static bool pending_detail_create = false;
     menu_ctx_t *menu_ctx = get_internal_data(lobj);
 
     int32_t scr_rot = get_scr_rotation();
 
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        if (detail_visible) {
+        if (menu_ctx->page_visible) {
             ret = remove_grid_layout_last_row_dsc(lobj);
             if (ret) {
                 LOG_ERROR("Remove detail layout failed, ret %d", ret);
             } else {
-                detail_visible = false;
-                pending_detail_create = true;
+                menu_ctx->page_visible = false;
                 menu_ctx->page_ctn = NULL;
                 menu_ctx->act_page = NULL;
             }
         }
     } else if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        if (!detail_visible) {
+        if (!menu_ctx->page_visible) {
             ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(65));
             if (ret) {
                 LOG_ERROR("Add detail layout failed, ret %d", ret);
             } else {
-                detail_visible = true;
+                menu_ctx->page_visible = true;
             }
 
-            // User access menu or rotate from 0/180
-            // TODO: remove before rotation -> fix parent size issue
+            /*
+             * Active page could be created by user while the screen in vertical
+             * state and parent will be the menu bar container instead of page
+             */
             if (menu_ctx->act_page) {
                 remove_obj_and_child_by_name(get_name(menu_ctx->act_page), \
                                              &get_meta(lobj)->child);
+                menu_ctx->act_page = NULL;
             }
-            menu_ctx->act_page = NULL;
         }
     }
 
     apply_grid_layout_config(lobj);
 
-    if (detail_visible && pending_detail_create) {
-        lv_obj_t *detail = create_box(lobj, WINDOW_SETTING ".detail");
-        if (detail) {
-            menu_ctx->page_ctn = detail;
+    if (menu_ctx->page_visible && !menu_ctx->page_ctn) {
+        if (create_page_ctn(lobj) || load_active_menu_page(lobj)) {
+            return -EIO;
         }
-
-        if (scr_rot == ROTATION_0)
-            set_grid_cell_align(detail,
-                                LV_GRID_ALIGN_STRETCH, 1, 1,
-                                LV_GRID_ALIGN_STRETCH, 0, 1);
-        else {
-            set_grid_cell_align(detail,
-                                LV_GRID_ALIGN_STRETCH, 0, 1,
-                                LV_GRID_ALIGN_STRETCH, 0, 1);
-            get_meta(detail)->data.rotation = ROTATION_180;
-        }
-
-        lv_obj_set_style_bg_color(detail, lv_color_hex(bg_color(100)), 0);
-
-        load_active_menu_page(lobj);
-
         refresh_object_tree_layout(menu_ctx->act_page);
-        pending_detail_create = false;
     }
 
     return 0;
@@ -164,14 +195,16 @@ static int32_t create_menu_views(lv_obj_t *menu)
     int32_t ret;
     lv_obj_t *menu_ctn, *page_ctn;
     menu_ctx_t *menu_ctx;
+    char name_buf[100];
+
 
     menu_ctx = menu ? get_internal_data(menu) : NULL;
     if (!menu_ctx)
         return -EINVAL;
 
+    sprintf(name_buf, "%s.%s", get_name(menu), "MENU_CTN");
     /* Create the default menu bar as the left side colum */
-
-    menu_ctn = create_box(menu, WINDOW_SETTING".menu_cnt");
+    menu_ctn = create_box(menu, name_buf);
     if (!menu_ctn)
         return -EINVAL;
 
@@ -185,22 +218,7 @@ static int32_t create_menu_views(lv_obj_t *menu)
      * be automatically call when menu bar item is clicked.
      */
 
-    /* Create the default page_ctn space as the right side colum */
-    page_ctn = create_box(menu, WINDOW_SETTING".page_ctn");
-    if (!page_ctn)
-        return -EINVAL;
-
-    menu_ctx->page_ctn = page_ctn;
-    set_grid_cell_align(page_ctn, \
-                        LV_GRID_ALIGN_STRETCH, 1, 1,
-                        LV_GRID_ALIGN_STRETCH, 0, 1);
-    /*
-     * Page container will contain the detail information or configuration depend
-     * on the activated item in menu bar. As know as the container of user interative
-     * configuration.
-     */
-
-    return 0;
+    return create_page_ctn(menu);
 }
 
 static int32_t initial_menu_views(lv_obj_t *menu)
@@ -214,10 +232,13 @@ static int32_t initial_menu_views(lv_obj_t *menu)
         return -EINVAL;
 
     ret = create_menu_views(menu);
-    if (ret)
+    if (ret) {
         LOG_WARN("Layout [%s] create holder failed, ret %d", \
                  get_name(menu), ret);
+        return ret;
+    }
 
+    return 0;
 }
 
 
@@ -228,20 +249,26 @@ static int32_t initial_menu_views(lv_obj_t *menu)
  * Menu item: an entry to open a specific setting window.
  * Each menu item consists of a symbol (icon) and a title label.
  */
-lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
-                                  const char *sym_index, const char *title)
+lv_obj_t *create_menu_item(lv_obj_t *par, \
+                           const char *sym_index, const char *title)
 {
-    lv_obj_t *item;
-    lv_obj_t *sym;
-    lv_obj_t *label;
+    lv_obj_t *item, *sym, *label;
     lv_obj_t *first_child;
+    item_ctx_t *item_ctx;
+    char name_buf[100];
 
     if (!par)
         return NULL;
 
+    sprintf(name_buf, "%s.%s", get_name(par), title);
+
     /* Create container (menu item) */
-    item = create_flex_layout_object(par, name);
+    item = create_flex_layout_object(par, name_buf);
     if (!item)
+        return NULL;
+
+    item_ctx = (item_ctx_t *)calloc(1, sizeof(item_ctx_t));
+    if (!item_ctx)
         return NULL;
 
     set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
@@ -271,11 +298,13 @@ lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
     /* Create children: symbol + title */
     sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
     if (!sym)
-        LOG_ERROR("Create symbol failed");
+        LOG_ERROR("Menu item [%s] create symbol failed", name_buf);
 
     label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
     if (!label)
-        LOG_ERROR("Create label failed");
+        LOG_ERROR("Menu label [%s] create symbol failed", name_buf);
+
+    set_internal_data(item, item_ctx);
 
     return item;
 }
@@ -288,11 +317,14 @@ lv_obj_t *create_menu_item(lv_obj_t *par, const char *name, \
 lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
 {
     lv_obj_t *group;
+    char name_buf[100];
 
     if (!par)
         return NULL;
 
-    group = create_flex_layout_object(par, name);
+    sprintf(name_buf, "%s.%s", get_name(par), name);
+
+    group = create_flex_layout_object(par, name_buf);
     if (!group)
         return NULL;
 
@@ -320,16 +352,19 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
  * This bar is organized in a vertical flex layout, and itself
  * contains one or more grouped flex containers.
  */
-lv_obj_t *create_menu_bar(lv_obj_t *menu, const char *name)
+lv_obj_t *create_menu_bar(lv_obj_t *menu)
 {
     lv_obj_t *menu_bar;
     menu_ctx_t *menu_ctx;
+    char name_buf[100];
 
     menu_ctx = menu ? get_internal_data(menu) : NULL;
     if (!menu_ctx)
         return NULL;
 
-    menu_bar = create_flex_layout_object(menu_ctx->menu_ctn, name);
+    sprintf(name_buf, "%s.%s", get_name(menu_ctx->menu_ctn), "MENU_BAR");
+
+    menu_bar = create_flex_layout_object(menu_ctx->menu_ctn, name_buf);
     if (!menu_bar)
         return NULL;
 
@@ -385,9 +420,9 @@ int32_t load_active_menu_page(lv_obj_t *lobj)
     return 0;
 }
 
-int32_t set_active_menu_page(lv_obj_t *lobj, const char *name, \
-                                    lv_obj_t *(*create_page_cb)(lv_obj_t *, \
-                                                                const char *))
+int32_t set_active_menu_page(lv_obj_t *lobj, \
+                             lv_obj_t *(*create_page_cb)(lv_obj_t *, \
+                                                         const char *))
 {
     menu_ctx_t *menu_ctx;
 
@@ -418,6 +453,8 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
     menu_ctx = (menu_ctx_t *)calloc(1, sizeof(menu_ctx_t));
     if (!menu_ctx)
         return NULL;
+
+    menu_ctx->page_visible = true;
 
     /*-----------------------------------------
      * Create menu container using grid layout
