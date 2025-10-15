@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -38,13 +38,13 @@ typedef struct {
     lv_obj_t *act_menu_item;
     lv_obj_t *page_ctn;
     lv_obj_t *act_page;
-    lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *);
+    lv_obj_t *(*create_page_cb)(lv_obj_t*, lv_obj_t *, const char *);
     bool page_visible;
 } menu_ctx_t;
 
 typedef struct {
     lv_obj_t *menu;
-    lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *);
+    lv_obj_t *(*create_page_cb)(lv_obj_t *, lv_obj_t *, const char *);
 } item_ctx_t;
 
 /**********************
@@ -66,6 +66,137 @@ typedef struct {
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static inline void handle_page_ctrl_pressed(lv_obj_t *lobj)
+{
+    lv_obj_set_style_text_color(lobj, lv_color_hex(0xFF6633), 0);
+}
+
+static inline void handle_page_ctrl_released(lv_obj_t *lobj)
+{
+    item_ctx_t *item_ctx;
+    menu_ctx_t *menu_ctx;
+
+    lv_obj_set_style_text_color(lobj, lv_color_hex(0x000000), 0);
+
+    item_ctx = lobj ? (item_ctx_t *)get_internal_data(lobj) : NULL;
+    if (!item_ctx)
+        return;
+
+    menu_ctx = item_ctx->menu ? \
+               (menu_ctx_t *)get_internal_data(item_ctx->menu) : NULL;
+    if (!menu_ctx)
+        return;
+
+    if (menu_ctx->act_page) {
+        remove_obj_and_child(get_meta(menu_ctx->act_page)->id, \
+                             &get_meta(item_ctx->menu)->child);
+        menu_ctx->act_page = NULL;
+    }
+}
+
+static inline void handle_page_ctrl_clicked(lv_obj_t *lobj)
+{
+    LV_LOG_USER("Back [%s] clicked", get_name(lobj));
+}
+
+static void page_control_handler(lv_event_t *e)
+{
+    lv_event_code_t code;
+    lv_obj_t *lobj;
+
+    code = lv_event_get_code(e);
+    lobj = lv_event_get_target(e);
+
+    switch (code) {
+    case LV_EVENT_PRESSED:
+        handle_page_ctrl_pressed(lobj);
+        break;
+
+    case LV_EVENT_RELEASED:
+        handle_page_ctrl_released(lobj);
+        break;
+
+    case LV_EVENT_CLICKED:
+        handle_page_ctrl_clicked(lobj);
+        break;
+
+    default:
+        break;
+    }
+}
+
+static int32_t redraw_page_control(lv_obj_t *lobj)
+{
+    obj_meta_t *meta;
+    int32_t scr_rot;
+
+    meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return -EINVAL;
+
+    scr_rot = get_scr_rotation();
+
+    /* Show control bar only in horizontal orientations */
+    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270)
+        lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+
+    return 0;
+}
+
+/*
+ * Create a horizontal menu control bar containing optional back and
+ * more buttons. The control is hidden by default and only shown when
+ * screen rotation requires it.
+ */
+lv_obj_t *create_menu_page_control(lv_obj_t *menu, lv_obj_t *par, \
+                                   const char *name, \
+                                   bool back_btn_ena, \
+                                   bool more_btn_ena)
+{
+    lv_obj_t *lobj;
+    lv_obj_t *back_btn;
+    lv_obj_t *more_btn;
+    item_ctx_t *item_ctx;
+
+    if (!par)
+        return NULL;
+
+    lobj = create_horizontal_flex_group(par, name);
+    if (!lobj)
+        return NULL;
+
+    item_ctx = calloc(1, sizeof(*item_ctx));
+    if (!item_ctx)
+        return NULL;
+
+    /* base layout */
+    set_padding(lobj, 10, 10, 10, 10);
+    get_meta(lobj)->data.pre_rotate_cb = redraw_page_control;
+    lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+
+    /* back button */
+    back_btn = create_text_box(lobj, NULL, &lv_font_montserrat_24, \
+                               back_btn_ena ? "< Back" : " ");
+    lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
+    if (back_btn_ena) {
+        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(back_btn, page_control_handler, LV_EVENT_ALL, NULL);
+        set_internal_data(back_btn, item_ctx);
+        item_ctx->menu = menu;
+    }
+
+    /* more button */
+    more_btn = create_text_box(lobj, NULL, &lv_font_montserrat_24, \
+                               more_btn_ena ? "..." : " ");
+    lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000ff), 0);
+    if (more_btn_ena)
+        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
+
+    return lobj;
+}
+
 static int32_t load_menu_item_page(lv_obj_t *lobj)
 {
     lv_obj_t *menu;
@@ -131,7 +262,7 @@ static void menu_item_event_handler(lv_event_t *e)
         break;
 
     case LV_EVENT_CLICKED:
-        LV_LOG_USER("Menu item [%s] clicked", get_name(lobj));
+        LOG_TRACE("Menu item [%s] clicked", get_name(lobj));
         break;
 
     default:
@@ -139,14 +270,14 @@ static void menu_item_event_handler(lv_event_t *e)
     }
 }
 
-static int32_t load_active_menu_page(lv_obj_t *lobj)
+static int32_t load_active_menu_page(lv_obj_t *menu)
 {
     menu_ctx_t *menu_ctx;
     lv_obj_t *parent;
     lv_obj_t *page;
     char name_buf[64];
 
-    menu_ctx = lobj ? (menu_ctx_t *)get_internal_data(lobj) : NULL;
+    menu_ctx = menu ? (menu_ctx_t *)get_internal_data(menu) : NULL;
     if (!menu_ctx)
         return -EINVAL;
 
@@ -162,7 +293,7 @@ static int32_t load_active_menu_page(lv_obj_t *lobj)
     snprintf(name_buf, sizeof(name_buf), "%s.PAGE", get_name(parent));
 
     /* Create page via callback */
-    page = menu_ctx->create_page_cb(parent, name_buf);
+    page = menu_ctx->create_page_cb(menu, parent, name_buf);
     if (!page)
         return -EIO;
 
@@ -348,8 +479,10 @@ static int32_t initial_menu_views(lv_obj_t *menu)
  *   GLOBAL FUNCTIONS
  **********************/
 lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
-                           const char *sym_index, const char *title, \
-                           lv_obj_t *(*create_page_cb)(lv_obj_t *, const char *))
+                           const char *sym_index, const char *title,\
+                           lv_obj_t *(* create_page_cb)(lv_obj_t *, \
+                                                        lv_obj_t *, \
+                                                        const char *))
 {
     lv_obj_t *item, *sym, *label, *first_child;
     item_ctx_t *item_ctx;
@@ -486,7 +619,7 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
  * Create a menu page under the given parent.
  * Each page uses a flex column layout with a control bar on top.
  */
-lv_obj_t *create_menu_page(lv_obj_t *par, const char *name)
+lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, const char *name)
 {
     lv_obj_t *page;
     lv_obj_t *control;
@@ -520,20 +653,21 @@ lv_obj_t *create_menu_page(lv_obj_t *par, const char *name)
     lv_obj_set_style_margin_all(page, 0, LV_PART_SCROLLBAR);
 
     snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
-    control = create_page_control(page, name_buf, true, false);
+    control = create_menu_page_control(menu, page, name_buf, true, false);
     if (!control)
         return NULL;
 
     return page;
 }
 
-int32_t set_active_menu_page(lv_obj_t *lobj, \
+int32_t set_active_menu_page(lv_obj_t *menu, \
                              lv_obj_t *(*create_page_cb)(lv_obj_t *, \
+                                                         lv_obj_t *, \
                                                          const char *))
 {
     menu_ctx_t *menu_ctx;
 
-    menu_ctx = lobj ? get_internal_data(lobj) : NULL;
+    menu_ctx = menu ? get_internal_data(menu) : NULL;
     if (!menu_ctx)
         return -EINVAL;
 
@@ -546,7 +680,7 @@ int32_t set_active_menu_page(lv_obj_t *lobj, \
 
     menu_ctx->create_page_cb = create_page_cb;
 
-    return load_active_menu_page(lobj);
+    return load_active_menu_page(menu);
 }
 
 lv_obj_t *create_menu(lv_obj_t *par, const char *name)
@@ -591,7 +725,7 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
     lv_obj_set_style_radius(lobj, 16, 0);
     set_column_padding(lobj, 8);
 
-    ret = set_padding(lobj, 20, 20, 20, 20);
+    ret = set_padding(lobj, 8, 8, 8, 8);
     if (ret)
         LOG_WARN("Layout [%s] set padding failed, ret %d", \
                  get_name(lobj), ret);
