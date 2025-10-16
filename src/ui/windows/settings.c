@@ -61,7 +61,7 @@ static int32_t create_setting_menu_bar_items(lv_obj_t *menu, lv_obj_t *menu_bar)
     group = create_menu_group(menu_bar, "wireless");
     item = create_menu_item(menu, group, \
                             ICON_PLANE_SOLID, "Airplane", \
-                            create_brightness2_setting \
+                            create_airplane_setting \
                             );
     item = create_menu_item(menu, group, \
                             ICON_WIFI_SOLID, "Wi-Fi", \
@@ -189,7 +189,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
     }
 
     /* Set the default active page at the first time menu is rendered */
-    ret = set_active_menu_page(menu, create_brightness_setting);
+    ret = set_active_menu_page(menu, create_airplane_setting);
     if (ret) {
         LOG_ERROR("Menu [%s] set default page failed, ret %d", \
                   get_name(menu), ret);

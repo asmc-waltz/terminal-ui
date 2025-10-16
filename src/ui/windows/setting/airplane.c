@@ -1,5 +1,5 @@
 /**
- * @file brightness.c
+ * @file airplane.c
  *
  */
 
@@ -53,37 +53,38 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void switch_auto_brightness_event_handler(lv_event_t *e)
+static void switch_airplane_enable_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *lobj = lv_event_get_target(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
-        lv_obj_t *manual_brightness = get_obj_by_name("BRIGHTNESS-MANUAL", \
-                                       &get_meta(lv_screen_active())->child);
-        LV_LOG_USER("State: %s\n", lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
+        LOG_TRACE("Switch state: %s\n", \
+                  lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
         if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
-            lv_obj_add_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
+            ;
         } else {
-            lv_obj_clear_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
+            ;
         }
     }
 }
 
-static int32_t create_brightness_setting_items(lv_obj_t *par)
+static int32_t create_airplane_setting_items(lv_obj_t *par)
 {
     lv_obj_t *group, *sym, *label, *swit;
-    const char *desc = "Manual and auto brightness setting";
+    const char *desc = "Turns off all wireless connections.\n"
+                       "Wi-Fi and Bluetooth can be turned\n"
+                       "on again while in airplane mode";
 
     if (!par)
         return -EINVAL;
 
     /* Section: Brightness description */
-    group = create_vertical_flex_group(par, "BRIGHTNESS-ABOUT");
+    group = create_vertical_flex_group(par, "AIRPLANE-ABOUT");
     if (!group)
         return -ENOMEM;
 
     sym = create_symbol_box(group, NULL, &terminal_icons_48, \
-                            ICON_CIRCLE_HALF_STROKE_SOLID);
+                            ICON_PLANE_SOLID);
     if (!sym)
         return -EIO;
 
@@ -91,12 +92,12 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!label)
         return -EIO;
 
-    /* Section: Auto brightness toggle */
-    group = create_horizontal_flex_group(par, "BRIGHTNESS-AUTO");
+    /* Section: Airplane mode toggle */
+    group = create_horizontal_flex_group(par, "AIRPLANE-SWITCH");
     if (!group)
         return -ENOMEM;
 
-    label = create_text_box(group, NULL, &lv_font_montserrat_24, "Auto");
+    label = create_text_box(group, NULL, &lv_font_montserrat_24, "Enable");
     if (!label)
         return -EIO;
 
@@ -104,27 +105,11 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!swit)
         return -EIO;
     lv_obj_add_event_cb(get_box_child(swit), \
-                        switch_auto_brightness_event_handler, \
+                        switch_airplane_enable_handler, \
                         LV_EVENT_ALL, NULL);
 
-    /* Section: Auto brightness toggle */
-    group = create_horizontal_flex_group(par, "BRIGHTNESS-MANUAL");
-    if (!group)
-        return -ENOMEM;
-
-    label = create_text_box(group, NULL, &lv_font_montserrat_24, "Manual");
-    if (!label)
-        return -EIO;
-
-    swit = create_slider(group, NULL);
-    if (!swit)
-        return -EIO;
-
-    set_size(swit, LV_PCT(70), 20);
-
-
     /* Section: Spacer (flex filler) */
-    lv_obj_t *filler = create_box(par, "BRIGHTNESS-FILLER");
+    lv_obj_t *filler = create_box(par, "FILLER");
     if (!filler)
         return -EIO;
 
@@ -137,15 +122,23 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
+lv_obj_t *create_airplane_setting(lv_obj_t *menu, lv_obj_t *par, \
+                                  const char *name)
 {
+    int32_t ret;
     lv_obj_t *page;
 
     page = create_menu_page(menu, par, name);
     if (!page)
         return NULL;
 
-    create_brightness_setting_items(page);
+    ret = create_airplane_setting_items(page);
+    if (ret) {
+        LOG_ERROR("Setting page [%s] create failed, ret %d", \
+                  get_name(page), ret);
+        remove_obj_and_child(get_meta(page)->id, &get_meta(par)->child);
+        return NULL;
+    }
 
     return page;
 }
