@@ -10,7 +10,7 @@
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,16 +22,13 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
-#include <ui/fonts.h>
-#include <ui/ui.h>
-#include <ui/pages.h>
-#include <comm/cmd_payload.h>
-#include <comm/f_comm.h>
-#include <sched/workqueue.h>
-#include <sched/task.h>
+#include "ui/ui_core.h"
+#include "ui/screen.h"
+#include "comm/cmd_payload.h"
+#include "comm/f_comm.h"
+#include "comm/dbus_comm.h"
+#include "sched/workqueue.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -44,18 +41,16 @@
 /**********************
  *  GLOBAL VARIABLES
  **********************/
-extern int32_t event_fd;
-volatile sig_atomic_t g_run = 1;
 
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static void service_shutdown_flow();
 
 /**********************
  *  STATIC VARIABLES
  **********************/
-static lv_display_t *drm_disp = NULL;
-static lv_indev_t *touch_event = NULL;
+static ctx_t *runtime_ctx = NULL;
 
 /**********************
  *      MACROS
@@ -69,16 +64,14 @@ static void sig_handler(int32_t sig)
     switch (sig) {
         case SIGINT:
             LOG_WARN("[+] Received SIGINT (Ctrl+C). Exiting...");
-            g_run = 0;
-            event_set(event_fd, SIGINT);
-            workqueue_stop();
+            service_shutdown_flow();
             break;
         case SIGTERM:
             LOG_WARN("[+] Received SIGTERM. Shutdown...");
             exit(0);
         case SIGABRT:
             LOG_WARN("[+] Received SIGABRT. Exiting...");
-            event_set(event_fd, SIGABRT);
+            event_set(get_ctx()->comm.event, SIGABRT);
             break;
         default:
             LOG_WARN("[!] Received unidentified signal: %d", sig);
@@ -90,82 +83,160 @@ static int32_t setup_signal_handler()
 {
     if (signal(SIGINT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGINT handler");
-        return -1;
+        return -EIO;
     }
 
     if (signal(SIGTERM, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGTERM handler");
-        return -1;
+        return -EIO;
     }
 
     if (signal(SIGABRT, sig_handler) == SIG_ERR) {
         LOG_ERROR("Error registering signal SIGABRT handler");
-        return -1;
+        return -EIO;
     }
 
     return 0;
 }
 
-static lv_display_t *sf_init_drm_display(const char *file, \
-                                         int64_t connector_id)
+static int32_t create_ctx(void)
 {
-    lv_display_t *disp = NULL;
-    int32_t scr_width = 0;
-    int32_t scr_height = 0;
-
-    scr_width = g_get_scr_width();
-    scr_height = g_get_scr_height();
-    if (scr_width <= 0 || scr_height <= 0) {
-        LOG_FATAL("Display width or height resolution not available");
-        return NULL;
+    runtime_ctx = (ctx_t *)calloc(1, sizeof(ctx_t));
+    if (runtime_ctx == NULL) {
+        return -ENOMEM;
     }
 
-    disp = lv_linux_drm_create();
-    if (disp == NULL) {
-        LOG_FATAL("Failed to initialize the display");
-        return NULL;
-    }
-
-    lv_display_set_default(disp);
-    lv_linux_drm_set_file(disp, file, connector_id);
-    lv_display_set_resolution(disp, scr_width, scr_height);
-
-    return disp;
+    return 0;
 }
 
-static lv_indev_t *sf_init_touch_screen(const char *dev_path, \
-                                        lv_display_t *disp)
+static void destroy_ctx(void)
 {
-    lv_indev_t *indev = NULL;
-
-    indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, dev_path);
-    if (!indev) {
-        LOG_FATAL("Failed to initialize touch input device");
-        return NULL;
-    }
-
-    lv_indev_set_display(indev, disp);
-
-    return indev;
+    free(runtime_ctx);
+    runtime_ctx = NULL;
 }
 
-static void gtimer_handler(lv_timer_t * timer)
+ctx_t *get_ctx();
+
+static int32_t service_startup_flow(void)
 {
-    lv_tick_inc(UI_LVGL_TIMER_MS);
+    int32_t ret;
+    pthread_t dbus_handler;
+    ctx_t *ctx;
+
+    ctx = get_ctx();
+    if (!ctx) {
+        exit(-EIO);
+    } else {
+        ctx->run = 1;
+        ctx->comm.event = -1;
+    }
+
+    /* Initialize UI */
+    ret = ui_main_init(ctx);
+    if (ret) {
+        LOG_FATAL("Failed to initialize UI, ret=%d", ret);
+        goto exit_err;
+    }
+
+    /* Prepare eventfd to notify epoll when communicating with threads */
+    ret = init_event_file(ctx);
+    if (ret) {
+        LOG_FATAL("Failed to initialize eventfd, ret=%d", ret);
+        goto exit_ui;
+    }
+
+    ret = workqueue_init();
+    if (ret) {
+        LOG_FATAL("Failed to initialize workqueues, ret=%d", ret);
+        goto exit_event;
+    }
+
+    /* Create DBus listener thread */
+    ret = pthread_create(&dbus_handler, NULL, dbus_fn_thread_handler, NULL);
+    if (ret) {
+        LOG_FATAL("Failed to create DBus listener thread: %s", strerror(ret));
+        goto exit_workqueue;
+    }
+
+    /* Optional delay before sending remote task */
+    usleep(200000);
+
+    /* Turn on backlight via remote task */
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                    OP_BACKLIGHT_ON);
+    if (ret) {
+        LOG_ERROR("Failed to create remote task: backlight on");
+        goto exit_dbus;
+    }
+
+    LOG_INFO("Terminal UI initialization completed");
+    return 0;
+
+/* Cleanup sequence in case of failure */
+exit_dbus:
+    event_set(get_ctx()->comm.event, SIGUSR1);
+
+exit_workqueue:
+    workqueue_deinit();
+
+exit_event:
+    cleanup_event_file(ctx);
+
+exit_ui:
+    ui_main_deinit(ctx);
+
+exit_err:
+    destroy_ctx();
+    return ret;
+}
+
+/**
+ * Gracefully shutdown the system services
+ *
+ * This function ensures all normal tasks are finished, then stops
+ * endless tasks and notifies system and DBus about shutdown.
+ */
+static void service_shutdown_flow(void)
+{
+    int32_t ret;
+    int32_t cnt;
+    ctx_t *ctx = get_ctx();
+
+    /* Turn off backlight via remote task */
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_LONG, \
+                                    OP_BACKLIGHT_OFF);
+    if (ret) {
+        LOG_ERROR("Failed to create remote task: backlight off");
+        return;
+    }
+
+    /* Wait until workqueue is fully drained */
+    cnt = workqueue_active_count(get_wq(UI_WQ));
+    while (cnt) {
+        LOG_TRACE("Waiting for workqueue to be free, remaining work %d", cnt);
+        usleep(100000);
+        cnt = workqueue_active_count(get_wq(UI_WQ));
+    }
+
+    /* Stop background threads and notify shutdown */
+    get_ctx()->run = 0;                 /* Signal threads to stop */
+    event_set(get_ctx()->comm.event, SIGINT);    /* Notify DBus/system about shutdown */
+
+    workqueue_deinit();
+
+    cleanup_event_file(ctx);
+
+    ui_main_deinit(ctx);
+
+    LOG_INFO("Service shutdown flow completed");
 }
 
 static int32_t main_loop()
 {
-    uint32_t cnt = 0;
-
     LOG_INFO("Terminal UI service is running...");
-    while (g_run) {
+    while (get_ctx()->run) {
         lv_task_handler();
         usleep(5000);
-        if (++cnt == 20) {
-            cnt = 0;
-            is_task_handler_idle();
-        }
     };
 
     LOG_INFO("Terminal UI service is exiting...");
@@ -175,81 +246,40 @@ static int32_t main_loop()
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+ctx_t *get_ctx()
+{
+    return runtime_ctx;
+}
+
 int32_t main(void)
 {
-    pthread_t task_handler;
-    lv_timer_t *task_timer = NULL;
     int32_t ret = 0;
-    g_ctx *ctx = NULL;
 
     LOG_INFO("|-----------------------> TERMINAL UI <-----------------------|");
-    if (setup_signal_handler()) {
-        goto exit_error;
-    }
-
-    ret = pthread_create(&task_handler, NULL, main_task_handler, NULL);
+    ret = create_ctx();
     if (ret) {
-        LOG_FATAL("Failed to create worker thread: %s", strerror(ret));
-        goto exit_error;
+        LOG_FATAL("Unable to create application runtime context");
+        return ret;
     }
 
-    // Prepare eventfd to notify epoll when communicating with a thread
-    ret = init_event_file();
+    ret = setup_signal_handler();
     if (ret) {
-        LOG_FATAL("Failed to initialize eventfd");
-        goto exit_workqueue;
+        return ret;
     }
 
-    create_local_simple_task(NON_BLOCK, ENDLESS, OP_START_DBUS);
-
-    ctx = gf_create_app_ctx();
-    gf_set_app_ctx(ctx);
-
-    g_set_scr_size(DISP_WIDTH, DISP_HEIGHT);
-
-    // Initialize LVGL and the associated UI hardware
-    lv_init();
-    drm_disp = sf_init_drm_display(DRM_CARD, DRM_CONNECTOR_ID);
-    touch_event = sf_init_touch_screen(TOUCH_EVENT_FILE, drm_disp);
-
-    task_timer = lv_timer_create(gtimer_handler, UI_LVGL_TIMER_MS,  NULL);
-    if (task_timer == NULL) {
-        LOG_FATAL("Failed to create timer for LVGL task handler");
-        goto exit_listener;
+    ret = service_startup_flow();
+    if (ret) {
+        LOG_FATAL("UI system init flow failed, ret=%d", ret);
+        return ret;
     }
-    lv_timer_ready(task_timer);
 
-    // Initialize LVGL layers as base components
-    gf_register_obj(NULL, lv_layer_sys(), NULL);
-    gf_register_obj(NULL, lv_layer_top(), NULL);
-    gf_register_obj(NULL, lv_screen_active(), NULL);
-    gf_register_obj(NULL, lv_layer_bottom(), NULL);
-
-    LOG_INFO("size of g_obj: %d", sizeof(g_obj));
-    create_scr_page(lv_screen_active(), "screens.common");
-
-    // Terminal-UI's primary tasks are executed within a loop
     ret = main_loop();
     if (ret) {
-        goto exit_listener;
+        return ret;
     }
 
-    pthread_join(task_handler, NULL);
-
-    gf_destroy_app_ctx(gf_get_app_ctx());
-    cleanup_event_file();
-
+    destroy_ctx();
     LOG_INFO("|-------------> All services stopped. Safe exit <-------------|");
+
     return 0;
-
-exit_listener:
-    event_set(event_fd, SIGUSR1);
-
-exit_workqueue:
-    workqueue_stop();
-    pthread_join(task_handler, NULL);
-    cleanup_event_file();
-
-exit_error:
-    return -1;
 }

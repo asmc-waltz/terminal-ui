@@ -1,10 +1,10 @@
 /**
- * @file ui.h
+ * @file screen.h
  *
  */
 
-#ifndef G_UI_H
-#define G_UI_H
+#ifndef G_SCREEN_H
+#define G_SCREEN_H
 /*********************
  *      INCLUDES
  *********************/
@@ -12,8 +12,6 @@
 #include <stdbool.h>
 
 #include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
 
 /*********************
  *      DEFINES
@@ -28,9 +26,24 @@
 
 #define TOUCH_EVENT_FILE                "/dev/input/event1"
 
+#define LAYOUT_SETTING                  "layout.setting"
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
+
+typedef struct scr_space {
+    lv_obj_t *obj;
+} space_t;
+
+typedef struct screen {
+    lv_display_t *drm_disp;
+    lv_indev_t *touch_event;
+    int32_t width;
+    int32_t height;
+    int32_t rotation;
+    space_t now;
+} scr_ctx_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -50,9 +63,10 @@
 /*=====================
  * Other functions
  *====================*/
+lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name);
 
 /**********************
  *      MACROS
  **********************/
 
-#endif /* G_UI_H */
+#endif /* G_SCREEN_H */

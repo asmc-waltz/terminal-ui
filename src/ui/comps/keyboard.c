@@ -10,7 +10,7 @@
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,14 +19,22 @@
 #include <stdbool.h>
 
 #include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
-#include <ui/comps.h>
-#include <ux/ux.h>
+#include "list.h"
+#include "ui/ui_core.h"
+#include "ui/comps.h"
+#include "ux/ux.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
  *********************/
+#define KEYBOARD_WIDTH                  100      // %
+#define KEYBOARD_HEIGHT                 100      // %
+#define KEYBOARD_PAD_TOP                0       // %
+#define KEYBOARD_PAD_BOT                1       // %
+#define KEYBOARD_PAD_LEFT               1       // %
+#define KEYBOARD_PAD_RIGHT              1       // %
+
 #define KEYBOARD_BG_COLOR               0xADBACC
 #define NORM_K_COLOR                    0xFFFFFF
 #define FUNC_K_COLOR                    0xCCD6E3
@@ -349,14 +357,14 @@ static void kb_key_cb(lv_event_t *event)
     int32_t ret;
     bool haptic_req = false;
 
-    key_data = (const key_def *)get_gobj_data(btn);
+    key_data = (const key_def *)get_internal_data(btn);
     if (!key_data) {
         LOG_ERROR("Unable to get key internal data");
         return;
     }
 
     LOG_TRACE("KB: key ID[%d] is pressed, text data: (%s)", \
-              get_gobj(btn)->id, key_data->label);
+              get_meta(btn)->id, key_data->label);
 
     // TODO: Push local work
     switch (key_data->type) {
@@ -395,32 +403,6 @@ static void kb_key_cb(lv_event_t *event)
         LOG_WARN("Audio feedback request failed");
 }
 
-static lv_obj_t *create_key(lv_obj_t *par, const key_def *key)
-{
-    lv_obj_t *btn, *lbl;
-
-    if (key->type <= T_KEY_TYPE || key->type >= T_KEY_LAYOUT_FLAG) {
-        LOG_ERROR("KB: unable to create key, invalid type %d", key->type);
-        return NULL;
-    }
-
-    btn = gf_create_btn(par, key->label);
-    if (!btn)
-        return NULL;
-    lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_pad_all(btn, 0, 0);
-    lv_obj_set_style_pad_gap(btn, 0, 0);
-    lv_obj_set_style_shadow_width(btn, 0, 0);
-    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, btn->user_data);
-
-    lbl = gf_create_text(btn, NULL, 10, 10, key->label);
-    if (!lbl)
-        return NULL;
-    lv_obj_set_style_text_font(lbl, KEYBOARD_CHAR_FONTS, 0);
-
-    return btn;
-}
-
 static void set_key_size(lv_obj_t *lobj, const key_def *key, kb_size_ctx *size)
 {
     int32_t key_w = 0;
@@ -454,7 +436,7 @@ static void set_key_size(lv_obj_t *lobj, const key_def *key, kb_size_ctx *size)
         break;
     }
 
-    gf_gobj_set_size(lobj, key_w, size->key_com_h);
+    set_size(lobj, key_w, size->key_com_h);
 }
 
 static void set_key_color(lv_obj_t *lobj, const key_def *key)
@@ -493,23 +475,23 @@ int32_t calc_kb_size_data(lv_obj_t *par, kb_size_ctx *size)
     // TODO: Parent scale height and width ?
     // e.g. par_h = 250;
     //      par_w = 580;
-    par_h = obj_height(par);
-    par_w = obj_width(par);
+    par_h = get_h(par);
+    par_w = get_w(par);
 
 
-    l_pad_top = calc_pixels(par_h, KEYBOARD_LINE_PAD_TOP);
-    l_pad_bot = calc_pixels(par_h, KEYBOARD_LINE_PAD_BOT);
+    l_pad_top = pct_to_px(par_h, KEYBOARD_LINE_PAD_TOP);
+    l_pad_bot = pct_to_px(par_h, KEYBOARD_LINE_PAD_BOT);
 
-    k_pad_left = calc_pixels(par_w, KEY_PAD_LEFT);
-    k_pad_right = calc_pixels(par_w, KEY_PAD_RIGHT);
+    k_pad_left = pct_to_px(par_w, KEY_PAD_LEFT);
+    k_pad_right = pct_to_px(par_w, KEY_PAD_RIGHT);
 
-    key_com_h = calc_pixels(par_h, KEYBOARD_LINE_HEIGHT);
-    key_com_w = calc_pixels(par_w, KEY_CHAR_WIDTH);
-    key_space_w = calc_pixels(par_w, KEY_SPACE_WIDTH);
-    key_mode_w = calc_pixels(par_w, KEY_MODE_WIDTH);
-    key_enter_w = calc_pixels(par_w, KEY_ENTER_WIDTH);
-    key_arrow_w = calc_pixels(par_w, KEY_ARROW_WIDTH);
-    key_fn_w = calc_pixels(par_w, KEY_FN_WIDTH);
+    key_com_h = pct_to_px(par_h, KEYBOARD_LINE_HEIGHT);
+    key_com_w = pct_to_px(par_w, KEY_CHAR_WIDTH);
+    key_space_w = pct_to_px(par_w, KEY_SPACE_WIDTH);
+    key_mode_w = pct_to_px(par_w, KEY_MODE_WIDTH);
+    key_enter_w = pct_to_px(par_w, KEY_ENTER_WIDTH);
+    key_arrow_w = pct_to_px(par_w, KEY_ARROW_WIDTH);
+    key_fn_w = pct_to_px(par_w, KEY_FN_WIDTH);
     
     LOG_TRACE("KB: Parent: \tw[%d] - h[%d]", par_w, par_h);
     LOG_TRACE("KB: Key: \tPadding: top[%d] bot[%d] - left[%d] right[%d]", \
@@ -537,7 +519,7 @@ void set_line_box_size(lv_obj_t *par, lv_obj_t *line_box, kb_size_ctx *size, \
     int32_t obj_h = 0;
 
     obj_h = size->l_pad_top + size->key_com_h + size->l_pad_bot;
-    gf_gobj_set_size(line_box, line_w, obj_h);
+    set_size(line_box, line_w, obj_h);
 }
 
 lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
@@ -545,7 +527,7 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
 {
     lv_obj_t *line_box;
 
-    line_box = gf_create_box(par, box_info->label);
+    line_box = create_box(par, box_info->label);
     if (!line_box)
         return NULL;
 
@@ -553,6 +535,34 @@ lv_obj_t *create_line_box(lv_obj_t *par, kb_size_ctx *size, \
     // lv_obj_set_style_bg_color(line_box, lv_color_hex(0xBDBDBD), 0);
 
     return line_box;
+}
+
+static lv_obj_t *create_key(lv_obj_t *par, const key_def *key, kb_size_ctx *size)
+{
+    lv_obj_t *btn, *lbl;
+
+    if (key->type <= T_KEY_TYPE || key->type >= T_KEY_LAYOUT_FLAG) {
+        LOG_ERROR("KB: unable to create key, invalid type %d", key->type);
+        return NULL;
+    }
+
+    btn = create_btn(par, key->label);
+    if (!btn)
+        return NULL;
+    lv_obj_clear_flag(btn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_all(btn, 0, 0);
+    lv_obj_set_style_pad_gap(btn, 0, 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
+    lv_obj_add_event_cb(btn, kb_key_cb, LV_EVENT_CLICKED, get_meta(btn));
+    set_key_size(btn, key, size);
+
+    lbl = create_text(btn, NULL, KEYBOARD_CHAR_FONTS, key->label);
+    if (!lbl) {
+        remove_obj_and_child_by_name(key->label, &get_par_meta(par)->child);
+        return NULL;
+    }
+
+    return btn;
 }
 
 int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
@@ -576,13 +586,13 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
                    map->name, i, map->key[i].label, map->key[i].type);
 
         if (map->key[i].type == T_NEWLINE || map->key[i].type == T_END) {
-            int32_t line_x_ofs = (obj_width(par) - line_w) / 2;
+            int32_t line_x_ofs = (get_w(par) - line_w) / 2;
             int32_t line_y_ofs = (size.l_pad_top + (line_h * line_cnt));
 
             set_line_box_size(par, line_box, &size, line_w);
             line_w = 0;
             // Align the current line box before create the next one
-            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, \
+            set_align(line_box, par, LV_ALIGN_TOP_LEFT, \
                              line_x_ofs, line_y_ofs);
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
                       line_x_ofs, line_y_ofs);
@@ -601,25 +611,25 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
             continue;
         }
 
-        btn = create_key(line_box, &map->key[i]);
+        btn = create_key(line_box, &map->key[i], &size);
         if (!btn)
             return -EINVAL;
 
         if (new_line) {
             new_line = false;
-            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
+            set_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
                              size.k_pad_left, size.l_pad_top);
         } else {
-            gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+            set_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
         }
 
         // The previous button is used to align the next one
         btn_aln = btn;
-        set_key_size(btn, &map->key[i], &size);
+        /* set_key_size(btn, &map->key[i], &size); */
         set_key_color(btn, &map->key[i]);
-        set_gobj_data(btn, &map->key[i]);
-        line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
+        set_internal_data(btn, (void *)&map->key[i]);
+        line_w += size.k_pad_left + get_meta(btn)->size.w + size.k_pad_right;
     }
 
     return 0;
@@ -627,7 +637,7 @@ int32_t create_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
 int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 {
-    lv_obj_t *btn, *btn_aln;
+    lv_obj_t *btn, *btn_aln, *btn_lbl;
     lv_obj_t *line_box = NULL;
     int8_t line_cnt = 0, i;
     int32_t line_h, line_w = 0;
@@ -646,13 +656,13 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
                    map->name, i, map->key[i].label, map->key[i].type);
 
         if (map->key[i].type == T_NEWLINE || map->key[i].type == T_END) {
-            int32_t line_x_ofs = (obj_width(par) - line_w) / 2;
+            int32_t line_x_ofs = (get_w(par) - line_w) / 2;
             int32_t line_y_ofs = (size.l_pad_top + (line_h * line_cnt));
 
             set_line_box_size(par, line_box, &size, line_w);
             line_w = 0;
             // Align the current line box before create the next one
-            gf_gobj_align_to(line_box, par, LV_ALIGN_TOP_LEFT, \
+            set_align(line_box, par, LV_ALIGN_TOP_LEFT, \
                              line_x_ofs, line_y_ofs);
 
             LOG_TRACE("KB line box [%d]: alignment x %d - y %d", line_cnt, \
@@ -665,21 +675,21 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
             continue;
         } else if (map->key[i].type == T_HOLDER) {
-            line_box = gf_get_obj_by_name(map->key[i].label, \
-                                          &get_gobj(par)->child);
+            line_box = get_obj_by_name(map->key[i].label, \
+                                          &get_meta(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
             //     LOG_ERROR("line box [%s] not found", map->key[i].label);
             //     return -EINVAL;
             /************** SOMETHING WRONG AT THE ABOVE OF THIS *************/
-            get_gobj(line_box)->pos.rot = ROTATION_0;
+            get_meta(line_box)->data.rotation = ROTATION_0;
 
             continue;
         }
 
-        btn = gf_get_obj_by_name(map->key[i].label, \
-                                 &get_gobj(line_box)->child);
+        btn = get_obj_by_name(map->key[i].label, \
+                                 &get_meta(line_box)->child);
         if (!btn) {
             LOG_ERROR("Key [%s] not found", map->key[i].label);
             continue;
@@ -687,20 +697,29 @@ int32_t update_keys_layout(lv_obj_t *par, const keyboard_def *map)
 
         if (new_line) {
             new_line = false;
-            gf_gobj_align_to(btn, line_box, LV_ALIGN_TOP_LEFT, \
+            set_align(btn, line_box, LV_ALIGN_TOP_LEFT, \
                              size.k_pad_left, size.l_pad_top);
         } else {
-            gf_gobj_align_to(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
+            set_align(btn, btn_aln, LV_ALIGN_OUT_RIGHT_TOP, \
                              (size.k_pad_left + size.k_pad_right), 0);
         }
 
         // The previous button is used to align the next one
         btn_aln = btn;
+
+        // Update button configurations to the horizontal map.
         set_key_size(btn, &map->key[i], &size);
         set_key_color(btn, &map->key[i]);
+
+        // Update button label configurations to the horizontal map.
+        btn_lbl = lv_obj_get_child(btn, 0);
+        set_pos_center(btn_lbl);
+
         // Reset key configurations to the horizontal map.
-        get_gobj(btn)->pos.rot = ROTATION_0;
-        line_w += size.k_pad_left + get_gobj(btn)->pos.w + size.k_pad_right;
+        get_meta(btn)->data.rotation = ROTATION_0;
+        get_meta(btn_lbl)->data.rotation = ROTATION_0;
+
+        line_w += size.k_pad_left + get_meta(btn)->size.w + size.k_pad_right;
     }
 
     return 0;
@@ -772,8 +791,8 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
         if (map->key[i].type == T_NEWLINE || map->key[i].type == T_END) {
             continue;
         } else if (map->key[i].type == T_HOLDER) {
-            line_box = gf_get_obj_by_name(map->key[i].label, \
-                                          &get_gobj(par)->child);
+            line_box = get_obj_by_name(map->key[i].label, \
+                                          &get_meta(par)->child);
             // TODO:
             /************** SOMETHING WRONG AT THE END OF THIS ***************/
             // if (!line_box)
@@ -783,8 +802,8 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
             continue;
         }
 
-        btn = gf_get_obj_by_name(map->key[i].label, \
-                                 &get_gobj(line_box)->child);
+        btn = get_obj_by_name(map->key[i].label, \
+                                 &get_meta(line_box)->child);
         if (!btn) {
             LOG_ERROR("Key [%s] not found", map->key[i].label);
             continue;
@@ -793,7 +812,7 @@ static int32_t change_keyboard_mode(lv_obj_t *par, const keyboard_def *map, \
         set_key_color(btn, &next_map->key[i]);
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         lv_label_set_text_fmt(label, "%s", next_map->key[i].label);
-        set_gobj_data(btn, &next_map->key[i]);
+        set_internal_data(btn, (void *)&next_map->key[i]);
     }
 
     act_map = next_map;
@@ -807,10 +826,10 @@ static int32_t set_keyboard_mode(const key_def *key)
     const keyboard_def *map;
     int32_t ret;
 
-    kb = gf_get_obj_by_name(KEYBOAR_NAME, \
-                                   &get_gobj(lv_screen_active())->child);
+    kb = get_obj_by_name(COMPS_KEYBOARD, \
+                                   &get_meta(lv_screen_active())->child);
     if (!kb) {
-        LOG_ERROR("Keyboard [%s] not found", "screens.common");
+        LOG_ERROR("Keyboard [%s] not found", COMPS_KEYBOARD);
         return -EINVAL;
     }
 
@@ -838,20 +857,19 @@ int32_t pre_rotation_redraw_kb_layout(lv_obj_t *kb)
         return -EINVAL;
 
     // Keyboard size is based on rotation is ROTATION_0
-    scr_rot = g_get_scr_rot_dir();
+    scr_rot = get_scr_rotation();
     if (scr_rot == ROTATION_0 || scr_rot == ROTATION_180) {
-        obj_w = calc_pixels(obj_width(par), KEYBOARD_WIDTH);
-        obj_h = calc_pixels(obj_height(par), HOR_KEYBOARD_HEIGHT);
+        obj_w = pct_to_px(get_w(par), KEYBOARD_WIDTH);
+        obj_h = pct_to_px(get_h(par), KEYBOARD_HEIGHT);
     } else if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270) {
-        obj_w = calc_pixels(obj_height(par), KEYBOARD_WIDTH);
-        obj_h = calc_pixels(obj_width(par), VER_KEYBOARD_HEIGHT);
+        obj_w = pct_to_px(get_h(par), KEYBOARD_WIDTH);
+        obj_h = pct_to_px(get_w(par), KEYBOARD_HEIGHT);
     }
 
     // Reset all keyboard configurations to the horizontal layout.
-    gf_gobj_set_size(kb, obj_w, obj_h);
-    get_gobj(kb)->pos.rot = ROTATION_0;
-    gf_gobj_align_to(kb, par, LV_ALIGN_BOTTOM_MID, 0,\
-                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+    set_size(kb, obj_w, obj_h);
+    get_meta(kb)->data.rotation = ROTATION_0;
+    set_align_scale(kb, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
     // TODO: map?
     const keyboard_def *map = &kb_maps[0];
@@ -870,20 +888,19 @@ lv_obj_t *create_keyboard_containter(lv_obj_t *par)
         return NULL;
 
     /* Create container box for the keyboard and all button */
-    cont = gf_create_box(par, KEYBOAR_NAME);
+    cont = create_box(par, COMPS_KEYBOARD);
     if (!cont)
         return NULL;
 
     /* Calculate setting container size as percentage of parent size */
-    obj_w = calc_pixels(obj_width(par), KEYBOARD_WIDTH);
-    obj_h = calc_pixels(obj_height(par), HOR_KEYBOARD_HEIGHT);
+    obj_w = pct_to_px(get_w(par), KEYBOARD_WIDTH);
+    obj_h = pct_to_px(get_h(par), KEYBOARD_HEIGHT);
 
-    gf_gobj_set_size(cont, obj_w, obj_h);
+    set_size(cont, obj_w, obj_h);
     lv_obj_set_style_bg_color(cont, lv_color_hex(KEYBOARD_BG_COLOR), 0);
-    gf_gobj_align_to(cont, par, LV_ALIGN_BOTTOM_MID, 0,\
-                     -calc_pixels(obj_height(par), KEYBOARD_BOT_PAD));
+    set_align_scale(cont, par, LV_ALIGN_BOTTOM_MID, 0, -KEYBOARD_PAD_BOT);
 
-    get_gobj(cont)->scale.pre_rot_redraw_cb = pre_rotation_redraw_kb_layout;
+    get_meta(cont)->data.pre_rotate_cb = pre_rotation_redraw_kb_layout;
 
     return cont;
 }
@@ -909,16 +926,39 @@ lv_obj_t *create_keyboard(lv_obj_t *par)
     ret = create_keys_layout(kb, map);
     if (ret) {
         LOG_ERROR("Create keyboard failed %d, remove container ret %d", ret, \
-                   gf_remove_obj_and_child_by_name(KEYBOAR_NAME, \
-                                            &get_gobj(par)->child));
+                   remove_obj_and_child_by_name(COMPS_KEYBOARD, \
+                                            &get_meta(par)->child));
         return NULL;
     }
 
     act_map = map;
 
-    if (g_get_scr_rot_dir() != ROTATION_0) {
-        refresh_obj_tree_layout(kb->user_data);
+    if (get_scr_rotation() != ROTATION_0) {
+        refresh_object_tree_layout(kb);
     }
 
     return kb;
+}
+
+void remove_keyboard(ctx_t *ctx)
+{
+    lv_obj_t *par, *kb;
+    int32_t ret;
+
+    if (!ctx || !ctx->scr.now.obj)
+        return;
+
+    par = ctx->scr.now.obj;
+
+    if (act_map) {
+        act_map = NULL;
+    }
+
+    ret = remove_obj_and_child_by_name(COMPS_KEYBOARD, &get_meta(par)->child);
+    if (ret)
+        LOG_WARN("Keyboard object not found");
+
+    ret = refresh_object_tree_layout(par);
+    if (ret)
+        LOG_WARN("Unable to refresh after remove keyboard");
 }

@@ -10,9 +10,12 @@
  *********************/
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
+#include <stdbool.h>
 
 #include <lvgl.h>
-#include <list.h>
+#include "list.h"
+#include "ui/color_palette_256.h"
 
 /*********************
  *      DEFINES
@@ -22,13 +25,22 @@
 #define ROTATION_180                    LV_DISPLAY_ROTATION_180
 #define ROTATION_270                    LV_DISPLAY_ROTATION_270
 
+#define DIS_SCALE                       0
+#define ENA_SCALE                       1
+
+#define bg_color(x)                     color_gray_levels_inv[x]
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct ctx ctx_t;
+
 typedef enum {
     OBJ_NONE = 0,
     OBJ_BASE,
-    OBJ_CONTAINER,
+    OBJ_LAYOUT_GRID,
+    OBJ_LAYOUT_FLEX,
+    OBJ_GRID_CELL,
+    OBJ_FLEX_CELL,
     OBJ_BOX,
     OBJ_BTN,
     OBJ_SLIDER,
@@ -36,63 +48,82 @@ typedef enum {
     OBJ_ICON,
     OBJ_SWITCH,
     OBJ_TEXTAREA,
-} g_type;
+} type_t;
 
+struct obj_meta_t;
 typedef struct {
-    int8_t ena_w;
-    int8_t ena_h;
-    int32_t w;
-    int32_t h;
-    int32_t pad_w;
-    int32_t pad_h;
+    type_t obj_type;                    /* Main object type */
+    void *internal;                     /* Internal data */
+    int8_t rotation;
+    struct obj_meta_t *par_meta;
     /*
      * For some objects like the keyboard, the size and ratio are different
      * between horizontal and vertical modes. Therefore, we must redraw the
      * object to a compatible ratio before performing the component rotation.
      */
-    int32_t (*pre_rot_redraw_cb)(lv_obj_t *lobj);
-    /*
-     * Resize callback will be called to overwrite the calculated size data
-     * To keep the previous size for the original object is some situation.
-     */
-    void (*post_rot_resize_adjust_cb)(lv_obj_t *lobj);
-} g_scale;
+    int32_t (*pre_rotate_cb)(lv_obj_t *lobj);
+    int32_t (*post_rotate_cb)(lv_obj_t *lobj);
+    int32_t (*post_children_rotate_cb)(lv_obj_t *lobj);
+} obj_data_t;
 
 typedef struct {
+    /* Objects without alignment as text and symbol */
+    int32_t mid_x;                      // Latest center point X coordinate
+    int32_t mid_y;                      // Latest center point Y coordinate
+    int32_t par_w;      // Parent width when x_mid was calculated
+    int32_t par_h;      // Parent height when y_mid was calculated
+    /* Objects with alignment */
     int32_t x;
     int32_t y;
     lv_obj_t *base;
-    int8_t align;
-} g_align;
+    int8_t value;
+    int8_t scale_x;
+    int8_t scale_y;
+} obj_align_t;
 
+
+int32_t add_list_object(lv_obj_t *par, lv_obj_t *lobj);
 typedef struct {
-    int32_t x_mid;      // Latest center point X coordinate
-    int32_t y_mid;      // Latest center point Y coordinate
-    int32_t par_w;      // Parent width when x_mid was calculated
-    int32_t par_h;      // Parent height when y_mid was calculated
     int32_t w;
     int32_t h;
-    int8_t rot;
-} g_pos;
+    int8_t par_w_pct;
+    int8_t par_h_pct;
+    int8_t scale_w;
+    int8_t scale_h;
+} obj_size_t;
 
-struct g_obj;
-typedef struct g_obj {
+typedef struct {
+    type_t type;                        /* Layout type */
+    void *data;
+    type_t cell_type;                   /* Layout cell type */
+    void *cell_data;
+    lv_border_side_t border_side;
+    int32_t pad_top;
+    int32_t pad_bot;
+    int32_t pad_left;
+    int32_t pad_right;
+    int32_t pad_row;
+    int32_t pad_column;
+} obj_layout_t;
+
+typedef struct {
+    int32_t level;
+    bool dark_mode;
+    bool follow_system;
+} obj_theme_t;
+
+typedef struct obj_meta_t {
     struct list_head node;
     struct list_head child;
     uint32_t id;
     lv_obj_t *obj;
-    struct g_obj *par;
     char *name;
-    void *obj_data;
-    g_type type;
-    g_pos pos;
-    g_align aln;
-    g_scale scale;
-} g_obj;
-
-typedef struct {
-    struct list_head objs;     /* List of registered UI objects */
-} g_ctx;
+    obj_size_t size;
+    obj_align_t align;
+    obj_layout_t layout;
+    obj_data_t data;
+    obj_theme_t theme;
+} obj_meta_t;
 
 /**********************
  *  GLOBAL VARIABLES
@@ -104,103 +135,206 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-void gf_set_app_ctx(g_ctx *ctx);
-void gf_gobj_align_to(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+void set_align(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
                       int32_t x_ofs, int32_t y_ofs);
+void set_align_scale_x(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                            int32_t x_ofs_pct, int32_t y_ofs_px);
+void set_align_scale_y(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                            int32_t x_ofs_px, int32_t y_ofs_pct);
+void set_align_scale(lv_obj_t *lobj, lv_obj_t *base, lv_align_t align, \
+                             int32_t x_ofs_pct, int32_t y_ofs_pct);
+void apply_align_meta(lv_obj_t *lobj);
 
-void gf_gobj_set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
+void set_pos(lv_obj_t *lobj, int32_t x_ofs, int32_t y_ofs);
+void set_pos_center(lv_obj_t *lobj);
 
-int32_t g_set_scr_rot_dir(int32_t rot_dir);
-int32_t g_set_scr_size(int32_t width, int32_t height);
-void gf_gobj_set_size(lv_obj_t *lobj, int32_t w, int32_t h);
+int32_t set_scr_rotation(int32_t rot_dir);
+int32_t set_scr_size(int32_t width, int32_t height);
+void set_size(lv_obj_t *lobj, int32_t px_x, int32_t px_y);
+void set_size_scale_w(lv_obj_t *lobj, int32_t pct_x, int32_t px_y);
+void set_size_scale_h(lv_obj_t *lobj, int32_t px_x, int32_t pct_y);
+void set_size_scale(lv_obj_t *lobj, int32_t pct_x, int32_t pct_y);
+void apply_size_meta(lv_obj_t *lobj);
 
-int32_t gf_obj_scale_enable_w(lv_obj_t *lobj);
-int32_t gf_obj_scale_enable_h(lv_obj_t *lobj);
-int32_t gf_obj_scale_disable_w(lv_obj_t *lobj);
-int32_t gf_obj_scale_disable_h(lv_obj_t *lobj);
-int32_t gf_obj_scale_set_pad_w(lv_obj_t *lobj, int32_t pad_w);
-int32_t gf_obj_scale_set_pad_h(lv_obj_t *lobj, int32_t pad_h);
-void set_gobj_data(lv_obj_t *lobj, void *data);
+int32_t apply_border_side_meta(lv_obj_t *lobj);
+int32_t set_border_side(lv_obj_t *lobj, int32_t value);
+
+int32_t apply_padding_meta(lv_obj_t *lobj);
+int32_t apply_row_column_padding_meta(lv_obj_t *lobj);
+int32_t set_padding(lv_obj_t *lobj, int32_t pad_top, int32_t pad_bot, \
+                          int32_t pad_left, int32_t pad_right);
+int32_t set_row_padding(lv_obj_t *lobj, int32_t pad);
+int32_t set_column_padding(lv_obj_t *lobj, int32_t pad);
+
+void set_internal_data(lv_obj_t *lobj, void *data);
 
 /*=====================
  * Getter functions
  *====================*/
-g_ctx *gf_get_app_ctx(void);
-lv_obj_t * gf_get_obj(uint32_t req_id, struct list_head *head_lst);
-lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst);
-g_obj *get_gobj(lv_obj_t *lobj);
-g_obj *get_par_gobj(lv_obj_t *lobj);
-int32_t g_get_scr_rot_dir();
-int32_t g_get_scr_width(void);
-int32_t g_get_scr_height(void);
-void gf_gobj_get_size(lv_obj_t *lobj);
-void *get_gobj_data(lv_obj_t *lobj);
+lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst);
+lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst);
+int32_t get_scr_rotation();
+int32_t get_scr_width(void);
+int32_t get_scr_height(void);
+void *get_internal_data(lv_obj_t *lobj);
+int32_t store_computed_size(lv_obj_t *lobj);
+int32_t get_center(lv_obj_t *lobj, uint32_t par_w, uint32_t par_h);
 
 /*=====================
  * Other functions
  *====================*/
-g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
-int32_t gf_remove_obj_and_child_by_name(const char *name, \
+obj_meta_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name);
+int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst);
-int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
-int32_t gf_remove_children(g_obj *par);
-g_ctx *gf_create_app_ctx(void);
-void gf_destroy_app_ctx(g_ctx *ctx);
+int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst);
+int32_t remove_children(lv_obj_t *par);
+int32_t init_ui_object_ctx(ctx_t *ctx);
+void destroy_ui_object_ctx(ctx_t *ctx);
 
-lv_obj_t * gf_create_base(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_box(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_container(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_text(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
-                             const char *txt_str);
-lv_obj_t * gf_create_sym(lv_obj_t *par, const char *name, int32_t x, int32_t y, \
-                         const lv_font_t *font, const char *index, \
-                         lv_color_t color);
-lv_obj_t * gf_create_switch(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_btn(lv_obj_t *par, const char *name);
-lv_obj_t * gf_create_slider(lv_obj_t *par, const char *name);
+lv_obj_t *create_box(lv_obj_t *par, const char *name);
+lv_obj_t *create_text(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *txt_str);
+lv_obj_t *create_text_box(lv_obj_t *par, const char *name, \
+                          const lv_font_t *font, const char *str);
+lv_obj_t *create_sym(lv_obj_t *par, const char *name, \
+        const lv_font_t *font, const char *index);
+lv_obj_t *create_symbol_box(lv_obj_t *par, const char *name, \
+                            const lv_font_t *font, const char *index);
 
-int32_t refresh_obj_tree_layout(g_obj *gobj);
-int32_t g_obj_rot_calc_size(g_obj *gobj);
+lv_obj_t *create_switch(lv_obj_t *par, const char *name);
+lv_obj_t *create_switch_box(lv_obj_t *par, const char *name);
+lv_obj_t *create_textarea(lv_obj_t *par, const char *name);
+lv_obj_t *create_btn(lv_obj_t *par, const char *name);
+lv_obj_t *create_slider(lv_obj_t *par, const char *name);
 
-static inline int32_t obj_height(lv_obj_t *lobj)
+lv_obj_t *get_box_child(lv_obj_t *lobj);
+
+int32_t refresh_object_tree_layout(lv_obj_t *lobj);
+int32_t rotate_border_side_meta_90(lv_obj_t *lobj);
+int32_t rotate_padding_meta_90(lv_obj_t *lobj);
+int32_t rotate_alignment_meta_90(lv_obj_t *lobj);
+int32_t rotate_alignment_offset_meta_90(lv_obj_t *lobj);
+int32_t rotate_size_meta_90(lv_obj_t *lobj);
+
+static inline obj_meta_t *get_meta(lv_obj_t *lobj)
 {
-    return ((g_obj *)lobj->user_data)->pos.h;
+    return lobj ? (obj_meta_t *)lobj->user_data : NULL;
 }
 
-static inline int32_t obj_width(lv_obj_t *lobj)
+static inline lv_obj_t *get_lobj(obj_meta_t *meta)
 {
-    return ((g_obj *)lobj->user_data)->pos.w;
+    return meta ? (lv_obj_t *)meta->obj : NULL;
 }
 
-static inline int32_t obj_aln_x(lv_obj_t *lobj)
+static inline obj_meta_t *get_par_meta(lv_obj_t *lobj)
 {
-    return abs(((g_obj *)lobj->user_data)->aln.x);
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    return meta ? (obj_meta_t *)meta->data.par_meta : NULL;
 }
 
-static inline int32_t obj_aln_y(lv_obj_t *lobj)
+static inline int32_t get_h(lv_obj_t *lobj)
 {
-    return abs(((g_obj *)lobj->user_data)->aln.y);
+    return (int32_t)get_meta(lobj)->size.h;
 }
 
-static inline int32_t obj_scale_h(lv_obj_t *par)
+static inline int32_t get_w(lv_obj_t *lobj)
 {
-    return ((g_obj *)par->user_data)->scale.h;
+    return (int32_t)get_meta(lobj)->size.w;
 }
 
-static inline int32_t obj_scale_w(lv_obj_t *par)
+static inline int32_t get_par_w(lv_obj_t *lobj)
 {
-    return ((g_obj *)par->user_data)->scale.w;
+    return lobj ? (int32_t)get_par_meta(lobj)->size.w : 0;
 }
 
-static inline int32_t calc_pixels(int32_t par_size, int32_t percent)
+static inline int32_t get_par_h(lv_obj_t *lobj)
 {
-    return (par_size * percent) / 100;
+    return lobj ? (int32_t)get_par_meta(lobj)->size.h : 0;
 }
 
-static inline int32_t calc_pixels_remaining(int32_t par_size, int32_t percent)
+static inline int32_t avail_px(int32_t par_size, int32_t percent)
 {
     return par_size - ((par_size * percent) / 100);
 }
+
+static inline int32_t pct_to_px(int32_t par_pixels, int32_t percent)
+{
+    return (par_pixels * percent) / 100;
+}
+
+static inline int32_t px_to_pct(int32_t par_pixels, int32_t pixels)
+{
+    return (pixels * 100) / par_pixels;
+}
+
+static inline type_t get_layout_type(lv_obj_t *lobj)
+{
+    return lobj ? get_meta(lobj)->layout.type : OBJ_NONE;
+}
+
+static inline type_t get_meta_layout_type(obj_meta_t *meta)
+{
+    return meta ? meta->layout.type : OBJ_NONE;
+}
+
+static inline int32_t set_layout_type(lv_obj_t *lobj, type_t type)
+{
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return -EINVAL;
+    meta->layout.type = type;
+    return 0;
+}
+
+static inline int32_t set_cell_type(lv_obj_t *lobj, type_t type)
+{
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return -EINVAL;
+    meta->layout.cell_type = type;
+    return 0;
+}
+
+static inline type_t get_cell_type(lv_obj_t *lobj)
+{
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return OBJ_NONE;
+    return meta ? meta->layout.cell_type : OBJ_NONE;
+}
+
+static inline type_t get_meta_cell_type(obj_meta_t *meta)
+{
+    return meta ? meta->layout.cell_type : OBJ_NONE;
+}
+
+/* Set object as base type (non-rotated or root container) */
+static inline int32_t set_obj_type(lv_obj_t *lobj, type_t type)
+{
+    obj_meta_t *meta = lobj ? get_meta(lobj) : NULL;
+    if (!meta)
+        return -EINVAL;
+    meta->data.obj_type = type;
+    return 0;
+}
+
+static inline int32_t get_type(lv_obj_t *lobj)
+{
+    return lobj ? get_meta(lobj)->data.obj_type : OBJ_NONE;
+}
+
+static inline const char *get_name(lv_obj_t *lobj)
+{
+    return lobj ? get_meta(lobj)->name : NULL;
+}
+
+static inline const char *get_meta_name(obj_meta_t *meta)
+{
+    return meta ? meta->name : NULL;
+}
+
+int32_t ui_main_init(ctx_t *ctx);
+void ui_main_deinit(ctx_t *ctx);
 /**********************
  *      MACROS
  **********************/

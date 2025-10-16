@@ -1,10 +1,10 @@
 /**
- * @file comps.h
+ * @file window.h
  *
  */
 
-#ifndef G_COMPS_H
-#define G_COMPS_H
+#ifndef G_WINDOWS_H
+#define G_WINDOWS_H
 /*********************
  *      INCLUDES
  *********************/
@@ -17,11 +17,7 @@
 /*********************
  *      DEFINES
  *********************/
-#define COMPS_TOP_BAR                   "comps.top_bar"
-#define TOP_BAR_SYM_FONTS               &terminal_icons_32
-
-#define COMPS_KEYBOARD                  "comps.keyboard"
-#define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_24
+#define WINDOW_SETTING                  "window.setting"
 
 /**********************
  *      TYPEDEFS
@@ -38,11 +34,6 @@ typedef struct ctx ctx_t;
 /*=====================
  * Setter functions
  *====================*/
-int32_t replace_top_bar_symbol(lv_obj_t *par, const char *name, \
-                               const char *index);
-
-lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
-                             const char *index);
 
 /*=====================
  * Getter functions
@@ -51,13 +42,15 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
 /*=====================
  * Other functions
  *====================*/
-lv_obj_t *create_top_bar(ctx_t *ctx);
+lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name);
+lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 
-lv_obj_t *create_keyboard(lv_obj_t *par);
-void remove_keyboard(ctx_t *ctx);
 
+lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
+
+lv_obj_t *create_brightness2_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 /**********************
  *      MACROS
  **********************/
 
-#endif /* G_COMPS_H */
+#endif /* G_WINDOWS_H */

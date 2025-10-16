@@ -10,16 +10,18 @@
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
 
 #include <lvgl.h>
-#include <list.h>
-#include <ui/ui_core.h>
+#include "list.h"
+#include "ui/ui_core.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -40,8 +42,6 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static g_ctx *app_ctx = NULL;
-static uint32_t g_next_id = 1;
 
 /**********************
  *      MACROS
@@ -55,7 +55,7 @@ static uint32_t g_next_id = 1;
  *   GLOBAL FUNCTIONS
  **********************/
 /*
- * gf_register_obj - Register a new object into the hierarchy
+ * register_obj - Register a new object into the hierarchy
  * @par: Parent lv_obj_t (NULL for root object)
  * @obj: lv_obj_t to register
  * @name: name to assign for this object
@@ -65,49 +65,48 @@ static uint32_t g_next_id = 1;
  * root level; otherwise, it is added as a child of @par. The user_data of
  * @obj is set to point to the created g_obj.
  *
- * Return: Pointer to the created g_obj on success, NULL on failure.
+ * Return: Pointer to the created obj_meta_t on success, NULL on failure.
  */
-g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
+obj_meta_t *register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
 {
     struct list_head *parent_list;
-    g_obj *new_obj;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_meta_t *meta;
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!obj)
         return NULL;
 
-    new_obj = calloc(1, sizeof(g_obj));
-    if (!new_obj)
+    meta = calloc(1, sizeof(obj_meta_t));
+    if (!meta)
         return NULL;
 
     if (name) {
-        new_obj->name = strdup(name);
-        if (!new_obj->name) {
-            free(new_obj);
+        meta->name = strdup(name);
+        if (!meta->name) {
+            free(meta);
             return NULL;
         }
     } else {
-        new_obj->name = NULL;
+        meta->name = NULL;
     }
 
-    new_obj->id = g_next_id++;
-    new_obj->obj = obj;
-    obj->user_data = new_obj;
-    new_obj->par = (!par) ? NULL : (g_obj *)par->user_data;
+    meta->id = obj_ctx->next_id++;
+    meta->obj = obj;
+    obj->user_data = meta;
+    meta->data.par_meta = (!par) ? NULL : get_meta(par);
 
 
-    INIT_LIST_HEAD(&new_obj->child);
+    INIT_LIST_HEAD(&meta->child);
 
-    parent_list = (!par) ? &ctx->objs :
-        &((g_obj *)par->user_data)->child;
+    parent_list = (!par) ? &obj_ctx->list : &get_meta(par)->child;
 
-    list_add_tail(&new_obj->node, parent_list);
+    list_add_tail(&meta->node, parent_list);
 
-    return new_obj;
+    return meta;
 }
 
 /*
- * gf_get_obj - Find LVGL object by its ID
+ * get_obj_by_id - Find LVGL object by its ID
  * @req_id:   ID of the object to find
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -117,23 +116,27 @@ g_obj *gf_register_obj(lv_obj_t *par, lv_obj_t *obj, const char *name)
  *
  * Return: Pointer to lv_obj_t if found, NULL otherwise.
  */
-lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
+lv_obj_t *get_obj_by_id(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    g_obj *obj;
+    obj_meta_t *meta;
     lv_obj_t *found = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return NULL;
+    }
 
-    list_for_each_entry(obj, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry(meta, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->id == req_id)
-            return obj->obj;
+        if (meta->id == req_id)
+            return meta->obj;
 
-        found = gf_get_obj(req_id, &obj->child);
+        found = get_obj_by_id(req_id, &meta->child);
         if (found)
             return found;
     }
@@ -142,37 +145,41 @@ lv_obj_t *gf_get_obj(uint32_t req_id, struct list_head *head_lst)
 }
 
 /* Find object by name */
-lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
+lv_obj_t *get_obj_by_name(const char *name, struct list_head *head_lst)
 {
     struct list_head *scan_list;
-    g_obj *obj;
+    obj_meta_t *meta;
     lv_obj_t *found = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
     if (!name)
         return NULL;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return NULL;
+    }
 
-    list_for_each_entry(obj, scan_list, node) {
-        LOG_TRACE("Finding name %s: checking %d %s", name, obj->id, obj->name);
-        if (!obj->id) {
+    list_for_each_entry(meta, scan_list, node) {
+        LOG_TRACE("Finding name %s: checking %d %s", name, meta->id, meta->name);
+        if (!meta->id) {
             LOG_TRACE("Finding name %s: check %d %s: CONTINUE", \
-                      name, obj->id, obj->name);
+                      name, meta->id, meta->name);
             continue;
         }
 
-        if (obj->name && strcmp(obj->name, name) == 0) {
+        if (meta->name && strcmp(meta->name, name) == 0) {
 
             LOG_TRACE("Finding name %s: check %d %s: OBJ FOUND", \
-                      name, obj->id, obj->name);
-            return obj->obj;
+                      name, meta->id, meta->name);
+            return get_lobj(meta);
         }
 
-        found = gf_get_obj_by_name(name, &obj->child);
+        found = get_obj_by_name(name, &meta->child);
         if (found) {
             LOG_TRACE("Finding name %s: check list %d %s: OBJ FROM DEEPER LEVEL", \
-                      name, get_gobj(found)->id, get_gobj(found)->name);
+                      name, get_meta(found)->id, get_meta(found)->name);
             return found;
         }
     }
@@ -181,7 +188,7 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
 }
 
 /*
- * gf_remove_obj_and_child_by_name - Remove object (by name) and its children
+ * remove_obj_and_child_by_name - Remove object (by name) and its children
  * @name:    Name of the object to remove
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -192,28 +199,32 @@ lv_obj_t *gf_get_obj_by_name(const char *name, struct list_head *head_lst)
  *   0   → object found by name and deleted
  *  -1   → not found or invalid args
  */
-int32_t gf_remove_obj_and_child_by_name(const char *name, \
+int32_t remove_obj_and_child_by_name(const char *name, \
                                         struct list_head *head_lst)
 {
-    g_ctx *ctx = gf_get_app_ctx();
     struct list_head *scan_list;
-    g_obj *obj;
+    obj_meta_t *meta;
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
 
-    if (!ctx || !name)
+    if (!name)
         return -1;
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
+        return -1;
+    }
 
-    list_for_each_entry(obj, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry(meta, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->name && strcmp(obj->name, name) == 0) {
-            LOG_TRACE("Removing object by name: %s (ID %u)", name, obj->id);
-            return gf_remove_obj_and_child(obj->id, scan_list);
+        if (meta->name && strcmp(meta->name, name) == 0) {
+            LOG_TRACE("Removing object by name: %s (ID %u)", name, meta->id);
+            return remove_obj_and_child(meta->id, scan_list);
         }
 
-        int32_t ret = gf_remove_obj_and_child_by_name(name, &obj->child);
+        int32_t ret = remove_obj_and_child_by_name(name, &meta->child);
         if (ret == 0)   /* found and deleted by name */
             return 0;
     }
@@ -223,7 +234,7 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
 
 #define ID_NOID                         0
 /*
- * gf_remove_obj_and_child - Remove an object and all its children
+ * remove_obj_and_child - Remove an object and all its children
  * @req_id:   ID of the object to remove; use ID_NOID to remove all children
  * @head_lst: Pointer to the list to start scanning (NULL for root list)
  *
@@ -241,46 +252,47 @@ int32_t gf_remove_obj_and_child_by_name(const char *name, \
  *       >=0 → number of objects deleted
  *       -1  → error (invalid context)
  */
-int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
+int32_t remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 {
     struct list_head *scan_list = NULL;
-    g_obj *obj = NULL;
-    g_obj *tmp = NULL;
-    g_ctx *ctx = gf_get_app_ctx();
+    obj_meta_t *meta = NULL;
+    obj_meta_t *tmp = NULL;
+    obj_ctx_t *obj_ctx = &get_ctx()->objs;
     int32_t removed = 0;
 
-    if (!ctx)
+    if (head_lst || obj_ctx) {
+        scan_list = head_lst ? head_lst : &obj_ctx->list;
+    } else {
         return -1;
+    }
 
-    scan_list = head_lst ? head_lst : &ctx->objs;
     LOG_TRACE("Removing object%s",
-        head_lst ? " (scan from parent)" : " (scan from root)");
+              head_lst ? " (scan from parent)" : " (scan from root)");
 
-    list_for_each_entry_safe(obj, tmp, scan_list, node) {
-        if (!obj->id)
+    list_for_each_entry_safe(meta, tmp, scan_list, node) {
+        if (!meta->id)
             continue;
 
-        if (obj->id == req_id || req_id == ID_NOID) {
-            if (obj->id == req_id)
-                LOG_TRACE("ID %u: found, deleting...", obj->id);
+        if (meta->id == req_id || req_id == ID_NOID) {
+            if (meta->id == req_id)
+                LOG_TRACE("ID %u: found, deleting...", meta->id);
 
             /* Remove all children first */
-            int32_t child_removed = gf_remove_obj_and_child(ID_NOID,
-                &obj->child);
+            int32_t child_removed = remove_obj_and_child(ID_NOID, &meta->child);
             if (child_removed > 0)
                 removed += child_removed;
 
-            if (lv_obj_is_valid(obj->obj)) {
-                LOG_TRACE("ID %u: deleting LVGL object", obj->id);
-                lv_obj_delete(obj->obj);
+            if (lv_obj_is_valid(get_lobj(meta))) {
+                LOG_TRACE("ID %u: deleting LVGL object", meta->id);
+                lv_obj_delete(get_lobj(meta));
             }
 
-            LOG_TRACE("DELETE obj ID %d - name %s", obj->id,
-                obj->name ? obj->name : "(null)");
-            list_del(&obj->node);
-            if (obj->name)
-                free(obj->name);
-            free(obj);
+            LOG_TRACE("DELETE obj ID %d - name %s", meta->id,
+                      meta->name ? meta->name : "(null)");
+            list_del(&meta->node);
+            if (meta->name)
+                free(meta->name);
+            free(meta);
 
             removed++;
 
@@ -293,7 +305,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
         }
 
         /* Recursive search in children */
-        int32_t ret = gf_remove_obj_and_child(req_id, &obj->child);
+        int32_t ret = remove_obj_and_child(req_id, &meta->child);
         if (req_id != ID_NOID && ret == 0)
             return 0;       /* Found and deleted by ID */
         if (req_id == ID_NOID && ret > 0)
@@ -306,7 +318,7 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
 }
 
 /*
- * gf_remove_children - Remove all children of a given parent object
+ * remove_children - Remove all children of a given parent object
  * @parent: Pointer to the parent g_obj
  *
  * This function removes all child objects of the given parent, including
@@ -316,122 +328,74 @@ int32_t gf_remove_obj_and_child(uint32_t req_id, struct list_head *head_lst)
  *   >=0 → number of objects deleted
  *   -1  → error (invalid parent or context)
  */
-int32_t gf_remove_children(g_obj *par)
+int32_t remove_children(lv_obj_t *par)
 {
-    if (!par)
-        return -1;
+    obj_meta_t *par_meta;
 
-    return gf_remove_obj_and_child(ID_NOID, &par->child);
+    par_meta = par ? get_meta(par) : NULL;
+    if (!par_meta)
+        return -EINVAL;
+
+    return remove_obj_and_child(ID_NOID, &par_meta->child);
 }
 
 /**
- * gf_create_app_ctx - Allocate and initialize the global application context
- *
- * This function creates an application context structure, initializes its
- * internal lists for objects and handlers, and returns a pointer to the
- * newly created context.
- *
- * Return: Pointer to g_ctx on success, NULL on failure.
+ * init_ui_object_list - Allocate and initialize the global ui object list 
  */
-g_ctx *gf_create_app_ctx(void)
+int32_t init_ui_object_ctx(ctx_t *ctx)
 {
-    g_ctx *ctx = NULL;
+    if (ctx == NULL)
+        return -EINVAL;
 
-    ctx = calloc(1, sizeof(g_ctx));
-    if (!ctx)
-        return NULL;
+    INIT_LIST_HEAD(&ctx->objs.list);
 
-    INIT_LIST_HEAD(&ctx->objs);
-
-    return ctx;
+    return 0;
 }
 
 /**
- * gf_destroy_app_ctx - Free the global application context and all resources
+ * destroy_ui_object_ctx - Free the global application context and all resources
  * @ctx: Pointer to the application context to destroy
  *
  * This function removes all registered objects and handlers from the given
  * context, then frees the context itself. Safe to call with NULL pointer.
  */
-
-void gf_destroy_app_ctx(g_ctx *ctx)
+void destroy_ui_object_ctx(ctx_t *ctx)
 {
     if (!ctx)
         return;
 
-    gf_remove_obj_and_child(ID_NOID, &ctx->objs);
-    free(ctx);
-    g_next_id = 1;
+    remove_obj_and_child(ID_NOID, &ctx->objs.list);
+    ctx->objs.next_id = 1;
 }
 
-/**
- * gf_set_app_ctx - Set the global application context
- * @ctx: Pointer to the application context
- *
- * This function stores the given context as the global application context.
- * Must be called after gf_create_app_ctx() and before any context-dependent
- * operations.
- */
-void gf_set_app_ctx(g_ctx *ctx)
+void set_internal_data(lv_obj_t *lobj, void *data)
 {
-    app_ctx = ctx;
+    obj_meta_t *meta;
+
+    if (!lobj) {
+        LOG_ERROR("lv_obj_t object invalid");
+        return;
+    }
+
+    meta = get_meta(lobj);
+    if (!meta) {
+        LOG_ERROR("Metadata is invalid");
+        return;
+    }
+
+    meta->data.internal = data;
 }
 
-/**
- * gf_get_app_ctx - Get the current global application context
- *
- * Return: Pointer to the global application context, or NULL if not set.
- */
-g_ctx *gf_get_app_ctx(void)
+void *get_internal_data(lv_obj_t *lobj)
 {
-    return app_ctx;
-}
-
-g_obj *get_gobj(lv_obj_t *lobj)
-{
-    if (!lobj)
-        return NULL;
-    return lobj->user_data;
-}
-
-g_obj *get_par_gobj(lv_obj_t *lobj)
-{
-    g_obj *gobj;
+    obj_meta_t *meta;
 
     if (!lobj)
         return NULL;
 
-    gobj = lobj->user_data;
-    if (!gobj)
+    meta = get_meta(lobj);
+    if (!meta)
         return NULL;
 
-    return gobj->par;
-}
-
-void set_gobj_data(lv_obj_t *lobj, void *data)
-{
-    g_obj *gobj;
-
-    if (!lobj)
-        return NULL;
-
-    gobj = lobj->user_data;
-    if (!gobj)
-        return NULL;
-
-    gobj->obj_data = data;
-}
-
-void *get_gobj_data(lv_obj_t *lobj)
-{
-    g_obj *gobj;
-
-    if (!lobj)
-        return NULL;
-
-    gobj = lobj->user_data;
-    if (!gobj)
-        return NULL;
-
-    return gobj->obj_data;
+    return meta->data.internal;
 }

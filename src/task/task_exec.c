@@ -1,5 +1,5 @@
 /**
- * @file haptic.c
+ * @file task_exec.c
  *
  */
 
@@ -14,13 +14,12 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <errno.h>
-#include <stdbool.h>
 
-#include "ux/ux.h"
-#include "sched/workqueue.h"
+#include "ui/screen.h"
 #include "comm/dbus_comm.h"
 #include "comm/cmd_payload.h"
+#include "sched/workqueue.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -53,31 +52,19 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int32_t haptic_feedback(bool en_left, bool en_right)
+int32_t process_opcode(uint32_t opcode, void *data)
 {
-    remote_cmd_t *cmd;
     int32_t ret = 0;
 
-    cmd = create_remote_cmd();
-    if (!cmd) {
-        return -ENOMEM;
+    switch (opcode) {
+    case OP_DBUS_SENT_CMD:
+        ret = dbus_method_call_with_data((remote_cmd_t *)data);
+        break;
+    default:
+        LOG_ERROR("Opcode [%d] is invalid", opcode);
+        break;
     }
 
-    if (en_left) {
-        remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_LEFT_VIBRATOR, \
-                        WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
-    }
-
-    if (en_right) {
-        remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_RIGHT_VIBRATOR, \
-                        WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
-    }
-
-    // NOTE: Command data will be released after the work completes
-    ret = create_remote_task(WORK_PRIO_HIGH, cmd);
-    return ret;
-
-out:
-    delete_remote_cmd(cmd);
     return ret;
 }
+

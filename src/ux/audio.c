@@ -6,22 +6,21 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
-#include <log.h>
+#include "log.h"
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
 #include <stdbool.h>
 
-#include <ux/ux.h>
-#include <comm/dbus_comm.h>
-#include <comm/cmd_payload.h>
-#include <sched/task.h>
-
+#include "ux/ux.h"
+#include "sched/workqueue.h"
+#include "comm/dbus_comm.h"
+#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES
@@ -67,11 +66,11 @@ int32_t audio_feedback(bool en_left, bool en_right)
     // Stereo audio not supported at the moment
     if (en_left | en_right) {
         remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_SOUND_PLAY, \
-                        NON_BLOCK, SHORT);
+                        WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
     }
 
     // NOTE: Command data will be released after the work completes
-    ret = create_remote_task(BLOCK, cmd);
+    ret = create_remote_task(WORK_PRIO_HIGH, cmd);
     return ret;
 
 out:
