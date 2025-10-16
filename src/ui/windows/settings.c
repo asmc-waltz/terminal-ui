@@ -65,7 +65,7 @@ static int32_t create_setting_menu_bar_items(lv_obj_t *menu, lv_obj_t *menu_bar)
                             );
     item = create_menu_item(menu, group, \
                             ICON_WIFI_SOLID, "Wi-Fi", \
-                            create_brightness_setting \
+                            create_wifi_setting \
                             );
     item = create_menu_item(menu, group, \
                             ICON_TOOLBOX_SOLID, "Bluetooth", \
