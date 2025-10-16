@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -217,6 +217,17 @@ static int32_t load_menu_item_page(lv_obj_t *lobj)
     if (!menu_ctx)
         return -EIO;
 
+    if (menu_ctx->act_menu_item != lobj) {
+        /* Highlight before load the associated page */
+        lv_obj_set_style_bg_color(lobj, lv_color_hex(0xFF6633), 0);
+
+        /* Restore normal color and load the associated page */
+        if (menu_ctx->act_menu_item) {
+            lv_obj_set_style_bg_color(menu_ctx->act_menu_item, \
+                                      lv_color_hex(bg_color(1)), 0);
+        }
+    }
+
     /* Remove current active page if switching to another item */
     if (menu_ctx->act_menu_item != lobj && menu_ctx->act_page) {
         remove_obj_and_child(get_meta(menu_ctx->act_page)->id, \
@@ -246,23 +257,18 @@ static void menu_item_event_handler(lv_event_t *e)
 
     switch (code) {
     case LV_EVENT_PRESSED:
-        /* Highlight when pressed */
-        lv_obj_set_style_bg_color(lobj, lv_color_hex(0xFF6633), 0);
         break;
 
     case LV_EVENT_RELEASED:
-        /* Restore normal color and load the associated page */
-        lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(1)), 0);
+        break;
 
+    case LV_EVENT_CLICKED:
+        LOG_TRACE("Menu item [%s] clicked", get_name(lobj));
         ret = load_menu_item_page(lobj);
         if (ret) {
             LOG_ERROR("Menu item [%s] load page failed (%d)", \
                       get_name(lobj), ret);
         }
-        break;
-
-    case LV_EVENT_CLICKED:
-        LOG_TRACE("Menu item [%s] clicked", get_name(lobj));
         break;
 
     default:
