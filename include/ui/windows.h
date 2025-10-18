@@ -49,6 +49,7 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 lv_obj_t *create_airplane_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
+lv_obj_t *create_rotation_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 
 /**********************
  *      MACROS
