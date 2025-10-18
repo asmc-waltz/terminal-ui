@@ -50,6 +50,7 @@ lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *n
 lv_obj_t *create_airplane_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 lv_obj_t *create_bluetooth_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
+lv_obj_t *create_cellular_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 lv_obj_t *create_rotation_setting(lv_obj_t *menu, lv_obj_t *par, const char *name);
 
 /**********************
