@@ -484,23 +484,21 @@ static int32_t initial_menu_views(lv_obj_t *menu)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
-                           const char *sym_index, const char *title,\
-                           lv_obj_t *(* create_page_cb)(lv_obj_t *, \
-                                                        lv_obj_t *, \
-                                                        const char *))
+lv_obj_t *create_menu_item(lv_obj_t *par, \
+                           const lv_font_t *sym_font, const char *sym_index, \
+                           const lv_font_t *title_font, const char *title)
 {
     lv_obj_t *item, *sym, *label, *first_child;
     item_ctx_t *item_ctx;
     char name_buf[100];
 
-    if (!menu || !menu_bar)
+    if (!par)
         return NULL;
 
-    sprintf(name_buf, "%s.%s", get_name(menu_bar), title);
+    sprintf(name_buf, "%s.%s", get_name(par), title);
 
     /* Create the container (menu item) */
-    item = create_flex_layout_object(menu_bar, name_buf);
+    item = create_flex_layout_object(par, name_buf);
     if (!item)
         return NULL;
 
@@ -518,7 +516,7 @@ lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
     lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
 
     /* Add border for non-first child */
-    first_child = lv_obj_get_child(menu_bar, 0);
+    first_child = lv_obj_get_child(par, 0);
     if (first_child != item) {
         set_border_side(item, LV_BORDER_SIDE_TOP);
         lv_obj_set_style_border_width(item, 2, 0);
@@ -532,19 +530,44 @@ lv_obj_t *create_menu_item(lv_obj_t *menu, lv_obj_t *menu_bar, \
                           LV_FLEX_ALIGN_CENTER);
 
     /* Create children: symbol + title */
-    sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
+    if (!sym_font) {
+        sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
+    } else {
+        sym = create_symbol_box(item, NULL, sym_font, sym_index);
+    }
     if (!sym)
         LOG_ERROR("Menu item [%s] create symbol failed", name_buf);
 
-    label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
+    if (!title_font) {
+        label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
+    } else {
+        label = create_text_box(item, NULL, title_font, title);
+    }
     if (!label)
         LOG_ERROR("Menu item [%s] create label failed", name_buf);
 
     set_internal_data(item, item_ctx);
+
+    return item;
+}
+
+int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *menu, \
+                           lv_obj_t *(* create_page_cb)(lv_obj_t *, \
+                                                        lv_obj_t *, \
+                                                        const char *))
+{
+    item_ctx_t *item_ctx;
+    int32_t ret = 0;
+
+    /* Validate argument and extract item context */
+    item_ctx = lobj ? (item_ctx_t *)get_internal_data(lobj) : NULL;
+    if (!item_ctx)
+        return -EINVAL;
+
     item_ctx->menu = menu;
     item_ctx->create_page_cb = create_page_cb;
 
-    return item;
+    return 0;
 }
  
 /*
