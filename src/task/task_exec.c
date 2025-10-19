@@ -60,6 +60,9 @@ int32_t process_opcode(uint32_t opcode, void *data)
     case OP_DBUS_SENT_CMD:
         ret = dbus_method_call_with_data((remote_cmd_t *)data);
         break;
+    case OP_GET_BRIGHTNESS:
+        ret = res_current_brightness((remote_cmd_t *)data);
+        break;
     default:
         LOG_ERROR("Opcode [%d] is invalid", opcode);
         break;

@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-// #define LOG_LEVEL LOG_LEVEL_TRACE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -25,6 +25,8 @@
 #include "ui/comps.h"
 #include "ui/windows.h"
 #include "ui/widget.h"
+#include "sched/workqueue.h"
+#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES
@@ -45,6 +47,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
+static lv_obj_t *brightness_slider = NULL;
 
 /**********************
  *      MACROS
@@ -53,6 +56,28 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static void set_brightness_runtime_slider(int32_t value)
+{
+    lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
+}
+
+static int32_t req_current_brightness()
+{
+    remote_cmd_t *cmd;
+    int32_t ret = 0;
+
+    cmd = create_remote_cmd();
+    if (!cmd)
+        return -ENOMEM;
+
+    remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_GET_BRIGHTNESS, \
+                    WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
+
+    /* Command data will be auto-released after work completes */
+    ret = create_remote_task(WORK_PRIO_HIGH, cmd);
+    return ret;
+}
+
 static void switch_auto_brightness_event_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -116,11 +141,12 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!label)
         return -EIO;
 
-    swit = create_slider(group, NULL);
-    if (!swit)
+    brightness_slider = create_slider(group, NULL);
+    if (!brightness_slider)
         return -EIO;
 
-    set_size(swit, LV_PCT(70), 20);
+    set_size(brightness_slider, LV_PCT(70), 20);
+    req_current_brightness();
 
 
     /* Section: Spacer (flex filler) */
@@ -148,4 +174,17 @@ lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *n
     create_brightness_setting_items(page);
 
     return page;
+}
+
+int32_t res_current_brightness(remote_cmd_t *cmd)
+{
+    int32_t ret = 0;
+
+    LOG_TRACE("Brightness current value response key: [%s] - value: [%d]", \
+              cmd->entries[0].key, cmd->entries[0].value.i32);
+
+    /* Update UI asynchronously to avoid blocking caller thread */
+    lv_async_call(set_brightness_runtime_slider, cmd->entries[0].value.i32);
+
+    return ret;
 }
