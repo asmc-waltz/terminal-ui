@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#define LOG_LEVEL LOG_LEVEL_TRACE
+// #define LOG_LEVEL LOG_LEVEL_TRACE
 #if defined(LOG_LEVEL)
 #warning "LOG_LEVEL defined locally will override the global setting in this file"
 #endif
@@ -58,24 +58,43 @@ static lv_obj_t *brightness_slider = NULL;
  **********************/
 static void set_brightness_runtime_slider(int32_t value)
 {
-    lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
+    if (brightness_slider)
+        lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
+    else
+        LOG_TRACE("Brightness configuration page is not available");
 }
 
 static int32_t req_current_brightness()
 {
     remote_cmd_t *cmd;
-    int32_t ret = 0;
 
-    cmd = create_remote_cmd();
+    cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                  OP_GET_BRIGHTNESS);
     if (!cmd)
         return -ENOMEM;
 
-    remote_cmd_init(cmd, COMP_NAME, COMP_ID, OP_GET_BRIGHTNESS, \
-                    WORK_PRIO_NORMAL, WORK_DURATION_SHORT);
+    // NOTE: Command data will be released after the work completes
+    return create_remote_task(WORK_PRIO_HIGH, cmd);
+}
 
-    /* Command data will be auto-released after work completes */
-    ret = create_remote_task(WORK_PRIO_HIGH, cmd);
-    return ret;
+static int32_t req_set_brightness(int32_t value)
+{
+    remote_cmd_t *cmd;
+
+    cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                  OP_SET_BRIGHTNESS);
+    if (!cmd) {
+        LOG_ERROR("Failed to create remote command payload");
+        return -EINVAL;
+    }
+
+    if (remote_cmd_add_int(cmd, "brightness", value)) {
+        delete_remote_cmd(cmd);
+        return -EIO;
+    }
+
+    // NOTE: Command data will be released after the work completes
+    return create_remote_task(WORK_PRIO_HIGH, cmd);
 }
 
 static void switch_auto_brightness_event_handler(lv_event_t *e)
@@ -92,6 +111,19 @@ static void switch_auto_brightness_event_handler(lv_event_t *e)
             lv_obj_clear_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
         }
     }
+}
+
+static void manual_brightness_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *lobj = lv_event_get_target(e);
+    int32_t brightness_value, ret;
+
+    brightness_value = (int32_t)lv_slider_get_value(lobj);
+
+    ret = req_set_brightness(brightness_value);
+    if (ret)
+        LOG_ERROR("Set brightness failed, ret %d", ret);
 }
 
 static int32_t create_brightness_setting_items(lv_obj_t *par)
@@ -147,6 +179,8 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 
     set_size(brightness_slider, LV_PCT(70), 20);
     req_current_brightness();
+    lv_obj_add_event_cb(brightness_slider, manual_brightness_event_handler, \
+                        LV_EVENT_VALUE_CHANGED, NULL);
 
 
     /* Section: Spacer (flex filler) */
