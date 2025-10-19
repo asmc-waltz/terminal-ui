@@ -97,20 +97,48 @@ static int32_t req_set_brightness(int32_t value)
     return create_remote_task(WORK_PRIO_HIGH, cmd);
 }
 
+static void set_brightness_slider_state(bool enable)
+{
+    lv_color_t color;
+
+    if (enable) {
+        lv_obj_add_flag(brightness_slider, LV_OBJ_FLAG_CLICKABLE);
+        color = lv_palette_main(LV_PALETTE_BLUE);
+    } else {
+        lv_obj_clear_flag(brightness_slider, LV_OBJ_FLAG_CLICKABLE);
+        color = lv_palette_main(LV_PALETTE_GREY);
+    }
+
+    lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_KNOB);
+}
+
 static void switch_auto_brightness_event_handler(lv_event_t *e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *lobj = lv_event_get_target(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        lv_obj_t *manual_brightness = get_obj_by_name("BRIGHTNESS-MANUAL", \
-                                       &get_meta(lv_screen_active())->child);
-        LV_LOG_USER("State: %s\n", lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
-        if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
-            lv_obj_add_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
-        } else {
-            lv_obj_clear_flag(manual_brightness, LV_OBJ_FLAG_HIDDEN);
-        }
+    lv_event_code_t code;
+    lv_obj_t *lobj;
+    bool enable;
+    int32_t ret = 0;
+
+    code = lv_event_get_code(e);
+    lobj = lv_event_get_target(e);
+    if (code != LV_EVENT_VALUE_CHANGED)
+        return;
+
+    enable = lv_obj_has_state(lobj, LV_STATE_CHECKED);
+    LOG_TRACE("Auto brightness: %s", enable ? "On" : "Off");
+
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, \
+                                    WORK_DURATION_SHORT, \
+                                    enable ? OP_ALS_ON : OP_ALS_OFF);
+    if (ret) {
+        LOG_ERROR("%s ambient light sensor failed, ret %d", \
+                  enable ? "Enable" : "Disable", ret);
+        return;
     }
+
+    set_brightness_slider_state(!enable);
 }
 
 static void manual_brightness_event_handler(lv_event_t *e)
