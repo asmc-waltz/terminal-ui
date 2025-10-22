@@ -48,6 +48,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
+static lv_obj_t *rotation_switch = NULL;
 
 /**********************
  *      MACROS
@@ -78,7 +79,7 @@ static void switch_rotation_enable_handler(lv_event_t *e)
 
 static int32_t create_rotation_setting_items(lv_obj_t *par)
 {
-    lv_obj_t *group, *child_group, *sym, *label, *swit;
+    lv_obj_t *group, *child_group, *sym, *label, *switch_box;
     const char *desc = "Control screen orientation or enable\n"
                        "auto rotation based on device position";
 
@@ -114,12 +115,13 @@ static int32_t create_rotation_setting_items(lv_obj_t *par)
     if (!label)
         return -EIO;
 
-    swit = create_switch_box(group, NULL);
-    if (!swit)
+    switch_box = create_switch_box(group, NULL);
+    if (!switch_box)
         return -EIO;
-    lv_obj_add_event_cb(get_box_child(swit), \
+    lv_obj_add_event_cb(get_box_child(switch_box), \
                         switch_rotation_enable_handler, \
                         LV_EVENT_ALL, NULL);
+    rotation_switch = get_box_child(switch_box);
 
     /* Section: Spacer (flex filler) */
     lv_obj_t *filler = create_box(par, "FILLER");
@@ -155,35 +157,58 @@ lv_obj_t *create_rotation_setting(lv_obj_t *menu, lv_obj_t *par, const char *nam
     return page;
 }
 
-int32_t screen_rotate_layout(remote_cmd_t *cmd)
+int32_t handle_imu_rotation_state(remote_cmd_t *cmd)
 {
-    ctx_t *ctx = get_ctx();
-    lv_obj_t *screen = ctx->scr.now.obj;
-    int32_t val = cmd->entries[0].value.i32;
-    int32_t rotation;
+    ctx_t *ctx;
+    lv_obj_t *screen;
+    int32_t state, roll, pitch, yaw;
+    int8_t rotation = -1;
+    static int8_t prev_rot = ROTATION_0;
 
-    switch (val) {
-    case 90:
-        rotation = ROTATION_90;
-        break;
-    case 180:
-        rotation = ROTATION_180;
-        break;
-    case 270:
+    if (!cmd)
+        return -EINVAL;
+
+    ctx = get_ctx();
+    if (!ctx)
+        return -EIO;
+
+    state = cmd->entries[0].value.i32;
+    roll  = cmd->entries[1].value.i32;
+    pitch = cmd->entries[2].value.i32;
+    yaw   = cmd->entries[3].value.i32;
+
+    /* Determine rotation angle from IMU data */
+    if (roll < -45)
         rotation = ROTATION_270;
-        break;
-    default:
+    else if (roll > 45)
+        rotation = ROTATION_90;
+
+    if (pitch < -45)
+        rotation = ROTATION_180;
+    else if (pitch > 45)
         rotation = ROTATION_0;
-        break;
+
+    /* Sync switch state if available */
+    if (lv_obj_is_valid(rotation_switch)) {
+        if (state)
+            lv_obj_add_state(rotation_switch, LV_STATE_CHECKED);
+        else
+            lv_obj_remove_state(rotation_switch, LV_STATE_CHECKED);
     }
 
-    set_scr_rotation(rotation);
+    /* Apply new rotation if changed */
+    if (rotation != -1 && rotation != prev_rot) {
+        prev_rot = rotation;
+        set_scr_rotation(rotation);
 
-    LOG_TRACE("System rotation: [%s] - value: [%d] / %d", \
-              cmd->entries[0].key, val, rotation);
+        /* Avoid blocking caller thread */
+        screen = ctx->scr.now.obj;
+        if (lv_obj_is_valid(screen))
+            lv_async_call(refresh_object_tree_layout, screen);
 
-    /* Update UI asynchronously to avoid blocking caller thread */
-    lv_async_call(refresh_object_tree_layout, screen);
+        LOG_INFO("Rotation changed to %d (roll=%d, pitch=%d, yaw=%d)",
+                 rotation, roll, pitch, yaw);
+    }
 
     return 0;
 }
