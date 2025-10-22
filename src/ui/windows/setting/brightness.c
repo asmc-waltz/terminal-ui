@@ -48,6 +48,7 @@
  *  STATIC VARIABLES
  **********************/
 static lv_obj_t *brightness_slider = NULL;
+static lv_obj_t *als_switch = NULL;
 
 /**********************
  *      MACROS
@@ -56,20 +57,12 @@ static lv_obj_t *brightness_slider = NULL;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void set_brightness_runtime_slider(int32_t value)
-{
-    if (lv_obj_is_valid(brightness_slider))
-        lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
-    else
-        LOG_TRACE("Brightness configuration page is not available");
-}
-
-static int32_t req_current_brightness()
+static int32_t req_backlight_state()
 {
     remote_cmd_t *cmd;
 
     cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
-                                  OP_GET_BRIGHTNESS);
+                                  OP_BACKLIGHT_STATE);
     if (!cmd)
         return -ENOMEM;
 
@@ -82,7 +75,7 @@ static int32_t req_set_brightness(int32_t value)
     remote_cmd_t *cmd;
 
     cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
-                                  OP_SET_BRIGHTNESS);
+                                  OP_ADJUST_BRIGHTNESS);
     if (!cmd) {
         LOG_ERROR("Failed to create remote command payload");
         return -EINVAL;
@@ -97,9 +90,20 @@ static int32_t req_set_brightness(int32_t value)
     return create_remote_task(WORK_PRIO_HIGH, cmd);
 }
 
+static void set_brightness_runtime_slider(int32_t value)
+{
+    if (lv_obj_is_valid(brightness_slider))
+        lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
+    else
+        LOG_TRACE("Brightness configuration page is not available");
+}
+
 static void set_brightness_slider_state(bool enable)
 {
     lv_color_t color;
+
+    if (!lv_obj_is_valid(brightness_slider))
+        return;
 
     if (enable) {
         lv_obj_add_flag(brightness_slider, LV_OBJ_FLAG_CLICKABLE);
@@ -112,6 +116,32 @@ static void set_brightness_slider_state(bool enable)
     lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_MAIN);
     lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_INDICATOR);
     lv_obj_set_style_bg_color(brightness_slider, color, LV_PART_KNOB);
+}
+
+/*
+ * Enable ALS page update.
+ * UI-side handler that syncs ALS switch and brightness slider.
+ */
+static void enable_als_page_update(int8_t brightness)
+{
+    if (lv_obj_is_valid(als_switch))
+        lv_obj_add_state(als_switch, LV_STATE_CHECKED);
+
+    set_brightness_slider_state(false);
+    set_brightness_runtime_slider(brightness);
+}
+
+/*
+ * Disable ALS page update.
+ * Re-enables manual brightness control and updates slider.
+ */
+static void disable_als_page_update(int8_t brightness)
+{
+    if (lv_obj_is_valid(als_switch))
+        lv_obj_remove_state(als_switch, LV_STATE_CHECKED);
+
+    set_brightness_slider_state(true);
+    set_brightness_runtime_slider(brightness);
 }
 
 static void switch_auto_brightness_event_handler(lv_event_t *e)
@@ -131,7 +161,7 @@ static void switch_auto_brightness_event_handler(lv_event_t *e)
 
     ret = create_remote_simple_task(WORK_PRIO_NORMAL, \
                                     WORK_DURATION_SHORT, \
-                                    enable ? OP_ALS_ON : OP_ALS_OFF);
+                                    enable ? OP_ENA_ALS : OP_DIS_ALS);
     if (ret) {
         LOG_ERROR("%s ambient light sensor failed, ret %d", \
                   enable ? "Enable" : "Disable", ret);
@@ -156,7 +186,7 @@ static void manual_brightness_event_handler(lv_event_t *e)
 
 static int32_t create_brightness_setting_items(lv_obj_t *par)
 {
-    lv_obj_t *group, *sym, *label, *swit;
+    lv_obj_t *group, *sym, *label, *switch_box;
     const char *desc = "Manual and auto brightness setting";
 
     if (!par)
@@ -185,11 +215,12 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!label)
         return -EIO;
 
-    swit = create_switch_box(group, NULL);
-    if (!swit)
+    switch_box = create_switch_box(group, NULL);
+    if (!switch_box)
         return -EIO;
-    lv_obj_add_event_cb(get_box_child(swit), \
-                        switch_auto_brightness_event_handler, \
+
+    als_switch = get_box_child(switch_box);
+    lv_obj_add_event_cb(als_switch, switch_auto_brightness_event_handler, \
                         LV_EVENT_ALL, NULL);
 
     /* Section: Auto brightness toggle */
@@ -207,7 +238,6 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
         return -EIO;
 
     set_size(brightness_slider, LV_PCT(80), 20);
-    req_current_brightness();
     lv_obj_add_event_cb(brightness_slider, manual_brightness_event_handler, \
                         LV_EVENT_VALUE_CHANGED, NULL);
 
@@ -231,28 +261,61 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
+lv_obj_t *create_brightness_setting(lv_obj_t *menu, lv_obj_t *par, \
+                                    const char *name)
 {
     lv_obj_t *page;
+    int32_t ret;
 
     page = create_menu_page(menu, par, name);
     if (!page)
         return NULL;
 
-    create_brightness_setting_items(page);
+    ret = create_brightness_setting_items(page);
+    if (ret) {
+        LOG_ERROR("Setting page [%s] create failed, ret %d", \
+                  get_name(page), ret);
+        remove_obj_and_child(get_meta(page)->id, &get_meta(par)->child);
+        return NULL;
+    }
+
+    ret = req_backlight_state();
+    if (ret)
+        LOG_WARN("Unable to sync the latest configuration, ret %d", ret);
 
     return page;
 }
 
-int32_t res_current_brightness(remote_cmd_t *cmd)
+/*
+ * Handle backlight state command.
+ * Expected command entries:
+ *   [0]: "als_enable"  -> 1 = enabled, 0 = disabled
+ *   [1]: "brightness"  -> brightness level
+ */
+int32_t handle_backlight_state(remote_cmd_t *cmd)
 {
+    bool als_enabled;
+    int32_t brightness;
     int32_t ret = 0;
 
-    LOG_TRACE("Brightness current value response key: [%s] - value: [%d]", \
-              cmd->entries[0].key, cmd->entries[0].value.i32);
+    if (!cmd)
+        return -EINVAL;
 
-    /* Update UI asynchronously to avoid blocking caller thread */
-    lv_async_call(set_brightness_runtime_slider, cmd->entries[0].value.i32);
+    als_enabled = !!cmd->entries[0].value.i32;
+    brightness = cmd->entries[1].value.i32;
+
+    LOG_TRACE("ALS status: key=[%s], value=[%d]", \
+              cmd->entries[0].key, als_enabled);
+    LOG_TRACE("Brightness: key=[%s], value=[%d]", \
+              cmd->entries[1].key, brightness);
+
+    /* Async update to avoid blocking UI thread */
+    if (als_enabled)
+        lv_async_call((lv_async_cb_t)enable_als_page_update, \
+                      (void *)(intptr_t)brightness);
+    else
+        lv_async_call((lv_async_cb_t)disable_als_page_update, \
+                      (void *)(intptr_t)brightness);
 
     return ret;
 }
