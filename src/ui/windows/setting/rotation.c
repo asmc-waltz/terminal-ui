@@ -25,6 +25,9 @@
 #include "ui/comps.h"
 #include "ui/windows.h"
 #include "ui/widget.h"
+#include "sched/workqueue.h"
+#include "comm/cmd_payload.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
@@ -57,15 +60,20 @@ static void switch_rotation_enable_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *lobj = lv_event_get_target(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        LOG_TRACE("Switch state: %s\n", \
-                  lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
-        if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
-            ;
-        } else {
-            ;
-        }
-    }
+    bool enable;
+    int32_t ret;
+
+    if (code != LV_EVENT_VALUE_CHANGED)
+        return;
+
+    enable = lv_obj_has_state(lobj, LV_STATE_CHECKED);
+    LOG_TRACE("Auto rotation: %s", enable ? "On" : "Off");
+
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                    enable ? OP_ENABLE_IMU : OP_DISABLE_IMU);
+    if (ret)
+        LOG_ERROR("%s IMU sensor failed, ret %d", \
+                  enable ? "Enable" : "Disable", ret);
 }
 
 static int32_t create_rotation_setting_items(lv_obj_t *par)
@@ -145,4 +153,37 @@ lv_obj_t *create_rotation_setting(lv_obj_t *menu, lv_obj_t *par, const char *nam
     }
 
     return page;
+}
+
+int32_t screen_rotate_layout(remote_cmd_t *cmd)
+{
+    ctx_t *ctx = get_ctx();
+    lv_obj_t *screen = ctx->scr.now.obj;
+    int32_t val = cmd->entries[0].value.i32;
+    int32_t rotation;
+
+    switch (val) {
+    case 90:
+        rotation = ROTATION_90;
+        break;
+    case 180:
+        rotation = ROTATION_180;
+        break;
+    case 270:
+        rotation = ROTATION_270;
+        break;
+    default:
+        rotation = ROTATION_0;
+        break;
+    }
+
+    set_scr_rotation(rotation);
+
+    LOG_TRACE("System rotation: [%s] - value: [%d] / %d", \
+              cmd->entries[0].key, val, rotation);
+
+    /* Update UI asynchronously to avoid blocking caller thread */
+    lv_async_call(refresh_object_tree_layout, screen);
+
+    return 0;
 }

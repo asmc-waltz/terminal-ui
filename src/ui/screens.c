@@ -28,7 +28,6 @@
 #include "ui/grid.h"
 #include "ui/flex.h"
 #include "main.h"
-#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES

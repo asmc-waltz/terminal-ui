@@ -63,6 +63,9 @@ int32_t process_opcode(uint32_t opcode, void *data)
     case OP_GET_BRIGHTNESS:
         ret = res_current_brightness((remote_cmd_t *)data);
         break;
+    case OP_ROTATE_SCR:
+        ret = screen_rotate_layout((remote_cmd_t *)data);
+        break;
     default:
         LOG_ERROR("Opcode [%d] is invalid", opcode);
         break;
