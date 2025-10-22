@@ -57,6 +57,19 @@ static lv_obj_t *rotation_switch = NULL;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static int32_t req_imu_state()
+{
+    remote_cmd_t *cmd;
+
+    cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                  OP_IMU_STATE);
+    if (!cmd)
+        return -ENOMEM;
+
+    // NOTE: Command data will be released after the work completes
+    return create_remote_task(WORK_PRIO_HIGH, cmd);
+}
+
 static void switch_rotation_enable_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -154,25 +167,55 @@ lv_obj_t *create_rotation_setting(lv_obj_t *menu, lv_obj_t *par, const char *nam
         return NULL;
     }
 
+    ret = req_imu_state();
+    if (ret)
+        LOG_WARN("Unable to sync the latest configuration, ret %d", ret);
+
     return page;
 }
 
-int32_t handle_imu_rotation_state(remote_cmd_t *cmd)
+/** Update rotation switch state according to IMU enable flag */
+void update_rotation_switch_state(int32_t imu_ena)
+{
+    if (!lv_obj_is_valid(rotation_switch)) {
+        LOG_TRACE("Rotation page is not available");
+        return;
+    }
+
+    LOG_TRACE("IMU enable state: %d", imu_ena);
+
+    if (imu_ena)
+        lv_obj_add_state(rotation_switch, LV_STATE_CHECKED);
+    else
+        lv_obj_remove_state(rotation_switch, LV_STATE_CHECKED);
+}
+
+/** Refresh current screen layout after rotation */
+void refresh_screen_rotation(void)
 {
     ctx_t *ctx;
     lv_obj_t *screen;
-    int32_t state, roll, pitch, yaw;
+
+    ctx = get_ctx();
+    if (!ctx)
+        return;
+
+    screen = ctx->scr.now.obj;
+    if (lv_obj_is_valid(screen))
+        refresh_object_tree_layout(screen);
+}
+
+/** Handle IMU data and apply corresponding screen rotation */
+int32_t handle_imu_rotation_state(remote_cmd_t *cmd)
+{
+    int32_t imu_ena, roll, pitch, yaw;
     int8_t rotation = -1;
     static int8_t prev_rot = ROTATION_0;
 
     if (!cmd)
         return -EINVAL;
 
-    ctx = get_ctx();
-    if (!ctx)
-        return -EIO;
-
-    state = cmd->entries[0].value.i32;
+    imu_ena = cmd->entries[0].value.i32;
     roll  = cmd->entries[1].value.i32;
     pitch = cmd->entries[2].value.i32;
     yaw   = cmd->entries[3].value.i32;
@@ -182,32 +225,26 @@ int32_t handle_imu_rotation_state(remote_cmd_t *cmd)
         rotation = ROTATION_270;
     else if (roll > 45)
         rotation = ROTATION_90;
-
-    if (pitch < -45)
+    else if (pitch < -45)
         rotation = ROTATION_180;
     else if (pitch > 45)
         rotation = ROTATION_0;
-
-    /* Sync switch state if available */
-    if (lv_obj_is_valid(rotation_switch)) {
-        if (state)
-            lv_obj_add_state(rotation_switch, LV_STATE_CHECKED);
-        else
-            lv_obj_remove_state(rotation_switch, LV_STATE_CHECKED);
-    }
 
     /* Apply new rotation if changed */
     if (rotation != -1 && rotation != prev_rot) {
         prev_rot = rotation;
         set_scr_rotation(rotation);
 
-        /* Avoid blocking caller thread */
-        screen = ctx->scr.now.obj;
-        if (lv_obj_is_valid(screen))
-            lv_async_call(refresh_object_tree_layout, screen);
+        lv_async_call((lv_async_cb_t)update_rotation_switch_state, \
+                      (void *)(intptr_t)imu_ena);
+        lv_async_call((lv_async_cb_t)refresh_screen_rotation, NULL);
 
-        LOG_INFO("Rotation changed to %d (roll=%d, pitch=%d, yaw=%d)",
+        LOG_INFO("Rotation changed to %d (r=%d, p=%d, y=%d)", \
                  rotation, roll, pitch, yaw);
+    } else {
+        // TODO: reduce path
+        lv_async_call((lv_async_cb_t)update_rotation_switch_state, \
+                      (void *)(intptr_t)imu_ena);
     }
 
     return 0;
