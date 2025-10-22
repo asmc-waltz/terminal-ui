@@ -58,7 +58,7 @@ static lv_obj_t *brightness_slider = NULL;
  **********************/
 static void set_brightness_runtime_slider(int32_t value)
 {
-    if (brightness_slider)
+    if (lv_obj_is_valid(brightness_slider))
         lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
     else
         LOG_TRACE("Brightness configuration page is not available");
@@ -197,19 +197,25 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
     if (!group)
         return -ENOMEM;
 
-    label = create_text_box(group, NULL, &lv_font_montserrat_24, "Manual");
-    if (!label)
+    sym = create_symbol_box(group, NULL, &terminal_icons_32, \
+                            ICON_CIRCLE_MINUS_SOLID);
+    if (!sym)
         return -EIO;
 
     brightness_slider = create_slider(group, NULL);
     if (!brightness_slider)
         return -EIO;
 
-    set_size(brightness_slider, LV_PCT(70), 20);
+    set_size(brightness_slider, LV_PCT(80), 20);
     req_current_brightness();
     lv_obj_add_event_cb(brightness_slider, manual_brightness_event_handler, \
                         LV_EVENT_VALUE_CHANGED, NULL);
 
+
+    sym = create_symbol_box(group, NULL, &terminal_icons_32, \
+                            ICON_CIRCLE_PLUS_SOLID);
+    if (!sym)
+        return -EIO;
 
     /* Section: Spacer (flex filler) */
     lv_obj_t *filler = create_box(par, "BRIGHTNESS-FILLER");
