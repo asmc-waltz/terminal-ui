@@ -623,10 +623,10 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
         return NULL;
 
     /* Style and layout configuration */
-    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(20)), 0);
+    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(10)), 0);
     set_size(menu_bar, LV_PCT(100), LV_PCT(100));
     set_align(menu_bar, menu_ctx->menu_ctn, LV_ALIGN_CENTER, 0, 0);
-    set_padding(menu_bar, 4, 4, 4, 4);
+    set_padding(menu_bar, 0, 0, 0, 0);
     set_row_padding(menu_bar, 20);
 
     /* Scrollbar cleanup */
@@ -662,11 +662,11 @@ lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, const char *name)
     if (!page)
         return NULL;
 
-    lv_obj_set_style_bg_color(page, lv_color_hex(bg_color(20)), 0);
+    lv_obj_set_style_bg_color(page, lv_color_hex(bg_color(10)), 0);
     set_size(page, LV_PCT(100), LV_PCT(100));
     set_align(page, par, LV_ALIGN_CENTER, 0, 0);
 
-    ret = set_padding(page, 4, 4, 4, 4);
+    ret = set_padding(page, 0, 0, 0, 0);
     if (ret)
         LOG_WARN("Page [%s] set padding failed (%d)", get_name(page), ret);
 
@@ -750,7 +750,7 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
                           LV_GRID_ALIGN_SPACE_BETWEEN);
 
     /* Base style setup */
-    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(20)), 0);
+    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(10)), 0);
     lv_obj_set_style_radius(lobj, 16, 0);
     set_column_padding(lobj, 8);
 
