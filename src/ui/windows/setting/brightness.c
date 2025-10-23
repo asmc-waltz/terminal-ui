@@ -92,8 +92,9 @@ static int32_t req_set_brightness(int32_t value)
 
 static void set_brightness_runtime_slider(int32_t value)
 {
-    if (lv_obj_is_valid(brightness_slider))
-        lv_slider_set_value(brightness_slider, value, LV_ANIM_OFF);
+    if (lv_obj_is_valid(brightness_slider)) {
+        lv_slider_set_value(brightness_slider, value, LV_ANIM_ON);
+    }
     else
         LOG_TRACE("Brightness configuration page is not available");
 }
@@ -238,6 +239,7 @@ static int32_t create_brightness_setting_items(lv_obj_t *par)
         return -EIO;
 
     set_size(brightness_slider, LV_PCT(80), 20);
+    lv_obj_set_style_anim_duration(brightness_slider, 500, 0);
     lv_obj_add_event_cb(brightness_slider, manual_brightness_event_handler, \
                         LV_EVENT_VALUE_CHANGED, NULL);
 
