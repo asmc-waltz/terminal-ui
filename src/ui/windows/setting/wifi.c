@@ -25,6 +25,8 @@
 #include "ui/comps.h"
 #include "ui/windows.h"
 #include "ui/widget.h"
+#include "sched/workqueue.h"
+#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES
@@ -57,15 +59,20 @@ static void switch_wifi_enable_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *lobj = lv_event_get_target(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        LOG_TRACE("Switch state: %s\n", \
-                  lv_obj_has_state(lobj, LV_STATE_CHECKED) ? "On" : "Off");
-        if (lv_obj_has_state(lobj, LV_STATE_CHECKED)) {
-            ;
-        } else {
-            ;
-        }
-    }
+    bool enable;
+    int32_t ret;
+
+    if (code != LV_EVENT_VALUE_CHANGED)
+        return;
+
+    enable = lv_obj_has_state(lobj, LV_STATE_CHECKED);
+    LOG_TRACE("Wi-Fi: %s", enable ? "On" : "Off");
+
+    ret = create_remote_simple_task(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                    enable ? OP_WIFI_ENABLE : OP_WIFI_DISABLE);
+    if (ret)
+        LOG_ERROR("%s Wi-Fi failed, ret %d", \
+                  enable ? "Enable" : "Disable", ret);
 }
 
 static int32_t create_wifi_setting_items(lv_obj_t *par)
