@@ -31,6 +31,7 @@
 /*********************
  *      DEFINES
  *********************/
+#define NM_SSID_MAX_LEN                 33  /* IEEE 802.11 */
 
 /**********************
  *      TYPEDEFS
@@ -51,6 +52,8 @@ static lv_obj_t *wifi_general_group = NULL;
 static lv_obj_t *wifi_connected_ap = NULL;
 static lv_obj_t *enable_wifi_switch = NULL;
 static lv_obj_t *ap_holder = NULL;
+
+static char active_ap_ssid[NM_SSID_MAX_LEN];
 
 /**********************
  *      MACROS
@@ -214,6 +217,7 @@ static int32_t add_wifi_connected_ap(const char *ssid, int8_t strength)
     lv_obj_set_style_border_width(group, 2, 0);
     lv_obj_set_style_border_color(group, lv_color_black(), 0);
 
+    refresh_object_tree_layout(wifi_connected_ap);
     LOG_DEBUG("Wi-Fi connected AP added: %s (%d%%)", ssid, strength);
     return 0;
 }
@@ -329,6 +333,11 @@ lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
     return page;
 }
 
+int32_t runtime_add_wifi_connected_ap(int8_t strength)
+{
+    return add_wifi_connected_ap(active_ap_ssid, strength);
+}
+
 /*
  * Handle Wi-Fi state command.
  */
@@ -347,13 +356,30 @@ int32_t handle_wifi_state(remote_cmd_t *cmd)
     signal_strength = cmd->entries[1].value.i32;
 
     LOG_INFO("Wi-Fi status: key=[%s], value=[%d]", \
-              cmd->entries[0].key, wifi_enabled);
-    LOG_INFO("Wi-Fi connected AP: SSID [%s] - Strength [%d]", \
-              active_ap, signal_strength);
+             cmd->entries[0].key, wifi_enabled);
+
+    if (wifi_enabled)
+        LOG_INFO("Wi-Fi connected AP: SSID [%s] - Strength [%d]", \
+                 active_ap ? active_ap : "(null)", signal_strength);
 
     /* Async update to avoid blocking UI thread */
     lv_async_call((lv_async_cb_t)tongle_wifi_switch_page_update, \
                   (void *)(intptr_t)wifi_enabled);
+
+    if (wifi_enabled && active_ap && *active_ap) {
+        strncpy(active_ap_ssid, active_ap, sizeof(active_ap_ssid) - 1);
+        active_ap_ssid[sizeof(active_ap_ssid) - 1] = '\0';
+
+        lv_async_call((lv_async_cb_t)runtime_add_wifi_connected_ap, \
+                      (void *)(intptr_t)signal_strength);
+    } else {
+        if (lv_obj_is_valid(wifi_connected_ap)) {
+            lv_obj_t *par = lv_obj_get_parent(wifi_connected_ap);
+
+            remove_obj_and_child(get_meta(wifi_connected_ap)->id, \
+                                 &get_meta(par)->child);
+        }
+    }
 
     return ret;
 }
