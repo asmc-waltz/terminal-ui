@@ -63,6 +63,9 @@ int32_t process_opcode(uint32_t opcode, void *data)
     case OP_BACKLIGHT_STATE:
         ret = handle_backlight_state((remote_cmd_t *)data);
         break;
+    case OP_WIFI_STATE:
+        ret = handle_wifi_state((remote_cmd_t *)data);
+        break;
     case OP_IMU_STATE:
         ret = handle_imu_rotation_state((remote_cmd_t *)data);
         break;

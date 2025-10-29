@@ -49,6 +49,7 @@
  **********************/
 static lv_obj_t *wifi_general_group = NULL;
 static lv_obj_t *wifi_connected_ap = NULL;
+static lv_obj_t *enable_wifi_switch = NULL;
 static lv_obj_t *ap_holder = NULL;
 
 /**********************
@@ -58,6 +59,33 @@ static lv_obj_t *ap_holder = NULL;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+static int32_t req_wifi_state()
+{
+    remote_cmd_t *cmd;
+
+    cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                  OP_WIFI_STATE);
+    if (!cmd)
+        return -ENOMEM;
+
+    // NOTE: Command data will be released after the work completes
+    return create_remote_task(WORK_PRIO_HIGH, cmd);
+}
+
+/*
+ * Enable/Disable Wi-Fi switch update.
+ */
+static void tongle_wifi_switch_page_update(bool enable)
+{
+    if (!lv_obj_is_valid(enable_wifi_switch))
+        return;
+
+    if (enable)
+        lv_obj_add_state(enable_wifi_switch, LV_STATE_CHECKED);
+    else
+        lv_obj_remove_state(enable_wifi_switch, LV_STATE_CHECKED);
+}
+
 static void switch_wifi_enable_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -117,9 +145,9 @@ static int32_t create_wifi_toggle_section(lv_obj_t *par)
     if (!switch_box)
         return -EIO;
 
-    lv_obj_add_event_cb(get_box_child(switch_box), \
-                switch_wifi_enable_handler, \
-                LV_EVENT_ALL, NULL);
+    enable_wifi_switch = get_box_child(switch_box);
+    lv_obj_add_event_cb(enable_wifi_switch, switch_wifi_enable_handler, \
+                        LV_EVENT_ALL, NULL);
 
     return 0;
 }
@@ -294,5 +322,38 @@ lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
         return NULL;
     }
 
+    ret = req_wifi_state();
+    if (ret)
+        LOG_WARN("Unable to sync the latest configuration, ret %d", ret);
+
     return page;
+}
+
+/*
+ * Handle Wi-Fi state command.
+ */
+int32_t handle_wifi_state(remote_cmd_t *cmd)
+{
+    bool wifi_enabled;
+    const char *active_ap;
+    int32_t signal_strength;
+    int32_t ret = 0;
+
+    if (!cmd)
+        return -EINVAL;
+
+    wifi_enabled = !!cmd->entries[0].value.i32;
+    active_ap = cmd->entries[1].key;
+    signal_strength = cmd->entries[1].value.i32;
+
+    LOG_INFO("Wi-Fi status: key=[%s], value=[%d]", \
+              cmd->entries[0].key, wifi_enabled);
+    LOG_INFO("Wi-Fi connected AP: SSID [%s] - Strength [%d]", \
+              active_ap, signal_strength);
+
+    /* Async update to avoid blocking UI thread */
+    lv_async_call((lv_async_cb_t)tongle_wifi_switch_page_update, \
+                  (void *)(intptr_t)wifi_enabled);
+
+    return ret;
 }
