@@ -236,6 +236,13 @@ static int32_t add_wifi_connected_ap(const char *ssid, int8_t strength)
     return 0;
 }
 
+static void remove_wifi_connected_access_point(lv_obj_t *act_ap)
+{
+    lv_obj_t *par = lv_obj_get_parent(act_ap);
+
+    remove_obj_and_child(get_meta(act_ap)->id, &get_meta(par)->child);
+}
+
 static int32_t add_available_wifi_ap(const char *ssid, int8_t strength)
 {
     lv_obj_t *group;
@@ -258,6 +265,15 @@ static int32_t add_available_wifi_ap(const char *ssid, int8_t strength)
     }
 
     return 0;
+}
+
+static void remove_all_wifi_access_point(lv_obj_t *holder)
+{
+    int32_t ret = 0;
+    ret = remove_children(holder);
+    if (ret < 0) {
+        LOG_ERROR("Clean Wi-Fi AP holder old data failed, ret=%d", ret);
+    }
 }
 
 static int32_t create_wifi_filler(lv_obj_t *par)
@@ -392,10 +408,12 @@ int32_t handle_wifi_state(remote_cmd_t *cmd)
                       (void *)(intptr_t)signal_strength);
     } else {
         if (lv_obj_is_valid(wifi_connected_ap)) {
-            lv_obj_t *par = lv_obj_get_parent(wifi_connected_ap);
+            lv_async_call(remove_wifi_connected_access_point, \
+                          wifi_connected_ap);
+        }
 
-            remove_obj_and_child(get_meta(wifi_connected_ap)->id, \
-                                 &get_meta(par)->child);
+        if (lv_obj_is_valid(ap_holder)) {
+            lv_async_call(remove_all_wifi_access_point, ap_holder);
         }
     }
 
@@ -420,10 +438,9 @@ void refresh_available_access_point_holder(void *unused)
     }
 
     ret = remove_children(ap_holder);
-    if (ret) {
+    if (ret < 0) {
         LOG_ERROR("Unable to clean Wi-Fi AP holder old data, ret=%d", ret);
-        // TODO
-        // return;
+        return;
     }
 
     for (i = 0; i < wifi_state.ap_count; ++i) {
