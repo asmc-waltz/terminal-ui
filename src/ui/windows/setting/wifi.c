@@ -27,11 +27,11 @@
 #include "ui/widget.h"
 #include "sched/workqueue.h"
 #include "comm/cmd_payload.h"
+#include "comm/net/network.h"
 
 /*********************
  *      DEFINES
  *********************/
-#define NM_SSID_MAX_LEN                 33  /* IEEE 802.11 */
 
 /**********************
  *      TYPEDEFS
@@ -54,6 +54,7 @@ static lv_obj_t *enable_wifi_switch = NULL;
 static lv_obj_t *ap_holder = NULL;
 
 static char active_ap_ssid[NM_SSID_MAX_LEN];
+static wifi_info_t wifi_state;
 
 /**********************
  *      MACROS
@@ -68,6 +69,19 @@ static int32_t req_wifi_state()
 
     cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
                                   OP_WIFI_STATE);
+    if (!cmd)
+        return -ENOMEM;
+
+    // NOTE: Command data will be released after the work completes
+    return create_remote_task(WORK_PRIO_HIGH, cmd);
+}
+
+static int32_t req_cached_ap_list()
+{
+    remote_cmd_t *cmd;
+
+    cmd = create_remote_task_data(WORK_PRIO_NORMAL, WORK_DURATION_SHORT, \
+                                  OP_WIFI_AP_LIST);
     if (!cmd)
         return -ENOMEM;
 
@@ -330,6 +344,10 @@ lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
     if (ret)
         LOG_WARN("Unable to sync the latest configuration, ret %d", ret);
 
+    ret = req_cached_ap_list();
+    if (ret)
+        LOG_WARN("Unable to request cached AP list, ret %d", ret);
+
     return page;
 }
 
@@ -380,6 +398,85 @@ int32_t handle_wifi_state(remote_cmd_t *cmd)
                                  &get_meta(par)->child);
         }
     }
+
+    return ret;
+}
+
+/*
+ * Refresh Wi-Fi available access point holder.
+ */
+void refresh_available_access_point_holder(void *unused)
+{
+    int32_t ret;
+    const char *ssid;
+    int8_t strength;
+    int32_t i;
+
+    LOG_DEBUG("Create [%d] Wi-Fi AP", wifi_state.ap_count);
+
+    if (!lv_obj_is_valid(ap_holder)) {
+        LOG_ERROR("Wi-Fi access point holder is not available");
+        return;
+    }
+
+    ret = remove_children(ap_holder);
+    if (ret) {
+        LOG_ERROR("Unable to clean Wi-Fi AP holder old data, ret=%d", ret);
+        // TODO
+        // return;
+    }
+
+    for (i = 0; i < wifi_state.ap_count; ++i) {
+        ssid = wifi_state.cached_ap[i].ssid;
+        strength = wifi_state.cached_ap[i].strength;
+
+        LOG_TRACE("Wi-Fi AP holder add: SSID [%s] - strength [%d]", \
+                  ssid && *ssid ? ssid : "Unknown", strength);
+
+        ret = add_available_wifi_ap(ssid, strength);
+        if (ret)
+            LOG_WARN("Failed to add AP [%s], ret=%d", \
+                     ssid ? ssid : "Unknown", ret);
+    }
+
+    ret = refresh_object_tree_layout(ap_holder);
+    if (ret < 0) {
+        LOG_ERROR("List: Object [%s] rotation failed", get_name(ap_holder));
+    }
+}
+
+/*
+ * Handle Wi-Fi access point command.
+ */
+int32_t handle_wifi_access_point(remote_cmd_t *cmd)
+{
+    int32_t ret = 0;
+    int32_t i;
+
+    if (!cmd)
+        return -EINVAL;
+
+    wifi_state.ap_count = cmd->entry_count;
+    LOG_DEBUG("Available Wi-Fi Access point: Count=[%d]", wifi_state.ap_count);
+
+    for (i = 0; i < cmd->entry_count; ++i) {
+        const payload_t *entry = &cmd->entries[i];
+        const char *key = entry->key ? entry->key : "";
+
+        memset(wifi_state.cached_ap[i].ssid, 0, \
+               sizeof(wifi_state.cached_ap[i].ssid));
+
+        strncpy(wifi_state.cached_ap[i].ssid, key, \
+                sizeof(wifi_state.cached_ap[i].ssid) - 1);
+
+        wifi_state.cached_ap[i].strength = entry->value.i32;
+
+        LOG_TRACE("Clone Wi-Fi AP: SSID [%s] - strength [%d]", \
+                  key[0] ? key : "UNKNOWN", entry->value.i32);
+    }
+
+    /* Async refresh UI after state updated */
+    lv_async_call(refresh_available_access_point_holder, NULL);
 
     return ret;
 }
