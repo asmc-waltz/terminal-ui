@@ -524,6 +524,7 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
     lv_obj_t *item, *sym, *label, *first_child;
     item_ctx_t *item_ctx;
     char name_buf[100];
+    int32_t ret;
 
     if (!par)
         return NULL;
@@ -531,7 +532,7 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
     sprintf(name_buf, "%s.%s", get_name(par), title);
 
     /* Create the container (menu item) */
-    item = create_flex_layout_object(par, name_buf);
+    item = create_horizontal_flex_group(par, name_buf);
     if (!item)
         return NULL;
 
@@ -539,13 +540,13 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
     if (!item_ctx)
         return NULL;
 
-    set_flex_layout_flow(item, LV_FLEX_FLOW_ROW);
     set_size(item, LV_PCT(100), 50);
-    set_padding(item, 0, 0, 20, 20);
+    ret = set_padding(item, 0, 0, 20, 20);
+    if (ret)
+        LOG_WARN("Page [%s] set padding failed (%d)", get_name(item), ret);
+
     lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
 
-    lv_obj_add_flag(item, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(item, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
 
     /* Add border for non-first child */
@@ -555,12 +556,6 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
         lv_obj_set_style_border_width(item, 2, 0);
         lv_obj_set_style_border_color(item, lv_color_black(), 0);
     }
-
-    /* Flex alignment */
-    set_flex_layout_align(item, \
-                          LV_FLEX_ALIGN_SPACE_BETWEEN, \
-                          LV_FLEX_ALIGN_CENTER, \
-                          LV_FLEX_ALIGN_CENTER);
 
     /* Create children: symbol + title */
     if (!sym_font) {
@@ -622,6 +617,8 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
     if (!group)
         return NULL;
 
+    set_row_padding(group, 0);
+
     return group;
 }
 
@@ -643,7 +640,7 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
 
     sprintf(name_buf, "%s.%s", get_name(menu_ctx->menu_ctn), "MENU_BAR");
 
-    menu_bar = create_vertical_moveable_flex_group(menu_ctx->menu_ctn, \
+    menu_bar = create_vscroll_flex_group(menu_ctx->menu_ctn, \
                                                    name_buf);
     if (!menu_bar)
         return NULL;
@@ -675,7 +672,7 @@ lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, const char *name)
     if (!par)
         return NULL;
 
-    page = create_vertical_moveable_flex_group(par, name);
+    page = create_vscroll_flex_group(par, name);
     if (!page)
         return NULL;
 

@@ -116,7 +116,7 @@ lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-lv_obj_t *create_vertical_moveable_flex_group(lv_obj_t *par, const char *name)
+lv_obj_t *create_vscroll_flex_group(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = NULL;
     int32_t ret;
@@ -154,7 +154,7 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name)
     return lobj;
 }
 
-lv_obj_t *create_horizontal_moveable_flex_group(lv_obj_t *par, const char *name)
+lv_obj_t *create_hscroll_flex_group(lv_obj_t *par, const char *name)
 {
     lv_obj_t *lobj = NULL;
     int32_t ret;

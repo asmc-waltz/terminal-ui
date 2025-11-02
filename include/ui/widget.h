@@ -44,9 +44,9 @@ int32_t set_active_menu_page(lv_obj_t *menu, \
  * Other functions
  *====================*/
 lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name);
-lv_obj_t *create_vertical_moveable_flex_group(lv_obj_t *par, const char *name);
+lv_obj_t *create_vscroll_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
-lv_obj_t *create_horizontal_moveable_flex_group(lv_obj_t *par, \
+lv_obj_t *create_hscroll_flex_group(lv_obj_t *par, \
                                                 const char *name);
 
 lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view);
