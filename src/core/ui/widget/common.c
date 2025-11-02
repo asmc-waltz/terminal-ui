@@ -83,7 +83,6 @@ static lv_obj_t *create_flex_group(lv_obj_t *par, const char *name, \
     if (ret)
         LOG_WARN("Group [%s] set padding failed (%d)", get_name(lobj), ret);
 
-    set_row_padding(lobj, 20);
     set_flex_layout_flow(lobj, flow);
     set_flex_layout_align(lobj, main_align, cross_align, track_align);
 
@@ -102,19 +101,37 @@ static lv_obj_t *create_flex_group(lv_obj_t *par, const char *name, \
  *--------------------------------------------*/
 lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name)
 {
-    return create_flex_group(par, name, \
+    lv_obj_t *lobj = NULL;
+    int32_t ret;
+
+    lobj = create_flex_group(par, name, \
                              LV_FLEX_FLOW_COLUMN, \
                              LV_FLEX_ALIGN_START, \
                              LV_FLEX_ALIGN_CENTER, \
                              LV_FLEX_ALIGN_CENTER);
+    if (!lobj)
+        return NULL;
+
+    set_row_padding(lobj, 20);
+
+    return lobj;
 }
 
 lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name)
 {
-    return create_flex_group(par, name, \
+    lv_obj_t *lobj = NULL;
+    int32_t ret;
+
+    lobj = create_flex_group(par, name, \
                              LV_FLEX_FLOW_ROW, \
                              LV_FLEX_ALIGN_SPACE_BETWEEN, \
                              LV_FLEX_ALIGN_CENTER, \
                              LV_FLEX_ALIGN_CENTER);
+    if (!lobj)
+        return NULL;
+
+    set_column_padding(lobj, 20);
+
+    return lobj;
 }
 
