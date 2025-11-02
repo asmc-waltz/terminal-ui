@@ -163,12 +163,13 @@ static int32_t create_setting_menu_bar_items(lv_obj_t *menu, lv_obj_t *menu_bar)
     return 0;
 }
 
-lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
+lv_obj_t *create_setting_window(lv_obj_t *par, const char *name, \
+                                bool split_view)
 {
     lv_obj_t *menu, *menu_bar;
     int32_t ret;
 
-    menu = create_menu(par, name);
+    menu = create_menu(par, name, split_view);
     if (!menu)
         return NULL;
 
