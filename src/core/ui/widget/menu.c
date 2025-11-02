@@ -644,6 +644,7 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
     menu_ctx_t *menu_ctx;
     lv_obj_t *menu_bar;
     char name_buf[100];
+    int32_t ret;
 
     menu_ctx = menu ? get_internal_data(menu) : NULL;
     if (!menu_ctx)
@@ -651,28 +652,20 @@ lv_obj_t *create_menu_bar(lv_obj_t *menu)
 
     sprintf(name_buf, "%s.%s", get_name(menu_ctx->menu_ctn), "MENU_BAR");
 
-    menu_bar = create_flex_layout_object(menu_ctx->menu_ctn, name_buf);
+    menu_bar = create_vertical_moveable_flex_group(menu_ctx->menu_ctn, \
+                                                   name_buf);
     if (!menu_bar)
         return NULL;
 
     /* Style and layout configuration */
-    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(10)), 0);
     set_size(menu_bar, LV_PCT(100), LV_PCT(100));
     set_align(menu_bar, menu_ctx->menu_ctn, LV_ALIGN_CENTER, 0, 0);
-    set_padding(menu_bar, 0, 0, 0, 0);
-    set_row_padding(menu_bar, 20);
 
-    /* Scrollbar cleanup */
-    lv_obj_set_style_width(menu_bar, 1, LV_PART_SCROLLBAR);
-    lv_obj_set_style_pad_all(menu_bar, 0, LV_PART_SCROLLBAR);
-    lv_obj_set_style_margin_all(menu_bar, 0, LV_PART_SCROLLBAR);
+    ret = set_padding(menu_bar, 0, 0, 0, 0);
+    if (ret)
+        LOG_WARN("Page [%s] set padding failed (%d)", get_name(menu_bar), ret);
 
-    /* Flex configuration */
-    set_flex_layout_flow(menu_bar, LV_FLEX_FLOW_COLUMN);
-    set_flex_layout_align(menu_bar, \
-                          LV_FLEX_ALIGN_START, \
-                          LV_FLEX_ALIGN_CENTER, \
-                          LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_bg_color(menu_bar, lv_color_hex(bg_color(10)), 0);
 
     return menu_bar;
 }
