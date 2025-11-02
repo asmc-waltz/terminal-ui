@@ -46,7 +46,7 @@ int32_t set_active_menu_page(lv_obj_t *menu, \
 lv_obj_t *create_vertical_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 
-lv_obj_t *create_menu(lv_obj_t *par, const char *name);
+lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view);
 lv_obj_t *create_menu_bar(lv_obj_t *menu);
 lv_obj_t *create_menu_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_menu_item(lv_obj_t *par, \

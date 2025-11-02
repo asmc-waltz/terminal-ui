@@ -40,6 +40,7 @@ typedef struct {
     lv_obj_t *act_page;
     lv_obj_t *(*create_page_cb)(lv_obj_t*, lv_obj_t *, const char *);
     bool page_visible;
+    bool split_view;
 } menu_ctx_t;
 
 typedef struct {
@@ -291,9 +292,15 @@ static int32_t load_active_menu_page(lv_obj_t *menu)
         return -EIO;
 
     /* Select valid parent container */
-    parent = menu_ctx->page_ctn ? menu_ctx->page_ctn : menu_ctx->menu_ctn;
-    if (!parent)
-        return -EIO;
+    if (menu_ctx->split_view) {
+        parent = menu_ctx->page_ctn ? menu_ctx->page_ctn : menu_ctx->menu_ctn;
+        if (!lv_obj_is_valid(parent))
+            return -EIO;
+    } else {
+        parent = menu_ctx->menu_ctn;
+        if (!lv_obj_is_valid(parent))
+            return -EIO;
+    }
 
     /* Build page name */
     snprintf(name_buf, sizeof(name_buf), "%s.PAGE", get_name(parent));
@@ -353,7 +360,7 @@ static int32_t create_page_ctn(lv_obj_t *menu)
     return 0;
 }
 
-int32_t show_and_hide_page_cb(lv_obj_t *menu)
+int32_t show_and_hide_page_ctn_cb(lv_obj_t *menu)
 {
     menu_ctx_t *menu_ctx;
     int32_t scr_rot;
@@ -450,10 +457,12 @@ static int32_t create_menu_views(lv_obj_t *menu)
      */
     menu_ctx->menu_ctn = menu_ctn;
 
-    /* Create right-side page container */
-    ret = create_page_ctn(menu);
-    if (ret)
-        return ret;
+    if (menu_ctx->split_view) {
+        /* Create right-side page container */
+        ret = create_page_ctn(menu);
+        if (ret)
+            return ret;
+    }
 
     return 0;
 }
@@ -479,6 +488,30 @@ static int32_t initial_menu_views(lv_obj_t *menu)
      * User can now define menu items and their corresponding pages.
      */
     return 0;
+}
+
+static inline int32_t add_grid_row_col(lv_obj_t *lobj, \
+                                       lv_coord_t row, \
+                                       lv_coord_t col1, \
+                                       lv_coord_t col2, \
+                                       bool split_view)
+{
+    int32_t ret;
+
+    ret = add_grid_layout_row_dsc(lobj, row);
+    if (ret)
+        return ret;
+
+    if (!split_view) {
+        lv_coord_t col = row;
+        return add_grid_layout_col_dsc(lobj, col);
+    }
+
+    ret = add_grid_layout_col_dsc(lobj, col1);
+    if (ret)
+        return ret;
+
+    return add_grid_layout_col_dsc(lobj, col2);
 }
 
 /**********************
@@ -712,7 +745,7 @@ int32_t set_active_menu_page(lv_obj_t *menu, \
     return load_active_menu_page(menu);
 }
 
-lv_obj_t *create_menu(lv_obj_t *par, const char *name)
+lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view)
 {
     menu_ctx_t *menu_ctx;
     lv_obj_t *lobj;
@@ -725,24 +758,21 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
     if (!menu_ctx)
         return NULL;
 
-    menu_ctx->page_visible = true;
+    menu_ctx->split_view = split_view;
+    if (split_view)
+        menu_ctx->page_visible = true;
+    else
+        menu_ctx->page_visible = false;
 
     /* Create main container using grid layout */
     lobj = create_grid_layout_object(par, name);
     if (!lobj)
         return NULL;
 
-    ret = add_grid_layout_row_dsc(lobj, LV_GRID_FR(98));
+    ret = add_grid_row_col(lobj, LV_GRID_FR(98), LV_GRID_FR(35), \
+                           LV_GRID_FR(65), split_view);
     if (ret)
-        LOG_ERROR("Layout [%s] row descriptor failed", get_name(lobj));
-
-    ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(35));
-    if (ret)
-        LOG_ERROR("Layout [%s] column descriptor failed", get_name(lobj));
-
-    ret = add_grid_layout_col_dsc(lobj, LV_GRID_FR(65));
-    if (ret)
-        LOG_ERROR("Layout [%s] column descriptor failed", get_name(lobj));
+        goto out_dsc;
 
     apply_grid_layout_config(lobj);
     set_grid_layout_align(lobj, \
@@ -761,7 +791,9 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
 
     /* Context and layout rotation callback */
     set_internal_data(lobj, menu_ctx);
-    get_meta(lobj)->data.post_children_rotate_cb = show_and_hide_page_cb;
+
+    if (split_view)
+        get_meta(lobj)->data.post_children_rotate_cb = show_and_hide_page_ctn_cb;
 
     /* Initialize sub-views */
     ret = initial_menu_views(lobj);
@@ -770,4 +802,9 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name)
                  get_name(lobj), ret);
 
     return lobj;
+
+out_dsc:
+    LOG_ERROR("Layout [%s] add row/column descriptor failed, ret %d", \
+              get_name(lobj), ret);
+    return NULL;
 }
