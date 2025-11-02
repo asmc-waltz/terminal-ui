@@ -618,18 +618,9 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
 
     sprintf(name_buf, "%s.%s", get_name(par), name);
 
-    group = create_flex_layout_object(par, name_buf);
+    group = create_vertical_flex_group(par, name_buf);
     if (!group)
         return NULL;
-
-    /* Layout & style configuration */
-    set_size(group, LV_PCT(100), LV_SIZE_CONTENT);
-    set_padding(group, 20, 20, 20, 20);
-    set_flex_layout_flow(group, LV_FLEX_FLOW_COLUMN);
-    set_flex_layout_align(group, \
-                          LV_FLEX_ALIGN_START, \
-                          LV_FLEX_ALIGN_CENTER, \
-                          LV_FLEX_ALIGN_CENTER);
 
     return group;
 }
