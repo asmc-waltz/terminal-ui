@@ -20,6 +20,11 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct sub_view {
+    lv_obj_t *menu;
+    lv_obj_t *sub_menu;
+} sub_view_t;
+
 
 /**********************
  *  GLOBAL VARIABLES
@@ -61,6 +66,11 @@ int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *menu, \
                                                         const char *));
 lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, \
                            const char *name);
+
+lv_obj_t *create_sub_menu_view(lv_obj_t *menu, lv_obj_t *par, \
+                               const char *name, \
+                               lv_obj_t *(*sub_menu_creator)(lv_obj_t *, \
+                                                          const char *, bool));
 
 /**********************
  *      MACROS

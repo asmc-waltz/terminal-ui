@@ -141,7 +141,7 @@ static int32_t redraw_page_control(lv_obj_t *lobj)
     if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270)
         lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
     else
-        lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
 
     return 0;
 }
@@ -175,7 +175,7 @@ lv_obj_t *create_menu_page_control(lv_obj_t *menu, lv_obj_t *par, \
     /* base layout */
     set_padding(lobj, 10, 10, 10, 10);
     get_meta(lobj)->data.pre_rotate_cb = redraw_page_control;
-    lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
+    // lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
 
     /* back button */
     back_btn = create_text_box(lobj, NULL, &lv_font_montserrat_24, \
@@ -356,6 +356,8 @@ static int32_t create_page_ctn(lv_obj_t *menu)
      * of the currently active menu item (interactive region).
      */
     menu_ctx->page_ctn = page_ctn;
+
+    lv_obj_set_style_bg_color(page_ctn, lv_color_hex(0xFF0000), 0);
 
     return 0;
 }
@@ -777,5 +779,88 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view)
 out_dsc:
     LOG_ERROR("Layout [%s] add row/column descriptor failed, ret %d", \
               get_name(lobj), ret);
+    return NULL;
+}
+
+/*
+ * Sub menu will be created on the right side of menu bar in split view mode.
+ * In single view mode, the sub menu will be created on top of the menu bar,
+ * sharing the same parent container (menu_ctn).
+ */
+lv_obj_t *create_sub_menu_view(lv_obj_t *menu, lv_obj_t *par, \
+                               const char *name, \
+                               lv_obj_t *(*sub_menu_creator)(lv_obj_t *, \
+                                                             const char *, \
+                                                             bool))
+{
+    lv_obj_t *view, *control, *sub_menu;
+    sub_view_t *menu_ctx;
+    char name_buf[64];
+    int32_t ret;
+    int32_t scr_rot;
+
+    if (!par)
+        return NULL;
+
+    view = create_grid_layout_object(par, name);
+    if (!view)
+        return NULL;
+
+    set_align(view, par, LV_ALIGN_CENTER, 0, 0);
+    set_size(view, LV_PCT(100), LV_PCT(100));
+
+    scr_rot = get_scr_rotation();
+    if (scr_rot == ROTATION_180 || scr_rot == ROTATION_270) {
+        if (add_grid_layout_row_dsc(view, LV_GRID_FR(98)) ||
+            add_grid_layout_row_dsc(view, 50) ||
+            add_grid_layout_col_dsc(view, LV_GRID_FR(98)))
+            goto err_view;
+    } else {
+        if (add_grid_layout_row_dsc(view, 50) ||
+            add_grid_layout_row_dsc(view, LV_GRID_FR(98)) ||
+            add_grid_layout_col_dsc(view, LV_GRID_FR(98)))
+            goto err_view;
+    }
+
+    apply_grid_layout_config(view);
+    set_grid_layout_align(view, LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+
+    snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
+    control = create_menu_page_control(menu, view, name_buf, true, false);
+    if (!control)
+        goto err_view;
+
+    lv_obj_set_style_bg_color(control, lv_color_hex(bg_color(70)), 0);
+    set_grid_cell_align(control, LV_GRID_ALIGN_STRETCH, 0, 1, \
+                        LV_GRID_ALIGN_STRETCH, 0, 1);
+
+    snprintf(name_buf, sizeof(name_buf), "%s.HOLDER", name);
+    sub_menu = sub_menu_creator(view, name_buf, false);
+    if (!sub_menu)
+        goto err_view;
+
+    lv_obj_set_style_bg_color(sub_menu, lv_color_hex(bg_color(100)), 0);
+    set_grid_cell_align(sub_menu, LV_GRID_ALIGN_STRETCH, 0, 1, \
+                        LV_GRID_ALIGN_STRETCH, 1, 1);
+
+    ret = set_padding(sub_menu, 0, 0, 0, 0);
+    if (ret)
+        LOG_WARN("view [%s] set padding failed (%d)", get_name(sub_menu), ret);
+
+    lv_obj_set_style_bg_color(sub_menu, lv_color_hex(bg_color(10)), 0);
+
+    menu_ctx = calloc(1, sizeof(*menu_ctx));
+    if (!menu_ctx)
+        goto err_view;
+
+    menu_ctx->menu = menu;
+    menu_ctx->sub_menu = sub_menu;
+    set_internal_data(view, menu_ctx);
+
+    return view;
+
+err_view:
+    remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
     return NULL;
 }
