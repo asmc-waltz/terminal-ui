@@ -342,18 +342,32 @@ static int32_t create_wifi_setting_items(lv_obj_t *par)
 lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
 {
     int32_t ret;
-    lv_obj_t *page;
+    lv_obj_t *sub_view;
+    lv_obj_t *menu_bar;
+    sub_view_t *menu_ctx;
 
-    page = create_menu_page(menu, par, name);
-    if (!page)
+    sub_view = create_sub_menu_view(menu, par, name, create_menu_view);
+    if (!sub_view)
         return NULL;
 
-    ret = create_wifi_setting_items(page);
+    menu_ctx = get_internal_data(sub_view);
+    if (!menu_ctx)
+        goto err_view;
+
+    menu_bar = create_menu_bar(menu_ctx->sub_menu);
+    if (!menu_bar) {
+        LOG_ERROR("Menu [%s] create menu bar failed, ret %d", \
+                  get_name(menu), ret);
+        goto err_view;
+    }
+
+    lv_obj_add_flag(menu_bar, LV_OBJ_FLAG_SCROLLABLE);
+
+    ret = create_wifi_setting_items(menu_bar);
     if (ret) {
-        LOG_ERROR("Setting page [%s] create failed, ret %d", \
-                  get_name(page), ret);
-        remove_obj_and_child(get_meta(page)->id, &get_meta(par)->child);
-        return NULL;
+        LOG_ERROR("Setting menu bar [%s] create failed, ret %d", \
+                  get_name(menu_bar), ret);
+        goto err_view;
     }
 
     ret = req_wifi_state();
@@ -364,7 +378,11 @@ lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
     if (ret)
         LOG_WARN("Unable to request cached AP list, ret %d", ret);
 
-    return page;
+    return sub_view;
+
+err_view:
+    remove_obj_and_child(get_meta(sub_view)->id, &get_meta(par)->child);
+    return NULL;
 }
 
 int32_t runtime_add_wifi_connected_ap(int8_t strength)
