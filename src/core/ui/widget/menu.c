@@ -519,27 +519,20 @@ static inline int32_t add_grid_row_col(lv_obj_t *lobj, \
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_menu_item(lv_obj_t *par, \
-                           const lv_font_t *sym_font, const char *sym_index, \
-                           const lv_font_t *title_font, const char *title)
+lv_obj_t *create_option_cell(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *item, *sym, *label, *first_child;
+    lv_obj_t *item, *first_child;
     item_ctx_t *item_ctx;
     char name_buf[100];
     int32_t ret;
 
-    if (!par)
+    if (!par || !name)
         return NULL;
 
-    sprintf(name_buf, "%s.%s", get_name(par), title);
+    snprintf(name_buf, sizeof(name_buf), "%s.%s", get_name(par), name);
 
-    /* Create the container (menu item) */
     item = create_horizontal_flex_group(par, name_buf);
     if (!item)
-        return NULL;
-
-    item_ctx = calloc(1, sizeof(*item_ctx));
-    if (!item_ctx)
         return NULL;
 
     set_size(item, LV_PCT(100), 50);
@@ -548,35 +541,74 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
         LOG_WARN("Page [%s] set padding failed (%d)", get_name(item), ret);
 
     lv_obj_set_style_bg_color(item, lv_color_hex(bg_color(1)), 0);
-
     lv_obj_add_event_cb(item, menu_item_event_handler, LV_EVENT_ALL, NULL);
 
     /* Add border for non-first child */
     first_child = lv_obj_get_child(par, 0);
-    if (first_child != item) {
+    if (first_child && first_child != item) {
         set_border_side(item, LV_BORDER_SIDE_TOP);
         lv_obj_set_style_border_width(item, 2, 0);
         lv_obj_set_style_border_color(item, lv_color_black(), 0);
     }
 
-    /* Create children: symbol + title */
-    if (!sym_font) {
-        sym = create_symbol_box(item, NULL, &terminal_icons_32, sym_index);
-    } else {
-        sym = create_symbol_box(item, NULL, sym_font, sym_index);
-    }
-    if (!sym)
-        LOG_ERROR("Menu item [%s] create symbol failed", name_buf);
-
-    if (!title_font) {
-        label = create_text_box(item, NULL, &lv_font_montserrat_24, title);
-    } else {
-        label = create_text_box(item, NULL, title_font, title);
-    }
-    if (!label)
-        LOG_ERROR("Menu item [%s] create label failed", name_buf);
+    item_ctx = calloc(1, sizeof(*item_ctx));
+    if (!item_ctx)
+        goto err_create;
 
     set_internal_data(item, item_ctx);
+    return item;
+
+err_create:
+    remove_obj_and_child(get_meta(item)->id, &get_meta(par)->child);
+    return NULL;
+}
+
+int32_t create_basic_item(lv_obj_t *item, \
+                          const lv_font_t *sym_font, const char *sym_index, \
+                          const lv_font_t *title_font, const char *title)
+{
+    lv_obj_t *sym, *label;
+
+    if (!item || !sym_index || !title)
+        return -EINVAL;
+
+    sym = create_symbol_box(item, NULL, \
+                            sym_font ? sym_font : &terminal_icons_32, \
+                            sym_index);
+    if (!sym) {
+        LOG_ERROR("Menu item [%s] create symbol failed", get_name(item));
+        return -EIO;
+    }
+
+    label = create_text_box(item, NULL, \
+                            title_font ? title_font : &lv_font_montserrat_24, \
+                            title);
+    if (!label) {
+        LOG_ERROR("Menu item [%s] create label failed", get_name(item));
+        return -EIO;
+    }
+
+    return 0;
+}
+
+lv_obj_t *create_menu_item(lv_obj_t *par, \
+                           const lv_font_t *sym_font, const char *sym_index, \
+                           const lv_font_t *title_font, const char *title)
+{
+    lv_obj_t *item;
+    int32_t ret;
+
+    item = create_option_cell(par, title);
+    if (!item)
+        return NULL;
+
+    ret = create_basic_item(item, sym_font, sym_index, title_font, title);
+    if (ret) {
+        LOG_WARN("Menu item [%s] basic creation failed (%d)", \
+                 get_name(item), ret);
+        remove_obj_and_child(get_meta(item)->id, &get_meta(par)->child);
+        return NULL;
+    }
 
     return item;
 }
