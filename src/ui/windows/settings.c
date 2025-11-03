@@ -169,7 +169,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name, \
     lv_obj_t *menu, *menu_bar;
     int32_t ret;
 
-    menu = create_menu(par, name, split_view);
+    menu = create_menu_view(par, name, split_view);
     if (!menu)
         return NULL;
 
