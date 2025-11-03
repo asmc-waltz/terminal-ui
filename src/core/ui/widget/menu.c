@@ -151,7 +151,7 @@ static int32_t redraw_page_control(lv_obj_t *lobj)
  * more buttons. The control is hidden by default and only shown when
  * screen rotation requires it.
  */
-lv_obj_t *create_menu_page_control(lv_obj_t *menu, lv_obj_t *par, \
+lv_obj_t *create_menu_view_control(lv_obj_t *menu, lv_obj_t *par, \
                                    const char *name, \
                                    bool back_btn_ena, \
                                    bool more_btn_ena)
@@ -431,7 +431,7 @@ int32_t show_and_hide_page_ctn_cb(lv_obj_t *menu)
     return 0;
 }
 
-static int32_t create_menu_views(lv_obj_t *menu)
+static int32_t create_views(lv_obj_t *menu)
 {
     menu_ctx_t *menu_ctx;
     lv_obj_t *menu_ctn;
@@ -469,7 +469,7 @@ static int32_t create_menu_views(lv_obj_t *menu)
     return 0;
 }
 
-static int32_t initial_menu_views(lv_obj_t *menu)
+static int32_t initial_views(lv_obj_t *menu)
 {
     menu_ctx_t *menu_ctx;
     int32_t ret;
@@ -478,7 +478,7 @@ static int32_t initial_menu_views(lv_obj_t *menu)
     if (!menu_ctx)
         return -EINVAL;
 
-    ret = create_menu_views(menu);
+    ret = create_views(menu);
     if (ret) {
         LOG_WARN("Layout [%s] create holder failed, ret %d", \
                  get_name(menu), ret);
@@ -688,7 +688,7 @@ lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, const char *name)
     lv_obj_set_style_bg_color(page, lv_color_hex(bg_color(10)), 0);
 
     snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
-    control = create_menu_page_control(menu, page, name_buf, true, false);
+    control = create_menu_view_control(menu, page, name_buf, true, false);
     if (!control)
         return NULL;
 
@@ -718,7 +718,7 @@ int32_t set_active_menu_page(lv_obj_t *menu, \
     return load_active_menu_page(menu);
 }
 
-lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view)
+lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, bool split_view)
 {
     menu_ctx_t *menu_ctx;
     lv_obj_t *lobj;
@@ -769,7 +769,7 @@ lv_obj_t *create_menu(lv_obj_t *par, const char *name, bool split_view)
         get_meta(lobj)->data.post_children_rotate_cb = show_and_hide_page_ctn_cb;
 
     /* Initialize sub-views */
-    ret = initial_menu_views(lobj);
+    ret = initial_views(lobj);
     if (ret)
         LOG_WARN("Menu [%s] view initialization failed, ret %d", \
                  get_name(lobj), ret);
@@ -827,7 +827,7 @@ lv_obj_t *create_sub_menu_view(lv_obj_t *menu, lv_obj_t *par, \
                           LV_GRID_ALIGN_SPACE_BETWEEN);
 
     snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
-    control = create_menu_page_control(menu, view, name_buf, true, false);
+    control = create_menu_view_control(menu, view, name_buf, true, false);
     if (!control)
         goto err_view;
 
