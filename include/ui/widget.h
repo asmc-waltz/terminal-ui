@@ -35,23 +35,58 @@ typedef struct {
     lv_obj_t *(*create_detail_pane_cb)(lv_obj_t *, lv_obj_t *, const char *);
 } item_ctx_t;
 
+
+
+
+
+
+/*
+ * Configuration of a menu view.
+ */
+typedef struct view_cfg {
+	bool split_view;
+} view_conf_t;
+
+/*
+ * Window data structure contains all information about one menu window,
+ * including its panes (controller, menu, etc.), the selected option,
+ * and visibility state. Child windows reuse the same control pane and holder.
+ */
+typedef struct window {
+	lv_obj_t *window_pane;
+	lv_obj_t *ctrl_pane;            /* Optional: control bar for nested menus */
+	lv_obj_t *menu_pane;
+	lv_obj_t *selected_opt;
+	lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
+	bool visible;
+} window_t;
+
+/*
+ * Internal data of a menu view. Stored inside the holder (grid layout)
+ * and manages left/right window layout for split-view mode.
+ */
 typedef struct menu_view {
-    /* Root object of this menu */
-    lv_obj_t *menu;
+	lv_obj_t *view;                 /* Root grid layout of the menu holder */
+	view_conf_t cfg;
+	window_t l_win;
+	window_t r_win;                         /* Available in split-view mode */
 
-    /*
-     * Optional control bar of the submenu.
-     * Appear only when this menu lives inside another menu (nested mode).
-     * Provide back-navigation or action buttons.
-     */
-    lv_obj_t *sub_ctrl;
+	/* TODO: remove */
+	lv_obj_t *sub_menu;                     /* Legacy sub-menu container */
 
-    /* Sub menu container, if any (NULL for leaf menu) */
-    lv_obj_t *sub_menu;
-
-    /* Optional: link to parent view if this is nested menu */
-    struct menu_view *parent;
+	/* Optional link to parent view (nested menus) */
+	struct menu_view *parent;
 } menu_view_t;
+
+/*
+ * Each option inside a menu window. The menu option data stores
+ * the view it belongs to, and the callback to create its child
+ * window when interacted.
+ */
+typedef struct {
+	lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
+	menu_view_t *view;
+} menu_opt_t;
 
 /**********************
  *  GLOBAL VARIABLES
