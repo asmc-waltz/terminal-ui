@@ -740,67 +740,79 @@ int32_t set_active_menu_page(lv_obj_t *menu, \
 
 lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, bool split_view)
 {
+    lv_obj_t *menu_lobj;
     menu_ctx_t *menu_ctx;
-    lv_obj_t *lobj;
     int32_t ret;
 
     if (!par)
         return NULL;
 
-    menu_ctx = (menu_ctx_t *)calloc(1, sizeof(menu_ctx_t));
-    if (!menu_ctx)
-        return NULL;
-
-    menu_ctx->split_view = split_view;
-    if (split_view)
-        menu_ctx->detail_visible = true;
-    else
-        menu_ctx->detail_visible = false;
-
     /* Create main container using grid layout */
-    lobj = create_grid_layout_object(par, name);
-    if (!lobj)
+    menu_lobj = create_grid_layout_object(par, name);
+    if (!menu_lobj)
         return NULL;
 
-    ret = add_grid_row_col(lobj, LV_GRID_FR(98), LV_GRID_FR(35), \
+    ret = add_grid_row_col(menu_lobj, LV_GRID_FR(98), LV_GRID_FR(35), \
                            LV_GRID_FR(65), split_view);
-    if (ret)
-        goto out_dsc;
+    if (ret) {
+        LOG_ERROR("Layout [%s] add grid descriptor failed (%d)", \
+                  name, ret);
+        goto err_dsc;
+    }
 
-    apply_grid_layout_config(lobj);
-    set_grid_layout_align(lobj, \
+    apply_grid_layout_config(menu_lobj);
+    set_grid_layout_align(menu_lobj, \
                           LV_GRID_ALIGN_SPACE_BETWEEN, \
                           LV_GRID_ALIGN_SPACE_BETWEEN);
 
     /* Base style setup */
-    lv_obj_set_style_bg_color(lobj, lv_color_hex(bg_color(10)), 0);
-    lv_obj_set_style_radius(lobj, 16, 0);
-    set_column_padding(lobj, 8);
+    lv_obj_set_style_bg_color(menu_lobj, lv_color_hex(bg_color(10)), 0);
+    lv_obj_set_style_radius(menu_lobj, 16, 0);
 
-    ret = set_padding(lobj, 8, 8, 8, 8);
+    ret = set_column_padding(menu_lobj, 8);
     if (ret)
-        LOG_WARN("Layout [%s] set padding failed, ret %d", \
-                 get_name(lobj), ret);
+        LOG_WARN("Layout [%s] set column padding failed (%d)", name, ret);
 
-    /* Context and layout rotation callback */
-    set_internal_data(lobj, menu_ctx);
+    ret = set_padding(menu_lobj, 8, 8, 8, 8);
+    if (ret)
+        LOG_WARN("Layout [%s] set padding failed (%d)", name, ret);
 
-    if (split_view) {
-        get_meta(lobj)->data.post_children_rotate_cb = \
-                                                    show_and_hide_page_ctn_cb;
+    /* Allocate menu context */
+    menu_ctx = calloc(1, sizeof(*menu_ctx));
+    if (!menu_ctx) {
+        LOG_ERROR("[%s] create menu context failed", name);
+        goto err_ctx;
     }
 
+    menu_ctx->split_view = split_view;
+    menu_ctx->detail_visible = false;
+
+    set_internal_data(menu_lobj, menu_ctx);
+
+    /* Register rotation callback if split view */
+    if (split_view)
+        get_meta(menu_lobj)->data.post_children_rotate_cb = \
+                                                show_and_hide_page_ctn_cb;
+
     /* Initialize sub-views */
-    ret = initial_views(lobj);
-    if (ret)
-        LOG_WARN("Menu [%s] view initialization failed, ret %d", \
-                 get_name(lobj), ret);
+    ret = initial_views(menu_lobj);
+    if (ret) {
+        LOG_WARN("Menu [%s] initialization failed (%d)", name, ret);
+        goto err_init;
+    }
 
-    return lobj;
+    /* Activate detail view for split mode after init */
+    if (split_view)
+        menu_ctx->detail_visible = true;
 
-out_dsc:
-    LOG_ERROR("Layout [%s] add row/column descriptor failed, ret %d", \
-              get_name(lobj), ret);
+    return menu_lobj;
+
+err_init:
+    free(menu_ctx);
+
+err_ctx:
+err_dsc:
+    remove_obj_and_child(get_meta(menu_lobj)->id, &get_meta(par)->child);
     return NULL;
 }
 
@@ -876,7 +888,7 @@ lv_obj_t *create_sub_menu_view(lv_obj_t *menu, lv_obj_t *par, \
     if (!menu_ctx)
         goto err_view;
 
-    menu_ctx->menu = menu;
+    menu_ctx->view = menu;
     menu_ctx->sub_menu = sub_menu;
     set_internal_data(view, menu_ctx);
 
