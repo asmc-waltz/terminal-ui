@@ -20,31 +20,12 @@
 /**********************
  *      TYPEDEFS
  **********************/
-typedef struct {
-    lv_obj_t *l_container;
-    lv_obj_t *selected_opt;
-    lv_obj_t *r_container;
-    lv_obj_t *detail_pane;
-    lv_obj_t *(*create_detail_pane_cb)(lv_obj_t*, lv_obj_t *, const char *);
-    bool detail_visible;
-    bool split_view;
-} menu_ctx_t;
-
-typedef struct {
-    lv_obj_t *menu;
-    lv_obj_t *(*create_detail_pane_cb)(lv_obj_t *, lv_obj_t *, const char *);
-} item_ctx_t;
-
-
-
-
-
-
 /*
  * Configuration of a menu view.
  */
 typedef struct view_cfg {
-	bool split_view;
+    bool root;
+    bool split_view;
 } view_conf_t;
 
 /*
@@ -53,12 +34,12 @@ typedef struct view_cfg {
  * and visibility state. Child windows reuse the same control pane and holder.
  */
 typedef struct window {
-	lv_obj_t *window_pane;
-	lv_obj_t *ctrl_pane;            /* Optional: control bar for nested menus */
-	lv_obj_t *menu_pane;
-	lv_obj_t *selected_opt;
-	lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
-	bool visible;
+    lv_obj_t *container;
+    lv_obj_t *ctrl_pane;            /* Optional: control bar for nested menus */
+    lv_obj_t *menu_pane;
+    lv_obj_t *selected_opt;
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
+    bool visible;
 } window_t;
 
 /*
@@ -66,16 +47,14 @@ typedef struct window {
  * and manages left/right window layout for split-view mode.
  */
 typedef struct menu_view {
-	lv_obj_t *view;                 /* Root grid layout of the menu holder */
-	view_conf_t cfg;
-	window_t l_win;
-	window_t r_win;                         /* Available in split-view mode */
+    lv_obj_t *container;
+    lv_obj_t *view;                 /* Root grid layout of the menu holder */
+    view_conf_t cfg;
+    window_t l_win;
+    window_t r_win;                         /* Available in split-view mode */
 
-	/* TODO: remove */
-	lv_obj_t *sub_menu;                     /* Legacy sub-menu container */
-
-	/* Optional link to parent view (nested menus) */
-	struct menu_view *parent;
+    /* Optional link to parent view (nested menus) */
+    struct menu_view *parent;
 } menu_view_t;
 
 /*
@@ -84,8 +63,8 @@ typedef struct menu_view {
  * window when interacted.
  */
 typedef struct {
-	lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
-	menu_view_t *view;
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
+    menu_view_t *view_ctx;
 } menu_opt_t;
 
 /**********************
@@ -98,8 +77,8 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-int32_t set_active_menu_page(lv_obj_t *menu, \
-                             lv_obj_t *(*create_detail_pane_cb)(lv_obj_t *, \
+int32_t set_active_window(lv_obj_t *menu, \
+                             lv_obj_t *(*create_window_cb)(lv_obj_t *, \
                                                          lv_obj_t *, \
                                                          const char *));
 
@@ -116,7 +95,8 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_hscroll_flex_group(lv_obj_t *par, \
                                                 const char *name);
 
-lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, bool split_view);
+lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, \
+                           bool root, bool split_view);
 lv_obj_t *create_menu_bar(lv_obj_t *menu);
 lv_obj_t *create_menu_group(lv_obj_t *par, const char *name);
 
@@ -128,17 +108,26 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
                            const lv_font_t *sym_font, const char *sym_index, \
                            const lv_font_t *title_font, const char *title);
 
-int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *menu, \
-                           lv_obj_t *(*create_detail_pane_cb)(lv_obj_t *, \
+int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
+                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
                                                         lv_obj_t *, \
                                                         const char *));
 lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, \
                            const char *name);
 
-lv_obj_t *create_sub_menu_view(lv_obj_t *menu, lv_obj_t *par, \
+menu_view_t *create_sub_menu_view(lv_obj_t *view, lv_obj_t *par, \
                                const char *name, \
                                lv_obj_t *(*sub_menu_creator)(lv_obj_t *, \
-                                                          const char *, bool));
+                                                             const char *, \
+                                                             bool));
+
+static inline menu_view_t *get_view_ctx(lv_obj_t *lobj) {
+    return lobj ? (menu_view_t *)get_internal_data(lobj) : NULL;
+}
+
+static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {
+    return lobj ? (menu_opt_t *)get_internal_data(lobj) : NULL;
+}
 
 /**********************
  *      MACROS
