@@ -845,91 +845,6 @@ int32_t set_active_window(lv_obj_t *view, \
     return 0;
 }
 
-lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, \
-                           bool root, bool split_view)
-{
-    lv_obj_t *view;
-    menu_view_t *view_ctx;
-    int32_t ret;
-
-    if (!par)
-        return NULL;
-
-    /* Create main container using grid layout */
-    view = create_grid_layout_object(par, name);
-    if (!view)
-        return NULL;
-
-    ret = add_grid_row_col(view, LV_GRID_FR(98), LV_GRID_FR(35), \
-                           LV_GRID_FR(65), split_view);
-    if (ret) {
-        LOG_ERROR("Layout [%s] add grid descriptor failed (%d)", \
-                  name, ret);
-        goto err_dsc;
-    }
-
-    apply_grid_layout_config(view);
-    set_grid_layout_align(view, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-
-    /* Base style setup */
-    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(10)), 0);
-    lv_obj_set_style_radius(view, 16, 0);
-
-    ret = set_column_padding(view, 8);
-    if (ret)
-        LOG_WARN("Layout [%s] set column padding failed (%d)", name, ret);
-
-    ret = set_padding(view, 8, 8, 8, 8);
-    if (ret)
-        LOG_WARN("Layout [%s] set padding failed (%d)", name, ret);
-
-    /* Allocate menu context */
-    view_ctx = calloc(1, sizeof(*view_ctx));
-    if (!view_ctx) {
-        LOG_ERROR("[%s] create menu context failed", name);
-        goto err_ctx;
-    }
-
-    view_ctx->container = par;
-    view_ctx->view = view;
-    view_ctx->cfg.split_view = split_view;
-    view_ctx->cfg.root = root;
-    if (split_view) {
-        view_ctx->r_win.visible = true;
-    } else {
-        view_ctx->r_win.visible = false;
-    }
-
-    /*************/
-    view_ctx->act_win = &view_ctx->r_win;
-    /*************/
-
-    set_internal_data(view, view_ctx);
-
-    /* Register rotation callback if split view */
-    if (split_view)
-        get_meta(view)->data.post_children_rotate_cb = view_change_cb;
-
-    /* Initialize sub-views */
-    ret = initial_windows(view);
-    if (ret) {
-        LOG_WARN("Menu [%s] initialization failed (%d)", name, ret);
-        goto err_init;
-    }
-
-    return view;
-
-err_init:
-    free(view_ctx);
-
-err_ctx:
-err_dsc:
-    remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
-    return NULL;
-}
-
 menu_view_t *create_view_ctx(bool root, bool split)
 {
     menu_view_t *v_ctx;
@@ -1181,13 +1096,9 @@ err:
  * In single view mode, the sub menu will be created on top of the menu bar,
  * sharing the same parent container (l_container).
  */
-menu_view_t *create_sub_menu_view(lv_obj_t *view, lv_obj_t *par, \
-                                  const char *name, \
-                                  lv_obj_t *(*sub_menu_creator)(lv_obj_t *, \
-                                                                const char *, \
-                                                                bool))
+menu_view_t *create_menu_view(lv_obj_t *par, const char *name, bool root)
 {
-    lv_obj_t *container, *control, *sub_view;
+    lv_obj_t *container, *control, *view;
     menu_view_t *v_ctx;
     char name_buf[64];
     int32_t ret;
@@ -1196,23 +1107,25 @@ menu_view_t *create_sub_menu_view(lv_obj_t *view, lv_obj_t *par, \
     if (!par)
         return NULL;
 
-    v_ctx = create_view_ctx(false, false);
+    v_ctx = create_view_ctx(root, root ? true : false);
     if (!v_ctx)
         return NULL;
 
-    container = create_view_container(v_ctx, par, name);
+    container = root ? par : create_view_container(v_ctx, par, name);
     if (!container)
         goto err_ctn;
 
-    snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
-    control = create_view_control(v_ctx, container, name_buf, \
-                                      true, true);
-    if (!control)
-        goto err_ctrl;
+    if (!root) {
+        snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
+        control = create_view_control(v_ctx, container, name_buf, true, true);
+        if (!control)
+            goto err_ctrl;
+
+    }
 
     snprintf(name_buf, sizeof(name_buf), "%s.HOLDER", name);
-    sub_view = create_menu(v_ctx, container, name_buf);
-    if (!sub_view)
+    view = create_menu(v_ctx, container, name_buf);
+    if (!view)
         goto err_menu;
 
     return v_ctx;
