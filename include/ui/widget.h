@@ -52,6 +52,7 @@ typedef struct menu_view {
     view_conf_t cfg;
     window_t l_win;
     window_t r_win;                         /* Available in split-view mode */
+    window_t *act_win;
 
     /* Optional link to parent view (nested menus) */
     struct menu_view *parent;

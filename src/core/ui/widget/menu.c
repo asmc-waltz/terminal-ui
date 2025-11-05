@@ -229,6 +229,9 @@ static int32_t load_menu_left_opt(lv_obj_t *opt)
 
     /* Remove current active page if switching to another item */
     if (view_ctx->l_win.selected_opt != opt && view_ctx->r_win.menu_pane) {
+
+        LOG_TRACE("Removed pane ?");
+        LOG_TRACE("REMOVE ? [%s]", get_name(view_ctx->r_win.menu_pane));
         remove_obj_and_child(get_meta(view_ctx->r_win.menu_pane)->id, \
                              &get_meta(view)->child);
         view_ctx->r_win.menu_pane = NULL;
@@ -318,8 +321,10 @@ static int32_t load_pane(lv_obj_t *view, bool split)
 
     LOG_DEBUG("HERE");
     if (split) {
+        LOG_DEBUG("HERE R WIN");
         view_ctx->r_win.menu_pane = page;
     } else {
+        LOG_DEBUG("HERE L WIN");
         view_ctx->l_win.menu_pane = page;
     }
 
@@ -766,6 +771,7 @@ int32_t set_active_window(lv_obj_t *view, \
                                                         const char *))
 {
     menu_view_t *view_ctx;
+    window_t *act_win = NULL;
     int32_t ret = -EIO;
 
     if (!view)
@@ -775,19 +781,21 @@ int32_t set_active_window(lv_obj_t *view, \
     if (!view_ctx)
         return -EIO;
 
+    // TODO: combine
     if (view_ctx->cfg.split_view) {
-        if (lv_obj_is_valid(view_ctx->r_win.container) && \
-            lv_obj_is_valid(view_ctx->r_win.menu_pane)) {
-            if (view_ctx->r_win.create_window_cb == create_window_cb) {
+        act_win = &view_ctx->r_win;
+        if (lv_obj_is_valid(act_win->container) && \
+            lv_obj_is_valid(act_win->menu_pane)) {
+            if (act_win->create_window_cb == create_window_cb) {
                 /* Skip if same page callback is already active */
                 LOG_TRACE("Menu [%s] is already active -> ignore", \
-                          get_name(view_ctx->r_win.menu_pane));
+                          get_name(act_win->menu_pane));
                 return 0;
             } else {
                 LOG_TRACE("[%s] view is creating new pane", get_name(view));
             }
         } else {
-            if (!lv_obj_is_valid(view_ctx->r_win.container)) {
+            if (!lv_obj_is_valid(act_win->container)) {
                 LOG_ERROR("[%s] view container is not available", \
                           get_name(view));
                 return -EIO;
@@ -795,17 +803,20 @@ int32_t set_active_window(lv_obj_t *view, \
         }
 
         LOG_TRACE("Split view: Create window in split view mode");
-        view_ctx->r_win.create_window_cb = create_window_cb;
+        act_win->create_window_cb = create_window_cb;
+        view_ctx->act_win = act_win;
         ret = load_pane(view, true);
         if (ret)
-            view_ctx->r_win.create_window_cb = NULL;
+            act_win->create_window_cb = NULL;
     } else {
         // Single view
+        act_win = &view_ctx->l_win;
         LOG_TRACE("Single view: Create window in single view mode");
-        view_ctx->l_win.create_window_cb = create_window_cb;
+        act_win->create_window_cb = create_window_cb;
+        view_ctx->act_win = act_win;
         ret = load_pane(view, false);
         if (ret)
-            view_ctx->l_win.create_window_cb = NULL;
+            act_win->create_window_cb = NULL;
     }
 
     if (ret) {
@@ -872,6 +883,10 @@ lv_obj_t *create_menu_view(lv_obj_t *par, const char *name, \
     } else {
         view_ctx->r_win.visible = false;
     }
+
+    /*************/
+    view_ctx->act_win = &view_ctx->r_win;
+    /*************/
 
     set_internal_data(view, view_ctx);
 
