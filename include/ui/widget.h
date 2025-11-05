@@ -28,7 +28,7 @@ enum container_side {
  * Configuration of a menu view.
  */
 typedef struct view_cfg {
-    bool root;
+    bool ctrl;
     bool split_view;
 } view_conf_t;
 
@@ -119,7 +119,8 @@ int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
 lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, \
                            const char *name);
 
-menu_view_t *create_menu_view(lv_obj_t *par, const char *name, bool root);
+menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
+                              bool ctrl, bool split);
 
 static inline menu_view_t *get_view_ctx(lv_obj_t *lobj) {
     return lobj ? (menu_view_t *)get_internal_data(lobj) : NULL;

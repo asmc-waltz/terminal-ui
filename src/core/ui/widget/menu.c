@@ -778,7 +778,7 @@ int32_t set_active_window(lv_obj_t *view, \
     return 0;
 }
 
-menu_view_t *create_view_ctx(bool root, bool split)
+menu_view_t *create_view_ctx(bool ctrl, bool split)
 {
     menu_view_t *v_ctx;
 
@@ -788,7 +788,7 @@ menu_view_t *create_view_ctx(bool root, bool split)
         return NULL;
     }
 
-    v_ctx->cfg.root = root;
+    v_ctx->cfg.ctrl = ctrl;
     v_ctx->cfg.split_view = split;
     v_ctx->r_win.visible = split;
 
@@ -1036,7 +1036,8 @@ err:
  * In single view mode, the sub menu will be created on top of the menu bar,
  * sharing the same parent container (l_container).
  */
-menu_view_t *create_menu_view(lv_obj_t *par, const char *name, bool root)
+menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
+                              bool ctrl, bool split)
 {
     lv_obj_t *container, *control, *view;
     menu_view_t *v_ctx;
@@ -1047,15 +1048,15 @@ menu_view_t *create_menu_view(lv_obj_t *par, const char *name, bool root)
     if (!par)
         return NULL;
 
-    v_ctx = create_view_ctx(root, root ? true : false);
+    v_ctx = create_view_ctx(ctrl, split);
     if (!v_ctx)
         return NULL;
 
-    container = root ? par : create_view_container(v_ctx, par, name);
+    container = ctrl ? create_view_container(v_ctx, par, name) : par;
     if (!container)
         goto err_ctn;
 
-    if (!root) {
+    if (ctrl) {
         snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
         control = create_view_control(v_ctx, container, name_buf, true, true);
         if (!control)
