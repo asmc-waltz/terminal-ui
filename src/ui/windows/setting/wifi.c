@@ -291,7 +291,7 @@ static int32_t create_wifi_filler(lv_obj_t *par)
 /*---------------------------------------------*
  *  Main Wi-Fi settings item builder
  *---------------------------------------------*/
-static int32_t create_wifi_setting_items(lv_obj_t *par)
+static int32_t create_setting_items(lv_obj_t *par)
 {
     lv_obj_t *about_group, *general_group;
     int32_t ret;
@@ -339,31 +339,31 @@ static int32_t create_wifi_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
+lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
 {
     int32_t ret;
-    lv_obj_t *sub_view;
+    lv_obj_t *container, *view;
     lv_obj_t *menu_bar;
-    sub_view_t *menu_ctx;
+    menu_view_t *v_ctx;
 
-    sub_view = create_sub_menu_view(menu, par, name, create_menu_view);
-    if (!sub_view)
-        return NULL;
-
-    menu_ctx = get_internal_data(sub_view);
-    if (!menu_ctx)
+    v_ctx = create_menu_view(par, name, true, false);
+    if (!v_ctx)
         goto err_view;
 
-    menu_bar = create_menu_bar(menu_ctx->sub_menu);
+    container = v_ctx->container;
+    view = v_ctx->view;
+    if (!container || !view)
+        return NULL;
+
+    menu_bar = create_menu_bar(view);
     if (!menu_bar) {
-        LOG_ERROR("Menu [%s] create menu bar failed, ret %d", \
-                  get_name(menu), ret);
+        LOG_ERROR("[%s] create menu bar failed, ret %d", get_name(view), ret);
         goto err_view;
     }
 
     lv_obj_add_flag(menu_bar, LV_OBJ_FLAG_SCROLLABLE);
 
-    ret = create_wifi_setting_items(menu_bar);
+    ret = create_setting_items(menu_bar);
     if (ret) {
         LOG_ERROR("Setting menu bar [%s] create failed, ret %d", \
                   get_name(menu_bar), ret);
@@ -378,10 +378,10 @@ lv_obj_t *create_wifi_setting(lv_obj_t *menu, lv_obj_t *par, const char *name)
     if (ret)
         LOG_WARN("Unable to request cached AP list, ret %d", ret);
 
-    return sub_view;
+    return container;
 
 err_view:
-    remove_obj_and_child(get_meta(sub_view)->id, &get_meta(par)->child);
+    remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
     return NULL;
 }
 

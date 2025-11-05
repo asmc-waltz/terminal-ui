@@ -331,7 +331,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /*-----------------------------------------
      * Create setting container section
      *----------------------------------------*/
-    setting_container = create_setting_window(base, WINDOW_SETTING, true);
+    setting_container = create_setting_window(base, WINDOW_SETTING);
     set_grid_cell_align(setting_container,
                         LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 1, 1);

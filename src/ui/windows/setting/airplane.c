@@ -68,7 +68,7 @@ static void switch_airplane_enable_handler(lv_event_t *e)
     }
 }
 
-static int32_t create_airplane_setting_items(lv_obj_t *par)
+static int32_t create_setting_items(lv_obj_t *par)
 {
     lv_obj_t *group, *sym, *label, *swit;
     const char *desc = "Turns off all wireless connections.\n"
@@ -122,23 +122,40 @@ static int32_t create_airplane_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_airplane_setting(lv_obj_t *menu, lv_obj_t *par, \
-                                  const char *name)
+lv_obj_t *create_airplane_setting(lv_obj_t *par, const char *name)
 {
     int32_t ret;
-    lv_obj_t *page;
+    lv_obj_t *container, *view;
+    lv_obj_t *menu_bar;
+    menu_view_t *v_ctx;
 
-    page = create_menu_page(menu, par, name);
-    if (!page)
+    v_ctx = create_menu_view(par, name, true, false);
+    if (!v_ctx)
+        goto err_view;
+
+    container = v_ctx->container;
+    view = v_ctx->view;
+    if (!container || !view)
         return NULL;
 
-    ret = create_airplane_setting_items(page);
-    if (ret) {
-        LOG_ERROR("Setting page [%s] create failed, ret %d", \
-                  get_name(page), ret);
-        remove_obj_and_child(get_meta(page)->id, &get_meta(par)->child);
-        return NULL;
+    menu_bar = create_menu_bar(view);
+    if (!menu_bar) {
+        LOG_ERROR("[%s] create menu bar failed, ret %d", get_name(view), ret);
+        goto err_view;
     }
 
-    return page;
+    lv_obj_add_flag(menu_bar, LV_OBJ_FLAG_SCROLLABLE);
+
+    ret = create_setting_items(menu_bar);
+    if (ret) {
+        LOG_ERROR("Setting menu bar [%s] create failed, ret %d", \
+                  get_name(menu_bar), ret);
+        goto err_view;
+    }
+
+    return container;
+
+err_view:
+    remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
+    return NULL;
 }

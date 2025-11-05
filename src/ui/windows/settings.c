@@ -53,7 +53,7 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static int32_t create_setting_menu_bar_items(lv_obj_t *menu, lv_obj_t *menu_bar)
+static int32_t create_setting_items(lv_obj_t *menu, lv_obj_t *menu_bar)
 {
     int32_t ret;
     lv_obj_t *group;
@@ -163,15 +163,17 @@ static int32_t create_setting_menu_bar_items(lv_obj_t *menu, lv_obj_t *menu_bar)
     return 0;
 }
 
-lv_obj_t *create_setting_window(lv_obj_t *par, const char *name, \
-                                bool split_view)
+lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
 {
     lv_obj_t *menu, *menu_bar;
     int32_t ret;
+    menu_view_t *v_ctx;
 
-    menu = create_menu_view(par, name, split_view);
-    if (!menu)
+    v_ctx = create_menu_view(par, name, false, true);
+    if (!v_ctx)
         return NULL;
+
+    menu = v_ctx->view;
 
     // All sub menu component name will depend on the menu base name
     menu_bar = create_menu_bar(menu);
@@ -180,14 +182,14 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name, \
                   get_name(menu), ret);
     }
 
-    ret = create_setting_menu_bar_items(menu, menu_bar);
+    ret = create_setting_items(menu, menu_bar);
     if (ret) {
         LOG_ERROR("Menu [%s] create menu bar items failed, ret %d", \
                   get_name(menu), ret);
     }
 
     /* Set the default active page at the first time menu is rendered */
-    ret = set_active_menu_page(menu, create_airplane_setting);
+    ret = set_active_window(menu, create_airplane_setting);
     if (ret) {
         LOG_ERROR("Menu [%s] set default page failed, ret %d", \
                   get_name(menu), ret);
