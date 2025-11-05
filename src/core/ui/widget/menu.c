@@ -305,13 +305,11 @@ static int32_t load_pane(lv_obj_t *view, bool split)
     lv_obj_t *parent;
     lv_obj_t *page;
     char name_buf[64];
-    lv_obj_t *(*create_window_cb)(lv_obj_t *, lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(menu_view_t *, lv_obj_t *, const char *);
 
-    LOG_DEBUG("HERE");
     if (!view)
         return -EINVAL;
 
-    LOG_DEBUG("HERE");
     view_ctx = get_view_ctx(view);
     if (!view_ctx)
         return -EIO;
@@ -325,36 +323,36 @@ static int32_t load_pane(lv_obj_t *view, bool split)
         parent = view_ctx->l_win.container;
     }
 
-    LOG_DEBUG("HERE");
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
 
-    snprintf(name_buf, sizeof(name_buf), "%s.PAGE", get_name(parent));
+    snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
 
-    LOG_DEBUG("HERE");
     /* Create page via callback */
-    page = create_window_cb(view, parent, name_buf);
+    page = create_window_cb(view_ctx, parent, name_buf);
     if (!page)
         return -EIO;
 
-    LOG_DEBUG("HERE");
     if (split) {
-        LOG_DEBUG("HERE R WIN");
         view_ctx->r_win.menu_pane = page;
     } else {
-        LOG_DEBUG("HERE L WIN");
         view_ctx->l_win.menu_pane = page;
     }
 
     return refresh_object_tree_layout(page);
 }
 
-static int32_t create_right_window(lv_obj_t *view)
+/*
+ * Create a container (left or right) for a given view.
+ * The left container holds the menu or control pane,
+ * while the right container displays detailed content.
+ */
+static int32_t create_window_container(lv_obj_t *view, enum container_side side)
 {
     menu_view_t *view_ctx;
-    lv_obj_t *r_window;
-    int32_t scr_rot;
+    lv_obj_t *container;
     char name_buf[64];
+    int32_t scr_rot;
 
     if (!view)
         return -EINVAL;
@@ -363,39 +361,42 @@ static int32_t create_right_window(lv_obj_t *view)
     if (!view_ctx)
         return -EIO;
 
-    /* Build unique name for page container */
-    snprintf(name_buf, sizeof(name_buf), "%s.R_WINDOW", get_name(view));
+    snprintf(name_buf, sizeof(name_buf), "%s.%s_CONTAINER", get_name(view), \
+             (side == CONTAINER_LEFT) ? "L" : "R");
 
-    /* Create default page container (right-side column) */
-    r_window = create_box(view, name_buf);
-    if (!r_window)
+    container = create_box(view, name_buf);
+    if (!container)
         return -EIO;
 
-    /* Adjust grid alignment depending on current screen rotation */
-    scr_rot = get_scr_rotation();
-    if (scr_rot == ROTATION_0) {
-        set_grid_cell_align(r_window,
-                            LV_GRID_ALIGN_STRETCH, 1, 1,
+    if (side == CONTAINER_LEFT) {
+        /* Left container: menu bar or control list */
+        set_grid_cell_align(container, \
+                            LV_GRID_ALIGN_STRETCH, 0, 1, \
                             LV_GRID_ALIGN_STRETCH, 0, 1);
-        /* Default object rotation is ROTATION_0 */
+        view_ctx->l_win.container = container;
+
+        // FIXME: temporary visual marker
+        lv_obj_set_style_bg_color(container, lv_color_hex(0x4FC3F7), 0);
+
     } else {
-        set_grid_cell_align(r_window,
-                            LV_GRID_ALIGN_STRETCH, 0, 1,
-                            LV_GRID_ALIGN_STRETCH, 0, 1);
-        /*
-         * If created while the screen is rotated to 180,
-         * fix rotation to correct the next transition.
-         */
-        get_meta(r_window)->data.rotation = ROTATION_180;
+        /* Right container: content/detail area */
+        scr_rot = get_scr_rotation();
+        if (scr_rot == ROTATION_0) {
+            set_grid_cell_align(container, \
+                                LV_GRID_ALIGN_STRETCH, 1, 1, \
+                                LV_GRID_ALIGN_STRETCH, 0, 1);
+        } else {
+            set_grid_cell_align(container, \
+                                LV_GRID_ALIGN_STRETCH, 0, 1, \
+                                LV_GRID_ALIGN_STRETCH, 0, 1);
+            get_meta(container)->data.rotation = ROTATION_180;
+        }
+
+        view_ctx->r_win.container = container;
+
+        // FIXME: temporary visual marker
+        lv_obj_set_style_bg_color(container, lv_color_hex(0xFCCE03), 0);
     }
-
-    /*
-     * The page container holds detailed content or configuration
-     * of the currently active view item (interactive region).
-     */
-    view_ctx->r_win.container = r_window;
-
-    lv_obj_set_style_bg_color(r_window, lv_color_hex(0xFF0000), 0);
 
     return 0;
 }
@@ -457,7 +458,7 @@ int32_t view_change_cb(lv_obj_t *view)
 
     /* Create or reload page container when visible but not yet initialized */
     if (view_ctx->r_win.visible && !view_ctx->r_win.container) {
-        ret = create_right_window(view);
+        ret = create_window_container(view, CONTAINER_RIGHT);
         if (ret)
             return ret;
 
@@ -470,72 +471,6 @@ int32_t view_change_cb(lv_obj_t *view)
 
     // TODO: handle the single view rotation when child menu is active
 
-    return 0;
-}
-
-static int32_t create_windows(lv_obj_t *view)
-{
-    menu_view_t *view_ctx;
-    lv_obj_t *l_window;
-    char name_buf[100];
-    int32_t ret;
-
-    if (!view)
-        return -EINVAL;
-
-    view_ctx = get_view_ctx(view);
-    if (!view_ctx)
-        return -EIO;
-
-    sprintf(name_buf, "%s.L_WINDOW", get_name(view));
-
-    /* Create left column for menu bar */
-    l_window = create_box(view, name_buf);
-    if (!l_window)
-        return -EINVAL;
-
-    set_grid_cell_align(l_window, \
-                        LV_GRID_ALIGN_STRETCH, 0, 1, \
-                        LV_GRID_ALIGN_STRETCH, 0, 1);
-
-    /*
-     * The view container holds the menu bar items defined by user.
-     * Each item can trigger a corresponding page via callback.
-     */
-    view_ctx->l_win.container = l_window;
-
-    if (view_ctx->cfg.split_view) {
-        /* Create right-side window */
-        ret = create_right_window(view);
-        if (ret)
-            goto err;
-    }
-
-    return 0;
-
-err:
-    remove_obj_and_child(get_meta(l_window)->id, &get_meta(view)->child);
-    return ret;
-}
-
-static int32_t initial_windows(lv_obj_t *view)
-{
-    int32_t ret;
-
-    if (!view)
-        return -EINVAL;
-
-    ret = create_windows(view);
-    if (ret) {
-        LOG_WARN("view [%s] create windows failed, ret %d", \
-                 get_name(view), ret);
-        return ret;
-    }
-
-    /*
-     * The view layout and page container have been created.
-     * User can now define view items and their corresponding pages.
-     */
     return 0;
 }
 
@@ -661,7 +596,7 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
 }
 
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
-                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
+                           lv_obj_t *(* create_window_cb)(menu_view_t *, \
                                                           lv_obj_t *, \
                                                           const char *))
 {
@@ -784,7 +719,7 @@ lv_obj_t *create_menu_page(lv_obj_t *view, lv_obj_t *par, const char *name)
 }
 
 int32_t set_active_window(lv_obj_t *view, \
-                          lv_obj_t *(*create_window_cb)(lv_obj_t *, \
+                          lv_obj_t *(*create_window_cb)(menu_view_t *, \
                                                         lv_obj_t *, \
                                                         const char *))
 {
@@ -1066,20 +1001,27 @@ lv_obj_t *create_menu(menu_view_t *v_ctx, lv_obj_t *par, const char *name)
         LOG_WARN("Layout [%s] set padding failed (%d)", \
                  name, ret);
 
-    /* Register rotation callback if split view */
-    if (v_ctx->cfg.split_view)
-        get_meta(view)->data.post_children_rotate_cb = view_change_cb;
-
     ret = set_view_window_ctx(v_ctx, view);
     if (ret)
         goto err;
 
-    /* Initialize sub-views */
-    ret = initial_windows(view);
+    ret = create_window_container(view, CONTAINER_LEFT);
     if (ret) {
-        LOG_WARN("Menu [%s] initialization failed (%d)", \
-                 name, ret);
+        LOG_WARN("[%s] create left container failed, ret %d", \
+                 get_name(view), ret);
         goto err;
+    }
+
+    if (v_ctx->cfg.split_view) {
+        /* Register rotation callback if split view */
+        get_meta(view)->data.post_children_rotate_cb = view_change_cb;
+
+        ret = create_window_container(view, CONTAINER_RIGHT);
+        if (ret) {
+            LOG_WARN("[%s] create right container failed, ret %d", \
+                    get_name(view), ret);
+            goto err;
+        }
     }
 
     // FIXME: temporary visual marker
