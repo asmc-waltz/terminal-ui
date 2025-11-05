@@ -48,6 +48,7 @@ typedef struct window {
  */
 typedef struct menu_view {
     lv_obj_t *container;
+    lv_obj_t *view_ctrl;            /* Optional: control bar for nested menus */
     lv_obj_t *view;                 /* Root grid layout of the menu holder */
     view_conf_t cfg;
     window_t l_win;
