@@ -305,7 +305,7 @@ static int32_t load_pane(lv_obj_t *view, bool split)
     lv_obj_t *parent;
     lv_obj_t *page;
     char name_buf[64];
-    lv_obj_t *(*create_window_cb)(menu_view_t *, lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
 
     if (!view)
         return -EINVAL;
@@ -329,7 +329,7 @@ static int32_t load_pane(lv_obj_t *view, bool split)
     snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
 
     /* Create page via callback */
-    page = create_window_cb(view_ctx, parent, name_buf);
+    page = create_window_cb(parent, name_buf);
     if (!page)
         return -EIO;
 
@@ -596,8 +596,7 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
 }
 
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
-                           lv_obj_t *(* create_window_cb)(menu_view_t *, \
-                                                          lv_obj_t *, \
+                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
                                                           const char *))
 {
     menu_opt_t *opt_ctx;
@@ -719,8 +718,7 @@ lv_obj_t *create_menu_page(lv_obj_t *view, lv_obj_t *par, const char *name)
 }
 
 int32_t set_active_window(lv_obj_t *view, \
-                          lv_obj_t *(*create_window_cb)(menu_view_t *, \
-                                                        lv_obj_t *, \
+                          lv_obj_t *(*create_window_cb)(lv_obj_t *, \
                                                         const char *))
 {
     menu_view_t *view_ctx;

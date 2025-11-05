@@ -44,7 +44,7 @@ typedef struct window {
     lv_obj_t *ctrl_pane;            /* Optional: control bar for nested menus */
     lv_obj_t *menu_pane;
     lv_obj_t *selected_opt;
-    lv_obj_t *(*create_window_cb)(menu_view_t *, lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
     bool visible;
 } window_t;
 
@@ -71,7 +71,7 @@ typedef struct menu_view {
  * window when interacted.
  */
 typedef struct {
-    lv_obj_t *(*create_window_cb)(menu_view_t *, lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
     menu_view_t *view_ctx;
 } menu_opt_t;
 
@@ -86,9 +86,8 @@ typedef struct {
  * Setter functions
  *====================*/
 int32_t set_active_window(lv_obj_t *menu, \
-                             lv_obj_t *(*create_window_cb)(menu_view_t *, \
-                                                         lv_obj_t *, \
-                                                         const char *));
+                          lv_obj_t *(*create_window_cb)(lv_obj_t *, \
+                                                        const char *));
 
 /*=====================
  * Getter functions
@@ -115,9 +114,8 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
                            const lv_font_t *title_font, const char *title);
 
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
-                           lv_obj_t *(* create_window_cb)(menu_view_t *, \
-                                                        lv_obj_t *, \
-                                                        const char *));
+                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
+                                                          const char *));
 lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, \
                            const char *name);
 
