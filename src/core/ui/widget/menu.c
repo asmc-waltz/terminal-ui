@@ -159,59 +159,7 @@ static int32_t redraw_page_control(lv_obj_t *lobj)
     return 0;
 }
 
-/*
- * Create a horizontal menu control bar containing optional back and
- * more buttons. The control is hidden by default and only shown when
- * screen rotation requires it.
- */
-lv_obj_t *create_menu_view_control(lv_obj_t *view, lv_obj_t *par, \
-                                   const char *name, \
-                                   bool back_btn_ena, \
-                                   bool more_btn_ena)
-{
-    lv_obj_t *lobj;
-    lv_obj_t *back_btn;
-    lv_obj_t *more_btn;
-    menu_opt_t *opt_ctx;
-
-    if (!par)
-        return NULL;
-
-    lobj = create_horizontal_flex_group(par, name);
-    if (!lobj)
-        return NULL;
-
-    opt_ctx = calloc(1, sizeof(*opt_ctx));
-    if (!opt_ctx)
-        return NULL;
-
-    /* base layout */
-    set_padding(lobj, 10, 10, 10, 10);
-    get_meta(lobj)->data.pre_rotate_cb = redraw_page_control;
-    // lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
-
-    /* back button */
-    back_btn = create_text_box(lobj, NULL, &lv_font_montserrat_24, \
-                               back_btn_ena ? "< Back" : " ");
-    lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
-    if (back_btn_ena) {
-        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
-        lv_obj_add_event_cb(back_btn, page_control_handler, LV_EVENT_ALL, NULL);
-        set_internal_data(back_btn, opt_ctx);
-        opt_ctx->view_ctx = get_view_ctx(view);
-    }
-
-    /* more button */
-    more_btn = create_text_box(lobj, NULL, &lv_font_montserrat_24, \
-                               more_btn_ena ? "..." : " ");
-    lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000ff), 0);
-    if (more_btn_ena)
-        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
-
-    return lobj;
-}
-
-static int32_t load_menu_left_opt(lv_obj_t *opt)
+static int32_t load_window_by_option(lv_obj_t *opt)
 {
     lv_obj_t *view;
     menu_view_t *view_ctx;
@@ -288,7 +236,7 @@ static void menu_option_event_handler(lv_event_t *e)
 
     case LV_EVENT_CLICKED:
         LOG_TRACE("Option [%s] clicked", get_name(lobj));
-        ret = load_menu_left_opt(lobj);
+        ret = load_window_by_option(lobj);
         if (ret) {
             LOG_ERROR("Load option [%s] failed (%d)", get_name(lobj), ret);
         }
@@ -680,41 +628,6 @@ lv_obj_t *create_menu_bar(lv_obj_t *view)
     view_ctx->l_win.menu_pane = bar;
 
     return bar;
-}
-
-/*
- * Create a menu page under the given parent.
- * Each page uses a flex column layout with a control bar on top.
- */
-lv_obj_t *create_menu_page(lv_obj_t *view, lv_obj_t *par, const char *name)
-{
-    lv_obj_t *page;
-    lv_obj_t *control;
-    char name_buf[64];
-    int32_t ret;
-
-    if (!par)
-        return NULL;
-
-    page = create_vscroll_flex_group(par, name);
-    if (!page)
-        return NULL;
-
-    set_size(page, LV_PCT(100), LV_PCT(100));
-    set_align(page, par, LV_ALIGN_CENTER, 0, 0);
-
-    ret = set_padding(page, 0, 0, 0, 0);
-    if (ret)
-        LOG_WARN("Page [%s] set padding failed (%d)", get_name(page), ret);
-
-    lv_obj_set_style_bg_color(page, lv_color_hex(bg_color(10)), 0);
-
-    snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
-    control = create_menu_view_control(view, page, name_buf, true, false);
-    if (!control)
-        return NULL;
-
-    return page;
 }
 
 int32_t set_active_window(lv_obj_t *view, \

@@ -116,8 +116,6 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
                            lv_obj_t *(* create_window_cb)(lv_obj_t *, \
                                                           const char *));
-lv_obj_t *create_menu_page(lv_obj_t *menu, lv_obj_t *par, \
-                           const char *name);
 
 menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
                               bool ctrl, bool split);
