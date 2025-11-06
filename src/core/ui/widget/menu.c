@@ -398,6 +398,8 @@ int32_t view_angle_change_cb(lv_obj_t *view)
                 view_ctx->r_ctn.visible = false;
                 view_ctx->r_ctn.container = NULL;
                 view_ctx->r_ctn.overlay_menu = NULL;
+                view_ctx->l_ctn.create_window_cb = \
+                                        view_ctx->opened_ctn->create_window_cb;
                 view_ctx->opened_ctn = &view_ctx->l_ctn;
                 LOG_DEBUG("Rotation -> Remove side window");
             } else {
@@ -435,6 +437,8 @@ int32_t view_angle_change_cb(lv_obj_t *view)
                 }
 
                 view_ctx->r_ctn.visible = true;
+                view_ctx->r_ctn.create_window_cb = \
+                                        view_ctx->opened_ctn->create_window_cb;
                 view_ctx->opened_ctn = &view_ctx->r_ctn;
                 LOG_DEBUG("Rotation -> Add side window");
             }
