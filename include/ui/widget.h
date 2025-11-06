@@ -32,37 +32,42 @@ typedef struct view_cfg {
     bool split_view;
 } view_conf_t;
 
-typedef struct menu_view menu_view_t;
+typedef struct view_ctn view_ctn_t;
 
 /*
  * Window data structure contains all information about one menu window,
  * including its panes (controller, menu, etc.), the selected option,
  * and visibility state. Child windows reuse the same control pane and holder.
  */
-typedef struct window {
+typedef struct win_ctn {
     lv_obj_t *container;
     lv_obj_t *menu;             /* Left-side menu container (static element) */
     lv_obj_t *overlay_menu;     /* Sub menu - render on top of menu*/
     lv_obj_t *selected_opt;
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
     bool visible;
-} window_t;
+} win_ctn_t;
 
 /*
  * Internal data of a menu view. Stored inside the holder (grid layout)
  * and manages left/right window layout for split-view mode.
  */
-typedef struct menu_view {
-    lv_obj_t *container;        /* Top-level container holding all subwindows */
-    lv_obj_t *view_ctrl;        /* Optional: control bar for nested menu navigation */
-    lv_obj_t *view;             /* Grid layout for main content (split view) */
+typedef struct view_ctn {
+    lv_obj_t *container;    /* Top-level container holding all subwindows */
+    lv_obj_t *view_ctrl;    /* Optional: control for nested menu navigation */
+    lv_obj_t *view;         /* Grid layout for main content (split view) */
 
-    view_conf_t cfg;            /* Configuration for view appearance/behavior */
+    view_conf_t cfg;        /* Configuration for view appearance/behavior */
 
-    window_t l_win;             /* Left-side window context (menu options) */
-    window_t r_win;             /* Right-side window context (detail/content) */
-    window_t *act_win;          /* Currently active window (either left or right) */
-} menu_view_t;
+    win_ctn_t l_ctn;      /* Left-side window context (menu options) */
+    win_ctn_t r_ctn;      /* Right-side window context (detail/content) */
+
+    /*
+     * Pointer to the currently active container (either left or right).
+     * Child menus are created inside this container.
+     */
+    win_ctn_t *opened_ctn;
+} view_ctn_t;
 
 /*
  * Each option inside a menu window. The menu option data stores
@@ -71,7 +76,7 @@ typedef struct menu_view {
  */
 typedef struct {
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
 } menu_opt_t;
 
 /**********************
@@ -116,11 +121,11 @@ int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
                            lv_obj_t *(* create_window_cb)(lv_obj_t *, \
                                                           const char *));
 
-menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
+view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
                               bool ctrl, bool split);
 
-static inline menu_view_t *get_view_ctx(lv_obj_t *lobj) {
-    return lobj ? (menu_view_t *)get_internal_data(lobj) : NULL;
+static inline view_ctn_t *get_view_ctx(lv_obj_t *lobj) {
+    return lobj ? (view_ctn_t *)get_internal_data(lobj) : NULL;
 }
 
 static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {

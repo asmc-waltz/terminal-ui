@@ -78,7 +78,7 @@ static inline void back_btn_pressed(lv_obj_t *lobj)
 
 static inline int32_t back_btn_released(lv_obj_t *lobj)
 {
-    menu_view_t *v_ctx;
+    view_ctn_t *v_ctx;
     int32_t ret = 0;
 
     if (!lobj)
@@ -176,7 +176,7 @@ static int32_t redraw_page_control(lv_obj_t *lobj)
 static int32_t load_window_by_option(lv_obj_t *opt)
 {
     lv_obj_t *view;
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     menu_opt_t *opt_ctx;
     int32_t ret = 0;
 
@@ -200,11 +200,11 @@ static int32_t load_window_by_option(lv_obj_t *opt)
      * Highlight the newly selected option and restore the
      * color of the previously selected one.
      */
-    if (view_ctx->l_win.selected_opt != opt) {
+    if (view_ctx->l_ctn.selected_opt != opt) {
         lv_obj_set_style_bg_color(opt, lv_color_hex(0xFF6633), 0);
 
-        if (view_ctx->l_win.selected_opt)
-            lv_obj_set_style_bg_color(view_ctx->l_win.selected_opt, \
+        if (view_ctx->l_ctn.selected_opt)
+            lv_obj_set_style_bg_color(view_ctx->l_ctn.selected_opt, \
                                       lv_color_hex(bg_color(1)), 0);
     }
 
@@ -213,21 +213,21 @@ static int32_t load_window_by_option(lv_obj_t *opt)
      * new one. In some cases the child window might have already
      * destroyed its pane, so validate before removal.
      */
-    if (view_ctx->l_win.selected_opt != opt) {
-        if (lv_obj_is_valid(view_ctx->act_win->overlay_menu)) {
+    if (view_ctx->l_ctn.selected_opt != opt) {
+        if (lv_obj_is_valid(view_ctx->opened_ctn->overlay_menu)) {
             LOG_DEBUG("|--- Removing previous menu pane [%s] --->", \
-                      get_name(view_ctx->act_win->overlay_menu));
+                      get_name(view_ctx->opened_ctn->overlay_menu));
 
-            remove_obj_and_child(get_meta(view_ctx->act_win->overlay_menu)->id, \
+            remove_obj_and_child(get_meta(view_ctx->opened_ctn->overlay_menu)->id, \
                                  &get_meta(view)->child);
-            view_ctx->act_win->overlay_menu = NULL;
+            view_ctx->opened_ctn->overlay_menu = NULL;
 
             LOG_DEBUG("<--- Previous menu pane removed |");
         } else {
             LOG_DEBUG("|---> Previous menu pane already removed <---|");
-            view_ctx->act_win->overlay_menu = NULL;
+            view_ctx->opened_ctn->overlay_menu = NULL;
         }
-    } else if (view_ctx->l_win.selected_opt == opt) {
+    } else if (view_ctx->l_ctn.selected_opt == opt) {
         LOG_DEBUG("| !!! Selected option already exists !!! |");
     }
 
@@ -236,7 +236,7 @@ static int32_t load_window_by_option(lv_obj_t *opt)
     if (ret)
         return ret;
 
-    view_ctx->l_win.selected_opt = opt;
+    view_ctx->l_ctn.selected_opt = opt;
 
     LOG_TRACE("[%s] Window loaded successfully", get_name(view));
 
@@ -274,7 +274,7 @@ static void menu_option_event_handler(lv_event_t *e)
 
 static int32_t load_window(lv_obj_t *view, bool split)
 {
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     lv_obj_t *parent;
     lv_obj_t *window;
     char name_buf[64];
@@ -287,8 +287,8 @@ static int32_t load_window(lv_obj_t *view, bool split)
     if (!view_ctx)
         return -EIO;
 
-    create_window_cb = view_ctx->act_win->create_window_cb;
-    parent = view_ctx->act_win->container;
+    create_window_cb = view_ctx->opened_ctn->create_window_cb;
+    parent = view_ctx->opened_ctn->container;
 
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
@@ -301,9 +301,9 @@ static int32_t load_window(lv_obj_t *view, bool split)
     if (!window)
         return -EIO;
 
-    view_ctx->act_win->overlay_menu = window;
+    view_ctx->opened_ctn->overlay_menu = window;
     LOG_DEBUG("<--- Created window [%s] |", \
-              get_name(view_ctx->act_win->overlay_menu));
+              get_name(view_ctx->opened_ctn->overlay_menu));
 
     return refresh_object_tree_layout(window);
 }
@@ -315,7 +315,7 @@ static int32_t load_window(lv_obj_t *view, bool split)
  */
 static int32_t create_window_container(lv_obj_t *view, enum container_side side)
 {
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     lv_obj_t *container;
     char name_buf[64];
     int32_t scr_rot;
@@ -339,7 +339,7 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
         set_grid_cell_align(container, \
                             LV_GRID_ALIGN_STRETCH, 0, 1, \
                             LV_GRID_ALIGN_STRETCH, 0, 1);
-        view_ctx->l_win.container = container;
+        view_ctx->l_ctn.container = container;
 
         // FIXME: temporary visual marker
         lv_obj_set_style_bg_color(container, lv_color_hex(0x4FC3F7), 0);
@@ -358,7 +358,7 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
             get_meta(container)->data.rotation = ROTATION_180;
         }
 
-        view_ctx->r_win.container = container;
+        view_ctx->r_ctn.container = container;
 
         // FIXME: temporary visual marker
         lv_obj_set_style_bg_color(container, lv_color_hex(0xFCCE03), 0);
@@ -369,7 +369,7 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
 
 int32_t view_angle_change_cb(lv_obj_t *view)
 {
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     int32_t scr_rot, ret = 0;
     bool vertical;
 
@@ -387,7 +387,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         if (view_ctx->cfg.split_view) {
             LOG_TRACE("Vertical: Split view");
             /* Clean split view container in vertical rotation */
-            if (view_ctx->r_win.visible) {
+            if (view_ctx->r_ctn.visible) {
                 LOG_TRACE("-- horizontal --> vertical ||: change");
                 ret = remove_grid_layout_last_row_dsc(view);
                 if (ret) {
@@ -395,10 +395,10 @@ int32_t view_angle_change_cb(lv_obj_t *view)
                     return ret;
                 }
 
-                view_ctx->r_win.visible = false;
-                view_ctx->r_win.container = NULL;
-                view_ctx->r_win.overlay_menu = NULL;
-                view_ctx->act_win = &view_ctx->l_win;
+                view_ctx->r_ctn.visible = false;
+                view_ctx->r_ctn.container = NULL;
+                view_ctx->r_ctn.overlay_menu = NULL;
+                view_ctx->opened_ctn = &view_ctx->l_ctn;
                 LOG_DEBUG("Rotation -> Remove side window");
             } else {
                 LOG_TRACE("|| vertical --> vertical ||: nothing change");
@@ -411,7 +411,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         if (view_ctx->cfg.split_view) {
             LOG_TRACE("Horizontal: Split view");
             /* Show page container in horizontal rotation */
-            if (view_ctx->r_win.visible) {
+            if (view_ctx->r_ctn.visible) {
                 LOG_TRACE("-- horizontal --> horizontal --: nothing change");
             } else {
                 LOG_TRACE("|| vertical --> horizontal --: change");
@@ -425,17 +425,17 @@ int32_t view_angle_change_cb(lv_obj_t *view)
                 * Active page may exist if user created it while in vertical mode.
                 * Remove it to avoid incorrect parent linkage.
                 */
-                if (view_ctx->act_win->overlay_menu) {
+                if (view_ctx->opened_ctn->overlay_menu) {
                     LOG_DEBUG("Remove overlay [%s]", \
-                              get_name(view_ctx->act_win->overlay_menu));
+                              get_name(view_ctx->opened_ctn->overlay_menu));
                     remove_obj_and_child(get_meta(\
-                                        view_ctx->act_win->overlay_menu)->id, \
+                                        view_ctx->opened_ctn->overlay_menu)->id, \
                                         &get_meta(view)->child);
-                    view_ctx->act_win->overlay_menu = NULL;
+                    view_ctx->opened_ctn->overlay_menu = NULL;
                 }
 
-                view_ctx->r_win.visible = true;
-                view_ctx->act_win = &view_ctx->r_win;
+                view_ctx->r_ctn.visible = true;
+                view_ctx->opened_ctn = &view_ctx->r_ctn;
                 LOG_DEBUG("Rotation -> Add side window");
             }
         } else {
@@ -448,7 +448,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
     apply_grid_layout_config(view);
 
     /* Create or reload page container when visible but not yet initialized */
-    if (view_ctx->r_win.visible && !view_ctx->r_win.container) {
+    if (view_ctx->r_ctn.visible && !view_ctx->r_ctn.container) {
         ret = create_window_container(view, CONTAINER_RIGHT);
         if (ret)
             return ret;
@@ -589,7 +589,7 @@ int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
                                                           const char *))
 {
     menu_opt_t *opt_ctx;
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     int32_t ret = 0;
 
     if (!lobj || !view)
@@ -640,7 +640,7 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
  */
 lv_obj_t *create_menu(lv_obj_t *view)
 {
-    menu_view_t *view_ctx;
+    view_ctn_t *view_ctx;
     lv_obj_t *bar;
     char name_buf[100];
     int32_t ret;
@@ -652,21 +652,21 @@ lv_obj_t *create_menu(lv_obj_t *view)
     if (!view_ctx)
         return NULL;
 
-    sprintf(name_buf, "%s.%s", get_name(view_ctx->l_win.container), "L_BAR");
-    bar = create_vscroll_flex_group(view_ctx->l_win.container, name_buf);
+    sprintf(name_buf, "%s.%s", get_name(view_ctx->l_ctn.container), "L_BAR");
+    bar = create_vscroll_flex_group(view_ctx->l_ctn.container, name_buf);
     if (!bar)
         return NULL;
 
     /* Style and layout configuration */
     set_size(bar, LV_PCT(100), LV_PCT(100));
-    set_align(bar, view_ctx->l_win.container, LV_ALIGN_CENTER, 0, 0);
+    set_align(bar, view_ctx->l_ctn.container, LV_ALIGN_CENTER, 0, 0);
 
     ret = set_padding(bar, 0, 0, 0, 0);
     if (ret)
         LOG_WARN("Page [%s] set padding failed (%d)", get_name(bar), ret);
 
     lv_obj_set_style_bg_color(bar, lv_color_hex(bg_color(10)), 0);
-    view_ctx->l_win.menu = bar;
+    view_ctx->l_ctn.menu = bar;
 
     return bar;
 }
@@ -675,8 +675,8 @@ int32_t set_active_window(lv_obj_t *view, \
                           lv_obj_t *(*create_window_cb)(lv_obj_t *, \
                                                         const char *))
 {
-    menu_view_t *view_ctx;
-    window_t *act_win = NULL;
+    view_ctn_t *view_ctx;
+    win_ctn_t *opened_ctn = NULL;
     int32_t ret = -EIO;
 
     if (!view)
@@ -687,20 +687,20 @@ int32_t set_active_window(lv_obj_t *view, \
         return -EIO;
 
     // TODO: combine
-    act_win = view_ctx->act_win;
+    opened_ctn = view_ctx->opened_ctn;
     if (view_ctx->cfg.split_view) {
-        if (lv_obj_is_valid(act_win->container) && \
-            lv_obj_is_valid(act_win->overlay_menu)) {
-            if (act_win->create_window_cb == create_window_cb) {
+        if (lv_obj_is_valid(opened_ctn->container) && \
+            lv_obj_is_valid(opened_ctn->overlay_menu)) {
+            if (opened_ctn->create_window_cb == create_window_cb) {
                 /* Skip if same page callback is already active */
                 LOG_TRACE("Menu [%s] is already active -> ignore", \
-                          get_name(act_win->overlay_menu));
+                          get_name(opened_ctn->overlay_menu));
                 return 0;
             } else {
                 LOG_TRACE("[%s] view is creating new pane", get_name(view));
             }
         } else {
-            if (!lv_obj_is_valid(act_win->container)) {
+            if (!lv_obj_is_valid(opened_ctn->container)) {
                 LOG_ERROR("[%s] view container is not available", \
                           get_name(view));
                 return -EIO;
@@ -708,16 +708,16 @@ int32_t set_active_window(lv_obj_t *view, \
         }
 
         LOG_TRACE("Split view: Create window in split view mode");
-        act_win->create_window_cb = create_window_cb;
+        opened_ctn->create_window_cb = create_window_cb;
         ret = load_window(view, true);
         if (ret)
-            act_win->create_window_cb = NULL;
+            opened_ctn->create_window_cb = NULL;
     } else {
         LOG_TRACE("Single view: Create window in single view mode");
-        act_win->create_window_cb = create_window_cb;
+        opened_ctn->create_window_cb = create_window_cb;
         ret = load_window(view, false);
         if (ret)
-            act_win->create_window_cb = NULL;
+            opened_ctn->create_window_cb = NULL;
     }
 
     if (ret) {
@@ -728,9 +728,9 @@ int32_t set_active_window(lv_obj_t *view, \
     return 0;
 }
 
-menu_view_t *create_view_ctx(bool ctrl, bool split)
+view_ctn_t *create_view_ctx(bool ctrl, bool split)
 {
-    menu_view_t *v_ctx;
+    view_ctn_t *v_ctx;
 
     v_ctx = calloc(1, sizeof(*v_ctx));
     if (!v_ctx) {
@@ -740,16 +740,19 @@ menu_view_t *create_view_ctx(bool ctrl, bool split)
 
     v_ctx->cfg.ctrl = ctrl;
     v_ctx->cfg.split_view = split;
-    v_ctx->r_win.visible = split;
+    v_ctx->r_ctn.visible = split;
 
     /*
      * When split-view mode is active, the left window shows
      * the main menu and the right window displays details.
-     * act_win points to the active window for new submenus.
+     * opened_ctn points to the active window for new submenus.
      */
     if (split) {
-        v_ctx->act_win = &v_ctx->r_win;
-        LOG_TRACE("Split view: right window enabled by default");
+        v_ctx->opened_ctn = &v_ctx->r_ctn;
+        LOG_DEBUG("Split view: create child window on the right container");
+    } else {
+        v_ctx->opened_ctn = &v_ctx->l_ctn;
+        LOG_DEBUG("Single view: create child window on the left container");
     }
 
     return v_ctx;
@@ -760,7 +763,7 @@ menu_view_t *create_view_ctx(bool ctrl, bool split)
  * depending on the parent configuration. The menu view will be
  * created as a child of this container.
  */
-lv_obj_t *create_view_container(menu_view_t *v_ctx, \
+lv_obj_t *create_view_container(view_ctn_t *v_ctx, \
                                 lv_obj_t *par, const char *name)
 {
     lv_obj_t *container;
@@ -811,7 +814,7 @@ err_container:
  * Add control bar to active window of the given view context.
  * The control bar supports navigation or local actions.
  */
-int32_t set_view_control_ctx(menu_view_t *v_ctx, lv_obj_t *ctrl)
+int32_t set_view_control_ctx(view_ctn_t *v_ctx, lv_obj_t *ctrl)
 {
     if (!v_ctx || !ctrl)
         return -EINVAL;
@@ -835,7 +838,7 @@ int32_t set_view_control_ctx(menu_view_t *v_ctx, lv_obj_t *ctrl)
  * Set the main view window object for this view context.
  * Handles grid alignment if the view lives inside a container.
  */
-int32_t set_view_window_ctx(menu_view_t *v_ctx, lv_obj_t *view)
+int32_t set_view_window_ctx(view_ctn_t *v_ctx, lv_obj_t *view)
 {
     if (!v_ctx || !view)
         return -EINVAL;
@@ -857,7 +860,7 @@ int32_t set_view_window_ctx(menu_view_t *v_ctx, lv_obj_t *view)
  * more buttons. The control is hidden by default and only shown when
  * screen rotation requires it.
  */
-lv_obj_t *create_view_control(menu_view_t *v_ctx, \
+lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
                               lv_obj_t *par, const char *name, \
                               bool back_ena, bool more_ena)
 {
@@ -910,7 +913,7 @@ err:
     return NULL;
 }
 
-lv_obj_t *create_view(menu_view_t *v_ctx, lv_obj_t *par, const char *name)
+lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
 {
     lv_obj_t *view;
     int32_t ret;
@@ -985,13 +988,13 @@ err:
 /*
  * Sub menu will be created on the right side of menu bar in split view mode.
  * In single view mode, the sub menu will be created on top of the menu bar,
- * sharing the same parent container (l_container).
+ * sharing the same parent container (l_ctn).
  */
-menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
+view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
                               bool ctrl, bool split)
 {
     lv_obj_t *container, *control, *view;
-    menu_view_t *v_ctx;
+    view_ctn_t *v_ctx;
     char name_buf[64];
     int32_t ret;
     int32_t scr_rot;
