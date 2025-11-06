@@ -569,8 +569,8 @@ int32_t set_grid_cell_align(lv_obj_t *lobj, lv_grid_align_t col_align, \
     if (ret)
         return ret;
 
-    lv_obj_add_event_cb(lobj, on_size_changed_cb, \
-                        LV_EVENT_SIZE_CHANGED, NULL);
+    // lv_obj_add_event_cb(lobj, on_size_changed_cb, \
+    //                     LV_EVENT_SIZE_CHANGED, NULL);
 
     return 0;
 }
