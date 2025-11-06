@@ -132,6 +132,17 @@ static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {
     return lobj ? (menu_opt_t *)get_internal_data(lobj) : NULL;
 }
 
+static inline lv_obj_t *get_view_container(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)v_ctx->container : NULL;
+}
+
+static inline lv_obj_t *get_view(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)v_ctx->view : NULL;
+}
+
+static inline lv_obj_t *get_menu(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)((win_ctn_t )v_ctx->l_ctn).menu : NULL;
+}
 /**********************
  *      MACROS
  **********************/

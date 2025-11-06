@@ -82,11 +82,11 @@ static inline int32_t back_btn_released(lv_obj_t *lobj)
     int32_t ret = 0;
 
     if (!lobj)
-        return;
+        return -EINVAL;
 
     v_ctx = get_view_ctx(lv_obj_get_parent(lobj));
     if (!v_ctx)
-        return -EINVAL;
+        return -EIO;
 
     lv_obj_set_style_text_color(lobj, lv_color_hex(0x000000), 0);
 
