@@ -1,17 +1,17 @@
 /**
- * @file widget.h
+ * @file menu.h
  *
  */
 
-#ifndef G_WIDGET_H
-#define G_WIDGET_H
+#ifndef G_MENU_H
+#define G_MENU_H
 /*********************
  *      INCLUDES
  *********************/
 #include <stdint.h>
 
 #include <lvgl.h>
-#include "ui/ui_core.h"
+#include "../ui_core.h"
 
 /*********************
  *      DEFINES
@@ -136,4 +136,4 @@ static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {
  *      MACROS
  **********************/
 
-#endif /* G_WIDGET_H */
+#endif /* G_MENU_H */
