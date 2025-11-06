@@ -24,7 +24,7 @@
 #include "ui/windows.h"
 #include "ui/flex.h"
 #include "ui/grid.h"
-#include "ui/widget.h"
+#include "ui/widget/menu.h"
 
 /*
  * Each Right Window can host a child Menu Container, enabling nested menus.

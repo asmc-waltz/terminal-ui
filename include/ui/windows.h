@@ -13,7 +13,7 @@
 #include <lvgl.h>
 #include "ui/ui_core.h"
 #include "ui/screen.h"
-#include "ui/widget.h"
+#include "ui/widget/menu.h"
 
 /*********************
  *      DEFINES
