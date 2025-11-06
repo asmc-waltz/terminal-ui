@@ -214,18 +214,18 @@ static int32_t load_window_by_option(lv_obj_t *opt)
      * destroyed its pane, so validate before removal.
      */
     if (view_ctx->l_win.selected_opt != opt) {
-        if (lv_obj_is_valid(view_ctx->act_win->menu_pane)) {
+        if (lv_obj_is_valid(view_ctx->act_win->overlay_menu)) {
             LOG_DEBUG("|--- Removing previous menu pane [%s] --->", \
-                      get_name(view_ctx->act_win->menu_pane));
+                      get_name(view_ctx->act_win->overlay_menu));
 
-            remove_obj_and_child(get_meta(view_ctx->act_win->menu_pane)->id, \
+            remove_obj_and_child(get_meta(view_ctx->act_win->overlay_menu)->id, \
                                  &get_meta(view)->child);
-            view_ctx->act_win->menu_pane = NULL;
+            view_ctx->act_win->overlay_menu = NULL;
 
             LOG_DEBUG("<--- Previous menu pane removed |");
         } else {
             LOG_DEBUG("|---> Previous menu pane already removed <---|");
-            view_ctx->act_win->menu_pane = NULL;
+            view_ctx->act_win->overlay_menu = NULL;
         }
     } else if (view_ctx->l_win.selected_opt == opt) {
         LOG_DEBUG("| !!! Selected option already exists !!! |");
@@ -301,9 +301,9 @@ static int32_t load_window(lv_obj_t *view, bool split)
     if (!window)
         return -EIO;
 
-    view_ctx->act_win->menu_pane = window;
+    view_ctx->act_win->overlay_menu = window;
     LOG_DEBUG("<--- Created window [%s] |", \
-              get_name(view_ctx->act_win->menu_pane));
+              get_name(view_ctx->act_win->overlay_menu));
 
     return refresh_object_tree_layout(window);
 }
@@ -394,7 +394,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
 
             view_ctx->r_win.visible = false;
             view_ctx->r_win.container = NULL;
-            view_ctx->r_win.menu_pane = NULL;
+            view_ctx->r_win.overlay_menu = NULL;
             view_ctx->act_win = &view_ctx->l_win;
         }
     } else {
@@ -412,10 +412,10 @@ int32_t view_angle_change_cb(lv_obj_t *view)
              * Active page may exist if user created it while in vertical mode.
              * Remove it to avoid incorrect parent linkage.
              */
-            if (view_ctx->r_win.menu_pane) {
-                remove_obj_and_child(get_meta(view_ctx->r_win.menu_pane)->id, \
+            if (view_ctx->r_win.overlay_menu) {
+                remove_obj_and_child(get_meta(view_ctx->r_win.overlay_menu)->id, \
                                      &get_meta(view)->child);
-                view_ctx->r_win.menu_pane = NULL;
+                view_ctx->r_win.overlay_menu = NULL;
             }
         }
     }
@@ -433,7 +433,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         if (ret)
             return ret;
 
-        // refresh_object_tree_layout(view_ctx->r_win.menu_pane);
+        // refresh_object_tree_layout(view_ctx->r_win.overlay_menu);
     }
 
     // TODO: handle the single view rotation when child menu is active
@@ -616,7 +616,7 @@ lv_obj_t *create_menu_group(lv_obj_t *par, const char *name)
  * The bar is arranged vertically using a flex layout, and may contain
  * one or more grouped containers.
  */
-lv_obj_t *create_menu_bar(lv_obj_t *view)
+lv_obj_t *create_menu(lv_obj_t *view)
 {
     menu_view_t *view_ctx;
     lv_obj_t *bar;
@@ -644,7 +644,7 @@ lv_obj_t *create_menu_bar(lv_obj_t *view)
         LOG_WARN("Page [%s] set padding failed (%d)", get_name(bar), ret);
 
     lv_obj_set_style_bg_color(bar, lv_color_hex(bg_color(10)), 0);
-    view_ctx->l_win.menu_pane = bar;
+    view_ctx->l_win.menu = bar;
 
     return bar;
 }
@@ -668,11 +668,11 @@ int32_t set_active_window(lv_obj_t *view, \
     act_win = view_ctx->act_win;
     if (view_ctx->cfg.split_view) {
         if (lv_obj_is_valid(act_win->container) && \
-            lv_obj_is_valid(act_win->menu_pane)) {
+            lv_obj_is_valid(act_win->overlay_menu)) {
             if (act_win->create_window_cb == create_window_cb) {
                 /* Skip if same page callback is already active */
                 LOG_TRACE("Menu [%s] is already active -> ignore", \
-                          get_name(act_win->menu_pane));
+                          get_name(act_win->overlay_menu));
                 return 0;
             } else {
                 LOG_TRACE("[%s] view is creating new pane", get_name(view));
@@ -888,7 +888,7 @@ err:
     return NULL;
 }
 
-lv_obj_t *create_menu(menu_view_t *v_ctx, lv_obj_t *par, const char *name)
+lv_obj_t *create_view(menu_view_t *v_ctx, lv_obj_t *par, const char *name)
 {
     lv_obj_t *view;
     int32_t ret;
@@ -994,13 +994,13 @@ menu_view_t *create_menu_view(lv_obj_t *par, const char *name, \
     }
 
     snprintf(name_buf, sizeof(name_buf), "%s.HOLDER", name);
-    view = create_menu(v_ctx, container, name_buf);
+    view = create_view(v_ctx, container, name_buf);
     if (!view)
-        goto err_menu;
+        goto err_view;
 
     return v_ctx;
 
-err_menu:
+err_view:
     remove_obj_and_child(get_meta(control)->id, &get_meta(par)->child);
 err_ctrl:
     remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);

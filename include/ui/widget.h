@@ -41,8 +41,8 @@ typedef struct menu_view menu_view_t;
  */
 typedef struct window {
     lv_obj_t *container;
-    lv_obj_t *ctrl_pane;            /* Optional: control bar for nested menus */
-    lv_obj_t *menu_pane;
+    lv_obj_t *menu;         /* Left-side menu container (static element) */
+    lv_obj_t *overlay_menu;        /* */
     lv_obj_t *selected_opt;
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
     bool visible;
@@ -53,16 +53,15 @@ typedef struct window {
  * and manages left/right window layout for split-view mode.
  */
 typedef struct menu_view {
-    lv_obj_t *container;
-    lv_obj_t *view_ctrl;            /* Optional: control bar for nested menus */
-    lv_obj_t *view;                 /* Root grid layout of the menu holder */
-    view_conf_t cfg;
-    window_t l_win;
-    window_t r_win;                         /* Available in split-view mode */
-    window_t *act_win;
+    lv_obj_t *container;        /* Top-level container holding all subwindows */
+    lv_obj_t *view_ctrl;        /* Optional: control bar for nested menu navigation */
+    lv_obj_t *view;             /* Grid layout for main content (split view) */
 
-    /* Optional link to parent view (nested menus) */
-    struct menu_view *parent;
+    view_conf_t cfg;            /* Configuration for view appearance/behavior */
+
+    window_t l_win;             /* Left-side window context (menu options) */
+    window_t r_win;             /* Right-side window context (detail/content) */
+    window_t *act_win;          /* Currently active window (either left or right) */
 } menu_view_t;
 
 /*
@@ -102,7 +101,7 @@ lv_obj_t *create_horizontal_flex_group(lv_obj_t *par, const char *name);
 lv_obj_t *create_hscroll_flex_group(lv_obj_t *par, \
                                                 const char *name);
 
-lv_obj_t *create_menu_bar(lv_obj_t *menu);
+lv_obj_t *create_menu(lv_obj_t *menu);
 lv_obj_t *create_menu_group(lv_obj_t *par, const char *name);
 
 lv_obj_t *create_option_cell(lv_obj_t *par, const char *name);
