@@ -93,11 +93,12 @@ static inline int32_t back_btn_released(lv_obj_t *lobj)
     if (!v_ctx->view)
         LOG_DEBUG("[unknown] Window is cleaning (null context)");
     else
-        LOG_DEBUG("[%s] Window is cleaning", get_name(v_ctx->view));
+        LOG_DEBUG("[%s] Window is cleaning", get_name(v_ctx->container));
 
     if (v_ctx->container) {
         ret = remove_obj_and_child(get_meta(v_ctx->container)->id, \
-                                   &get_meta(lv_obj_get_parent(v_ctx->container))->child);
+                                   &get_meta(lv_obj_get_parent( \
+                                             v_ctx->container))->child);
         if (ret < 0) {
             LOG_WARN("Container not found, cannot clean child object");
             return -EIO;
@@ -195,39 +196,50 @@ static int32_t load_window_by_option(lv_obj_t *opt)
     if (!view)
         return -EIO;
 
+    /*
+     * Highlight the newly selected option and restore the
+     * color of the previously selected one.
+     */
     if (view_ctx->l_win.selected_opt != opt) {
-        /* Highlight before load the associated page */
         lv_obj_set_style_bg_color(opt, lv_color_hex(0xFF6633), 0);
 
-        /* Restore normal color and load the associated page */
-        if (view_ctx->l_win.selected_opt) {
+        if (view_ctx->l_win.selected_opt)
             lv_obj_set_style_bg_color(view_ctx->l_win.selected_opt, \
                                       lv_color_hex(bg_color(1)), 0);
+    }
+
+    /*
+     * Remove the current active right-side pane before loading a
+     * new one. In some cases the child window might have already
+     * destroyed its pane, so validate before removal.
+     */
+    if (view_ctx->l_win.selected_opt != opt) {
+        if (lv_obj_is_valid(view_ctx->act_win->menu_pane)) {
+            LOG_DEBUG("|--- Removing previous menu pane [%s] --->", \
+                      get_name(view_ctx->act_win->menu_pane));
+
+            remove_obj_and_child(get_meta(view_ctx->act_win->menu_pane)->id, \
+                                 &get_meta(view)->child);
+            view_ctx->act_win->menu_pane = NULL;
+
+            LOG_DEBUG("<--- Previous menu pane removed |");
+        } else {
+            LOG_DEBUG("|---> Previous menu pane already removed <---|");
+            view_ctx->act_win->menu_pane = NULL;
         }
+    } else if (view_ctx->l_win.selected_opt == opt) {
+        LOG_DEBUG("| !!! Selected option already exists !!! |");
     }
 
-    /* Remove current active page if switching to another item */
-    if (view_ctx->l_win.selected_opt != opt && view_ctx->r_win.menu_pane) {
-
-        LOG_TRACE("Removed pane ?");
-        LOG_TRACE("REMOVE ? [%s]", get_name(view_ctx->r_win.menu_pane));
-        remove_obj_and_child(get_meta(view_ctx->r_win.menu_pane)->id, \
-                             &get_meta(view)->child);
-        view_ctx->r_win.menu_pane = NULL;
-        LOG_TRACE("Removed the previous menu pane");
-    } else {
-        LOG_WARN("Option pressed while menu pane is created?");
-    }
-
-    /* Create or activate the new menu page */
+    /* Create or activate a new window for the selected option */
     ret = set_active_window(view, opt_ctx->create_window_cb);
     if (ret)
         return ret;
 
     view_ctx->l_win.selected_opt = opt;
 
-    /* Recalculate layout after page activation */
-    // return refresh_object_tree_layout(menu_ctx->detail_pane);
+    LOG_TRACE("[%s] Window loaded successfully", get_name(view));
+
     return 0;
 }
 
@@ -248,7 +260,7 @@ static void menu_option_event_handler(lv_event_t *e)
         break;
 
     case LV_EVENT_CLICKED:
-        LOG_TRACE("Option [%s] clicked", get_name(lobj));
+        LOG_DEBUG("Option [%s] clicked", get_name(lobj));
         ret = load_window_by_option(lobj);
         if (ret) {
             LOG_ERROR("Load option [%s] failed (%d)", get_name(lobj), ret);
@@ -260,7 +272,7 @@ static void menu_option_event_handler(lv_event_t *e)
     }
 }
 
-static int32_t load_pane(lv_obj_t *view, bool split)
+static int32_t load_window(lv_obj_t *view, bool split)
 {
     menu_view_t *view_ctx;
     lv_obj_t *parent;
@@ -275,34 +287,23 @@ static int32_t load_pane(lv_obj_t *view, bool split)
     if (!view_ctx)
         return -EIO;
 
-    /* Select valid parent container */
-    // if (split) {
-    //     create_window_cb = view_ctx->r_win.create_window_cb;
-    //     parent = view_ctx->r_win.container;
-    // } else {
-    //     create_window_cb = view_ctx->l_win.create_window_cb;
-    //     parent = view_ctx->l_win.container;
-    // }
-
-        create_window_cb = view_ctx->act_win->create_window_cb;
-        parent = view_ctx->act_win->container;
+    create_window_cb = view_ctx->act_win->create_window_cb;
+    parent = view_ctx->act_win->container;
 
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
 
     snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
 
+    LOG_DEBUG("| +++ Creating window [%s] --->", name_buf);
     /* Create window via callback */
     window = create_window_cb(parent, name_buf);
     if (!window)
         return -EIO;
 
-    // if (split) {
-    //     view_ctx->r_win.menu_pane = window;
-    // } else {
-    //     view_ctx->l_win.menu_pane = window;
-    // }
-        view_ctx->act_win->menu_pane = window;
+    view_ctx->act_win->menu_pane = window;
+    LOG_DEBUG("<--- Created window [%s] |", \
+              get_name(view_ctx->act_win->menu_pane));
 
     return refresh_object_tree_layout(window);
 }
@@ -428,7 +429,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         if (ret)
             return ret;
 
-        ret = load_pane(view, true);
+        ret = load_window(view, true);
         if (ret)
             return ret;
 
@@ -686,13 +687,13 @@ int32_t set_active_window(lv_obj_t *view, \
 
         LOG_TRACE("Split view: Create window in split view mode");
         act_win->create_window_cb = create_window_cb;
-        ret = load_pane(view, true);
+        ret = load_window(view, true);
         if (ret)
             act_win->create_window_cb = NULL;
     } else {
         LOG_TRACE("Single view: Create window in single view mode");
         act_win->create_window_cb = create_window_cb;
-        ret = load_pane(view, false);
+        ret = load_window(view, false);
         if (ret)
             act_win->create_window_cb = NULL;
     }
