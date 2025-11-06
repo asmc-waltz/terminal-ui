@@ -71,72 +71,85 @@
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static inline void handle_page_ctrl_pressed(lv_obj_t *lobj)
+static inline void back_btn_pressed(lv_obj_t *lobj)
 {
     lv_obj_set_style_text_color(lobj, lv_color_hex(0xFF6633), 0);
 }
 
-static inline void handle_page_ctrl_released(lv_obj_t *lobj)
+static inline int32_t back_btn_released(lv_obj_t *lobj)
 {
-    menu_opt_t *opt_ctx;
-    menu_view_t *view_ctx;
+    menu_view_t *v_ctx;
+    int32_t ret = 0;
 
     if (!lobj)
         return;
 
-    opt_ctx = get_opt_ctx(lobj);
-    if (!opt_ctx)
-        return -EIO;
-
-    view_ctx = opt_ctx->view_ctx;
-    if (!view_ctx)
-        return -EIO;
+    v_ctx = get_view_ctx(lv_obj_get_parent(lobj));
+    if (!v_ctx)
+        return -EINVAL;
 
     lv_obj_set_style_text_color(lobj, lv_color_hex(0x000000), 0);
 
-    if (view_ctx->r_win.visible) {
-        // TODO: clarify context: sub menu or root menu
-        remove_obj_and_child(get_meta(view_ctx->r_win.menu_pane)->id, \
-                             &get_meta(view_ctx->view)->child);
-        view_ctx->r_win.menu_pane = NULL;
-        LOG_TRACE("Clean RIGHT window");
+    if (!v_ctx->view)
+        LOG_DEBUG("[unknown] Window is cleaning (null context)");
+    else
+        LOG_DEBUG("[%s] Window is cleaning", get_name(v_ctx->view));
+
+    if (v_ctx->container) {
+        ret = remove_obj_and_child(get_meta(v_ctx->container)->id, \
+                                   &get_meta(lv_obj_get_parent(v_ctx->container))->child);
+        if (ret < 0) {
+            LOG_WARN("Container not found, cannot clean child object");
+            return -EIO;
+        }
     } else {
-        remove_obj_and_child(get_meta(view_ctx->l_win.menu_pane)->id, \
-                             &get_meta(view_ctx->view)->child);
-        view_ctx->l_win.menu_pane = NULL;
-        LOG_TRACE("Clean LEFT window");
+        LOG_WARN("No container found in view context");
+        return -EIO;
     }
+
+    if (!v_ctx->view)
+        LOG_DEBUG("[unknown] Window cleaned (null context)");
+    else
+        LOG_DEBUG("[%s] Window cleaned", get_name(v_ctx->view));
+
+    return 0;
 }
 
-static inline void handle_page_ctrl_clicked(lv_obj_t *lobj)
+static inline void back_btn_clicked(lv_obj_t *lobj)
 {
-    LV_LOG_USER("Back [%s] clicked", get_name(lobj));
+    LOG_DEBUG("Back button [%s] clicked", get_name(lobj));
 }
 
-static void page_control_handler(lv_event_t *e)
+static void back_btn_handler(lv_event_t *e)
 {
     lv_event_code_t code;
     lv_obj_t *lobj;
+    int32_t ret;
 
     code = lv_event_get_code(e);
     lobj = lv_event_get_target(e);
 
     switch (code) {
     case LV_EVENT_PRESSED:
-        handle_page_ctrl_pressed(lobj);
+        back_btn_pressed(lobj);
         break;
 
     case LV_EVENT_RELEASED:
-        handle_page_ctrl_released(lobj);
+        ret = back_btn_released(lobj);
+        if (ret) {
+            LOG_ERROR("Back button release handler failed, ret %d", ret);
+        }
         break;
 
     case LV_EVENT_CLICKED:
-        handle_page_ctrl_clicked(lobj);
+        back_btn_clicked(lobj);
         break;
 
     default:
         break;
     }
+
+    LOG_TRACE("Back button handle event [%d], return [%d]", code, ret);
 }
 
 static int32_t redraw_page_control(lv_obj_t *lobj)
@@ -251,7 +264,7 @@ static int32_t load_pane(lv_obj_t *view, bool split)
 {
     menu_view_t *view_ctx;
     lv_obj_t *parent;
-    lv_obj_t *page;
+    lv_obj_t *window;
     char name_buf[64];
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
 
@@ -263,31 +276,35 @@ static int32_t load_pane(lv_obj_t *view, bool split)
         return -EIO;
 
     /* Select valid parent container */
-    if (split) {
-        create_window_cb = view_ctx->r_win.create_window_cb;
-        parent = view_ctx->r_win.container;
-    } else {
-        create_window_cb = view_ctx->l_win.create_window_cb;
-        parent = view_ctx->l_win.container;
-    }
+    // if (split) {
+    //     create_window_cb = view_ctx->r_win.create_window_cb;
+    //     parent = view_ctx->r_win.container;
+    // } else {
+    //     create_window_cb = view_ctx->l_win.create_window_cb;
+    //     parent = view_ctx->l_win.container;
+    // }
+
+        create_window_cb = view_ctx->act_win->create_window_cb;
+        parent = view_ctx->act_win->container;
 
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
 
     snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
 
-    /* Create page via callback */
-    page = create_window_cb(parent, name_buf);
-    if (!page)
+    /* Create window via callback */
+    window = create_window_cb(parent, name_buf);
+    if (!window)
         return -EIO;
 
-    if (split) {
-        view_ctx->r_win.menu_pane = page;
-    } else {
-        view_ctx->l_win.menu_pane = page;
-    }
+    // if (split) {
+    //     view_ctx->r_win.menu_pane = window;
+    // } else {
+    //     view_ctx->l_win.menu_pane = window;
+    // }
+        view_ctx->act_win->menu_pane = window;
 
-    return refresh_object_tree_layout(page);
+    return refresh_object_tree_layout(window);
 }
 
 /*
@@ -349,7 +366,7 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
     return 0;
 }
 
-int32_t view_change_cb(lv_obj_t *view)
+int32_t view_angle_change_cb(lv_obj_t *view)
 {
     menu_view_t *view_ctx;
     int32_t scr_rot, ret = 0;
@@ -377,6 +394,7 @@ int32_t view_change_cb(lv_obj_t *view)
             view_ctx->r_win.visible = false;
             view_ctx->r_win.container = NULL;
             view_ctx->r_win.menu_pane = NULL;
+            view_ctx->act_win = &view_ctx->l_win;
         }
     } else {
         /* Show page container in horizontal rotation */
@@ -388,7 +406,7 @@ int32_t view_change_cb(lv_obj_t *view)
             }
 
             view_ctx->r_win.visible = true;
-
+            view_ctx->act_win = &view_ctx->r_win;
             /*
              * Active page may exist if user created it while in vertical mode.
              * Remove it to avoid incorrect parent linkage.
@@ -646,8 +664,8 @@ int32_t set_active_window(lv_obj_t *view, \
         return -EIO;
 
     // TODO: combine
+    act_win = view_ctx->act_win;
     if (view_ctx->cfg.split_view) {
-        act_win = &view_ctx->r_win;
         if (lv_obj_is_valid(act_win->container) && \
             lv_obj_is_valid(act_win->menu_pane)) {
             if (act_win->create_window_cb == create_window_cb) {
@@ -668,16 +686,12 @@ int32_t set_active_window(lv_obj_t *view, \
 
         LOG_TRACE("Split view: Create window in split view mode");
         act_win->create_window_cb = create_window_cb;
-        view_ctx->act_win = act_win;
         ret = load_pane(view, true);
         if (ret)
             act_win->create_window_cb = NULL;
     } else {
-        // Single view
-        act_win = &view_ctx->l_win;
         LOG_TRACE("Single view: Create window in single view mode");
         act_win->create_window_cb = create_window_cb;
-        view_ctx->act_win = act_win;
         ret = load_pane(view, false);
         if (ret)
             act_win->create_window_cb = NULL;
@@ -847,7 +861,8 @@ lv_obj_t *create_view_control(menu_view_t *v_ctx, \
     lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
     if (back_ena) {
         lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
-        lv_obj_add_event_cb(back_btn, page_control_handler, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(back_btn, back_btn_handler, \
+                            LV_EVENT_ALL, NULL);
     }
 
     /* More button */
@@ -925,7 +940,7 @@ lv_obj_t *create_menu(menu_view_t *v_ctx, lv_obj_t *par, const char *name)
 
     if (v_ctx->cfg.split_view) {
         /* Register rotation callback if split view */
-        get_meta(view)->data.post_children_rotate_cb = view_change_cb;
+        get_meta(view)->data.post_children_rotate_cb = view_angle_change_cb;
 
         ret = create_window_container(view, CONTAINER_RIGHT);
         if (ret) {
