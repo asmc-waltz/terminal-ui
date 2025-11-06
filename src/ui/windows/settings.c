@@ -167,7 +167,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
 {
     lv_obj_t *view, *menu;
     int32_t ret;
-    menu_view_t *v_ctx;
+    view_ctn_t *v_ctx;
 
     v_ctx = create_menu_view(par, name, false, true);
     if (!v_ctx)

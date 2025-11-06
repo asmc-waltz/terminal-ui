@@ -344,7 +344,7 @@ lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
     int32_t ret;
     lv_obj_t *container, *view;
     lv_obj_t *menu;
-    menu_view_t *v_ctx;
+    view_ctn_t *v_ctx;
     char name_buf[64];
 
     snprintf(name_buf, sizeof(name_buf), "%s_WIFI", name);
