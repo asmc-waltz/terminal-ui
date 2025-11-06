@@ -926,6 +926,16 @@ lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
     if (!view)
         return NULL;
 
+    /*
+     * In certain situations, the menu view may be created inside a
+     * regular object rather than a layout container. In this case,
+     * it must align itself properly with its parent.
+     */
+    if (!v_ctx->cfg.ctrl) {
+        set_size(view, LV_PCT(100), LV_PCT(100));
+        set_align(view, par, LV_ALIGN_CENTER, 0, 0);
+    }
+
     ret = add_grid_row_col(view, LV_GRID_FR(98), LV_GRID_FR(35), \
                            LV_GRID_FR(65), v_ctx->cfg.split_view);
     if (ret) {
