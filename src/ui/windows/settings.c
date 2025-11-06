@@ -61,102 +61,102 @@ static int32_t create_setting_items(lv_obj_t *view, lv_obj_t *menu)
 
     group = create_menu_group(menu, "wireless");
 
-    item = create_menu_item(group, NULL, ICON_PLANE_SOLID, NULL, "Airplane");
+    item = create_menu_option(group, NULL, ICON_PLANE_SOLID, NULL, "Airplane");
     ret = set_item_menu_page(item, view, create_airplane_setting);
 
-    item = create_menu_item(group, NULL, ICON_WIFI_SOLID, NULL, "Wi-Fi");
+    item = create_menu_option(group, NULL, ICON_WIFI_SOLID, NULL, "Wi-Fi");
     ret = set_item_menu_page(item, view, create_wifi_setting);
 
-    item = create_menu_item(group, &lv_font_montserrat_32, \
+    item = create_menu_option(group, &lv_font_montserrat_32, \
                             LV_SYMBOL_BLUETOOTH, NULL, "Bluetooth");
     ret = set_item_menu_page(item, view, create_bluetooth_setting);
 
-    item = create_menu_item(group, NULL, ICON_TOWER_BROADCAST_SOLID, \
+    item = create_menu_option(group, NULL, ICON_TOWER_BROADCAST_SOLID, \
                             NULL, "Cellular");
     ret = set_item_menu_page(item, view, create_cellular_setting);
 
-    item = create_menu_item(group, NULL, ICON_SHARE_NODES_SOLID, \
+    item = create_menu_option(group, NULL, ICON_SHARE_NODES_SOLID, \
                             NULL, "Hotspot");
     ret = set_item_menu_page(item, view, create_hotspot_setting);
 
 
     group = create_menu_group(menu, "net");
 
-    item = create_menu_item(group, NULL, ICON_NETWORK_WIRED_SOLID, \
+    item = create_menu_option(group, NULL, ICON_NETWORK_WIRED_SOLID, \
                             NULL, "Network");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_FILTER_SOLID, \
+    item = create_menu_option(group, NULL, ICON_FILTER_SOLID, \
                             NULL, "Filter");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_SHIELD_SOLID, \
+    item = create_menu_option(group, NULL, ICON_SHIELD_SOLID, \
                             NULL, "Shield");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_DOWNLOAD_SOLID, \
+    item = create_menu_option(group, NULL, ICON_DOWNLOAD_SOLID, \
                             NULL, "Download");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
 
     group = create_menu_group(menu, "mobile");
-    item = create_menu_item(group, NULL, ICON_PHONE_SOLID, \
+    item = create_menu_option(group, NULL, ICON_PHONE_SOLID, \
                             NULL, "Phone");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_COMMENT_SOLID, \
+    item = create_menu_option(group, NULL, ICON_COMMENT_SOLID, \
                             NULL, "Message");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
 
     group = create_menu_group(menu, "general");
-    item = create_menu_item(group, NULL, ICON_CIRCLE_HALF_STROKE_SOLID, \
+    item = create_menu_option(group, NULL, ICON_CIRCLE_HALF_STROKE_SOLID, \
                             NULL, "Brightness");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_ROTATE_SOLID, \
+    item = create_menu_option(group, NULL, ICON_ROTATE_SOLID, \
                             NULL, "Rotation");
     ret = set_item_menu_page(item, view, create_rotation_setting);
 
-    item = create_menu_item(group, NULL, ICON_GEAR_SOLID, \
+    item = create_menu_option(group, NULL, ICON_GEAR_SOLID, \
                             NULL, "Appearance");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_VOLUME_HIGH_SOLID, \
+    item = create_menu_option(group, NULL, ICON_VOLUME_HIGH_SOLID, \
                             NULL, "Sound");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_MICROPHONE_SOLID, \
+    item = create_menu_option(group, NULL, ICON_MICROPHONE_SOLID, \
                             NULL, "Micro");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_BELL_SOLID, \
+    item = create_menu_option(group, NULL, ICON_BELL_SOLID, \
                             NULL, "Alert");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_CALENDAR_DAYS_SOLID, \
+    item = create_menu_option(group, NULL, ICON_CALENDAR_DAYS_SOLID, \
                             NULL, "Datetime");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_KEYBOARD, \
+    item = create_menu_option(group, NULL, ICON_KEYBOARD, \
                             NULL, "Keyboard");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
 
     group = create_menu_group(menu, "satelite");
 
-    item = create_menu_item(group, NULL, ICON_SATELLITE_SOLID, \
+    item = create_menu_option(group, NULL, ICON_SATELLITE_SOLID, \
                             NULL, "GNSS");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
 
     group = create_menu_group(menu, "system");
 
-    item = create_menu_item(group, NULL, ICON_CIRCLE_INFO_SOLID, \
+    item = create_menu_option(group, NULL, ICON_CIRCLE_INFO_SOLID, \
                             NULL, "About");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
-    item = create_menu_item(group, NULL, ICON_POWER_OFF_SOLID, \
+    item = create_menu_option(group, NULL, ICON_POWER_OFF_SOLID, \
                             NULL, "Power");
     ret = set_item_menu_page(item, view, create_brightness_setting);
 
