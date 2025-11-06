@@ -41,8 +41,8 @@ typedef struct menu_view menu_view_t;
  */
 typedef struct window {
     lv_obj_t *container;
-    lv_obj_t *menu;         /* Left-side menu container (static element) */
-    lv_obj_t *overlay_menu;        /* */
+    lv_obj_t *menu;             /* Left-side menu container (static element) */
+    lv_obj_t *overlay_menu;     /* Sub menu - render on top of menu*/
     lv_obj_t *selected_opt;
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
     bool visible;

@@ -371,7 +371,7 @@ int32_t view_angle_change_cb(lv_obj_t *view)
 {
     menu_view_t *view_ctx;
     int32_t scr_rot, ret = 0;
-    bool is_vertical;
+    bool vertical;
 
     if (!view)
         return -EINVAL;
@@ -381,42 +381,66 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         return -EIO;
 
     scr_rot = get_scr_rotation();
-    is_vertical = (scr_rot == ROTATION_90 || scr_rot == ROTATION_270);
+    vertical = (scr_rot == ROTATION_90 || scr_rot == ROTATION_270);
 
-    if (is_vertical && view_ctx->cfg.split_view) {
-        /* Hide page container in vertical rotation */
-        if (view_ctx->r_win.visible) {
-            ret = remove_grid_layout_last_row_dsc(view);
-            if (ret) {
-                LOG_ERROR("Remove layout failed (%d)", ret);
-                return ret;
+    if (vertical) {
+        if (view_ctx->cfg.split_view) {
+            LOG_TRACE("Vertical: Split view");
+            /* Clean split view container in vertical rotation */
+            if (view_ctx->r_win.visible) {
+                LOG_TRACE("-- horizontal --> vertical ||: change");
+                ret = remove_grid_layout_last_row_dsc(view);
+                if (ret) {
+                    LOG_ERROR("Remove layout failed (%d)", ret);
+                    return ret;
+                }
+
+                view_ctx->r_win.visible = false;
+                view_ctx->r_win.container = NULL;
+                view_ctx->r_win.overlay_menu = NULL;
+                view_ctx->act_win = &view_ctx->l_win;
+                LOG_DEBUG("Rotation -> Remove side window");
+            } else {
+                LOG_TRACE("|| vertical --> vertical ||: nothing change");
             }
-
-            view_ctx->r_win.visible = false;
-            view_ctx->r_win.container = NULL;
-            view_ctx->r_win.overlay_menu = NULL;
-            view_ctx->act_win = &view_ctx->l_win;
+        } else {
+            LOG_TRACE("Vertical: Single view");
+            // TODO:
         }
     } else {
-        /* Show page container in horizontal rotation */
-        if (!view_ctx->r_win.visible) {
-            ret = add_grid_layout_col_dsc(view, LV_GRID_FR(65));
-            if (ret) {
-                LOG_ERROR("Add layout failed (%d)", ret);
-                return ret;
-            }
+        if (view_ctx->cfg.split_view) {
+            LOG_TRACE("Horizontal: Split view");
+            /* Show page container in horizontal rotation */
+            if (view_ctx->r_win.visible) {
+                LOG_TRACE("-- horizontal --> horizontal --: nothing change");
+            } else {
+                LOG_TRACE("|| vertical --> horizontal --: change");
+                ret = add_grid_layout_col_dsc(view, LV_GRID_FR(65));
+                if (ret) {
+                    LOG_ERROR("Add layout failed (%d)", ret);
+                    return ret;
+                }
 
-            view_ctx->r_win.visible = true;
-            view_ctx->act_win = &view_ctx->r_win;
-            /*
-             * Active page may exist if user created it while in vertical mode.
-             * Remove it to avoid incorrect parent linkage.
-             */
-            if (view_ctx->r_win.overlay_menu) {
-                remove_obj_and_child(get_meta(view_ctx->r_win.overlay_menu)->id, \
-                                     &get_meta(view)->child);
-                view_ctx->r_win.overlay_menu = NULL;
+                /*
+                * Active page may exist if user created it while in vertical mode.
+                * Remove it to avoid incorrect parent linkage.
+                */
+                if (view_ctx->act_win->overlay_menu) {
+                    LOG_DEBUG("Remove overlay [%s]", \
+                              get_name(view_ctx->act_win->overlay_menu));
+                    remove_obj_and_child(get_meta(\
+                                        view_ctx->act_win->overlay_menu)->id, \
+                                        &get_meta(view)->child);
+                    view_ctx->act_win->overlay_menu = NULL;
+                }
+
+                view_ctx->r_win.visible = true;
+                view_ctx->act_win = &view_ctx->r_win;
+                LOG_DEBUG("Rotation -> Add side window");
             }
+        } else {
+            LOG_TRACE("Horizontal: Single view");
+            // TODO:
         }
     }
 
@@ -432,8 +456,6 @@ int32_t view_angle_change_cb(lv_obj_t *view)
         ret = load_window(view, true);
         if (ret)
             return ret;
-
-        // refresh_object_tree_layout(view_ctx->r_win.overlay_menu);
     }
 
     // TODO: handle the single view rotation when child menu is active
