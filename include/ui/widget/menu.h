@@ -110,12 +110,14 @@ lv_obj_t *create_menu(lv_obj_t *menu);
 lv_obj_t *create_menu_group(lv_obj_t *par, const char *name);
 
 lv_obj_t *create_option_cell(lv_obj_t *par, const char *name);
-int32_t create_basic_item(lv_obj_t *item, \
-                          const lv_font_t *sym_font, const char *sym_index, \
-                          const lv_font_t *title_font, const char *title);
-lv_obj_t *create_menu_item(lv_obj_t *par, \
-                           const lv_font_t *sym_font, const char *sym_index, \
-                           const lv_font_t *title_font, const char *title);
+int32_t create_basic_menu_option(lv_obj_t *item, \
+                                 const lv_font_t *sym_font, \
+                                 const char *sym_index, \
+                                 const lv_font_t *title_font, \
+                                 const char *title);
+lv_obj_t *create_menu_option(lv_obj_t *par, \
+                             const lv_font_t *sym_font, const char *sym_index, \
+                             const lv_font_t *title_font, const char *title);
 
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
                            lv_obj_t *(* create_window_cb)(lv_obj_t *, \

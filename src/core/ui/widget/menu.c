@@ -534,6 +534,274 @@ static inline int32_t add_grid_row_col(lv_obj_t *lobj, \
     return add_grid_layout_col_dsc(lobj, col2);
 }
 
+static view_ctn_t *create_view_ctx(bool ctrl, bool split)
+{
+    view_ctn_t *v_ctx;
+
+    v_ctx = calloc(1, sizeof(*v_ctx));
+    if (!v_ctx) {
+        LOG_ERROR("Create menu view context failed");
+        return NULL;
+    }
+
+    v_ctx->cfg.ctrl = ctrl;
+    v_ctx->cfg.split_view = split;
+    v_ctx->r_ctn.visible = split;
+
+    /*
+     * When split-view mode is active, the left window shows
+     * the main menu and the right window displays details.
+     * opened_ctn points to the active window for new submenus.
+     */
+    if (split) {
+        v_ctx->opened_ctn = &v_ctx->r_ctn;
+        LOG_DEBUG("Split view: create child window on the right container");
+    } else {
+        v_ctx->opened_ctn = &v_ctx->l_ctn;
+        LOG_DEBUG("Single view: create child window on the left container");
+    }
+
+    return v_ctx;
+}
+
+/*
+ * Create a view container (window) which may include a control bar
+ * depending on the parent configuration. The menu view will be
+ * created as a child of this container.
+ */
+static lv_obj_t *create_view_container(view_ctn_t *v_ctx, \
+                                lv_obj_t *par, const char *name)
+{
+    lv_obj_t *container;
+    int32_t scr_rot;
+    int32_t ret;
+
+    if (!par)
+        return NULL;
+
+    container = create_grid_layout_object(par, name);
+    if (!container)
+        return NULL;
+
+    set_align(container, par, LV_ALIGN_CENTER, 0, 0);
+    set_size(container, LV_PCT(100), LV_PCT(100));
+
+    scr_rot = get_scr_rotation();
+    if (scr_rot == ROTATION_180 || scr_rot == ROTATION_270) {
+        ret = add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
+              add_grid_layout_row_dsc(container, 50) ?: \
+              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
+    } else {
+        ret = add_grid_layout_row_dsc(container, 50) ?: \
+              add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
+              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
+    }
+    if (ret)
+        goto err_container;
+
+    apply_grid_layout_config(container);
+    set_grid_layout_align(container, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+
+    v_ctx->container = container;
+    set_internal_data(container, v_ctx);
+
+    return container;
+
+err_container:
+    LOG_ERROR("Failed to create grid descriptor for view [%s]", name);
+    remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
+    return NULL;
+}
+
+
+/*
+ * Add control bar to active window of the given view context.
+ * The control bar supports navigation or local actions.
+ */
+static int32_t set_view_control_ctx(view_ctn_t *v_ctx, lv_obj_t *ctrl)
+{
+    if (!v_ctx || !ctrl)
+        return -EINVAL;
+
+    if (!v_ctx->container) {
+        LOG_WARN("View control must create inside of a view container");
+        return -EIO;
+    } else {
+        set_grid_cell_align(ctrl, \
+                            LV_GRID_ALIGN_STRETCH, 0, 1, \
+                            LV_GRID_ALIGN_STRETCH, 0, 1);
+    }
+
+    v_ctx->view_ctrl = ctrl;
+    set_internal_data(ctrl, v_ctx);
+
+    return 0;
+}
+
+
+/*
+ * Create a horizontal menu control bar containing optional back and
+ * more buttons. The control is hidden by default and only shown when
+ * screen rotation requires it.
+ */
+static lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
+                              lv_obj_t *par, const char *name, \
+                              bool back_ena, bool more_ena)
+{
+    lv_obj_t *ctrl;
+    lv_obj_t *back_btn;
+    lv_obj_t *more_btn;
+    int32_t ret;
+
+    if (!par)
+        return NULL;
+
+    ctrl = create_horizontal_flex_group(par, name);
+    if (!ctrl)
+        return NULL;
+
+    /* Base layout */
+    set_padding(ctrl, 10, 10, 10, 10);
+    get_meta(ctrl)->data.pre_rotate_cb = redraw_page_control;
+    // lv_obj_add_flag(ctrl, LV_OBJ_FLAG_HIDDEN);
+
+    /* Back button */
+    back_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
+                               back_ena ? "< Back" : " ");
+    lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
+    if (back_ena) {
+        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(back_btn, back_btn_handler, \
+                            LV_EVENT_ALL, NULL);
+    }
+
+    /* More button */
+    more_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
+                               more_ena ? "..." : " ");
+    lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000ff), 0);
+    if (more_ena)
+        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
+
+    ret = set_view_control_ctx(v_ctx, ctrl);
+    if (ret) {
+        LOG_ERROR("Set view control context failed, ret %d", ret);
+        goto err;
+    }
+
+    // FIXME: temporary visual marker
+    lv_obj_set_style_bg_color(ctrl, lv_color_hex(0xFCBA03), 0);
+    return ctrl;
+
+err:
+    remove_obj_and_child(get_meta(ctrl)->id, &get_meta(par)->child);
+    return NULL;
+}
+
+/*
+ * Set the main view window object for this view context.
+ * Handles grid alignment if the view lives inside a container.
+ */
+static int32_t set_view_window_ctx(view_ctn_t *v_ctx, lv_obj_t *view)
+{
+    if (!v_ctx || !view)
+        return -EINVAL;
+
+    if (v_ctx->container) {
+        set_grid_cell_align(view, \
+                            LV_GRID_ALIGN_STRETCH, 0, 1, \
+                            LV_GRID_ALIGN_STRETCH, 1, 1);
+    }
+
+    v_ctx->view = view;
+    set_internal_data(view, v_ctx);
+
+    return 0;
+}
+
+static lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
+{
+    lv_obj_t *view;
+    int32_t ret;
+
+    if (!par)
+        return NULL;
+
+    /* Create main container using grid layout */
+    view = create_grid_layout_object(par, name);
+    if (!view)
+        return NULL;
+
+    /*
+     * In certain situations, the menu view may be created inside a
+     * regular object rather than a layout container. In this case,
+     * it must align itself properly with its parent.
+     */
+    if (!v_ctx->cfg.ctrl) {
+        set_size(view, LV_PCT(100), LV_PCT(100));
+        set_align(view, par, LV_ALIGN_CENTER, 0, 0);
+    }
+
+    ret = add_grid_row_col(view, LV_GRID_FR(98), LV_GRID_FR(35), \
+                           LV_GRID_FR(65), v_ctx->cfg.split_view);
+    if (ret) {
+        LOG_ERROR("Layout [%s] add grid descriptor failed (%d)", \
+                  name, ret);
+        goto err;
+    }
+
+    apply_grid_layout_config(view);
+    set_grid_layout_align(view, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN, \
+                          LV_GRID_ALIGN_SPACE_BETWEEN);
+
+    /* Base style setup */
+    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(10)), 0);
+    lv_obj_set_style_radius(view, 16, 0);
+
+    ret = set_column_padding(view, 8);
+    if (ret)
+        LOG_WARN("Layout [%s] set column padding failed (%d)", \
+                 name, ret);
+
+    ret = set_padding(view, 8, 8, 8, 8);
+    if (ret)
+        LOG_WARN("Layout [%s] set padding failed (%d)", \
+                 name, ret);
+
+    ret = set_view_window_ctx(v_ctx, view);
+    if (ret)
+        goto err;
+
+    ret = create_window_container(view, CONTAINER_LEFT);
+    if (ret) {
+        LOG_WARN("[%s] create left container failed, ret %d", \
+                 get_name(view), ret);
+        goto err;
+    }
+
+    if (v_ctx->cfg.split_view) {
+        /* Register rotation callback if split view */
+        get_meta(view)->data.post_children_rotate_cb = view_angle_change_cb;
+
+        ret = create_window_container(view, CONTAINER_RIGHT);
+        if (ret) {
+            LOG_WARN("[%s] create right container failed, ret %d", \
+                    get_name(view), ret);
+            goto err;
+        }
+    }
+
+    // FIXME: temporary visual marker
+    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(100)), 0);
+    return view;
+
+err:
+    remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
+    return NULL;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -581,9 +849,10 @@ err_create:
     return NULL;
 }
 
-int32_t create_basic_item(lv_obj_t *item, \
-                          const lv_font_t *sym_font, const char *sym_index, \
-                          const lv_font_t *title_font, const char *title)
+int32_t create_basic_menu_option(lv_obj_t *item, \
+                                 const lv_font_t *sym_font, \
+                                 const char *sym_index, \
+                                 const lv_font_t *title_font, const char *title)
 {
     lv_obj_t *sym, *label;
 
@@ -609,9 +878,9 @@ int32_t create_basic_item(lv_obj_t *item, \
     return 0;
 }
 
-lv_obj_t *create_menu_item(lv_obj_t *par, \
-                           const lv_font_t *sym_font, const char *sym_index, \
-                           const lv_font_t *title_font, const char *title)
+lv_obj_t *create_menu_option(lv_obj_t *par, \
+                             const lv_font_t *sym_font, const char *sym_index, \
+                             const lv_font_t *title_font, const char *title)
 {
     lv_obj_t *item;
     int32_t ret;
@@ -620,7 +889,8 @@ lv_obj_t *create_menu_item(lv_obj_t *par, \
     if (!item)
         return NULL;
 
-    ret = create_basic_item(item, sym_font, sym_index, title_font, title);
+    ret = create_basic_menu_option(item, \
+                                   sym_font, sym_index, title_font, title);
     if (ret) {
         LOG_WARN("Menu item [%s] basic creation failed (%d)", \
                  get_name(item), ret);
@@ -773,273 +1043,6 @@ int32_t set_active_window(lv_obj_t *view, \
     }
 
     return 0;
-}
-
-view_ctn_t *create_view_ctx(bool ctrl, bool split)
-{
-    view_ctn_t *v_ctx;
-
-    v_ctx = calloc(1, sizeof(*v_ctx));
-    if (!v_ctx) {
-        LOG_ERROR("Create menu view context failed");
-        return NULL;
-    }
-
-    v_ctx->cfg.ctrl = ctrl;
-    v_ctx->cfg.split_view = split;
-    v_ctx->r_ctn.visible = split;
-
-    /*
-     * When split-view mode is active, the left window shows
-     * the main menu and the right window displays details.
-     * opened_ctn points to the active window for new submenus.
-     */
-    if (split) {
-        v_ctx->opened_ctn = &v_ctx->r_ctn;
-        LOG_DEBUG("Split view: create child window on the right container");
-    } else {
-        v_ctx->opened_ctn = &v_ctx->l_ctn;
-        LOG_DEBUG("Single view: create child window on the left container");
-    }
-
-    return v_ctx;
-}
-
-/*
- * Create a view container (window) which may include a control bar
- * depending on the parent configuration. The menu view will be
- * created as a child of this container.
- */
-lv_obj_t *create_view_container(view_ctn_t *v_ctx, \
-                                lv_obj_t *par, const char *name)
-{
-    lv_obj_t *container;
-    int32_t scr_rot;
-    int32_t ret;
-
-    if (!par)
-        return NULL;
-
-    container = create_grid_layout_object(par, name);
-    if (!container)
-        return NULL;
-
-    set_align(container, par, LV_ALIGN_CENTER, 0, 0);
-    set_size(container, LV_PCT(100), LV_PCT(100));
-
-    scr_rot = get_scr_rotation();
-    if (scr_rot == ROTATION_180 || scr_rot == ROTATION_270) {
-        ret = add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
-              add_grid_layout_row_dsc(container, 50) ?: \
-              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
-    } else {
-        ret = add_grid_layout_row_dsc(container, 50) ?: \
-              add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
-              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
-    }
-    if (ret)
-        goto err_container;
-
-    apply_grid_layout_config(container);
-    set_grid_layout_align(container, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-
-    v_ctx->container = container;
-    set_internal_data(container, v_ctx);
-
-    return container;
-
-err_container:
-    LOG_ERROR("Failed to create grid descriptor for view [%s]", name);
-    remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
-    return NULL;
-}
-
-
-/*
- * Add control bar to active window of the given view context.
- * The control bar supports navigation or local actions.
- */
-int32_t set_view_control_ctx(view_ctn_t *v_ctx, lv_obj_t *ctrl)
-{
-    if (!v_ctx || !ctrl)
-        return -EINVAL;
-
-    if (!v_ctx->container) {
-        LOG_WARN("View control must create inside of a view container");
-        return -EIO;
-    } else {
-        set_grid_cell_align(ctrl, \
-                            LV_GRID_ALIGN_STRETCH, 0, 1, \
-                            LV_GRID_ALIGN_STRETCH, 0, 1);
-    }
-
-    v_ctx->view_ctrl = ctrl;
-    set_internal_data(ctrl, v_ctx);
-
-    return 0;
-}
-
-/*
- * Set the main view window object for this view context.
- * Handles grid alignment if the view lives inside a container.
- */
-int32_t set_view_window_ctx(view_ctn_t *v_ctx, lv_obj_t *view)
-{
-    if (!v_ctx || !view)
-        return -EINVAL;
-
-    if (v_ctx->container) {
-        set_grid_cell_align(view, \
-                            LV_GRID_ALIGN_STRETCH, 0, 1, \
-                            LV_GRID_ALIGN_STRETCH, 1, 1);
-    }
-
-    v_ctx->view = view;
-    set_internal_data(view, v_ctx);
-
-    return 0;
-}
-
-/*
- * Create a horizontal menu control bar containing optional back and
- * more buttons. The control is hidden by default and only shown when
- * screen rotation requires it.
- */
-lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
-                              lv_obj_t *par, const char *name, \
-                              bool back_ena, bool more_ena)
-{
-    lv_obj_t *ctrl;
-    lv_obj_t *back_btn;
-    lv_obj_t *more_btn;
-    int32_t ret;
-
-    if (!par)
-        return NULL;
-
-    ctrl = create_horizontal_flex_group(par, name);
-    if (!ctrl)
-        return NULL;
-
-    /* Base layout */
-    set_padding(ctrl, 10, 10, 10, 10);
-    get_meta(ctrl)->data.pre_rotate_cb = redraw_page_control;
-    // lv_obj_add_flag(ctrl, LV_OBJ_FLAG_HIDDEN);
-
-    /* Back button */
-    back_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
-                               back_ena ? "< Back" : " ");
-    lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
-    if (back_ena) {
-        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
-        lv_obj_add_event_cb(back_btn, back_btn_handler, \
-                            LV_EVENT_ALL, NULL);
-    }
-
-    /* More button */
-    more_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
-                               more_ena ? "..." : " ");
-    lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000ff), 0);
-    if (more_ena)
-        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
-
-    ret = set_view_control_ctx(v_ctx, ctrl);
-    if (ret) {
-        LOG_ERROR("Set view control context failed, ret %d", ret);
-        goto err;
-    }
-
-    // FIXME: temporary visual marker
-    lv_obj_set_style_bg_color(ctrl, lv_color_hex(0xFCBA03), 0);
-    return ctrl;
-
-err:
-    remove_obj_and_child(get_meta(ctrl)->id, &get_meta(par)->child);
-    return NULL;
-}
-
-lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
-{
-    lv_obj_t *view;
-    int32_t ret;
-
-    if (!par)
-        return NULL;
-
-    /* Create main container using grid layout */
-    view = create_grid_layout_object(par, name);
-    if (!view)
-        return NULL;
-
-    /*
-     * In certain situations, the menu view may be created inside a
-     * regular object rather than a layout container. In this case,
-     * it must align itself properly with its parent.
-     */
-    if (!v_ctx->cfg.ctrl) {
-        set_size(view, LV_PCT(100), LV_PCT(100));
-        set_align(view, par, LV_ALIGN_CENTER, 0, 0);
-    }
-
-    ret = add_grid_row_col(view, LV_GRID_FR(98), LV_GRID_FR(35), \
-                           LV_GRID_FR(65), v_ctx->cfg.split_view);
-    if (ret) {
-        LOG_ERROR("Layout [%s] add grid descriptor failed (%d)", \
-                  name, ret);
-        goto err;
-    }
-
-    apply_grid_layout_config(view);
-    set_grid_layout_align(view, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN, \
-                          LV_GRID_ALIGN_SPACE_BETWEEN);
-
-    /* Base style setup */
-    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(10)), 0);
-    lv_obj_set_style_radius(view, 16, 0);
-
-    ret = set_column_padding(view, 8);
-    if (ret)
-        LOG_WARN("Layout [%s] set column padding failed (%d)", \
-                 name, ret);
-
-    ret = set_padding(view, 8, 8, 8, 8);
-    if (ret)
-        LOG_WARN("Layout [%s] set padding failed (%d)", \
-                 name, ret);
-
-    ret = set_view_window_ctx(v_ctx, view);
-    if (ret)
-        goto err;
-
-    ret = create_window_container(view, CONTAINER_LEFT);
-    if (ret) {
-        LOG_WARN("[%s] create left container failed, ret %d", \
-                 get_name(view), ret);
-        goto err;
-    }
-
-    if (v_ctx->cfg.split_view) {
-        /* Register rotation callback if split view */
-        get_meta(view)->data.post_children_rotate_cb = view_angle_change_cb;
-
-        ret = create_window_container(view, CONTAINER_RIGHT);
-        if (ret) {
-            LOG_WARN("[%s] create right container failed, ret %d", \
-                    get_name(view), ret);
-            goto err;
-        }
-    }
-
-    // FIXME: temporary visual marker
-    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(100)), 0);
-    return view;
-
-err:
-    remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
-    return NULL;
 }
 
 /*
