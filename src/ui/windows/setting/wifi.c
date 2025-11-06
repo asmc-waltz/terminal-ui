@@ -343,10 +343,12 @@ lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
 {
     int32_t ret;
     lv_obj_t *container, *view;
-    lv_obj_t *menu_bar;
+    lv_obj_t *menu;
     menu_view_t *v_ctx;
+    char name_buf[64];
 
-    v_ctx = create_menu_view(par, name, true, false);
+    snprintf(name_buf, sizeof(name_buf), "%s_WIFI", name);
+    v_ctx = create_menu_view(par, name_buf, true, false);
     if (!v_ctx)
         goto err_view;
 
@@ -355,18 +357,18 @@ lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
     if (!container || !view)
         return NULL;
 
-    menu_bar = create_menu_bar(view);
-    if (!menu_bar) {
+    menu = create_menu(view);
+    if (!menu) {
         LOG_ERROR("[%s] create menu bar failed, ret %d", get_name(view), ret);
         goto err_view;
     }
 
-    lv_obj_add_flag(menu_bar, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
-    ret = create_setting_items(menu_bar);
+    ret = create_setting_items(menu);
     if (ret) {
         LOG_ERROR("Setting menu bar [%s] create failed, ret %d", \
-                  get_name(menu_bar), ret);
+                  get_name(menu), ret);
         goto err_view;
     }
 
