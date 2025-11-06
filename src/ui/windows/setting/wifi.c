@@ -276,18 +276,6 @@ static void remove_all_wifi_access_point(lv_obj_t *holder)
     }
 }
 
-static int32_t create_wifi_filler(lv_obj_t *par)
-{
-    lv_obj_t *filler;
-
-    filler = create_box(par, "FILLER");
-    if (!filler)
-        return -EIO;
-
-    set_size(filler, LV_PCT(100), LV_PCT(70));
-    return 0;
-}
-
 /*---------------------------------------------*
  *  Main Wi-Fi settings item builder
  *---------------------------------------------*/
@@ -328,7 +316,7 @@ static int32_t create_setting_items(lv_obj_t *par)
     set_padding(ap_holder, 0, 0, 40, 20);
     set_row_padding(ap_holder, 0);
 
-    ret = create_wifi_filler(par);
+    ret = create_setting_filler(par);
     if (ret < 0)
         return ret;
 
@@ -341,29 +329,22 @@ static int32_t create_setting_items(lv_obj_t *par)
  **********************/
 lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
 {
-    int32_t ret;
-    lv_obj_t *container, *view;
-    lv_obj_t *menu;
+    lv_obj_t *container, *view, *menu;
     view_ctn_t *v_ctx;
     char name_buf[64];
+    int32_t ret;
 
     snprintf(name_buf, sizeof(name_buf), "%s_WIFI", name);
-    v_ctx = create_menu_view(par, name_buf, true, false);
-    if (!v_ctx)
-        goto err_view;
 
-    container = v_ctx->container;
-    view = v_ctx->view;
-    if (!container || !view)
-        return NULL;
-
-    menu = create_menu(view);
-    if (!menu) {
-        LOG_ERROR("[%s] create menu bar failed, ret %d", get_name(view), ret);
-        goto err_view;
+    v_ctx = create_common_setting_view(par, name_buf, false, false);
+    if (!v_ctx) {
+        LOG_ERROR("[%s] create menu view failed, ret %d", name, ret);
+        goto err_ctx;
     }
 
-    lv_obj_add_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
+    container = get_view_container(v_ctx);
+    view = get_view(v_ctx);
+    menu = get_menu(v_ctx);
 
     ret = create_setting_items(menu);
     if (ret) {
@@ -380,10 +361,18 @@ lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name)
     if (ret)
         LOG_WARN("Unable to request cached AP list, ret %d", ret);
 
-    return container;
+    if (container)
+        return container;
+    return view;
 
 err_view:
-    remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
+    if (container)
+        remove_obj_and_child(get_meta(container)->id, \
+                             &get_meta(par)->child);
+    else
+        remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
+    free(v_ctx);
+err_ctx:
     return NULL;
 }
 

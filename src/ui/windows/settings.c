@@ -163,6 +163,64 @@ static int32_t create_setting_items(lv_obj_t *view, lv_obj_t *menu)
     return 0;
 }
 
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+view_ctn_t *create_common_setting_view(lv_obj_t *par, const char *name,
+                                       bool root, bool split)
+{
+    view_ctn_t *v_ctx;
+    lv_obj_t *container, *view, *menu;
+    int32_t ret = 0;
+    char name_buf[64];
+
+    snprintf(name_buf, sizeof(name_buf), "%s_SETTING", name);
+
+    v_ctx = create_menu_view(par, name_buf, root, split);
+    if (!v_ctx) {
+        LOG_ERROR("[%s] create menu view failed", name);
+        return NULL;
+    }
+
+    container = get_view_container(v_ctx);
+    view = get_view(v_ctx);
+    if (!view) {
+        LOG_ERROR("[%s] invalid container or view", name);
+        goto err_view;
+    }
+
+    menu = create_menu(view);
+    if (!menu) {
+        LOG_ERROR("[%s] create menu bar failed", get_name(view));
+        goto err_view;
+    }
+
+    return v_ctx;
+
+err_view:
+    if (container)
+        remove_obj_and_child(get_meta(container)->id, \
+                             &get_meta(par)->child);
+    else
+        remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
+
+    free(v_ctx);
+
+    return NULL;
+}
+
+int32_t create_setting_filler(lv_obj_t *par)
+{
+    lv_obj_t *filler;
+
+    filler = create_box(par, "FILLER");
+    if (!filler)
+        return -EIO;
+
+    set_size(filler, LV_PCT(100), LV_PCT(70));
+    return 0;
+}
+
 lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
 {
     lv_obj_t *view, *menu;
