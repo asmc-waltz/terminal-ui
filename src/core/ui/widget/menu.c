@@ -108,7 +108,7 @@ static inline int32_t back_btn_released(lv_obj_t *lobj)
         return -EIO;
     }
 
-    if (!v_ctx->view)
+    if (!lv_obj_is_valid(v_ctx->view))
         LOG_DEBUG("[unknown] Window cleaned (null context)");
     else
         LOG_DEBUG("[%s] Window cleaned", get_name(v_ctx->view));
@@ -150,7 +150,7 @@ static void back_btn_handler(lv_event_t *e)
         break;
     }
 
-    LOG_TRACE("Back button handle event [%d], return [%d]", code, ret);
+    // LOG_TRACE("Back button handle event [%d], return [%d]", code, ret);
 }
 
 static int32_t load_window_by_option(lv_obj_t *opt)
@@ -270,14 +270,14 @@ static int32_t load_window(view_ctn_t *v_ctx, bool split)
 
     snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
 
-    LOG_DEBUG("| +++ Creating window [%s] --->", name_buf);
+    LOG_TRACE("| +++ Creating window [%s] --->", name_buf);
     /* Create window via callback */
     window = create_window_cb(parent, name_buf, v_ctx);
     if (!window)
         return -EIO;
 
     v_ctx->opened_ctn->overlay_menu = window;
-    LOG_DEBUG("<--- Created window [%s] |", \
+    LOG_TRACE("<--- Created window [%s] |", \
               get_name(v_ctx->opened_ctn->overlay_menu));
 
     return refresh_object_tree_layout(window);
@@ -400,13 +400,15 @@ static int32_t handle_horizontal_split_view(view_ctn_t *ctx)
     }
 
     /* Remove overlay menu if created in vertical mode */
-    if (ctx->opened_ctn->overlay_menu) {
+    if (lv_obj_is_valid(ctx->opened_ctn->overlay_menu)) {
         LOG_DEBUG("Remove overlay [%s]",
                   get_name(ctx->opened_ctn->overlay_menu));
         remove_obj_and_child(
             get_meta(ctx->opened_ctn->overlay_menu)->id,
             &get_meta(view)->child);
         ctx->opened_ctn->overlay_menu = NULL;
+    } else {
+        LOG_TRACE("Overlay unavailable; main menu is currently displayed.");
     }
 
     ctx->r_ctn.visible = true;
