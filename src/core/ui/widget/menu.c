@@ -1082,6 +1082,11 @@ view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
     if (!v_ctx)
         return NULL;
 
+    /*
+     * The view container is created when the view requires a control bar
+     * that shares the same grid layout. In other cases, the view can be
+     * created directly inside the parent object without a container.
+     */
     container = ctrl ? create_view_container(v_ctx, par, name) : par;
     if (!container)
         goto err_ctn;
@@ -1106,6 +1111,78 @@ err_view:
 err_ctrl:
     remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
 err_ctn:
+    free(v_ctx);
+    return NULL;
+}
+
+/*
+ * Create a common base view for setting menus.
+ *
+ * This function handles both root and overlay (child) menu creation
+ * depending on the parent context and split-view configuration.
+ *
+ * Arguments:
+ *   par        - view parent (normal object / parent menu window container)
+ *   name       - name prefix for the new view
+ *   par_v_ctx  - optional parent view context (NULL if root)
+ *   split      - enable split-view mode if true
+ *
+ * Returns:
+ *   Pointer to created view context, or NULL on error.
+ */
+view_ctn_t *create_common_menu_view(lv_obj_t *par, const char *name, \
+                                    view_ctn_t *par_v_ctx, bool split)
+{
+    view_ctn_t *v_ctx;
+    lv_obj_t *container, *view, *menu;
+    int32_t ret = 0;
+    char name_buf[64];
+    bool ctrl;
+
+    /* Check overlay mode: determine if this view overlaps parent */
+    ctrl = is_overlay_on_parent(par, par_v_ctx);
+
+    snprintf(name_buf, sizeof(name_buf), "%s_MENU", name);
+
+    /* Create the main menu view container */
+    v_ctx = create_menu_view(par, name_buf, ctrl, split);
+    if (!v_ctx) {
+        LOG_ERROR("[%s] Failed to create menu view", name);
+        return NULL;
+    }
+
+    container = get_view_container(v_ctx);
+    view = get_view(v_ctx);
+    if (!view) {
+        LOG_ERROR("[%s] Invalid container or view", name);
+        goto err_cleanup;
+    }
+
+    /* Create the left-side (menu) object */
+    menu = create_menu(view);
+    if (!menu) {
+        LOG_ERROR("[%s] Failed to create menu bar", get_name(view));
+        goto err_cleanup;
+    }
+
+    /* Link this view to its parent if applicable */
+    if (par_v_ctx) {
+        ret = set_par_v_ctx(v_ctx, par_v_ctx);
+        if (ret) {
+            LOG_ERROR("[%s] Failed to set parent context, ret %d", \
+                      get_name(menu), ret);
+            goto err_cleanup;
+        }
+    }
+
+    return v_ctx;
+
+err_cleanup:
+    if (container)
+        remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
+    else if (view)
+        remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
+
     free(v_ctx);
     return NULL;
 }

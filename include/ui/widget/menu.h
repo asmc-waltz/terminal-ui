@@ -171,6 +171,9 @@ static inline bool is_overlay_on_parent(lv_obj_t *par, view_ctn_t *par_v_ctx)
 
     return false;
 }
+
+view_ctn_t *create_common_menu_view(lv_obj_t *par, const char *name, \
+                                    view_ctn_t *par_v_ctx, bool split);
 /**********************
  *      MACROS
  **********************/
