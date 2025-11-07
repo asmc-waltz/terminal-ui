@@ -27,20 +27,24 @@
 #include "ui/widget/menu.h"
 
 /*
- * Each Right Window can host a child Menu Container, enabling nested menus.
+ * Each window can host a child Menu View/View container, enabling nested menus.
  *
- * [View/Menu Container]
- * +---------------------------------------------------------------------------+
+ * Split [View/ View container]
+ * |======================+====================================================+
+ * |  Left Container      | Right Container                                    |
+ * |                      |  +---- Sub view container (Ctrl = true) -------+   |
+ * | +------------------+ |  |  +---------------------------------------+  |   |
+ * | | Menu / Menu bar  | |  |  |                                       |  |   |
+ * | |  ------------    | |  |  |                                       |  |   |
+ * | |  ------------    | |  |  |           Single/Split View           |  |   |
+ * | |                  | |  |  |               ...                     |  |   |
+ * | |                  | |  |  |               (Recursive Structure)   |  |   |
+ * | |                  | |  |  +---------------------------------------+  |   |
+ * | |                  | |  |  |           Window Controller           |  |   |
+ * | +------------------+ |  |  +---------------------------------------+  |   |
+ * |                      |  +---------------------------------------------+   |
+ * +----------------------+----------------------------------------------------+
  * | Window Controller (not needed for root menu)                              |
- * |===========================================================================|
- * |  Left Window - Container      | Right Window -> Nested [Menu Container]   |
- * | +---------------------------+ | +---------------------------------------+ |
- * | | Menu Bar                  | | |           Window Controller           | |
- * | |  ------------             | | +---------------------------------------+ |
- * | |  ------------             | | |           Left / Right Window         | |
- * | |                           | | |               ...                     | |
- * | |                           | | |               (Recursive Structure)   | |
- * | +---------------------------+ | +---------------------------------------+ |
  * +===========================================================================+
  *
  */
@@ -315,10 +319,6 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
                             LV_GRID_ALIGN_STRETCH, 0, 1, \
                             LV_GRID_ALIGN_STRETCH, 0, 1);
         view_ctx->l_ctn.container = container;
-
-        // FIXME: temporary visual marker
-        lv_obj_set_style_bg_color(container, lv_color_hex(0x4FC3F7), 0);
-
     } else {
         /* Right container: content/detail area */
         scr_rot = get_scr_rotation();
@@ -334,9 +334,6 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
         }
 
         view_ctx->r_ctn.container = container;
-
-        // FIXME: temporary visual marker
-        lv_obj_set_style_bg_color(container, lv_color_hex(0xFCCE03), 0);
     }
 
     return 0;
@@ -802,11 +799,6 @@ static lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
         LOG_WARN("Layout [%s] set column padding failed (%d)", \
                  name, ret);
 
-    ret = set_padding(view, 8, 8, 8, 8);
-    if (ret)
-        LOG_WARN("Layout [%s] set padding failed (%d)", \
-                 name, ret);
-
     ret = set_view_window_ctx(v_ctx, view);
     if (ret)
         goto err;
@@ -830,8 +822,6 @@ static lv_obj_t *create_view(view_ctn_t *v_ctx, lv_obj_t *par, const char *name)
         }
     }
 
-    // FIXME: temporary visual marker
-    lv_obj_set_style_bg_color(view, lv_color_hex(bg_color(100)), 0);
     return view;
 
 err:
