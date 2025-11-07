@@ -166,49 +166,6 @@ static int32_t create_setting_items(lv_obj_t *view, lv_obj_t *menu)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-view_ctn_t *create_common_setting_view(lv_obj_t *par, const char *name,
-                                       bool root, bool split)
-{
-    view_ctn_t *v_ctx;
-    lv_obj_t *container, *view, *menu;
-    int32_t ret = 0;
-    char name_buf[64];
-
-    snprintf(name_buf, sizeof(name_buf), "%s_SETTING", name);
-
-    v_ctx = create_menu_view(par, name_buf, root, split);
-    if (!v_ctx) {
-        LOG_ERROR("[%s] create menu view failed", name);
-        return NULL;
-    }
-
-    container = get_view_container(v_ctx);
-    view = get_view(v_ctx);
-    if (!view) {
-        LOG_ERROR("[%s] invalid container or view", name);
-        goto err_view;
-    }
-
-    menu = create_menu(view);
-    if (!menu) {
-        LOG_ERROR("[%s] create menu bar failed", get_name(view));
-        goto err_view;
-    }
-
-    return v_ctx;
-
-err_view:
-    if (container)
-        remove_obj_and_child(get_meta(container)->id, \
-                             &get_meta(par)->child);
-    else
-        remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
-
-    free(v_ctx);
-
-    return NULL;
-}
-
 int32_t create_setting_filler(lv_obj_t *par)
 {
     lv_obj_t *filler;
@@ -223,27 +180,23 @@ int32_t create_setting_filler(lv_obj_t *par)
 
 lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
 {
-    lv_obj_t *view, *menu;
-    int32_t ret;
+    lv_obj_t *container, *view, *menu;
     view_ctn_t *v_ctx;
+    int32_t ret;
 
-    v_ctx = create_menu_view(par, name, false, true);
-    if (!v_ctx)
-        return NULL;
-
-    view = v_ctx->view;
-
-    // All sub view component name will depend on the view base name
-    menu = create_menu(view);
-    if (!menu) {
-        LOG_ERROR("view [%s] create menu bar failed, ret %d", \
-                  get_name(view), ret);
+    v_ctx = create_common_menu_view(par, name, NULL, true);
+    if (!v_ctx) {
+        LOG_ERROR("[%s] create menu view failed, ret %d", name, ret);
+        goto err_ctx;
     }
 
-    ret = create_setting_items(view, menu);
+    container = get_view_container(v_ctx);
+    view = get_view(v_ctx);
+
+    ret = create_setting_items(view, get_menu(v_ctx));
     if (ret) {
-        LOG_ERROR("view [%s] create menu bar items failed, ret %d", \
-                  get_name(view), ret);
+        LOG_ERROR("view [%s] create menu bar items failed, ret %d", name, ret);
+        goto err_view;
     }
 
     /* Set the default active page at the first time menu is rendered */
@@ -251,7 +204,18 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
     if (ret) {
         LOG_ERROR("view [%s] set default page failed, ret %d", \
                   get_name(view), ret);
+        goto err_view;
     }
 
     return view;
+
+
+err_view:
+    if (container)
+        remove_obj_and_child(get_meta(container)->id, &get_meta(par)->child);
+    else if (view)
+        remove_obj_and_child(get_meta(view)->id, &get_meta(par)->child);
+    free(v_ctx);
+err_ctx:
+    return NULL;
 }

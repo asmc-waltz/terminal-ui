@@ -121,7 +121,8 @@ static int32_t create_setting_items(lv_obj_t *par)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-lv_obj_t *create_cellular_setting(lv_obj_t *par, const char *name)
+lv_obj_t *create_cellular_setting(lv_obj_t *par, const char *name, \
+                                  view_ctn_t *par_v_ctx)
 {
     lv_obj_t *container, *view, *menu;
     view_ctn_t *v_ctx;
@@ -130,7 +131,7 @@ lv_obj_t *create_cellular_setting(lv_obj_t *par, const char *name)
 
     snprintf(name_buf, sizeof(name_buf), "%s_CELLULAR", name);
 
-    v_ctx = create_common_setting_view(par, name_buf, false, false);
+    v_ctx = create_common_menu_view(par, name_buf, par_v_ctx, false);
     if (!v_ctx) {
         LOG_ERROR("[%s] create menu view failed, ret %d", name, ret);
         goto err_ctx;
