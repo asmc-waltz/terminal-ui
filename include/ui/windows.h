@@ -18,7 +18,7 @@
 /*********************
  *      DEFINES
  *********************/
-#define WINDOW_SETTING                  "window.setting"
+#define SETTING_BASED_NAME              "SETTING"
 
 /**********************
  *      TYPEDEFS

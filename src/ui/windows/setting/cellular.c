@@ -129,7 +129,7 @@ lv_obj_t *create_cellular_setting(lv_obj_t *par, const char *name, \
     char name_buf[64];
     int32_t ret;
 
-    snprintf(name_buf, sizeof(name_buf), "%s_CELLULAR", name);
+    snprintf(name_buf, sizeof(name_buf), "%s.#CELLULAR", name);
 
     v_ctx = create_common_menu_view(par, name_buf, par_v_ctx, false);
     if (!v_ctx) {

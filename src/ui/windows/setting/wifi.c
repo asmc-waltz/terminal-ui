@@ -335,7 +335,7 @@ lv_obj_t *create_wifi_setting(lv_obj_t *par, const char *name, \
     char name_buf[64];
     int32_t ret;
 
-    snprintf(name_buf, sizeof(name_buf), "%s_WIFI", name);
+    snprintf(name_buf, sizeof(name_buf), "%s.#WIFI", name);
 
     v_ctx = create_common_menu_view(par, name_buf, par_v_ctx, false);
     if (!v_ctx) {
