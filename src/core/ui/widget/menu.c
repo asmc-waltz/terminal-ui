@@ -153,26 +153,6 @@ static void back_btn_handler(lv_event_t *e)
     LOG_TRACE("Back button handle event [%d], return [%d]", code, ret);
 }
 
-static int32_t redraw_page_control(lv_obj_t *lobj)
-{
-    obj_meta_t *meta;
-    int32_t scr_rot;
-
-    meta = lobj ? get_meta(lobj) : NULL;
-    if (!meta)
-        return -EINVAL;
-
-    scr_rot = get_scr_rotation();
-
-    /* Show control bar only in horizontal orientations */
-    if (scr_rot == ROTATION_90 || scr_rot == ROTATION_270)
-        lv_obj_clear_flag(lobj, LV_OBJ_FLAG_HIDDEN);
-    else
-        // lv_obj_add_flag(lobj, LV_OBJ_FLAG_HIDDEN);
-
-    return 0;
-}
-
 static int32_t load_window_by_option(lv_obj_t *opt)
 {
     lv_obj_t *view;
@@ -643,14 +623,15 @@ static lv_obj_t *create_view_container(view_ctn_t *v_ctx, \
 
     scr_rot = get_scr_rotation();
     if (scr_rot == ROTATION_180 || scr_rot == ROTATION_270) {
-        ret = add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
-              add_grid_layout_row_dsc(container, 50) ?: \
-              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
-    } else {
         ret = add_grid_layout_row_dsc(container, 50) ?: \
               add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
               add_grid_layout_col_dsc(container, LV_GRID_FR(98));
+    } else {
+        ret = add_grid_layout_row_dsc(container, LV_GRID_FR(98)) ?: \
+              add_grid_layout_row_dsc(container, 50) ?: \
+              add_grid_layout_col_dsc(container, LV_GRID_FR(98));
     }
+
     if (ret)
         goto err_container;
 
@@ -686,7 +667,7 @@ static int32_t set_view_control_ctx(view_ctn_t *v_ctx, lv_obj_t *ctrl)
     } else {
         set_grid_cell_align(ctrl, \
                             LV_GRID_ALIGN_STRETCH, 0, 1, \
-                            LV_GRID_ALIGN_STRETCH, 0, 1);
+                            LV_GRID_ALIGN_STRETCH, 1, 1);
     }
 
     v_ctx->view_ctrl = ctrl;
@@ -702,12 +683,12 @@ static int32_t set_view_control_ctx(view_ctn_t *v_ctx, lv_obj_t *ctrl)
  * screen rotation requires it.
  */
 static lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
-                              lv_obj_t *par, const char *name, \
-                              bool back_ena, bool more_ena)
+                                     lv_obj_t *par, const char *name, \
+                                     bool back, bool more)
 {
     lv_obj_t *ctrl;
     lv_obj_t *back_btn;
-    lv_obj_t *more_btn;
+    lv_obj_t *btn;
     int32_t ret;
 
     if (!par)
@@ -719,25 +700,27 @@ static lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
 
     /* Base layout */
     set_padding(ctrl, 10, 10, 10, 10);
-    get_meta(ctrl)->data.pre_rotate_cb = redraw_page_control;
-    // lv_obj_add_flag(ctrl, LV_OBJ_FLAG_HIDDEN);
 
-    /* Back button */
-    back_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
-                               back_ena ? "< Back" : " ");
-    lv_obj_set_style_text_color(back_btn, lv_color_hex(0x0000ff), 0);
-    if (back_ena) {
-        lv_obj_add_flag(back_btn, LV_OBJ_FLAG_CLICKABLE);
-        lv_obj_add_event_cb(back_btn, back_btn_handler, \
-                            LV_EVENT_ALL, NULL);
+    btn = create_text_box(ctrl, NULL, &lv_font_montserrat_36, \
+                          back ? LV_SYMBOL_LEFT : " ");
+    if (btn) {
+        if (back) {
+            lv_obj_add_flag(btn, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_add_event_cb(btn, back_btn_handler, LV_EVENT_ALL, NULL);
+        }
+    } else {
+        goto err;
     }
 
-    /* More button */
-    more_btn = create_text_box(ctrl, NULL, &lv_font_montserrat_24, \
-                               more_ena ? "..." : " ");
-    lv_obj_set_style_text_color(more_btn, lv_color_hex(0x0000ff), 0);
-    if (more_ena)
-        lv_obj_add_flag(more_btn, LV_OBJ_FLAG_CLICKABLE);
+    btn = create_text_box(ctrl, NULL, &lv_font_montserrat_36, \
+                          more ? LV_SYMBOL_SETTINGS : " ");
+    if (btn) {
+        if (more) {
+            lv_obj_add_flag(btn, LV_OBJ_FLAG_CLICKABLE);
+        }
+    } else {
+        goto err;
+    }
 
     ret = set_view_control_ctx(v_ctx, ctrl);
     if (ret) {
@@ -745,8 +728,6 @@ static lv_obj_t *create_view_control(view_ctn_t *v_ctx, \
         goto err;
     }
 
-    // FIXME: temporary visual marker
-    lv_obj_set_style_bg_color(ctrl, lv_color_hex(0xFCBA03), 0);
     return ctrl;
 
 err:
@@ -766,7 +747,7 @@ static int32_t set_view_window_ctx(view_ctn_t *v_ctx, lv_obj_t *view)
     if (v_ctx->container) {
         set_grid_cell_align(view, \
                             LV_GRID_ALIGN_STRETCH, 0, 1, \
-                            LV_GRID_ALIGN_STRETCH, 1, 1);
+                            LV_GRID_ALIGN_STRETCH, 0, 1);
     }
 
     v_ctx->view = view;
