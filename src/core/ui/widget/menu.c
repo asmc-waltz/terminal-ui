@@ -257,7 +257,7 @@ static int32_t load_window(view_ctn_t *v_ctx, bool split)
     lv_obj_t *parent;
     lv_obj_t *window;
     char name_buf[64];
-    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *, view_ctn_t *);
 
     if (!v_ctx)
         return -EINVAL;
@@ -272,7 +272,7 @@ static int32_t load_window(view_ctn_t *v_ctx, bool split)
 
     LOG_DEBUG("| +++ Creating window [%s] --->", name_buf);
     /* Create window via callback */
-    window = create_window_cb(parent, name_buf);
+    window = create_window_cb(parent, name_buf, v_ctx);
     if (!window)
         return -EIO;
 
@@ -533,14 +533,16 @@ static int32_t validate_opened_container(view_ctn_t *ctx, \
 }
 
 static int32_t create_split_window(view_ctn_t *v_ctx, \
-                                   lv_obj_t *(*cb)(lv_obj_t *, const char *))
+                                   lv_obj_t *(*create_window_cb)(lv_obj_t *, \
+                                                                 const char *, \
+                                                                 view_ctn_t *))
 {
     int32_t ret;
     win_ctn_t *opened = v_ctx->opened_ctn;
 
     LOG_TRACE("Split view: Create window in split-view mode");
 
-    opened->create_window_cb = cb;
+    opened->create_window_cb = create_window_cb;
     ret = load_window(v_ctx, true);
     if (ret)
         opened->create_window_cb = NULL;
@@ -934,7 +936,8 @@ lv_obj_t *create_menu_option(lv_obj_t *par, \
 
 int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
                            lv_obj_t *(* create_window_cb)(lv_obj_t *, \
-                                                          const char *))
+                                                          const char *, \
+                                                          view_ctn_t *))
 {
     menu_opt_t *opt_ctx;
     view_ctn_t *view_ctx;
@@ -1021,7 +1024,8 @@ lv_obj_t *create_menu(lv_obj_t *view)
 
 int32_t set_and_load_window(lv_obj_t *view, \
                             lv_obj_t *(*create_window_cb)(lv_obj_t *, \
-                                                          const char *))
+                                                          const char *, \
+                                                          view_ctn_t *))
 {
     view_ctn_t *ctx;
     int32_t ret;
@@ -1063,7 +1067,7 @@ int32_t set_and_load_window(lv_obj_t *view, \
  * sharing the same parent container (l_ctn).
  */
 view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
-                              bool ctrl, bool split)
+                             bool ctrl, bool split)
 {
     lv_obj_t *container, *control, *view;
     view_ctn_t *v_ctx;

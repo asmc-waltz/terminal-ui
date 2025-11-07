@@ -44,7 +44,7 @@ typedef struct win_ctn {
     lv_obj_t *menu;             /* Left-side menu container (static element) */
     lv_obj_t *overlay_menu;     /* Sub menu - render on top of menu*/
     lv_obj_t *selected_opt;
-    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *, view_ctn_t *);
     bool visible;
 } win_ctn_t;
 
@@ -67,6 +67,7 @@ typedef struct view_ctn {
      * Child menus are created inside this container.
      */
     win_ctn_t *opened_ctn;
+    view_ctn_t *par_v_ctx;
 } view_ctn_t;
 
 /*
@@ -75,7 +76,7 @@ typedef struct view_ctn {
  * window when interacted.
  */
 typedef struct {
-    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
+    lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *, view_ctn_t *);
     view_ctn_t *view_ctx;
 } menu_opt_t;
 
@@ -91,11 +92,44 @@ typedef struct {
  *====================*/
 int32_t set_and_load_window(lv_obj_t *view, \
                             lv_obj_t *(*create_window_cb)(lv_obj_t *, \
-                                                          const char *));
+                                                          const char *, \
+                                                          view_ctn_t *));
 
+int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
+                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
+                                                          const char *, \
+                                                          view_ctn_t *));
+
+static inline int32_t set_par_v_ctx(view_ctn_t *v_ctx, view_ctn_t *par_v_ctx)
+{
+    if (!v_ctx || !par_v_ctx)
+        return -EINVAL;
+    else
+        v_ctx->par_v_ctx = par_v_ctx;
+    return 0;
+}
 /*=====================
  * Getter functions
  *====================*/
+static inline view_ctn_t *get_view_ctx(lv_obj_t *lobj) {
+    return lobj ? (view_ctn_t *)get_internal_data(lobj) : NULL;
+}
+
+static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {
+    return lobj ? (menu_opt_t *)get_internal_data(lobj) : NULL;
+}
+
+static inline lv_obj_t *get_view_container(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)v_ctx->container : NULL;
+}
+
+static inline lv_obj_t *get_view(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)v_ctx->view : NULL;
+}
+
+static inline lv_obj_t *get_menu(view_ctn_t *v_ctx) {
+    return v_ctx ? (lv_obj_t *)((win_ctn_t )v_ctx->l_ctn).menu : NULL;
+}
 
 /*=====================
  * Other functions
@@ -119,31 +153,23 @@ lv_obj_t *create_menu_option(lv_obj_t *par, \
                              const lv_font_t *sym_font, const char *sym_index, \
                              const lv_font_t *title_font, const char *title);
 
-int32_t set_item_menu_page(lv_obj_t *lobj, lv_obj_t *view, \
-                           lv_obj_t *(* create_window_cb)(lv_obj_t *, \
-                                                          const char *));
 
 view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
                               bool ctrl, bool split);
 
-static inline view_ctn_t *get_view_ctx(lv_obj_t *lobj) {
-    return lobj ? (view_ctn_t *)get_internal_data(lobj) : NULL;
-}
+static inline bool is_overlay_on_parent(lv_obj_t *par, view_ctn_t *par_v_ctx)
+{
+    if (!par || !par_v_ctx)
+        return false;
 
-static inline menu_opt_t *get_opt_ctx(lv_obj_t *lobj) {
-    return lobj ? (menu_opt_t *)get_internal_data(lobj) : NULL;
-}
+    /* Check if the given parent object matches parent's left container */
+    if (par == par_v_ctx->l_ctn.container) {
+        LOG_WARN("[%s] Overlay menu detected on parent [%s]", \
+                 get_name(par), get_name(par_v_ctx->l_ctn.container));
+        return true;
+    }
 
-static inline lv_obj_t *get_view_container(view_ctn_t *v_ctx) {
-    return v_ctx ? (lv_obj_t *)v_ctx->container : NULL;
-}
-
-static inline lv_obj_t *get_view(view_ctn_t *v_ctx) {
-    return v_ctx ? (lv_obj_t *)v_ctx->view : NULL;
-}
-
-static inline lv_obj_t *get_menu(view_ctn_t *v_ctx) {
-    return v_ctx ? (lv_obj_t *)((win_ctn_t )v_ctx->l_ctn).menu : NULL;
+    return false;
 }
 /**********************
  *      MACROS
