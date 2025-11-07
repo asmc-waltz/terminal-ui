@@ -232,7 +232,7 @@ static int32_t load_window_by_option(lv_obj_t *opt)
     }
 
     /* Create or activate a new window for the selected option */
-    ret = set_active_window(view, opt_ctx->create_window_cb);
+    ret = set_and_load_window(view, opt_ctx->create_window_cb);
     if (ret)
         return ret;
 
@@ -532,6 +532,61 @@ static inline int32_t add_grid_row_col(lv_obj_t *lobj, \
         return ret;
 
     return add_grid_layout_col_dsc(lobj, col2);
+}
+
+static int32_t validate_opened_container(view_ctn_t *ctx, \
+                                         lv_obj_t *(*cb)(lv_obj_t *, \
+                                                         const char *))
+{
+    win_ctn_t *opened = ctx->opened_ctn;
+
+    if (!opened || !lv_obj_is_valid(opened->container))
+        return -EIO;
+
+    /* Case: overlay menu is valid and same callback already active */
+    if (lv_obj_is_valid(opened->overlay_menu)) {
+        if (opened->create_window_cb == cb) {
+            LOG_TRACE("Menu [%s] already active -> skip", \
+                      get_name(opened->overlay_menu));
+            return 1; /* same callback, no need to reload */
+        }
+
+        LOG_TRACE("[%s] Creating new pane", get_name(get_view(ctx)));
+    }
+
+    return 0;
+}
+
+static int32_t create_split_window(view_ctn_t *ctx, \
+                                   lv_obj_t *(*cb)(lv_obj_t *, const char *))
+{
+    int32_t ret;
+    win_ctn_t *opened = ctx->opened_ctn;
+
+    LOG_TRACE("Split view: Create window in split-view mode");
+
+    opened->create_window_cb = cb;
+    ret = load_window(get_view(ctx), true);
+    if (ret)
+        opened->create_window_cb = NULL;
+
+    return ret;
+}
+
+static int32_t create_single_window(view_ctn_t *ctx, \
+                                    lv_obj_t *(*cb)(lv_obj_t *, const char *))
+{
+    int32_t ret;
+    win_ctn_t *opened = ctx->opened_ctn;
+
+    LOG_TRACE("Single view: Create window in single-view mode");
+
+    opened->create_window_cb = cb;
+    ret = load_window(get_view(ctx), false);
+    if (ret)
+        opened->create_window_cb = NULL;
+
+    return ret;
 }
 
 static view_ctn_t *create_view_ctx(bool ctrl, bool split)
@@ -988,57 +1043,38 @@ lv_obj_t *create_menu(lv_obj_t *view)
     return bar;
 }
 
-int32_t set_active_window(lv_obj_t *view, \
-                          lv_obj_t *(*create_window_cb)(lv_obj_t *, \
-                                                        const char *))
+int32_t set_and_load_window(lv_obj_t *view, \
+                            lv_obj_t *(*create_window_cb)(lv_obj_t *, \
+                                                          const char *))
 {
-    view_ctn_t *view_ctx;
-    win_ctn_t *opened_ctn = NULL;
-    int32_t ret = -EIO;
+    view_ctn_t *ctx;
+    int32_t ret;
 
     if (!view)
         return -EINVAL;
 
-    view_ctx = get_view_ctx(view);
-    if (!view_ctx)
+    ctx = get_view_ctx(view);
+    if (!ctx)
         return -EIO;
 
-    // TODO: combine
-    opened_ctn = view_ctx->opened_ctn;
-    if (view_ctx->cfg.split_view) {
-        if (lv_obj_is_valid(opened_ctn->container) && \
-            lv_obj_is_valid(opened_ctn->overlay_menu)) {
-            if (opened_ctn->create_window_cb == create_window_cb) {
-                /* Skip if same page callback is already active */
-                LOG_TRACE("Menu [%s] is already active -> ignore", \
-                          get_name(opened_ctn->overlay_menu));
-                return 0;
-            } else {
-                LOG_TRACE("[%s] view is creating new pane", get_name(view));
-            }
-        } else {
-            if (!lv_obj_is_valid(opened_ctn->container)) {
-                LOG_ERROR("[%s] view container is not available", \
-                          get_name(view));
-                return -EIO;
-            }
-        }
-
-        LOG_TRACE("Split view: Create window in split view mode");
-        opened_ctn->create_window_cb = create_window_cb;
-        ret = load_window(view, true);
-        if (ret)
-            opened_ctn->create_window_cb = NULL;
-    } else {
-        LOG_TRACE("Single view: Create window in single view mode");
-        opened_ctn->create_window_cb = create_window_cb;
-        ret = load_window(view, false);
-        if (ret)
-            opened_ctn->create_window_cb = NULL;
+    /* Validate current opened container */
+    ret = validate_opened_container(ctx, create_window_cb);
+    if (ret != 0) {
+        if (ret > 0)
+            return 0; /* skip reload if same callback already active */
+        LOG_ERROR("[%s] Invalid container", get_name(view));
+        return ret;
     }
 
+    /* Dispatch to correct mode */
+    if (ctx->cfg.split_view)
+        ret = create_split_window(ctx, create_window_cb);
+    else
+        ret = create_single_window(ctx, create_window_cb);
+
     if (ret) {
-        LOG_ERROR("[%s] Create menu view failed, ret %d", get_name(view), ret);
+        LOG_ERROR("[%s] Create menu view failed, ret %d", \
+                  get_name(view), ret);
         return ret;
     }
 

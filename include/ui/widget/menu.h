@@ -89,9 +89,9 @@ typedef struct {
 /*=====================
  * Setter functions
  *====================*/
-int32_t set_active_window(lv_obj_t *menu, \
-                          lv_obj_t *(*create_window_cb)(lv_obj_t *, \
-                                                        const char *));
+int32_t set_and_load_window(lv_obj_t *view, \
+                            lv_obj_t *(*create_window_cb)(lv_obj_t *, \
+                                                          const char *));
 
 /*=====================
  * Getter functions
