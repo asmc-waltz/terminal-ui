@@ -354,7 +354,7 @@ static int32_t handle_vertical_split_view(view_ctn_t *ctx)
 
     if (!ctx->r_ctn.visible) {
         LOG_TRACE("|| vertical --> vertical ||: nothing change");
-        return 0;
+        return -ENOTSUP;
     }
 
     LOG_TRACE("-- horizontal --> vertical ||: change");
@@ -388,7 +388,7 @@ static int32_t handle_horizontal_split_view(view_ctn_t *ctx)
 
     if (ctx->r_ctn.visible) {
         LOG_TRACE("-- horizontal --> horizontal --: nothing change");
-        return 0;
+        return -ENOTSUP;
     }
 
     LOG_TRACE("|| vertical --> horizontal --: change");
@@ -436,6 +436,10 @@ static int32_t apply_layout_and_reload(view_ctn_t *v_ctx)
         ret = load_window(v_ctx, true);
         if (ret)
             return ret;
+    } else {
+        ret = load_window(v_ctx, false);
+        if (ret)
+            return ret;
     }
 
     return 0;
@@ -460,7 +464,7 @@ static int32_t view_angle_change_cb(lv_obj_t *view)
     scr_rot = get_scr_rotation();
     vertical = (scr_rot == ROTATION_90 || scr_rot == ROTATION_270);
 
-    LOG_TRACE("Rotation detected: %s", vertical ? "Vertical" : "Horizontal");
+    LOG_DEBUG("Rotation detected: %s", vertical ? "Vertical" : "Horizontal");
 
     if (vertical) {
         if (ctx->cfg.split_view)
@@ -474,8 +478,13 @@ static int32_t view_angle_change_cb(lv_obj_t *view)
             LOG_TRACE("Horizontal: Single view (TODO)");
     }
 
-    if (ret)
+    if (ret == -ENOTSUP) {
+        LOG_TRACE("Inverted rotation - same orientation state"\
+                  " -> Layout unchanged");
+        return 0;
+    } else if (ret) {
         return ret;
+    }
 
     ret = apply_layout_and_reload(ctx);
     if (ret)
