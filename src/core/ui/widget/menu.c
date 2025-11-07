@@ -252,23 +252,18 @@ static void menu_option_event_handler(lv_event_t *e)
     }
 }
 
-static int32_t load_window(lv_obj_t *view, bool split)
+static int32_t load_window(view_ctn_t *v_ctx, bool split)
 {
-    view_ctn_t *view_ctx;
     lv_obj_t *parent;
     lv_obj_t *window;
     char name_buf[64];
     lv_obj_t *(*create_window_cb)(lv_obj_t *, const char *);
 
-    if (!view)
+    if (!v_ctx)
         return -EINVAL;
 
-    view_ctx = get_view_ctx(view);
-    if (!view_ctx)
-        return -EIO;
-
-    create_window_cb = view_ctx->opened_ctn->create_window_cb;
-    parent = view_ctx->opened_ctn->container;
+    create_window_cb = v_ctx->opened_ctn->create_window_cb;
+    parent = v_ctx->opened_ctn->container;
 
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
@@ -281,9 +276,9 @@ static int32_t load_window(lv_obj_t *view, bool split)
     if (!window)
         return -EIO;
 
-    view_ctx->opened_ctn->overlay_menu = window;
+    v_ctx->opened_ctn->overlay_menu = window;
     LOG_DEBUG("<--- Created window [%s] |", \
-              get_name(view_ctx->opened_ctn->overlay_menu));
+              get_name(v_ctx->opened_ctn->overlay_menu));
 
     return refresh_object_tree_layout(window);
 }
@@ -425,20 +420,20 @@ static int32_t handle_horizontal_split_view(view_ctn_t *ctx)
 /*
  * Apply updated layout and reload if needed
  */
-static int32_t apply_layout_and_reload(view_ctn_t *ctx)
+static int32_t apply_layout_and_reload(view_ctn_t *v_ctx)
 {
-    lv_obj_t *view = get_view(ctx);
+    lv_obj_t *view = get_view(v_ctx);
     int32_t ret;
 
     apply_grid_layout_config(view);
 
     /* Create or reload right container when visible but missing */
-    if (ctx->r_ctn.visible && !ctx->r_ctn.container) {
+    if (v_ctx->r_ctn.visible && !v_ctx->r_ctn.container) {
         ret = create_window_container(view, CONTAINER_RIGHT);
         if (ret)
             return ret;
 
-        ret = load_window(view, true);
+        ret = load_window(v_ctx, true);
         if (ret)
             return ret;
     }
@@ -537,32 +532,32 @@ static int32_t validate_opened_container(view_ctn_t *ctx, \
     return 0;
 }
 
-static int32_t create_split_window(view_ctn_t *ctx, \
+static int32_t create_split_window(view_ctn_t *v_ctx, \
                                    lv_obj_t *(*cb)(lv_obj_t *, const char *))
 {
     int32_t ret;
-    win_ctn_t *opened = ctx->opened_ctn;
+    win_ctn_t *opened = v_ctx->opened_ctn;
 
     LOG_TRACE("Split view: Create window in split-view mode");
 
     opened->create_window_cb = cb;
-    ret = load_window(get_view(ctx), true);
+    ret = load_window(v_ctx, true);
     if (ret)
         opened->create_window_cb = NULL;
 
     return ret;
 }
 
-static int32_t create_single_window(view_ctn_t *ctx, \
+static int32_t create_single_window(view_ctn_t *v_ctx, \
                                     lv_obj_t *(*cb)(lv_obj_t *, const char *))
 {
     int32_t ret;
-    win_ctn_t *opened = ctx->opened_ctn;
+    win_ctn_t *opened = v_ctx->opened_ctn;
 
     LOG_TRACE("Single view: Create window in single-view mode");
 
     opened->create_window_cb = cb;
-    ret = load_window(get_view(ctx), false);
+    ret = load_window(v_ctx, false);
     if (ret)
         opened->create_window_cb = NULL;
 
