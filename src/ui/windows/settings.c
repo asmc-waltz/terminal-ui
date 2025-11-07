@@ -247,7 +247,7 @@ lv_obj_t *create_setting_window(lv_obj_t *par, const char *name)
     }
 
     /* Set the default active page at the first time menu is rendered */
-    ret = set_active_window(view, create_airplane_setting);
+    ret = set_and_load_window(view, create_airplane_setting);
     if (ret) {
         LOG_ERROR("view [%s] set default page failed, ret %d", \
                   get_name(view), ret);
