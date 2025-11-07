@@ -252,7 +252,7 @@ static void menu_option_event_handler(lv_event_t *e)
     }
 }
 
-static int32_t load_window(view_ctn_t *v_ctx, bool split)
+static int32_t load_window(view_ctn_t *v_ctx)
 {
     lv_obj_t *parent;
     lv_obj_t *window;
@@ -268,7 +268,7 @@ static int32_t load_window(view_ctn_t *v_ctx, bool split)
     if (!create_window_cb || !lv_obj_is_valid(parent))
         return -EIO;
 
-    snprintf(name_buf, sizeof(name_buf), "%s.WINDOW", get_name(parent));
+    snprintf(name_buf, sizeof(name_buf), "%s", get_name(parent));
 
     LOG_TRACE("| +++ Creating window [%s] --->", name_buf);
     /* Create window via callback */
@@ -302,7 +302,7 @@ static int32_t create_window_container(lv_obj_t *view, enum container_side side)
     if (!view_ctx)
         return -EIO;
 
-    snprintf(name_buf, sizeof(name_buf), "%s.%s_CONTAINER", get_name(view), \
+    snprintf(name_buf, sizeof(name_buf), "%s.%s_CTN", get_name(view), \
              (side == CONTAINER_LEFT) ? "L" : "R");
 
     container = create_box(view, name_buf);
@@ -434,17 +434,9 @@ static int32_t apply_layout_and_reload(view_ctn_t *v_ctx)
         ret = create_window_container(view, CONTAINER_RIGHT);
         if (ret)
             return ret;
-
-        ret = load_window(v_ctx, true);
-        if (ret)
-            return ret;
-    } else {
-        ret = load_window(v_ctx, false);
-        if (ret)
-            return ret;
     }
 
-    return 0;
+    return load_window(v_ctx);
 }
 
 /*
@@ -466,7 +458,8 @@ static int32_t view_angle_change_cb(lv_obj_t *view)
     scr_rot = get_scr_rotation();
     vertical = (scr_rot == ROTATION_90 || scr_rot == ROTATION_270);
 
-    LOG_DEBUG("Rotation detected: %s", vertical ? "Vertical" : "Horizontal");
+    LOG_DEBUG("[%s] Rotation detected: %s", \
+              vertical ? "Vertical" : "Horizontal", get_name(view));
 
     if (vertical) {
         if (ctx->cfg.split_view)
@@ -481,8 +474,8 @@ static int32_t view_angle_change_cb(lv_obj_t *view)
     }
 
     if (ret == -ENOTSUP) {
-        LOG_TRACE("Inverted rotation - same orientation state"\
-                  " -> Layout unchanged");
+        LOG_TRACE("[%s] Inverted rotation - same orientation state"\
+                  " -> Layout unchanged", get_name(view));
         return 0;
     } else if (ret) {
         return ret;
@@ -554,7 +547,7 @@ static int32_t create_split_window(view_ctn_t *v_ctx, \
     LOG_TRACE("Split view: Create window in split-view mode");
 
     opened->create_window_cb = create_window_cb;
-    ret = load_window(v_ctx, true);
+    ret = load_window(v_ctx);
     if (ret)
         opened->create_window_cb = NULL;
 
@@ -570,7 +563,7 @@ static int32_t create_single_window(view_ctn_t *v_ctx, \
     LOG_TRACE("Single view: Create window in single-view mode");
 
     opened->create_window_cb = cb;
-    ret = load_window(v_ctx, false);
+    ret = load_window(v_ctx);
     if (ret)
         opened->create_window_cb = NULL;
 
@@ -1098,19 +1091,21 @@ view_ctn_t *create_menu_view(lv_obj_t *par, const char *name, \
      * that shares the same grid layout. In other cases, the view can be
      * created directly inside the parent object without a container.
      */
-    container = ctrl ? create_view_container(v_ctx, par, name) : par;
-    if (!container)
-        goto err_ctn;
-
     if (ctrl) {
-        snprintf(name_buf, sizeof(name_buf), "%s.CONTROL", name);
+        snprintf(name_buf, sizeof(name_buf), "##%s_CTN", name);
+        container = create_view_container(v_ctx, par, name_buf);
+        if (!container)
+            goto err_ctn;
+
+        snprintf(name_buf, sizeof(name_buf), "%s.#CTRL", get_name(container));
         control = create_view_control(v_ctx, container, name_buf, true, true);
         if (!control)
             goto err_ctrl;
-
+    } else {
+        container = par;
     }
 
-    snprintf(name_buf, sizeof(name_buf), "%s.HOLDER", name);
+    snprintf(name_buf, sizeof(name_buf), "%s_VIEW", name);
     view = create_view(v_ctx, container, name_buf);
     if (!view)
         goto err_view;
@@ -1147,16 +1142,13 @@ view_ctn_t *create_common_menu_view(lv_obj_t *par, const char *name, \
     view_ctn_t *v_ctx;
     lv_obj_t *container, *view, *menu;
     int32_t ret = 0;
-    char name_buf[64];
     bool ctrl;
 
     /* Check overlay mode: determine if this view overlaps parent */
     ctrl = is_overlay_on_parent(par, par_v_ctx);
 
-    snprintf(name_buf, sizeof(name_buf), "%s_MENU", name);
-
     /* Create the main menu view container */
-    v_ctx = create_menu_view(par, name_buf, ctrl, split);
+    v_ctx = create_menu_view(par, name, ctrl, split);
     if (!v_ctx) {
         LOG_ERROR("[%s] Failed to create menu view", name);
         return NULL;

@@ -164,7 +164,7 @@ static inline bool is_overlay_on_parent(lv_obj_t *par, view_ctn_t *par_v_ctx)
 
     /* Check if the given parent object matches parent's left container */
     if (par == par_v_ctx->l_ctn.container) {
-        LOG_WARN("[%s] Overlay menu detected on parent [%s]", \
+        LOG_DEBUG("[%s] Overlay menu detected on parent [%s]", \
                  get_name(par), get_name(par_v_ctx->l_ctn.container));
         return true;
     }
