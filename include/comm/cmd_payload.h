@@ -45,27 +45,31 @@ typedef enum {
     /* HARDWARE */
     OP_START_HW_MON,
     /* Brightness API */
-    OP_BACKLIGHT_ON,
-    OP_BACKLIGHT_OFF,
-    OP_GET_BRIGHTNESS,
-    OP_SET_BRIGHTNESS,
+    OP_ENA_ALS,
+    OP_DIS_ALS,
+    OP_ENA_BACKLIGHT,
+    OP_DIS_BACKLIGHT,
+    OP_BACKLIGHT_STATE,
+    OP_ADJUST_BRIGHTNESS,
     /* Vibrator API */
     OP_LEFT_VIBRATOR,
     OP_RIGHT_VIBRATOR,
     /* IMU API */
-    OP_START_IMU,
-    OP_STOP_IMU,
-    OP_READ_IMU,
+    OP_ENABLE_IMU,
+    OP_DISABLE_IMU,
+    OP_IMU_STATE,
     /* AUDIO API */
     OP_AUDIO_INIT,
     OP_AUDIO_RELEASE,
     OP_SOUND_PLAY,
 
     /* Network API */
-    OP_WIFI_RESCAN,
-    OP_WIFI_GET_AP_LIST,
+    OP_WIFI_ENABLE,
+    OP_WIFI_DISABLE,
+    OP_WIFI_STATE,
+    OP_WIFI_AP_LIST,
     OP_WIFI_GET_AP_INFO,
-    OP_WIFI_CONN_AP,
+    OP_WIFI_CONNECT_AP,
 
     OP_ID_END,
 } opcode_t;

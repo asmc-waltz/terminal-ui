@@ -60,6 +60,18 @@ int32_t process_opcode(uint32_t opcode, void *data)
     case OP_DBUS_SENT_CMD:
         ret = dbus_method_call_with_data((remote_cmd_t *)data);
         break;
+    case OP_BACKLIGHT_STATE:
+        ret = handle_backlight_state((remote_cmd_t *)data);
+        break;
+    case OP_WIFI_STATE:
+        ret = handle_wifi_state((remote_cmd_t *)data);
+        break;
+    case OP_WIFI_AP_LIST:
+        ret = handle_wifi_access_point((remote_cmd_t *)data);
+        break;
+    case OP_IMU_STATE:
+        ret = handle_imu_rotation_state((remote_cmd_t *)data);
+        break;
     default:
         LOG_ERROR("Opcode [%d] is invalid", opcode);
         break;

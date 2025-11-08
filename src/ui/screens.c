@@ -28,7 +28,6 @@
 #include "ui/grid.h"
 #include "ui/flex.h"
 #include "main.h"
-#include "comm/cmd_payload.h"
 
 /*********************
  *      DEFINES
@@ -318,7 +317,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_padding(base, 8, 8, 8, 8);
     set_row_padding(base, 8);
     lv_obj_set_style_radius(base, 20, 0);
-    lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(20)), 0);
+    lv_obj_set_style_bg_color(base, lv_color_hex(bg_color(10)), 0);
 
     /*-----------------------------------------
      * Create top bar section
@@ -327,12 +326,12 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     set_grid_cell_align(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
                                    LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_set_style_radius(top_bar, 16, 0);
-    lv_obj_set_style_bg_color(top_bar, lv_color_hex(bg_color(40)), 0);
+    lv_obj_set_style_bg_color(top_bar, lv_color_hex(bg_color(10)), 0);
 
     /*-----------------------------------------
      * Create setting container section
      *----------------------------------------*/
-    setting_container = create_setting_window(base, WINDOW_SETTING);
+    setting_container = create_setting_window(base, SETTING_BASED_NAME);
     set_grid_cell_align(setting_container,
                         LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 1, 1);

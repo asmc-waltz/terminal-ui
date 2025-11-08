@@ -131,8 +131,8 @@ int32_t rotate_padding_meta_90(lv_obj_t *lobj)
         return -EINVAL;
 
     ret = config_padding_meta(lobj, \
-                               meta->layout.pad_right, meta->layout.pad_left, \
-                               meta->layout.pad_top, meta->layout.pad_bot);
+                               meta->layout.pad_left, meta->layout.pad_right, \
+                               meta->layout.pad_bot, meta->layout.pad_top);
     if (ret)
         return ret;
 
