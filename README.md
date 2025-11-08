@@ -1,5 +1,4 @@
 # Terminal UI
-
 **Terminal UI** is a lightweight graphical interface designed for embedded
 Linux systems. It is part of the **go001** project and serves as the primary
 user interface running directly on DRM without any window manager.
@@ -85,3 +84,43 @@ mkdir build && cd build
 cmake .. -G "Unix Makefiles"
 # Resolve all required dependencies
 make -j$(nproc)
+```
+
+---
+
+## ⚙️ Logging & Error Handling
+
+- Uses **Linux-standard log levels** (`LOG_ERROR`, `LOG_INFO`, `LOG_DEBUG`, …)
+- Follows **`errno.h`** for all return codes (`-EIO`, `-EINVAL`, `-ENOMEM`, …)
+
+---
+
+## ✅ Supported
+
+- **D-Bus communication**
+  Unified IPC layer for all UI ↔ sys-mgr
+  interactions (commands, queries, events).
+- **Layout (flex / grid)** with rotation support
+  Layout engine respects logical rotation (90°/180°/270°) and
+  reflows children accordingly.
+- Widget rotation modes
+  - Base objects / controls (buttons, sliders, containers): Logical Rotation
+  - Text & symbols: Transform rotation — render content rotated as a visual
+    transform without changing logical layout.
+- **Nested menu widget**
+  Hierarchical menu component with support for submenus,
+- **On-screen keyboard with rotation**
+  Virtual keyboard that adapts key layout and hit areas when device orientation
+  changes (supports logical rotation).
+
+
+---
+
+## 🔮 Future Extensions
+- Setting: Wi-Fi, Hotspot, Airplane, Bluetooth, Network, Cellular, GNSS...
+- Menu breadcrumb/back navigation and auto show/hide behaviour.
+- Add a Systemd service file for the application
+  to start as a daemon within systemd
+- Migrate from **Standard C library** to **glib** for
+  improved maintainability and type safety
+- ...
