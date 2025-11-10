@@ -60,6 +60,7 @@ static lv_display_t *sf_init_drm_display(const char *file, \
     lv_display_t *disp = NULL;
     int32_t scr_width = 0;
     int32_t scr_height = 0;
+    char *device;
 
     scr_width = get_scr_width();
     scr_height = get_scr_height();
@@ -75,7 +76,11 @@ static lv_display_t *sf_init_drm_display(const char *file, \
     }
 
     lv_display_set_default(disp);
-    lv_linux_drm_set_file(disp, file, connector_id);
+
+    device = lv_linux_drm_find_device_path();
+    lv_linux_drm_set_file(disp, device, -1);
+    /* Free the path pointer */
+    lv_free(device);
     lv_display_set_resolution(disp, scr_width, scr_height);
 
     return disp;
