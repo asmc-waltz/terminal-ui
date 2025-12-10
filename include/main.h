@@ -14,22 +14,19 @@
 #include <dbus/dbus.h>
 
 #include <lvgl.h>
+#include <crobj.h>
 #include "list.h"
 #include "sched/workqueue.h"
-#include "ui/screen.h"
+#include "ui/color_palette_256.h"
 
 /*********************
  *      DEFINES
  *********************/
+#define bg_color(x)                     color_gray_levels_inv[x]
 
 /**********************
  *      TYPEDEFS
  **********************/
-typedef struct obj_ctx {
-    struct list_head list;              /* List of registered UI objects */
-    uint32_t next_id;
-} obj_ctx_t;
-
 typedef struct op_handler {
     struct list_head handler_lst;       /* List of registered opcode handlers */
 } op_t;
@@ -46,8 +43,7 @@ typedef struct conf_data {
 
 typedef struct ctx {
     sig_atomic_t run;
-    scr_ctx_t scr;
-    obj_ctx_t objs;
+    gui_ctx_t *gui;
     wq_ctx_t *wqs;
     op_t op;
     comm_t comm;
