@@ -12,7 +12,6 @@
 #endif
 #include "log.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -22,8 +21,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include "ui/ui_core.h"
-#include "ui/screen.h"
+#include <crobj.h>
 #include "comm/cmd_payload.h"
 #include "comm/f_comm.h"
 #include "comm/dbus_comm.h"
@@ -132,7 +130,7 @@ static int32_t service_startup_flow(void)
     }
 
     /* Initialize UI */
-    ret = ui_main_init(ctx);
+    ret = ui_main_init(&ctx->gui);
     if (ret) {
         LOG_FATAL("Failed to initialize UI, ret=%d", ret);
         goto exit_err;
@@ -183,7 +181,7 @@ exit_event:
     cleanup_event_file(ctx);
 
 exit_ui:
-    ui_main_deinit(ctx);
+    ui_main_deinit(ctx->gui);
 
 exit_err:
     destroy_ctx();
@@ -226,7 +224,7 @@ static void service_shutdown_flow(void)
 
     cleanup_event_file(ctx);
 
-    ui_main_deinit(ctx);
+    ui_main_deinit(ctx->gui);
 
     LOG_INFO("Service shutdown flow completed");
 }

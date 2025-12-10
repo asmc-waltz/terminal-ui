@@ -18,8 +18,8 @@
 #include <string.h>
 
 #include <lvgl.h>
-#include "list.h"
-#include "ui/ui_core.h"
+#include <crobj.h>
+
 #include "ui/comps.h"
 #include "ui/fonts.h"
 #include "main.h"
@@ -137,10 +137,10 @@ lv_obj_t *create_top_bar(ctx_t *ctx)
     int32_t obj_h;
     lv_obj_t *par, *top_bar;
 
-    if (!ctx || !ctx->scr.now.obj)
+    if (!ctx || !ctx->gui->scr.now.obj)
         return NULL;
 
-    par = ctx->scr.now.obj;
+    par = ctx->gui->scr.now.obj;
 
     /* Create container box for top bar */
     top_bar = create_box(par, COMPS_TOP_BAR);

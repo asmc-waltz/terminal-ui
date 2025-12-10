@@ -19,12 +19,10 @@
 #include <errno.h>
 
 #include <lvgl.h>
-#include "ui/ui_core.h"
+#include <crobj.h>
+
 #include "ui/fonts.h"
 #include "ui/windows.h"
-#include "ui/flex.h"
-#include "ui/grid.h"
-#include "ui/widget/menu.h"
 
 /*********************
  *      DEFINES

@@ -19,14 +19,12 @@
 #include <errno.h>
 
 #include <lvgl.h>
+#include <crobj.h>
+
 #include "list.h"
-#include "ui/ui_core.h"
 #include "ui/fonts.h"
 #include "ui/comps.h"
 #include "ui/windows.h"
-#include "ui/screen.h"
-#include "ui/grid.h"
-#include "ui/flex.h"
 #include "main.h"
 
 /*********************
@@ -173,7 +171,7 @@ void rotate_anim_start(lv_obj_t *cont, \
 static void refresh_screen_rotate_layout(lv_obj_t *root)
 {
     ctx_t *ctx = get_ctx();
-    lv_obj_t *screen = ctx->scr.now.obj;
+    lv_obj_t *screen = ctx->gui->scr.now.obj;
 
     refresh_object_tree_layout(screen);
 }
@@ -201,7 +199,7 @@ static void rotate_key_handler(lv_event_t *event)
     //               350, /* phase 4 */
     //               refresh_screen_rotate_layout);
 
-    refresh_object_tree_layout(ctx->scr.now.obj);
+    refresh_object_tree_layout(ctx->gui->scr.now.obj);
 
     if (kb) {
         kb = create_keyboard(keyboard_box);
@@ -274,12 +272,12 @@ static void create_keyboard_handler(lv_event_t *event)
  * Return:
  *   Pointer to the created base LVGL object, or NULL if creation failed.
  */
-lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
+lv_obj_t *create_common_screen(gui_ctx_t *g_ctx, lv_obj_t *par, const char *name)
 {
     lv_obj_t *base, *top_bar, *setting_container;
     int32_t ret;
 
-    if (!ctx || !par)
+    if (!g_ctx || !par)
         return NULL;
 
     /*-----------------------------------------
@@ -339,7 +337,7 @@ lv_obj_t *create_common_screen(ctx_t *ctx, lv_obj_t *par, const char *name)
     /*-----------------------------------------
      * Save context for future reference
      *----------------------------------------*/
-    ctx->scr.now.obj = base;
+    g_ctx->scr.now.obj = base;
 
 #if defined(TEST)
     /*-----------------------------------------

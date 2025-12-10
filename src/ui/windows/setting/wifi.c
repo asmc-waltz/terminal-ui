@@ -19,12 +19,11 @@
 #include <errno.h>
 
 #include <lvgl.h>
-#include "list.h"
-#include "ui/ui_core.h"
+#include <crobj.h>
+
 #include "ui/fonts.h"
 #include "ui/comps.h"
 #include "ui/windows.h"
-#include "ui/widget/menu.h"
 #include "sched/workqueue.h"
 #include "comm/cmd_payload.h"
 #include "comm/net/network.h"

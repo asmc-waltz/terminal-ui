@@ -19,8 +19,8 @@
 #include <stdbool.h>
 
 #include <lvgl.h>
-#include "list.h"
-#include "ui/ui_core.h"
+#include <crobj.h>
+
 #include "ui/comps.h"
 #include "ux/ux.h"
 #include "main.h"
@@ -945,10 +945,10 @@ void remove_keyboard(ctx_t *ctx)
     lv_obj_t *par, *kb;
     int32_t ret;
 
-    if (!ctx || !ctx->scr.now.obj)
+    if (!ctx || !ctx->gui->scr.now.obj)
         return;
 
-    par = ctx->scr.now.obj;
+    par = ctx->gui->scr.now.obj;
 
     if (act_map) {
         act_map = NULL;
