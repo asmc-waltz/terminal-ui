@@ -19,9 +19,6 @@
 #define COMPS_TOP_BAR                   "comps.top_bar"
 #define TOP_BAR_SYM_FONTS               &terminal_icons_32
 
-#define COMPS_KEYBOARD                  "comps.keyboard"
-#define KEYBOARD_CHAR_FONTS             &lv_font_montserrat_24
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -51,9 +48,6 @@ lv_obj_t *add_top_bar_symbol(lv_obj_t *par, const char *name, \
  * Other functions
  *====================*/
 lv_obj_t *create_top_bar(ctx_t *ctx);
-
-lv_obj_t *create_keyboard(lv_obj_t *par);
-void remove_keyboard(ctx_t *ctx);
 
 /**********************
  *      MACROS

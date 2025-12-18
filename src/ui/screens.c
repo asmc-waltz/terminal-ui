@@ -183,13 +183,13 @@ static void rotate_key_handler(lv_event_t *event)
     static bool detail_window_added = true;
     static bool new_window = false;
 
-    lv_obj_t *kb = get_obj_by_name(COMPS_KEYBOARD, \
-                                   &get_meta(lv_screen_active())->child);
+    lv_obj_t *kb = get_obj_by_name("COMMON_KEYBOARD", \
+                                    &get_meta(keyboard_box)->child);
 
     set_scr_rotation(get_random_3());
 
     if (kb) {
-        remove_keyboard(ctx);
+        remove_keyboard();
     }
 
     // rotate_anim_start(screen,
@@ -202,7 +202,7 @@ static void rotate_key_handler(lv_event_t *event)
     refresh_object_tree_layout(ctx->gui->scr.now.obj);
 
     if (kb) {
-        kb = create_keyboard(keyboard_box);
+        kb = create_keyboard(keyboard_box, "COMMON_KEYBOARD");
         if (!kb)
             LOG_ERROR("Create keyboard failed");
     }
@@ -236,15 +236,14 @@ static void create_keyboard_handler(lv_event_t *event)
 
     apply_grid_layout_config(top_layout);
 
-    kb = get_obj_by_name(COMPS_KEYBOARD, \
-            &get_meta(lv_screen_active())->child);
+    kb = get_obj_by_name("COMMON_KEYBOARD", &get_meta(keyboard_box)->child);
 
     if (!kb) {
-        kb = create_keyboard(keyboard_box);
+        kb = create_keyboard(keyboard_box, "COMMON_KEYBOARD");
         if (!kb)
             LOG_ERROR("Create keyboard failed");
     } else {
-        remove_keyboard(ctx);
+        remove_keyboard();
     }
 }
 
