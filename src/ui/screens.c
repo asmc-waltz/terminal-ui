@@ -215,18 +215,45 @@ static void create_keyboard_handler(lv_event_t *event)
     ctx_t *ctx = get_ctx();
     int32_t ret, scr_rot;
     bool is_vert;
+    char column = 0, row = 0;
 
     top_layout = get_obj_by_name(LAYOUT_SETTING, \
                     &get_meta(lv_screen_active())->child);
     scr_rot = get_scr_rotation();
     is_vert = (scr_rot == ROTATION_0 || scr_rot == ROTATION_180);
 
+
+    gui_ctx_t *g_ctx = get_ui_ctx();
+
     if (!added) {
-        ret = is_vert ? add_grid_layout_row_dsc(top_layout, LV_GRID_FR(30))
-                      : add_grid_layout_col_dsc(top_layout, LV_GRID_FR(30));
+        ret = is_vert ? add_grid_layout_row_dsc(top_layout, LV_GRID_FR(40))
+                      : add_grid_layout_col_dsc(top_layout, LV_GRID_FR(40));
+
+        keyboard_box = create_box(g_ctx->scr.now.obj, "KEYBOARD_HOLDER");
+
+        if (scr_rot == ROTATION_0) {
+            column = 0;
+            row = 2;
+        } else if (scr_rot == ROTATION_90) {
+            column = 0;
+            row = 0;
+        } else if (scr_rot == ROTATION_180) {
+            column = 0;
+            row = 0;
+        } else if (scr_rot == ROTATION_270) {
+            column = 2;
+            row = 0;
+        }
+        get_meta(keyboard_box)->data.rotation = scr_rot;
+        set_grid_cell_align(keyboard_box, LV_GRID_ALIGN_STRETCH, column, 1, \
+                            LV_GRID_ALIGN_STRETCH, row, 1);
+
+        lv_obj_set_style_radius(keyboard_box, 16, 0);
+        lv_obj_set_style_bg_color(keyboard_box, lv_color_hex(0xAAAAAA), 0);
     } else {
         ret = is_vert ? remove_grid_layout_last_row_dsc(top_layout)
                       : remove_grid_layout_last_column_dsc(top_layout);
+        keyboard_box = NULL;
     }
 
     if (ret)
@@ -236,9 +263,10 @@ static void create_keyboard_handler(lv_event_t *event)
 
     apply_grid_layout_config(top_layout);
 
-    kb = get_obj_by_name("COMMON_KEYBOARD", &get_meta(keyboard_box)->child);
+    if (added)
+        kb = get_obj_by_name("COMMON_KEYBOARD", &get_meta(keyboard_box)->child);
 
-    if (!kb) {
+    if (!kb && added) {
         kb = create_keyboard(keyboard_box, "COMMON_KEYBOARD");
         if (!kb)
             LOG_ERROR("Create keyboard failed");
