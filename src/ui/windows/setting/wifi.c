@@ -235,8 +235,9 @@ static int32_t add_wifi_connected_ap(const char *ssid, int8_t strength)
     return 0;
 }
 
-static void remove_wifi_connected_access_point(lv_obj_t *act_ap)
+static void remove_wifi_connected_access_point(void *data)
 {
+    lv_obj_t *act_ap = (lv_obj_t *)data;
     lv_obj_t *par = lv_obj_get_parent(act_ap);
 
     remove_obj_and_child(get_meta(act_ap)->id, &get_meta(par)->child);
@@ -266,8 +267,9 @@ static int32_t add_available_wifi_ap(const char *ssid, int8_t strength)
     return 0;
 }
 
-static void remove_all_wifi_access_point(lv_obj_t *holder)
+static void remove_all_wifi_access_point(void *data)
 {
+    lv_obj_t *holder = (lv_obj_t *)data;
     int32_t ret = 0;
     ret = remove_children(holder);
     if (ret < 0) {
