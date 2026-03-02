@@ -10,6 +10,8 @@
  *********************/
 #include <stdint.h>
 
+#include "comm/cmd_payload.h"
+
 #include <lvgl.h>
 #include <crobj.h>
 
@@ -58,6 +60,12 @@ lv_obj_t *create_hotspot_setting(lv_obj_t *par, const char *name, \
 lv_obj_t *create_rotation_setting(lv_obj_t *par, const char *name, \
                                   view_ctn_t *par_v_ctx);
 
+lv_obj_t *create_setting_window(lv_obj_t *par, const char *name);
+
+int32_t handle_imu_rotation_state(remote_cmd_t *cmd);
+int32_t handle_backlight_state(remote_cmd_t *cmd);
+int32_t handle_wifi_state(remote_cmd_t *cmd);
+int32_t handle_wifi_access_point(remote_cmd_t *cmd);
 /**********************
  *      MACROS
  **********************/

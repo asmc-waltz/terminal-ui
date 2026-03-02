@@ -18,6 +18,7 @@
 #include "comm/dbus_comm.h"
 #include "comm/cmd_payload.h"
 #include "sched/workqueue.h"
+#include "ui/windows.h"
 #include "main.h"
 
 /*********************
