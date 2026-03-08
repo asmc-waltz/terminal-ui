@@ -5,11 +5,18 @@ project(terminal-ui)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LVGL REQUIRED lvgl)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
+pkg_check_modules(LIBGBM REQUIRED gbm)
 pkg_check_modules(DBUS REQUIRED dbus-1)
 pkg_check_modules(LIBCROBJ REQUIRED libcrobj)
 
 include_directories(${LVGL_INCLUDE_DIRS})
 link_directories(${LVGL_LIBRARY_DIRS})
+
+include_directories(${LIBDRM_INCLUDE_DIRS})
+link_directories(${LIBDRM_LIBRARY_DIRS})
+
+include_directories(${LIBGBM_INCLUDE_DIRS})
+link_directories(${LIBGBM_LIBRARY_DIRS})
 
 include_directories(${DBUS_INCLUDE_DIRS})
 link_directories(${DBUS_LIBRARY_DIRS})
@@ -26,6 +33,7 @@ target_link_libraries(terminal-ui
     m
     ${LVGL_LIBRARIES}
     ${LIBDRM_LIBRARIES}
+    ${LIBGBM_LIBRARIES}
     ${DBUS_LIBRARIES}
     ${LIBCROBJ_LIBRARIES}
 )
